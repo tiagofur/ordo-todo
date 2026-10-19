@@ -1,4 +1,5 @@
 import { useTasks, useUpdateTask } from "@/hooks/api";
+import { useProject } from "@/lib/shared-hooks";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
@@ -26,6 +27,7 @@ interface ProjectBoardProps {
 
 export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const { t } = (useTranslation as any)();
+  const { data: project } = useProject(projectId);
   const { data: serverTasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -42,6 +44,10 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     }
   }, [serverTasks]);
 
+  const hasCancelledTasks = useMemo(() => {
+    return tasks.some((t) => t.status === "CANCELLED");
+  }, [tasks]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -53,26 +59,71 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     })
   );
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const projectSettings = (project as any)?.settings;
+    const wipLimits = projectSettings?.wipLimits || {};
+    const columnTitles = projectSettings?.columnTitles || {};
+
+    const configuredStages = projectSettings?.stages as
+      | Array<{ id: string; title: string; color?: string; wipLimit?: number }>
+      | undefined;
+
+    if (
+      configuredStages &&
+      Array.isArray(configuredStages) &&
+      configuredStages.length > 0
+    ) {
+      return configuredStages;
+    }
+
+    const inProgressWip =
+      typeof wipLimits.IN_PROGRESS === "number" ? wipLimits.IN_PROGRESS : 5;
+    const todoWip =
+      typeof wipLimits.TODO === "number" ? wipLimits.TODO : undefined;
+    const completedWip =
+      typeof wipLimits.COMPLETED === "number" ? wipLimits.COMPLETED : undefined;
+
+    const cols = [
       {
         id: "TODO",
-        title: t("ProjectDetail.status.todo"),
+        title: columnTitles.TODO || t("ProjectDetail.status.todo", "Por hacer"),
         color: "bg-gray-500/10 border-gray-500/20",
+        wipLimit: todoWip,
       },
       {
         id: "IN_PROGRESS",
-        title: t("ProjectDetail.status.inProgress"),
+        title:
+          columnTitles.IN_PROGRESS ||
+          t("ProjectDetail.status.inProgress", "En progreso"),
         color: "bg-blue-500/10 border-blue-500/20",
+        wipLimit: inProgressWip,
       },
       {
         id: "COMPLETED",
-        title: t("ProjectDetail.status.completed"),
+        title:
+          columnTitles.COMPLETED ||
+          t("ProjectDetail.status.completed", "Completadas"),
         color: "bg-green-500/10 border-green-500/20",
+        wipLimit: completedWip,
       },
-    ],
-    [t]
-  );
+    ];
+
+    if (hasCancelledTasks) {
+      cols.push({
+        id: "CANCELLED",
+        title:
+          columnTitles.CANCELLED ||
+          t("ProjectDetail.status.cancelled", "Canceladas"),
+        color: "bg-rose-500/10 border-rose-500/20",
+        wipLimit:
+          typeof wipLimits.CANCELLED === "number"
+            ? wipLimits.CANCELLED
+            : undefined,
+      });
+    }
+
+    return cols;
+  }, [project, t, hasCancelledTasks]);
 
   const onDragStart = (event: DragStartEvent) => {
     if (event.active.data.current?.type === "Task") {
@@ -179,7 +230,8 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
             key={column.id}
             id={column.id}
             title={column.title}
-            color={column.color}
+            color={column.color || "bg-gray-500/10 border-gray-500/20"}
+            wipLimit={column.wipLimit}
             tasks={tasks.filter((task) => task.status === column.id)}
             onAddTask={() => setIsCreateTaskOpen(true)}
           />

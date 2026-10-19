@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getApiUrl } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { desktopBridge } from '@/lib/desktop-bridge';
+import { ElectronStoreTokenStorage } from '@/lib/storage';
 
 export interface SocketConnectionState {
     connected: boolean;
@@ -48,8 +50,9 @@ export function useNotificationsSocket() {
             try {
                 setConnectionState(prev => ({ ...prev, connecting: true, error: null }));
 
-                // Get auth token from Electron store
-                const token = await window.electronAPI?.storeGet('ordo_auth_token');
+                // Get auth token from storage
+                const tokenStorage = new ElectronStoreTokenStorage();
+                const token = await tokenStorage.getToken();
 
                 if (!token) {
                     console.log('[Socket] No auth token found, skipping socket connection');
@@ -165,10 +168,7 @@ export function useNotificationsSocket() {
                     });
 
                     // Show native notification
-                    window.electronAPI?.showNotification({
-                        title: data.title || 'Ordo',
-                        body: data.message
-                    });
+                    desktopBridge.sendNotification(data.title || 'Ordo', data.message);
                 });
 
                 socket.on('task:reminder', (data: any) => {
@@ -178,7 +178,7 @@ export function useNotificationsSocket() {
                         description: `Due in ${data.minutesUntilDue} minutes`,
                         duration: 10000,
                     });
-                    window.electronAPI?.notifyTaskDue?.(data.taskTitle);
+                    desktopBridge.sendNotification(data.taskTitle || 'Recordatorio de tarea', `Vence en ${data.minutesUntilDue} minutos`);
                 });
 
                 socket.on('timer:alert', (data: any) => {
@@ -187,12 +187,9 @@ export function useNotificationsSocket() {
                     toast.warning(data.message);
 
                     if (data.type === 'SESSION_COMPLETE') {
-                        window.electronAPI?.notifyPomodoroComplete?.();
+                        desktopBridge.sendNotification('Pomodoro completado', data.message || '¡Sesión de enfoque finalizada!');
                     } else {
-                        window.electronAPI?.showNotification?.({
-                            title: 'Timer Alert',
-                            body: data.message
-                        });
+                        desktopBridge.sendNotification('Alerta de Temporizador', data.message);
                     }
                 });
 

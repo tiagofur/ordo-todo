@@ -2,7 +2,7 @@
  * Timer Store for Desktop app
  *
  * Re-exports the shared timer store from @ordo-todo/stores
- * and configures Electron-specific callbacks for tray and notifications.
+ * and configures native desktop callbacks for tray, notifications, and floating timer window.
  */
 
 import {
@@ -14,6 +14,7 @@ import {
   getDurationForMode,
   defaultTimerConfig,
 } from '@ordo-todo/stores';
+import { desktopBridge } from '@/lib/desktop-bridge';
 
 export type { TimerStore, TimerConfig, TimerMode, TimerCallbacks } from '@ordo-todo/stores';
 
@@ -29,36 +30,52 @@ export {
 };
 
 /**
- * Initialize Electron-specific timer callbacks
- * Call this once when the app starts (e.g., in App.tsx or main entry)
+ * Initialize Desktop timer callbacks
+ * Integrates native system tray title updates, OS notifications, and floating timer window sync.
  */
 export function initializeDesktopTimerCallbacks(): void {
   setTimerCallbacks({
     onPomodoroComplete: () => {
-      if (typeof window !== 'undefined' && window.electronAPI) {
-        window.electronAPI.notifyPomodoroComplete();
-      }
+      desktopBridge.sendNotification(
+        'Pomodoro completado',
+        '¡Excelente trabajo! Tómate un merecido descanso.'
+      );
     },
     onShortBreakComplete: () => {
-      if (typeof window !== 'undefined' && window.electronAPI) {
-        window.electronAPI.notifyShortBreakComplete();
-      }
+      desktopBridge.sendNotification(
+        'Descanso corto finalizado',
+        'Hora de volver al enfoque y retomar tus tareas.'
+      );
     },
     onLongBreakComplete: () => {
-      if (typeof window !== 'undefined' && window.electronAPI) {
-        window.electronAPI.notifyLongBreakComplete();
-      }
+      desktopBridge.sendNotification(
+        'Descanso largo finalizado',
+        '¿Listo para arrancar un nuevo ciclo productivo?'
+      );
     },
-    onStateChange: (state) => {
-      if (typeof window !== 'undefined' && window.electronAPI) {
-        window.electronAPI.sendTimerState({
-          timerActive: state.timerActive,
-          isPaused: state.isPaused,
-          timeRemaining: state.timeRemaining,
-          currentTask: state.currentTask,
-          mode: state.mode,
-        });
+    onStateChange: (state: any) => {
+      const formatted = typeof state.timeRemaining === 'number'
+        ? formatTime(state.timeRemaining)
+        : String(state.timeRemaining || '25:00');
+
+      // Update macOS menu bar / tray title
+      if (state.timerActive && !state.isPaused) {
+        desktopBridge.updateTrayTitle(formatted);
+      } else if (state.isPaused) {
+        desktopBridge.updateTrayTitle(`⏸ ${formatted}`);
+      } else {
+        desktopBridge.updateTrayTitle('Ordo');
       }
+
+      // Broadcast to floating mini-timer window
+      desktopBridge.broadcastTimerState({
+        timeRemaining: formatted,
+        mode: state.mode as any,
+        isRunning: !!state.timerActive,
+        isPaused: !!state.isPaused,
+        taskTitle: typeof state.currentTask === 'object' ? state.currentTask?.title : (state.currentTask ?? null),
+        progress: 0,
+      });
     },
   });
 }

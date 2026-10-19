@@ -79,10 +79,13 @@ export function PomodoroTimer() {
     longBreak: t('modes.longBreak'),
     paused: t('paused'),
     pauseCount: (count: number) => t('pauses', { count }),
-    switchTaskTitle: t('switchTask.title'),
-    switchTaskDescription: t('switchTask.description'),
-    switchTaskButtonTitle: t('switchTask.buttonTitle'),
-    enterFocusMode: t('enterFocusMode') || "Enter Focus Mode",
+    switchTaskTitle: t.has('switchTask.title') ? t('switchTask.title') : 'Cambiar Tarea',
+    switchTaskDescription: t.has('switchTask.description') ? t('switchTask.description') : 'Selecciona una nueva tarea para continuar.',
+    switchTaskButtonTitle: t.has('switchTask.buttonTitle') ? t('switchTask.buttonTitle') : 'Cambiar tarea',
+    enterFocusMode: t.has('enterFocusMode') ? t('enterFocusMode') : "Entrar al Modo Enfoque",
+    currentTask: t.has('currentTask') ? t('currentTask') : "Tarea Asignada",
+    horizontalView: t.has('horizontalView') ? t('horizontalView') : "Vista Horizontal",
+    circularView: t.has('circularView') ? t('circularView') : "Vista Circular",
   };
 
   return (
@@ -98,9 +101,7 @@ export function PomodoroTimer() {
       }
       onFocusModeClick={() => router.push('/focus')}
       labels={labels}
-      // @ts-ignore - Props will be added to UI component in next step
       showSwitchDialog={showSwitchDialog}
-      // @ts-ignore - Props will be added to UI component in next step
       setShowSwitchDialog={setShowSwitchDialog}
     />
   );

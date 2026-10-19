@@ -28,6 +28,9 @@ import {
   Clock,
   Paperclip,
   Settings2,
+  Search,
+  X,
+  Circle,
 } from "lucide-react";
 import {
   useTasks,
@@ -85,6 +88,8 @@ export function ProjectDetailView({
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [taskSearchQuery, setTaskSearchQuery] = useState("");
+  const [taskStatusFilter, setTaskStatusFilter] = useState<"all" | "todo" | "in_progress" | "completed">("all");
 
   const projectId = project?.id || "";
 
@@ -227,7 +232,7 @@ export function ProjectDetailView({
     (task: any) => task.status === "IN_PROGRESS"
   );
   const completedTasks = projectTasks.filter(
-    (task: any) => task.status === "COMPLETED"
+    (task: any) => task.status === "COMPLETED" || task.status === "DONE"
   );
 
   const displayColor =
@@ -239,6 +244,33 @@ export function ProjectDetailView({
   const completedCount = completedTasks.length;
   const progressPercent =
     totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+
+  const filteredTasks = projectTasks.filter((task: any) => {
+    if (taskSearchQuery.trim()) {
+      const q = taskSearchQuery.toLowerCase();
+      const titleMatch = task.title?.toLowerCase().includes(q);
+      const descMatch = task.description?.toLowerCase().includes(q);
+      if (!titleMatch && !descMatch) return false;
+    }
+
+    if (taskStatusFilter === "todo") {
+      return task.status === "TODO";
+    }
+    if (taskStatusFilter === "in_progress") {
+      return task.status === "IN_PROGRESS";
+    }
+    if (taskStatusFilter === "completed") {
+      return task.status === "COMPLETED" || task.status === "DONE";
+    }
+
+    return true;
+  });
+
+  const filteredTodo = filteredTasks.filter((task: any) => task.status === "TODO");
+  const filteredInProgress = filteredTasks.filter((task: any) => task.status === "IN_PROGRESS");
+  const filteredCompleted = filteredTasks.filter(
+    (task: any) => task.status === "COMPLETED" || task.status === "DONE"
+  );
 
   return renderWrapper(
     <>
@@ -417,13 +449,119 @@ export function ProjectDetailView({
           </div>
         </div>
 
+        {/* Apple-grade KPI Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Card 1: Total */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onClick={() => setTaskStatusFilter("all")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = `${displayColor}70`;
+              e.currentTarget.style.boxShadow = `0 10px 25px -5px ${displayColor}20`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("stats.totalTasks")}
+              </span>
+              <div
+                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundColor: `${displayColor}18`, color: displayColor }}
+              >
+                <FolderKanban className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {totalTasks}
+            </div>
+          </div>
+
+          {/* Card 2: Por hacer */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onClick={() => setTaskStatusFilter("todo")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f59e0b70";
+              e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(245, 158, 11, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("status.todo")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-transform duration-300 group-hover:scale-110">
+                <Circle className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
+              {todoTasks.length}
+            </div>
+          </div>
+
+          {/* Card 3: En progreso */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onClick={() => setTaskStatusFilter("in_progress")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#3b82f670";
+              e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(59, 130, 246, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("status.inProgress")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500 transition-transform duration-300 group-hover:scale-110">
+                <Clock className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-blue-600 dark:text-blue-400">
+              {inProgressTasks.length}
+            </div>
+          </div>
+
+          {/* Card 4: Completadas */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onClick={() => setTaskStatusFilter("completed")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#10b98170";
+              e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(16, 185, 129, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("stats.completedTasks")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform duration-300 group-hover:scale-110">
+                <CheckCircle2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+              {completedCount}
+            </div>
+          </div>
+        </div>
+
         {/* Tabs for different views */}
         <Tabs defaultValue="tasks" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="overview" className="gap-2">
-              <LayoutDashboard className="w-4 h-4" />
-              {t("tabs.overview")}
-            </TabsTrigger>
             <TabsTrigger value="tasks" className="gap-2">
               <List className="w-4 h-4" />
               {t("tabs.list")}
@@ -431,6 +569,10 @@ export function ProjectDetailView({
             <TabsTrigger value="board" className="gap-2">
               <FolderKanban className="w-4 h-4" />
               {t("tabs.board")}
+            </TabsTrigger>
+            <TabsTrigger value="overview" className="gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              {t("tabs.overview")}
             </TabsTrigger>
             <TabsTrigger value="timeline" className="gap-2">
               <Clock className="w-4 h-4" />
@@ -448,50 +590,21 @@ export function ProjectDetailView({
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <h3 className="tracking-tight text-sm font-medium">
-                    {t("stats.totalTasks")}
-                  </h3>
-                  <List className="h-4 w-4 text-muted-foreground" />
+            <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm space-y-4">
+              <h3 className="text-lg font-semibold tracking-tight">
+                {t("overview.progress")}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {project.description || t("emptyState.description")}
+              </p>
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>Progreso General</span>
+                  <span className="font-bold" style={{ color: displayColor }}>
+                    {progressPercent}%
+                  </span>
                 </div>
-                <div className="text-2xl font-bold">{totalTasks}</div>
-              </div>
-
-              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <h3 className="tracking-tight text-sm font-medium">
-                    {t("stats.completedTasks")}
-                  </h3>
-                  <CheckSquare className="h-4 w-4 text-green-500" />
-                </div>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {completedCount}
-                </div>
-              </div>
-
-              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <h3 className="tracking-tight text-sm font-medium">
-                    {t("status.inProgress")}
-                  </h3>
-                  <Clock className="h-4 w-4 text-blue-500" />
-                </div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {inProgressTasks.length}
-                </div>
-              </div>
-
-              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <h3 className="tracking-tight text-sm font-medium">
-                    {t("overview.progress")}
-                  </h3>
-                  <FolderKanban className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="text-2xl font-bold">{progressPercent}%</div>
-                <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-2.5 w-full rounded-full bg-muted/50 overflow-hidden shadow-inner">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -527,35 +640,88 @@ export function ProjectDetailView({
 
           {/* Tasks Tab */}
           <TabsContent value="tasks" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{t("tasksSection")}</h2>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={viewMode === "list" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className="rounded-lg"
-                  style={
-                    viewMode === "list"
-                      ? { backgroundColor: displayColor, color: "white" }
-                      : {}
-                  }
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "grid" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                  className="rounded-lg"
-                  style={
-                    viewMode === "grid"
-                      ? { backgroundColor: displayColor, color: "white" }
-                      : {}
-                  }
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
+            {/* Apple Toolbar: Search + Status Filter Pills + View Switcher */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Search Bar */}
+              <div className="relative w-full sm:w-72 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={taskSearchQuery}
+                  onChange={(e) => setTaskSearchQuery(e.target.value)}
+                  placeholder="Buscar tareas..."
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500 transition-all"
+                />
+                {taskSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setTaskSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Status Filter Tabs & View Toggle */}
+              <div className="flex items-center gap-2.5 justify-between sm:justify-end flex-wrap sm:flex-nowrap">
+                <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                  {(
+                    [
+                      { key: "all", label: "Todas", count: totalTasks },
+                      { key: "todo", label: t("status.todo"), count: todoTasks.length },
+                      { key: "in_progress", label: t("status.inProgress"), count: inProgressTasks.length },
+                      { key: "completed", label: t("stats.completedTasks"), count: completedCount },
+                    ] as const
+                  ).map((filter) => (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setTaskStatusFilter(filter.key)}
+                      className={cn(
+                        "px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
+                        taskStatusFilter === filter.key
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <span>{filter.label}</span>
+                      <span className="text-[11px] opacity-70">({filter.count})</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* View Switcher: List vs Grid */}
+                <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                      viewMode === "list"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                    title="Lista"
+                    aria-label="Lista"
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                      viewMode === "grid"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                    title="Cuadrícula"
+                    aria-label="Cuadrícula"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -593,7 +759,7 @@ export function ProjectDetailView({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowCreateTask(true)}
-                    className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
+                    className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200 cursor-pointer"
                     style={{
                       backgroundColor: displayColor,
                       boxShadow: `0 10px 15px -3px ${displayColor}40`,
@@ -604,12 +770,35 @@ export function ProjectDetailView({
                   </motion.button>
                 )}
               </motion.div>
-            ) : (
+            ) : filteredTasks.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-muted/10">
+                <Search className="h-10 w-10 text-muted-foreground/60 mb-3" />
+                <h3 className="text-base font-semibold text-foreground">
+                  No se encontraron tareas
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                  Ninguna tarea coincide con el término de búsqueda o filtro seleccionado.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setTaskSearchQuery("");
+                    setTaskStatusFilter("all");
+                  }}
+                  className="mt-4 rounded-xl text-xs"
+                >
+                  Restablecer filtros
+                </Button>
+              </div>
+            ) : taskStatusFilter === "all" && !taskSearchQuery ? (
               <div className="space-y-8">
-                {todoTasks.length > 0 && (
+                {filteredTodo.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("status.todo")} ({todoTasks.length})
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <Circle className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                      <span>{t("status.todo")}</span>
+                      <span className="text-xs font-normal">({filteredTodo.length})</span>
                     </h3>
                     <div
                       className={cn(
@@ -618,7 +807,7 @@ export function ProjectDetailView({
                           : "space-y-2"
                       )}
                     >
-                      {todoTasks.map((task: any, index: number) => (
+                      {filteredTodo.map((task: any, index: number) => (
                         <TaskCardCompact
                           key={task.id}
                           task={task}
@@ -633,10 +822,12 @@ export function ProjectDetailView({
                   </div>
                 )}
 
-                {inProgressTasks.length > 0 && (
+                {filteredInProgress.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("status.inProgress")} ({inProgressTasks.length})
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-blue-500" />
+                      <span>{t("status.inProgress")}</span>
+                      <span className="text-xs font-normal">({filteredInProgress.length})</span>
                     </h3>
                     <div
                       className={cn(
@@ -645,7 +836,7 @@ export function ProjectDetailView({
                           : "space-y-2"
                       )}
                     >
-                      {inProgressTasks.map((task: any, index: number) => (
+                      {filteredInProgress.map((task: any, index: number) => (
                         <TaskCardCompact
                           key={task.id}
                           task={task}
@@ -660,10 +851,12 @@ export function ProjectDetailView({
                   </div>
                 )}
 
-                {completedTasks.length > 0 && (
+                {filteredCompleted.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("status.completed")} ({completedTasks.length})
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>{t("status.completed")}</span>
+                      <span className="text-xs font-normal">({filteredCompleted.length})</span>
                     </h3>
                     <div
                       className={cn(
@@ -672,7 +865,7 @@ export function ProjectDetailView({
                           : "space-y-2"
                       )}
                     >
-                      {completedTasks.map((task: any, index: number) => (
+                      {filteredCompleted.map((task: any, index: number) => (
                         <TaskCardCompact
                           key={task.id}
                           task={task}
@@ -686,6 +879,26 @@ export function ProjectDetailView({
                     </div>
                   </div>
                 )}
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  viewMode === "grid"
+                    ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                    : "space-y-2"
+                )}
+              >
+                {filteredTasks.map((task: any, index: number) => (
+                  <TaskCardCompact
+                    key={task.id}
+                    task={task}
+                    index={index}
+                    viewMode={viewMode}
+                    showProject={false}
+                    showGradient={true}
+                    onDelete={handleDeleteTask}
+                  />
+                ))}
               </div>
             )}
           </TabsContent>

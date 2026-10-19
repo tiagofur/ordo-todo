@@ -681,7 +681,7 @@ Responde ÚNICAMENTE con JSON:
           where: {
             ownerId: userId,
             status: { notIn: ['COMPLETED', 'CANCELLED'] },
-            dueDate: { lt: new Date() },
+            dueDate: { lt: today },
           },
         }),
         this.prisma.task.count({

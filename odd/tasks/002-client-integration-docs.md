@@ -41,12 +41,14 @@ Fuera de alcance: código del servidor (001), publicación en directorios/tienda
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| T1 | S5 | Decisión deep-link `ordo://connect` (medir pasos, aprobar o dropear) | inline | pending | — |
-| T2 | S1 | Guías 1-click: ChatGPT, Claude, Hermes, OpenClaw (+GIFs) | delegada | pending | — |
-| T3 | S2 | Setups manuales copy-paste + troubleshooting por cliente | delegada | pending | — |
-| T4 | S3–S4 | Guía Slackbot host + vía Zapier | inline | pending | — |
-| T5 | S6 | i18n trilingüe + índice + build verde | inline | pending | — |
+| T1 | S5 | Decisión deep-link `ordo://connect` (medir pasos, aprobar o dropear) | inline | done | DROPPED con razón medida: el flujo 1-click real tiene 4 pasos empezando DENTRO del agente (directorio → buscar → conectar/aprobar → volver); un deep-link web añadiría 2 pasos (abrir URL → elegir cliente → redirección) sin quitar ninguno. Sin precedente ni URL pública configurada. |
+| T2 | S1 | Guías 1-click: ChatGPT, Claude, Hermes, OpenClaw (+GIFs) | delegada | done | PR #255, branch `docs/client-integration-guides`. 4 páginas con pasos sin jerga MCP/endpoint/scope en el camino feliz. GIFs pendientes de captura real (las guías usan pasos numerados; 0 screenshots con datos reales). Prueba humana pendiente por cliente. |
+| T3 | S2 | Setups manuales copy-paste + troubleshooting por cliente | delegada | done | Mismo PR. Bloque exacto + verificación + 3 errores con solución por cliente (Codex TOML, Claude CLI, Hermes YAML, OpenClaw CLI, Cursor/VSCode JSON en espejo técnico). Prueba en máquina limpia pendiente. |
+| T4 | S3–S4 | Guía Slackbot host + vía Zapier | inline | done | Mismo PR. Slack: 5 pasos + permisos Allow once/Always/Deny. Zapier: 4 pasos + ejemplo canónico Gmail→tarea + plan de retirada en ODD 003. Pruebas con workspace/cuenta test pendientes. |
+| T5 | S6 | i18n trilingüe + índice + build verde | inline | done | Mismo PR. 7 namespaces × ES/EN/PT-BR verificados; sidebar + índice; webpage build verde (7 rutas × 3 locales, 0 warnings i18n); tsc limpio. |
 
 ## Log
 
 L1. "tenemos que piensas en la integracion perfecta con agentes como Hermes, openclaw, tambien con ChatGPT, Claude y demas soluciones de IA" + "no con MCPs complejos de configurar y etc, como un plugin o conector de facil conexion y muy bien integrado" (mensajes del usuario 2026-10-18; este doc cubre la capa de conexión fácil).
+
+L2 (2026-10-19). T1–T5 completados contra `main` (no contra la pila backend: webpage/docs no dependen de ella), rama `docs/client-integration-guides`, PR #255 (cierra #231). Patrón de guías existente respetado ('use client' + next-intl + motion + lucide + cards numerados). Decisiones honestas registradas: dominio `ordotodo.app` provisional (empate 6-6 en repo; pendiente decisión negocio + find/replace); sin UI de consentimiento dedicada — el "aprobar en navegador" real es sesión JWT + GET /oauth/authorize → 302, documentado como tal con troubleshooting (pantalla de consent propia = follow-up explícito); listados en directorios = ODD 003 (si un listado tarda, esa prueba humana va `blocked`). Pruebas humanas S1–S4 + GIFs pendientes de cuentas/listados reales: registrar fecha + cliente + resultado aquí al ejecutarlas.

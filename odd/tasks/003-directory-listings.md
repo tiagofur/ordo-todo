@@ -39,12 +39,14 @@ Fuera de alcance: código del servidor (001), guías de conexión (002), funcion
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| T1 | S1 | Plugin ChatGPT Directory (submit + verificación) | delegada | pending | — |
-| T2 | S2 | Conector Claude documentado + verificado | inline | pending | — |
-| T3 | S3 | Plugin + Skill ClawHub (código + publicación) | delegada | pending | — |
-| T4 | S4 | Zapier (app o guía oficial + zap ejemplo) | inline | pending | — |
-| T5 | S5 | `directory-status.md` + calendario re-verificación | inline | pending | — |
+| T1 | S1 | Plugin ChatGPT Directory (submit + verificación) | delegada | blocked | Activos listos en PR #260 (`listing-assets.md` + nota webpage). Falta: dominio prod + cuenta dev + submit en ChatGPT Work + privacy/terms + test humano. |
+| T2 | S2 | Conector Claude documentado + verificado | inline | blocked | Activos listos en PR #260. Falta: dominio prod + cuenta org + verificación fresh-install + auto-refresh. |
+| T3 | S3 | Plugin + Skill ClawHub (código + publicación) | delegada | done | PR #260, branch `feature/directory-listings` (worktree /tmp/ordo-232). Package `@ordo-todo/openclaw-plugin@0.1.0`: cliente MCP, 5 tools, comando /ordo, Skill ordo-day, manifiesto. vitest 13/13, tsc limpio, entry carga, pack verificado. Publish (npm + clawhub + test en canal real) = humano, runbook en README del package. |
+| T4 | S4 | Zapier (app o guía oficial + zap ejemplo) | inline | blocked | Puente documentado (mínimo aceptable S4) + nota webpage en PR #260. Falta: cuenta test para ejecutar el zap ejemplo + decisión native-vs-puente. |
+| T5 | S5 | `directory-status.md` + calendario re-verificación | inline | done | PR #260. Tabla con owners (TBD), versiones, estados, condiciones de desbloqueo + calendario trimestral. |
 
 ## Log
 
 L1. "tenemos que piensas en la integracion perfecta con agentes como Hermes, openclaw, tambien con ChatGPT, Claude y demas soluciones de IA porque esto es el futuro" (mensaje del usuario 2026-10-18; este doc cubre presencia en sus directorios).
+
+L2 (2026-10-19). Todo lo automatable hecho en PR #260 (contra `main`, CI corriendo). T3: plugin verificado contra el SDK real (`openclaw@2026.10.5` como devDependency para tipos; `textResult`/`AgentToolResult` del SDK) y contra plugin de referencia (lobstah: manifiesta, entry, `registerTool`, `openclaw.extensions`). Decisiones: cliente MCP propio mínimo sobre fetch (sin SDK MCP pesado en el plugin); `openclaw` solo devDependency + peer opcional (el runtime lo provee); Skill `ordo-day` user-invocable con reglas anti-alucinación y tope de confirmación para mutaciones. T1/T2/T4: no se inventaron URLs de consolas ni procesos no verificables — activos + `blocked` con condiciones exactas, como manda la spec. #232 queda abierta hasta los submits humanos. Nota: package-lock suma ~6k líneas por el árbol real de `openclaw` (necesario para `npm ci` del CI).

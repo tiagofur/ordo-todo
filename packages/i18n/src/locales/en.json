@@ -54,9 +54,9 @@
     "workload": "Workload",
     "notes": "Notes",
     "insights": "Insights",
-    "sectionPlan": "Plan",
-    "sectionInsights": "Insights",
-    "sectionTeam": "Team"
+    "sectionPlan": "Planning",
+    "sectionInsights": "Performance",
+    "sectionTeam": "Team & Focus"
   },
   "Settings": {
     "title": "Settings",
@@ -819,9 +819,15 @@
   },
   "Notifications": {
     "title": "Notifications",
+    "subtitle": "Stay updated with your team and task activity",
     "empty": "No notifications",
+    "emptyUnread": "You're all caught up! No unread notifications",
+    "emptyAll": "No notifications yet",
     "loading": "Loading...",
-    "markAllRead": "Mark all as read"
+    "markAllRead": "Mark all as read",
+    "markAsRead": "Mark as read",
+    "filterAll": "All",
+    "filterUnread": "Unread"
   },
   "FileUpload": {
     "errors": {
@@ -1012,7 +1018,8 @@
     "addTask": "New Task",
     "tasksSection": "Project Tasks",
     "breadcrumbs": {
-      "projects": "Projects"
+      "projects": "Projects",
+      "workspaces": "Workspaces"
     },
     "badges": {
       "archived": "Archived",
@@ -1349,6 +1356,9 @@
     }
   },
   "PomodoroTimer": {
+    "currentTask": "Assigned Task",
+    "horizontalView": "Horizontal View",
+    "circularView": "Circular View",
     "enterFocusMode": "Enter Focus Mode",
     "mode": "Mode: {mode}",
     "modes": {
@@ -1834,6 +1844,7 @@
   },
   "Profile": {
     "title": "Profile Settings",
+    "subtitle": "Manage your identity, AI preferences, security, and subscription",
     "tabs": {
       "profile": "Profile",
       "ai": "AI",
@@ -1841,6 +1852,7 @@
       "privacy": "Privacy",
       "integrations": "Integrations",
       "subscription": "Subscription",
+      "gamification": "Level & XP",
       "account": "Account"
     },
     "profile": {

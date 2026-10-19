@@ -53,6 +53,7 @@ import { useRouter } from "next/navigation";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { type OnboardingStep } from "@ordo-todo/ui";
 import { TaskPriority, type Task } from "@ordo-todo/api-client";
+import { isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 
 const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
 
@@ -170,11 +171,8 @@ export default function DashboardPage() {
       }
     }
     // Check if task has dueDate = today
-    if (task.dueDate) {
-      const dueDate = new Date(task.dueDate);
-      if (dueDate.toDateString() === today.toDateString()) {
-        return true;
-      }
+    if (task.dueDate && isCalendarDateToday(task.dueDate)) {
+      return true;
     }
 
     // Check if task was completed today
@@ -198,8 +196,7 @@ export default function DashboardPage() {
       if (!task.dueDate) {
         return true;
       }
-      const dueDate = new Date(task.dueDate);
-      if (dueDate < startOfDay) {
+      if (isCalendarDateOverdue(task.dueDate, false)) {
         return true;
       }
     }
@@ -305,21 +302,23 @@ export default function DashboardPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25">
-                <Home className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
-              {t("today")}
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-2">
-              {format.dateTime(new Date(), {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
+          <div className="flex items-center gap-3 sm:gap-3.5">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 shrink-0">
+              <Home className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight">
+                {t("today")}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+                {format.dateTime(new Date(), {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
           </div>
 
           {/* Daily Ritual Button */}
@@ -357,11 +356,16 @@ export default function DashboardPage() {
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -4 }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80"
+              transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{
+                y: -4,
+                borderColor: `${card.color}70`,
+                boxShadow: `0 12px 28px -6px ${card.color}25`,
+                transition: { duration: 0.2, ease: "easeOut" },
+              }}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div
@@ -383,28 +387,64 @@ export default function DashboardPage() {
         </div>
 
         {/* New Widgets Row */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <ProductivityStreakWidget
-            currentStreak={currentStreak}
-            longestStreak={longestStreak}
-            accentColor={accentColor}
-          />
-          <DashboardTimerWidget
-            accentColor={accentColor}
-          />
-          <HabitsWidget />
-          <OkrWidget />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
+          <motion.div
+            className="h-full flex flex-col"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <ProductivityStreakWidget
+              currentStreak={currentStreak}
+              longestStreak={longestStreak}
+              accentColor={accentColor}
+              className="h-full flex-1"
+            />
+          </motion.div>
+          <motion.div
+            className="h-full flex flex-col"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <DashboardTimerWidget
+              accentColor={accentColor}
+              className="h-full flex-1"
+            />
+          </motion.div>
+          <motion.div
+            className="h-full flex flex-col"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <HabitsWidget className="h-full flex-1" />
+          </motion.div>
+          <motion.div
+            className="h-full flex flex-col"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <OkrWidget className="h-full flex-1" />
+          </motion.div>
         </div>
 
         {/* AI Insights Widget */}
-        <AIInsightsWidget className="w-full" />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <AIInsightsWidget className="w-full" />
+        </motion.div>
 
         {/* Tasks Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300"
+          transition={{ duration: 0.35, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6"
         >
           {/* Header with controls */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

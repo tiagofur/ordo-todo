@@ -12,17 +12,20 @@ interface ProductivityStreakWidgetProps {
   currentStreak: number;
   longestStreak: number;
   accentColor?: string;
+  className?: string;
 }
 
 export function ProductivityStreakWidget({
   currentStreak,
   longestStreak,
   accentColor = "#f97316",
+  className,
 }: ProductivityStreakWidgetProps) {
   const { t } = useTranslation();
 
   return (
     <SharedProductivityStreakWidget
+      className={className}
       currentStreak={currentStreak}
       longestStreak={longestStreak}
       labels={{

@@ -1,4 +1,4 @@
-import { IconChecks } from "@tabler/icons-react";
+import { CheckSquare } from "lucide-react";
 
 export interface LogoProps {
   className?: string;
@@ -8,14 +8,18 @@ export interface LogoProps {
 export default function Logo(props: LogoProps) {
   return (
     <div
-      className={`flex items-center gap-1.5 text-lg font-bold h-16 ${props.className ?? ""}`}
+      className={`flex items-center gap-3 ${props.className ?? ""}`}
     >
-      <IconChecks
-        className="text-violet-500"
-        strokeWidth={3}
-        size={props.big ? 40 : 24}
-      />
-      <span className={props.big ? "text-2xl" : "text-lg"}>OrdoTodo</span>
+      <div
+        className={`flex shrink-0 items-center justify-center rounded-2xl bg-[#ad46ff] text-white shadow-md shadow-[#ad46ff]/30 ${
+          props.big ? "h-12 w-12" : "h-10 w-10"
+        }`}
+      >
+        <CheckSquare className={props.big ? "h-7 w-7 stroke-[2.2]" : "h-6 w-6 stroke-[2.2]"} />
+      </div>
+      <span className={`font-bold tracking-tight text-foreground ${props.big ? "text-3xl" : "text-2xl"}`}>
+        Ordo
+      </span>
     </div>
   );
 }

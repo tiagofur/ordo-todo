@@ -70,6 +70,14 @@ const router = createHashRouter([
           },
           {
             path: "tasks/trash",
+            element: <Navigate to="/trash/tasks" replace />,
+          },
+          {
+            path: "trash",
+            element: <Navigate to="/trash/tasks" replace />,
+          },
+          {
+            path: "trash/:type",
             element: <LazyTasksTrash />,
           },
           {
@@ -103,6 +111,10 @@ const router = createHashRouter([
           },
           {
             path: "analytics",
+            element: <LazyAnalytics />,
+          },
+          {
+            path: "insights",
             element: <LazyAnalytics />,
           },
           {

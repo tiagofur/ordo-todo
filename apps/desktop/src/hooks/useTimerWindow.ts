@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
+import { desktopBridge } from '@/lib/desktop-bridge'
 
 export interface UseTimerWindowReturn {
   /** Whether the timer window is currently visible */
@@ -18,67 +19,33 @@ export interface UseTimerWindowReturn {
 }
 
 /**
- * Hook to control the floating timer window
- *
- * @example
- * ```tsx
- * function TimerControls() {
- *   const { isVisible, toggle, show, hide } = useTimerWindow()
- *
- *   return (
- *     <Button onClick={toggle}>
- *       {isVisible ? 'Hide Timer' : 'Show Timer'}
- *     </Button>
- *   )
- * }
- * ```
+ * Hook to control the floating timer window in Desktop app
  */
 export function useTimerWindow(): UseTimerWindowReturn {
   const [isVisible, setIsVisible] = useState(false)
 
-  // Load initial visibility state
-  useEffect(() => {
-    if (!window.electronAPI?.timerWindow) {
-      console.warn('Timer window API not available')
-      return
-    }
-
-    window.electronAPI.timerWindow.isVisible().then(setIsVisible)
-  }, [])
-
   const show = useCallback(async () => {
-    if (!window.electronAPI?.timerWindow) return
-    await window.electronAPI.timerWindow.show()
+    await desktopBridge.setMiniTimerVisible(true)
     setIsVisible(true)
   }, [])
 
   const hide = useCallback(async () => {
-    if (!window.electronAPI?.timerWindow) return
-    await window.electronAPI.timerWindow.hide()
+    await desktopBridge.setMiniTimerVisible(false)
     setIsVisible(false)
   }, [])
 
   const toggle = useCallback(async () => {
-    if (!window.electronAPI?.timerWindow) return
-    const newVisible = await window.electronAPI.timerWindow.toggle()
-    setIsVisible(newVisible)
+    const next = await desktopBridge.toggleMiniTimer()
+    setIsVisible(next)
   }, [])
 
   const expand = useCallback(async () => {
-    if (!window.electronAPI?.timerWindow) return
-    await window.electronAPI.timerWindow.expand()
+    await desktopBridge.setMiniTimerVisible(false)
     setIsVisible(false)
   }, [])
 
-  const setPosition = useCallback(async (x: number, y: number) => {
-    if (!window.electronAPI?.timerWindow) return
-    await window.electronAPI.timerWindow.setPosition(x, y)
-  }, [])
-
-  const getPosition = useCallback(async () => {
-    if (!window.electronAPI?.timerWindow) return null
-    return window.electronAPI.timerWindow.getPosition()
-  }, [])
+  const setPosition = useCallback(async (_x: number, _y: number) => {}, [])
+  const getPosition = useCallback(async () => null, [])
 
   return {
     isVisible,

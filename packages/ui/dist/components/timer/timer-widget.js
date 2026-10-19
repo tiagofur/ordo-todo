@@ -36,7 +36,7 @@ export function TimerWidget({ isRunning, timeLeft, mode, defaultMode = 'POMODORO
     const { startTimer = 'Start Timer' } = labels;
     const getThemeClasses = () => {
         if (!isActive && !isRunning) {
-            return 'text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-foreground';
+            return 'text-muted-foreground hover:bg-muted/80 hover:text-foreground';
         }
         const colorKey = {
             WORK: 'red',

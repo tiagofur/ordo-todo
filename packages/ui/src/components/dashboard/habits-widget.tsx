@@ -1,5 +1,6 @@
 
 import { Sparkles, Flame, CheckCircle2, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 
 interface Habit {
@@ -22,6 +23,7 @@ interface HabitsWidgetProps {
   habits: Habit[];
   summary: HabitsSummary;
   accentColor?: string;
+  className?: string;
   isLoading?: boolean;
   onToggleHabit?: (habitId: string, isCompleted: boolean) => void;
   onViewAll?: () => void;
@@ -50,6 +52,7 @@ export function HabitsWidget({
   habits,
   summary,
   accentColor = '#10B981',
+  className,
   isLoading = false,
   onToggleHabit,
   onViewAll,
@@ -59,10 +62,15 @@ export function HabitsWidget({
   const t = { ...DEFAULT_LABELS, ...labels };
 
   return (
-    <div
+    <motion.div
+      whileHover={{
+        y: -3,
+        borderColor: `${accentColor}70`,
+        boxShadow: `0 12px 28px -6px ${accentColor}25`,
+      }}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300',
-        'hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20'
+        'group relative overflow-hidden rounded-2xl border border-border/60 bg-card/90 backdrop-blur-xl transition-all duration-300 flex flex-col justify-between shadow-xs h-full',
+        className
       )}
     >
       {/* Header */}
@@ -70,13 +78,17 @@ export function HabitsWidget({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-              style={{ backgroundColor: accentColor }}
+              className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 shrink-0"
+              style={{
+                backgroundColor: `${accentColor}15`,
+                color: accentColor,
+                border: `1px solid ${accentColor}25`,
+              }}
             >
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold">{t.title}</h3>
+              <h3 className="text-sm font-semibold tracking-tight text-foreground">{t.title}</h3>
               <p className="text-xs text-muted-foreground">
                 {t.todayProgress(summary.completed, summary.total)}
               </p>
@@ -85,7 +97,7 @@ export function HabitsWidget({
           {onViewAll && (
             <button
               onClick={onViewAll}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {t.viewAll}
               <ChevronRight className="h-3 w-3" />
@@ -96,7 +108,7 @@ export function HabitsWidget({
         {/* Progress Bar */}
         {summary.total > 0 && (
           <div className="mt-3">
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700 ease-out"
                 style={{
@@ -221,6 +233,6 @@ export function HabitsWidget({
           to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }

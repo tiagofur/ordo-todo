@@ -24,32 +24,40 @@ import {
   BatteryMedium,
   BatteryFull,
   Zap,
+  ChevronDown,
 } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
-import { PageTransition } from "@/components/motion";
+import { PageTransition, SlideIn } from "@/components/motion";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useWorkspaces } from "@/lib/shared-hooks";
 
 interface BurnoutAnalysis {
   riskScore: number;
   riskLevel: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
   warnings: {
-    type: string;
+    type?: string;
     severity: "MILD" | "MODERATE" | "SEVERE";
     message: string;
     recommendation: string;
   }[];
   aiInsights?: string;
-  patterns: any;
+  patterns?: any;
 }
 
 interface WorkPattern {
-  averageHoursPerDay: number;
-  nightWorkPercentage: number;
-  weekendWorkPercentage: number;
-  longSessionsCount: number;
-  averageBreakMinutes: number;
-  consistencyScore: number;
+  avgDailyWorkHours?: number;
+  averageHoursPerDay?: number;
+  lateNightPercentage?: number;
+  nightWorkPercentage?: number;
+  weekendWorkPercentage?: number;
+  avgSessionWithoutBreak?: number;
+  averageBreakMinutes?: number;
+  longestSessionWithoutBreak?: number;
+  urgentTaskCount?: number;
+  overdueTaskCount?: number;
+  consistencyScore?: number;
 }
 
 interface WeeklySummary {
@@ -62,81 +70,77 @@ interface WeeklySummary {
 
 export function Wellbeing() {
   const { t } = (useTranslation as any)();
-  const accentColor = "#f43f5e"; // Rose
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [burnout, setBurnout] = useState<any | null>(null);
-  const [patterns, setPatterns] = useState<any | null>(null);
-  const [weekly, setWeekly] = useState<any | null>(null);
+  const [burnout, setBurnout] = useState<BurnoutAnalysis | null>(null);
+  const [patterns, setPatterns] = useState<WorkPattern | null>(null);
+  const [weekly, setWeekly] = useState<WeeklySummary | null>(null);
   const [recommendations, setRecommendations] = useState<any[]>([]);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
+  const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
+  const { data: workspaces = [] } = useWorkspaces();
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100,
-        damping: 12
-      },
-    },
-  };
+  const activeWorkspaceId =
+    selectedWorkspaceId || (workspaces.length > 0 ? workspaces[0].id : null);
+
+  useEffect(() => {
+    if (workspaces.length > 0 && !selectedWorkspaceId) {
+      setSelectedWorkspaceId(workspaces[0].id);
+    }
+  }, [workspaces, selectedWorkspaceId, setSelectedWorkspaceId]);
 
   const fetchData = async () => {
     setIsRefreshing(true);
     try {
-      const [burnoutRes, patternsRes, weeklyRes] = await Promise.allSettled([
-        apiClient.getBurnoutAnalysis(),
-        apiClient.getWorkPatterns(),
-        apiClient.getWeeklyWellbeingSummary(),
-      ]);
+      const [burnoutRes, patternsRes, weeklyRes, recsRes] =
+        await Promise.allSettled([
+          apiClient.getBurnoutAnalysis(),
+          apiClient.getWorkPatterns(),
+          apiClient.getWeeklyWellbeingSummary(),
+          apiClient.getRestRecommendations(),
+        ]);
 
       if (burnoutRes.status === "fulfilled") {
-          const data = burnoutRes.value;
-          setBurnout({
-              ...data,
-              warnings: (data.riskFactors || []).map((factor: any) => ({
-                  message: factor,
-                  severity: "MODERATE",
-                  recommendation: "Review this factor"
-              })),
-              aiInsights: data.recommendations?.[0] || ""
-          });
+        const data: any = burnoutRes.value;
+        setBurnout({
+          ...data,
+          warnings: (data.warnings || data.riskFactors || []).map((w: any) =>
+            typeof w === "string"
+              ? { message: w, severity: "MODERATE" as const, recommendation: "Mantén una pausa activa" }
+              : w
+          ),
+          aiInsights: data.aiInsights || data.recommendations?.[0] || "",
+        });
       }
-      
+
       if (patternsRes.status === "fulfilled") {
-          const data = patternsRes.value;
-          setPatterns({
-              ...data,
-              averageHoursPerDay: data.avgSessionDuration ? (data.avgSessionDuration / 60) : 0,
-              nightWorkPercentage: 0,
-              weekendWorkPercentage: 0,
-              averageBreakMinutes: data.breakFrequency ? 60 / data.breakFrequency : 0
-          });
+        const data: any = patternsRes.value;
+        setPatterns({
+          ...data,
+          averageHoursPerDay:
+            data.avgDailyWorkHours ??
+            (data.avgSessionDuration ? data.avgSessionDuration / 60 : 0),
+          nightWorkPercentage: data.lateNightPercentage ?? data.nightWorkPercentage ?? 0,
+          weekendWorkPercentage: data.weekendWorkPercentage ?? 0,
+          averageBreakMinutes:
+            data.avgSessionWithoutBreak ??
+            (data.breakFrequency ? 60 / data.breakFrequency : 0),
+        });
       }
 
       if (weeklyRes.status === "fulfilled") {
-          const data = weeklyRes.value;
-          setWeekly({
-              ...data,
-              highlights: data.insights || [],
-              concerns: [],
-              recommendations: []
-          });
+        const data: any = weeklyRes.value;
+        setWeekly({
+          ...data,
+          highlights: data.highlights || data.insights || [],
+          concerns: data.concerns || [],
+          recommendations: data.recommendations || [],
+        });
       }
-      
+
+      if (recsRes.status === "fulfilled") {
+        setRecommendations(Array.isArray(recsRes.value) ? recsRes.value : []);
+      }
     } catch (error) {
       console.error("Failed to fetch wellbeing data:", error);
     } finally {
@@ -147,401 +151,638 @@ export function Wellbeing() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [activeWorkspaceId]);
 
   const getRiskColor = (level: string) => {
     switch (level) {
-      case "LOW": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10" };
-      case "MODERATE": return { bg: "bg-yellow-500", text: "text-yellow-500", light: "bg-yellow-500/10" };
-      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10" };
-      case "CRITICAL": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10" };
-      default: return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10" };
+      case "LOW":
+        return {
+          bg: "bg-emerald-500",
+          text: "text-emerald-500",
+          light: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        };
+      case "MODERATE":
+        return {
+          bg: "bg-amber-500",
+          text: "text-amber-500",
+          light: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        };
+      case "HIGH":
+        return {
+          bg: "bg-orange-500",
+          text: "text-orange-500",
+          light: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+        };
+      case "CRITICAL":
+        return {
+          bg: "bg-rose-500",
+          text: "text-rose-500",
+          light: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+        };
+      default:
+        return {
+          bg: "bg-cyan-500",
+          text: "text-cyan-500",
+          light: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+        };
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case "IMPROVING": return <TrendingUp className="h-5 w-5 text-green-500" />;
-      case "DECLINING": return <TrendingDown className="h-5 w-5 text-red-500" />;
-      default: return <Minus className="h-5 w-5 text-yellow-500" />;
+      case "IMPROVING":
+        return <TrendingUp className="h-4 w-4 text-emerald-500" />;
+      case "DECLINING":
+        return <TrendingDown className="h-4 w-4 text-rose-500" />;
+      default:
+        return <Minus className="h-4 w-4 text-amber-500" />;
     }
   };
 
   const getBatteryIcon = (score: number) => {
-    if (score >= 75) return <BatteryFull className="h-8 w-8 text-green-500" />;
-    if (score >= 50) return <BatteryMedium className="h-8 w-8 text-yellow-500" />;
-    if (score >= 25) return <BatteryLow className="h-8 w-8 text-orange-500" />;
-    return <Battery className="h-8 w-8 text-red-500" />;
+    if (score >= 75) return <BatteryFull className="h-7 w-7 text-emerald-500" />;
+    if (score >= 50) return <BatteryMedium className="h-7 w-7 text-amber-500" />;
+    if (score >= 25) return <BatteryLow className="h-7 w-7 text-orange-500" />;
+    return <Battery className="h-7 w-7 text-rose-500" />;
   };
 
-  if (isLoading) {
-    return (
-      <PageTransition>
-        <div className="space-y-6 max-w-5xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-40 bg-muted/50 rounded-[2.5rem] w-full" />
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-32 bg-muted/50 rounded-2xl" />
-              ))}
-            </div>
-            <div className="h-64 bg-muted/50 rounded-2xl" />
-          </div>
-        </div>
-      </PageTransition>
-    );
-  }
+  const energyScore = Math.round(weekly?.overallScore ?? 75);
+  const riskScore = Math.round(burnout?.riskScore ?? 0);
+  const breakMinutes = Math.round(
+    patterns?.avgSessionWithoutBreak ?? patterns?.averageBreakMinutes ?? 0
+  );
+  const nightWork = Math.round(
+    patterns?.lateNightPercentage ?? patterns?.nightWorkPercentage ?? 0
+  );
 
   return (
     <PageTransition>
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-8 max-w-5xl mx-auto pb-10"
-      >
-        {/* Premium Header */}
-        <motion.div 
-          variants={itemVariants}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card p-8 rounded-[2.5rem] border border-border/50 shadow-sm relative overflow-hidden group"
-        >
-          {/* Decorative Elements */}
-          <div 
-            className="absolute -right-20 -top-20 w-64 h-64 rounded-full opacity-10 blur-3xl transition-transform duration-500 group-hover:scale-110"
-            style={{ backgroundColor: accentColor }} 
-          />
-          <div 
-            className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full opacity-10 blur-2xl transition-transform duration-500 group-hover:scale-110"
-            style={{ backgroundColor: accentColor }} 
-          />
-
-          <div className="flex items-center gap-6 relative z-10">
-            <div 
-              className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:rotate-6"
-              style={{ 
-                backgroundColor: accentColor,
-                boxShadow: `0 8px 30px -4px ${accentColor}50`
-              }}
-            >
-              <Heart className="w-10 h-10 text-white" />
+      <div className="max-w-6xl mx-auto space-y-6 pb-12">
+        {/* Apple Style Unified Header */}
+        <SlideIn direction="top">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25 shrink-0">
+                <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
+                  {t("Sidebar.wellbeing") || t("Wellbeing.title") || "Bienestar"}
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                  <span>
+                    Mantén el equilibrio entre tu productividad y tu salud mental
+                  </span>
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h1 className="text-4xl font-black tracking-tight text-foreground">
-                {t("Sidebar.wellbeing")}
-              </h1>
-              <p className="text-lg text-muted-foreground font-medium max-w-lg">
-                Mantén el equilibrio entre tu productividad y tu salud mental
-              </p>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              {/* Workspace Selector */}
+              {workspaces.length > 0 && (
+                <div className="relative inline-flex items-center">
+                  <select
+                    aria-label="Seleccionar espacio de trabajo"
+                    value={activeWorkspaceId || ""}
+                    onChange={(e) => setSelectedWorkspaceId(e.target.value)}
+                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-colors cursor-pointer shadow-xs"
+                  >
+                    {workspaces.map((ws: any) => (
+                      <option key={ws.id} value={ws.id}>
+                        {ws.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground absolute right-2.5 pointer-events-none" />
+                </div>
+              )}
+
+              {/* Refresh Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchData}
+                disabled={isRefreshing}
+                className="gap-2 rounded-xl border-border/60 hover:bg-muted/50 cursor-pointer shadow-xs"
+              >
+                <RefreshCw
+                  className={cn("h-4 w-4 text-rose-500", isRefreshing && "animate-spin")}
+                />
+                <span>Actualizar</span>
+              </Button>
             </div>
           </div>
-          
-          <Button
-            size="lg"
-            onClick={fetchData}
-            disabled={isRefreshing}
-            className="relative z-10 gap-2 shadow-lg hover:shadow-xl transition-all rounded-xl"
-            style={{ 
-              backgroundColor: accentColor, 
-              color: 'white',
-              boxShadow: `0 4px 20px -4px ${accentColor}40`
+        </SlideIn>
+
+        {/* 4 Apple-Grade KPI Cards with Micro-Halos */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Card 1: Nivel de Energía */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f43f5e70";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(244, 63, 94, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
             }}
           >
-            <RefreshCw className={cn("h-5 w-5", isRefreshing && "animate-spin")} />
-            Actualizar
-          </Button>
-        </motion.div>
-
-        {/* Energy Level Card - Desktop Exclusive Feature kept */}
-        {weekly && (
-          <motion.div variants={itemVariants}>
-            <Card className="overflow-hidden border border-border/50 shadow-sm hover:shadow-md transition-all">
-              <div className="bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-8">
-                    <div className="p-6 rounded-3xl bg-background/80 backdrop-blur shadow-sm">
-                      {getBatteryIcon(weekly.overallScore)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Nivel de Energía</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-6xl font-black tracking-tight">{weekly.overallScore}</span>
-                        <span className="text-3xl text-muted-foreground font-medium">/100</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="hidden md:flex items-center gap-8">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-muted-foreground">Tendencia</p>
-                      <div className="flex items-center gap-2 mt-1 px-4 py-2 bg-background/60 rounded-full border border-border/50">
-                        {getTrendIcon(weekly.trend)}
-                        <span className="font-bold">
-                          {weekly.trend === "IMPROVING" && "Mejorando"}
-                          {weekly.trend === "STABLE" && "Estable"}
-                          {weekly.trend === "DECLINING" && "Bajando"}
-                        </span>
-                      </div>
-                    </div>
-                    {weekly.recommendations?.[0] && (
-                      <div className="max-w-xs p-4 rounded-2xl bg-background/60 backdrop-blur border border-border/50 shadow-sm">
-                        <p className="text-sm flex items-start gap-3">
-                          <Zap className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                          <span className="font-medium">{weekly.recommendations[0]}</span>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                Nivel de Energía
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 transition-transform duration-300 group-hover:scale-110">
+                <Zap className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Burnout Risk Gauge */}
-        {burnout && (
-          <motion.div variants={itemVariants}>
-            <Card className="overflow-hidden border border-border/50 shadow-sm hover:shadow-md transition-all">
-              <div className={cn("h-1.5", getRiskColor(burnout.riskLevel).bg)} />
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-xl">
-                    <Activity className="h-6 w-6 text-muted-foreground" />
-                    Análisis de Riesgo de Burnout
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {energyScore}/100
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate flex items-center gap-1">
+              {weekly ? (
+                <>
+                  {getTrendIcon(weekly.trend)}
+                  <span>
+                    {weekly.trend === "IMPROVING"
+                      ? "Mejorando"
+                      : weekly.trend === "DECLINING"
+                      ? "En declive"
+                      : "Estable"}
                   </span>
-                  <Badge variant="outline" className={cn(
-                    getRiskColor(burnout.riskLevel).light,
-                    getRiskColor(burnout.riskLevel).text,
-                    "border-0 px-3 py-1 text-sm font-semibold"
-                  )}>
-                    {burnout.riskLevel === "LOW" && "Bajo"}
-                    {burnout.riskLevel === "MODERATE" && "Moderado"}
-                    {burnout.riskLevel === "HIGH" && "Alto"}
-                    {burnout.riskLevel === "CRITICAL" && "Crítico"}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-8 py-4">
-                  {/* Score gauge */}
-                  <div className="flex items-center gap-8">
-                    <div className="relative w-40 h-40">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle
-                          cx="80"
-                          cy="80"
-                          r="70"
-                          stroke="currentColor"
-                          strokeWidth="12"
-                          fill="none"
-                          className="text-muted/20"
-                        />
-                        <circle
-                          cx="80"
-                          cy="80"
-                          r="70"
-                          stroke="currentColor"
-                          strokeWidth="12"
-                          fill="none"
-                          strokeDasharray={`${(burnout.riskScore / 100) * 440} 440`}
-                          strokeLinecap="round"
-                          className={cn("transition-all duration-1000 ease-out", getRiskColor(burnout.riskLevel).text)}
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-4xl font-black">{burnout.riskScore}</span>
-                        <span className="text-xs font-bold uppercase text-muted-foreground">Riesgo</span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold mb-4 text-lg">Factores Detectados</h4>
-                      <div className="space-y-3">
-                        {(burnout.warnings || []).slice(0, 3).map((warning: any, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3 text-sm p-3 rounded-xl bg-muted/30">
-                            {warning.severity === "SEVERE" ? (
-                              <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
-                            ) : warning.severity === "MODERATE" ? (
-                              <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
-                            ) : (
-                              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-                            )}
-                            <span className="text-muted-foreground font-medium">{warning.message}</span>
-                          </div>
-                        ))}
-                        {(!burnout.warnings || burnout.warnings.length === 0) && (
-                          <p className="text-sm font-medium text-green-600 bg-green-500/10 p-3 rounded-xl flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4" />
-                            No se detectaron factores de riesgo
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                </>
+              ) : (
+                "Batería semanal"
+              )}
+            </p>
+          </div>
 
-                  {/* Quick recommendations */}
-                  <div className="bg-muted/20 rounded-2xl p-6 border border-border/50">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2 text-lg">
-                      <Brain className="h-5 w-5 text-primary" />
-                      Sugerencias Inmediatas
-                    </h4>
-                    {burnout.warnings && burnout.warnings.length > 0 ? (
-                      <ul className="space-y-3">
-                        {burnout.warnings.slice(0, 3).map((warning: any, idx: number) => (
-                          <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground">
-                            <div className="mt-1.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                            <span className="leading-relaxed">{warning.recommendation}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic p-4 text-center">
-                        "El equilibrio es la clave para una vida saludable. ¡Sigue así!"
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+          {/* Card 2: Riesgo de Burnout */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f59e0b70";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(245, 158, 11, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                Riesgo de Burnout
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-transform duration-300 group-hover:scale-110">
+                <Activity className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {riskScore}%
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Nivel{" "}
+              {burnout?.riskLevel === "LOW"
+                ? "Bajo"
+                : burnout?.riskLevel === "MODERATE"
+                ? "Moderado"
+                : burnout?.riskLevel === "HIGH"
+                ? "Alto"
+                : burnout?.riskLevel === "CRITICAL"
+                ? "Crítico"
+                : "Bajo"}
+            </p>
+          </div>
 
-        {/* Work Patterns */}
-        {patterns && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               {[
-              { 
-                icon: Clock, 
-                color: "text-blue-500", 
-                bg: "bg-blue-500/10",
-                value: `${patterns.averageHoursPerDay?.toFixed(1) || 0}h`,
-                label: "Horas/día promedio"
-              },
-              { 
-                icon: Moon, 
-                color: "text-purple-500", 
-                bg: "bg-purple-500/10",
-                value: `${patterns.nightWorkPercentage || 0}%`,
-                label: "Trabajo nocturno"
-              },
-              { 
-                icon: Calendar, 
-                color: "text-orange-500", 
-                bg: "bg-orange-500/10",
-                value: `${patterns.weekendWorkPercentage || 0}%`,
-                label: "Fines de semana"
-              },
-              { 
-                icon: Coffee, 
-                color: "text-green-500", 
-                bg: "bg-green-500/10",
-                value: `${patterns.averageBreakMinutes?.toFixed(0) || 0}m`,
-                label: "Descansos promedio"
-              }
-            ].map((stat, idx) => (
-              <motion.div variants={itemVariants} key={idx}>
-                <Card className="p-5 hover:shadow-lg transition-all border-border/50 hover:border-border cursor-default h-full bg-card/50 backdrop-blur group">
-                  <div className="flex flex-col gap-4">
-                    <div className={cn("p-3 w-fit rounded-xl transition-colors group-hover:bg-opacity-20", stat.bg)}>
-                      <stat.icon className={cn("h-6 w-6", stat.color)} />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
-                      <p className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-wide">{stat.label}</p>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+          {/* Card 3: Pausas y Descansos */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#10b98170";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(16, 185, 129, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                Descansos
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform duration-300 group-hover:scale-110">
+                <Coffee className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {breakMinutes}m
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Tiempo promedio de desconexión
+            </p>
+          </div>
+
+          {/* Card 4: Trabajo Nocturno */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#6366f170";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(99, 102, 241, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                Trabajo Nocturno
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 transition-transform duration-300 group-hover:scale-110">
+                <Moon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {nightWork}%
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Sesiones fuera de horario
+            </p>
+          </div>
+        </div>
+
+        {/* Loading State Skeleton */}
+        {isLoading && (
+          <div className="space-y-6 animate-pulse">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="h-64 bg-card rounded-2xl border border-border/60" />
+              <div className="h-64 bg-card rounded-2xl border border-border/60" />
+            </div>
+            <div className="h-48 bg-card rounded-2xl border border-border/60" />
           </div>
         )}
 
-        {/* Weekly Summary */}
-        {weekly && (
-          <motion.div variants={itemVariants}>
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-xl">
-                    <Sun className="h-6 w-6 text-amber-500" />
-                    Resumen Semanal
-                  </span>
-                  <div className="flex items-center gap-2 bg-muted/40 px-3 py-1 rounded-full border border-border/50">
-                    {getTrendIcon(weekly.trend)}
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {weekly.trend === "IMPROVING" && "Mejorando"}
-                      {weekly.trend === "STABLE" && "Estable"}
-                      {weekly.trend === "DECLINING" && "Bajando"}
-                    </span>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* Highlights */}
-                  {weekly.highlights?.length > 0 && (
-                    <div className="p-5 rounded-2xl bg-green-500/5 border border-green-500/10">
-                      <h4 className="font-bold text-green-600 dark:text-green-400 mb-3 flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5" />
-                        Lo positivo
-                      </h4>
-                      <ul className="space-y-2">
-                        {weekly.highlights.map((h: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
-                             {h}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Concerns */}
-                  {weekly.concerns?.length > 0 && (
-                    <div className="p-5 rounded-2xl bg-orange-500/5 border border-orange-500/10">
-                      <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5" />
-                        Áreas de mejora
-                      </h4>
-                      <ul className="space-y-2">
-                        {weekly.concerns.map((c: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0" />
-                             {c}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                   {(!weekly.concerns || weekly.concerns.length === 0) && weekly.highlights?.length > 0 && (
-                        <div className="p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-center text-center">
-                        <p className="text-sm text-blue-600 font-medium">
-                            No hay áreas de preocupación importantes esta semana.
-                        </p>
+        {!isLoading && (
+          <div className="space-y-6">
+            {/* Deep-Dive Grid: Burnout Gauge & Energy Battery */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Burnout Risk Gauge Card */}
+              {burnout && (
+                <Card className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
+                  <div className={cn("h-1.5", getRiskColor(burnout.riskLevel).bg)} />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center justify-between text-base sm:text-lg">
+                      <span className="flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-rose-500" />
+                        Análisis de Riesgo de Burnout
+                      </span>
+                      <span
+                        className={cn(
+                          "px-3 py-1 rounded-full text-xs font-semibold",
+                          getRiskColor(burnout.riskLevel).light
+                        )}
+                      >
+                        {burnout.riskLevel === "LOW"
+                          ? "Bajo"
+                          : burnout.riskLevel === "MODERATE"
+                          ? "Moderado"
+                          : burnout.riskLevel === "HIGH"
+                          ? "Alto"
+                          : burnout.riskLevel === "CRITICAL"
+                          ? "Crítico"
+                          : burnout.riskLevel}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      <div className="relative w-32 h-32 shrink-0">
+                        <svg className="w-full h-full transform -rotate-90">
+                          <circle
+                            cx="64"
+                            cy="64"
+                            r="56"
+                            stroke="currentColor"
+                            strokeWidth="12"
+                            fill="none"
+                            className="text-muted/40"
+                          />
+                          <circle
+                            cx="64"
+                            cy="64"
+                            r="56"
+                            stroke="currentColor"
+                            strokeWidth="12"
+                            fill="none"
+                            strokeDasharray={`${(riskScore / 100) * 352} 352`}
+                            strokeLinecap="round"
+                            className={cn(
+                              "transition-all duration-1000 ease-out",
+                              getRiskColor(burnout.riskLevel).text
+                            )}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-3xl font-black">{riskScore}</span>
+                          <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                            Puntos
+                          </span>
                         </div>
-                    )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+                      </div>
+                      <div className="flex-1 w-full space-y-2">
+                        <h4 className="font-semibold text-sm text-foreground">
+                          Factores Detectados
+                        </h4>
+                        <div className="space-y-1.5">
+                          {(burnout.warnings || []).slice(0, 3).map((w, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 text-xs sm:text-sm p-2 rounded-xl bg-muted/40"
+                            >
+                              {w.severity === "SEVERE" ? (
+                                <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0" />
+                              ) : (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                              )}
+                              <span className="text-muted-foreground font-medium truncate">
+                                {w.message}
+                              </span>
+                            </div>
+                          ))}
+                          {(!burnout.warnings || burnout.warnings.length === 0) && (
+                            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-medium flex items-center gap-2">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span>No se detectaron sobrecargas recientes</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-        {/* Empty state */}
-        {!burnout && !patterns && !weekly && (
-          <motion.div variants={itemVariants}>
-            <Card className="p-16 text-center border-dashed border-2">
-                <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Heart className="h-12 w-12 text-muted-foreground/30" />
+                    {burnout.warnings && burnout.warnings.length > 0 && (
+                      <div className="border-t border-border/60 pt-4">
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-foreground">
+                          <Brain className="h-4 w-4 text-rose-500" />
+                          Sugerencias Inmediatas
+                        </h4>
+                        <ul className="space-y-2">
+                          {burnout.warnings.slice(0, 3).map((w, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
+                            >
+                              <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                              <span>{w.recommendation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Energy Level & Battery Card */}
+              <Card className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs flex flex-col justify-between">
+                <div className="bg-gradient-to-r from-rose-500/10 via-purple-500/10 to-blue-500/10 p-6 sm:p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-5">
+                      <div className="p-4 rounded-2xl bg-card/80 backdrop-blur-xs border border-border/50 shadow-xs">
+                        {getBatteryIcon(energyScore)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          Nivel de Energía
+                        </p>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-4xl sm:text-5xl font-black tracking-tight text-foreground">
+                            {energyScore}
+                          </span>
+                          <span className="text-lg text-muted-foreground font-medium">
+                            /100
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {weekly && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card/80 border border-border/50 text-xs font-semibold">
+                          {getTrendIcon(weekly.trend)}
+                          <span>
+                            {weekly.trend === "IMPROVING" && "Mejorando"}
+                            {weekly.trend === "STABLE" && "Estable"}
+                            {weekly.trend === "DECLINING" && "En declive"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold mb-3">Sin datos de bienestar</h3>
-                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                Continúa usando Ordo para que podamos analizar tus patrones de trabajo y generar insights valiosos.
-                </p>
-                <Button onClick={fetchData} variant="outline" size="lg" className="gap-2">
-                    <RefreshCw className="h-4 w-4" />
-                    Intentar de nuevo
-                </Button>
-            </Card>
-          </motion.div>
+
+                <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/50">
+                    <p className="text-xs sm:text-sm text-muted-foreground flex items-start gap-2.5">
+                      <Zap className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                      <span>
+                        {burnout?.aiInsights ||
+                          weekly?.recommendations?.[0] ||
+                          "El descanso estratégico y las pausas periódicas maximizan tu concentración y creatividad."}
+                      </span>
+                    </p>
+                  </div>
+
+                  {recommendations.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Pausas Recomendadas
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {recommendations.slice(0, 3).map((rec: any, idx: number) => (
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="rounded-lg text-xs py-1 px-2.5 gap-1.5 bg-muted/50 border border-border/60"
+                          >
+                            <Coffee className="h-3.5 w-3.5 text-emerald-500" />
+                            <span>{rec.message || rec}</span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Work Patterns Breakdown */}
+            {patterns && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                      Horas/día
+                    </span>
+                    <Clock className="h-4 w-4 text-cyan-500" />
+                  </div>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                    {(
+                      patterns.avgDailyWorkHours ??
+                      patterns.averageHoursPerDay ??
+                      0
+                    ).toFixed(1)}
+                    h
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">
+                    Promedio diario de labor
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                      Fines de semana
+                    </span>
+                    <Calendar className="h-4 w-4 text-orange-500" />
+                  </div>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                    {Math.round(patterns.weekendWorkPercentage ?? 0)}%
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">
+                    Carga en fin de semana
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                      Sesión más larga
+                    </span>
+                    <Activity className="h-4 w-4 text-rose-500" />
+                  </div>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                    {patterns.longestSessionWithoutBreak
+                      ? Math.round(patterns.longestSessionWithoutBreak) + "m"
+                      : "Normal"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">
+                    Sin pausa continua
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                      Consistencia
+                    </span>
+                    <Sparkles className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                    {patterns.consistencyScore
+                      ? Math.round(patterns.consistencyScore) + "%"
+                      : "Óptima"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">
+                    Regularidad de horarios
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Weekly Summary Card */}
+            {weekly && (
+              <Card className="rounded-2xl border border-border/60 bg-card shadow-xs">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base sm:text-lg">
+                    <span className="flex items-center gap-2">
+                      <Sun className="h-5 w-5 text-amber-500" />
+                      Resumen Semanal de Bienestar
+                    </span>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      {getTrendIcon(weekly.trend)}
+                      <span>
+                        {weekly.trend === "IMPROVING" && "Tendencia positiva"}
+                        {weekly.trend === "STABLE" && "Tendencia estable"}
+                        {weekly.trend === "DECLINING" && "Requiere atención"}
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border border-border/50">
+                    <div className="text-3xl sm:text-4xl font-bold text-foreground">
+                      {energyScore}
+                    </div>
+                    <div className="flex-1">
+                      <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500",
+                            energyScore >= 80
+                              ? "bg-emerald-500"
+                              : energyScore >= 50
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
+                          )}
+                          style={{ width: `${energyScore}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        Puntaje general de equilibrio
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {weekly.highlights?.length > 0 && (
+                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                        <h4 className="font-semibold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Aspectos Positivos
+                        </h4>
+                        <ul className="space-y-1">
+                          {weekly.highlights.map((h, idx) => (
+                            <li
+                              key={idx}
+                              className="text-xs sm:text-sm text-muted-foreground"
+                            >
+                              • {h}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {weekly.concerns?.length > 0 && (
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+                        <h4 className="font-semibold text-xs sm:text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4" />
+                          Áreas de Atención
+                        </h4>
+                        <ul className="space-y-1">
+                          {weekly.concerns.map((c, idx) => (
+                            <li
+                              key={idx}
+                              className="text-xs sm:text-sm text-muted-foreground"
+                            >
+                              • {c}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
-      </motion.div>
+      </div>
     </PageTransition>
   );
 }

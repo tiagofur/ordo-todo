@@ -221,7 +221,7 @@ export function WellbeingTab() {
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-3xl font-bold">
-                    {burnout.riskScore}
+                    {Math.round(burnout.riskScore)}
                   </span>
                 </div>
               </div>
@@ -271,63 +271,118 @@ export function WellbeingTab() {
 
       {/* Work Patterns */}
       {patterns && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-500">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {(patterns.avgDailyWorkHours ?? patterns.averageHoursPerDay ?? 0).toFixed(1)}h
-                </p>
-                <p className="text-xs text-muted-foreground">{t("hoursPerDay")}</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500">
-                <Moon className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {(patterns.lateNightPercentage ?? patterns.nightWorkPercentage ?? 0).toFixed(0)}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("patterns.lateNightWork")}
-                </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#06b6d470";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(6, 182, 212, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("hoursPerDay")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-500 transition-transform duration-300 group-hover:scale-110">
+                <Clock className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>
-          </Card>
-          <Card className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-500">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {(patterns.weekendWorkPercentage ?? 0).toFixed(0)}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("weekends")}
-                </p>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {(patterns.avgDailyWorkHours ?? patterns.averageHoursPerDay ?? 0).toFixed(1)}h
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Promedio de horas diarias
+            </p>
+          </div>
+
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#6366f170";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(99, 102, 241, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("patterns.lateNightWork")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 transition-transform duration-300 group-hover:scale-110">
+                <Moon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>
-          </Card>
-          <Card className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500">
-                <Coffee className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {(patterns.avgSessionWithoutBreak ?? patterns.averageBreakMinutes ?? 0).toFixed(0)}m
-                </p>
-                <p className="text-xs text-muted-foreground">{t("breaks")}</p>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {(patterns.lateNightPercentage ?? patterns.nightWorkPercentage ?? 0).toFixed(0)}%
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Sesiones fuera de horario
+            </p>
+          </div>
+
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f9731670";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(249, 115, 22, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("weekends")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 transition-transform duration-300 group-hover:scale-110">
+                <Calendar className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>
-          </Card>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {(patterns.weekendWorkPercentage ?? 0).toFixed(0)}%
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Carga en fin de semana
+            </p>
+          </div>
+
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#10b98170";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(16, 185, 129, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("breaks")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform duration-300 group-hover:scale-110">
+                <Coffee className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {(patterns.avgSessionWithoutBreak ?? patterns.averageBreakMinutes ?? 0).toFixed(0)}m
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Tiempo medio de descanso
+            </p>
+          </div>
         </div>
       )}
 
@@ -352,7 +407,7 @@ export function WellbeingTab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-border">
-              <div className="text-4xl font-bold">{weekly.overallScore}</div>
+              <div className="text-4xl font-bold">{Math.round(weekly.overallScore)}</div>
               <div className="flex-1">
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div

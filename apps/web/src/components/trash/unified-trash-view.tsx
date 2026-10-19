@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
   Trash2,
   RotateCcw,
@@ -10,6 +10,7 @@ import {
   Building2,
   LayoutList,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import {
   useDeletedTasks,
@@ -26,12 +27,14 @@ import {
 } from "@/lib/api-hooks";
 import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
 import { AppLayout } from "@/components/shared/app-layout";
 import { useConfirm } from "@/components/shared/confirm-dialog";
+import { toast } from "sonner";
 
 export type TrashTab = "tasks" | "projects" | "workspaces";
 
@@ -58,13 +61,14 @@ function formatDeletedAt(
 }
 
 export function UnifiedTrashView({
-  defaultTab = "workspaces",
+  defaultTab = "tasks",
   initialWorkspaceId = "",
   initialProjectId = "",
   wrapInAppLayout = false,
 }: UnifiedTrashViewProps) {
   const t = useTranslations("UnifiedTrash");
   const locale = useLocale();
+  const router = useRouter();
   const dateLocale =
     locale === "es"
       ? es
@@ -78,6 +82,18 @@ export function UnifiedTrashView({
     useState<string>(initialWorkspaceId);
   const [selectedProject, setSelectedProject] =
     useState<string>(initialProjectId);
+
+  // Sync activeTab when defaultTab changes (e.g. route change)
+  useEffect(() => {
+    if (defaultTab && defaultTab !== activeTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
+
+  const handleTabChange = (newTab: TrashTab) => {
+    setActiveTab(newTab);
+    router.push(`/trash/${newTab}`);
+  };
 
   // Workspaces
   const {
@@ -117,6 +133,19 @@ export function UnifiedTrashView({
     id: string;
   } | null>(null);
 
+  // Auto-select workspace and project if not provided
+  useEffect(() => {
+    if (!selectedWorkspace && workspaces && workspaces.length > 0) {
+      setSelectedWorkspace(workspaces[0].id);
+    }
+  }, [workspaces, selectedWorkspace]);
+
+  useEffect(() => {
+    if (!selectedProject && allProjects && allProjects.length > 0) {
+      setSelectedProject(allProjects[0].id);
+    }
+  }, [allProjects, selectedProject]);
+
   const handleRestore = async (type: TrashTab, id: string) => {
     setItemToRestore({ type, id });
     try {
@@ -124,16 +153,21 @@ export function UnifiedTrashView({
         case "workspaces":
           await restoreWorkspace.mutateAsync(id);
           await refetchWorkspaces();
+          toast.success("Espacio restaurado correctamente");
           break;
         case "projects":
           await restoreProject.mutateAsync(id);
           await refetchProjects();
+          toast.success("Proyecto restaurado correctamente");
           break;
         case "tasks":
           await restoreTask.mutateAsync(id);
           await refetchTasks();
+          toast.success("Tarea restaurada correctamente");
           break;
       }
+    } catch {
+      toast.error("Error al restaurar elemento");
     } finally {
       setItemToRestore(null);
     }
@@ -154,16 +188,21 @@ export function UnifiedTrashView({
         case "workspaces":
           await permanentDeleteWorkspace.mutateAsync(id);
           await refetchWorkspaces();
+          toast.success("Espacio eliminado permanentemente");
           break;
         case "projects":
           await permanentDeleteProject.mutateAsync(id);
           await refetchProjects();
+          toast.success("Proyecto eliminado permanentemente");
           break;
         case "tasks":
           await permanentDeleteTask.mutateAsync(id);
           await refetchTasks();
+          toast.success("Tarea eliminada permanentemente");
           break;
       }
+    } catch {
+      toast.error("Error al eliminar permanentemente");
     } finally {
       setItemToDelete(null);
     }
@@ -189,36 +228,168 @@ export function UnifiedTrashView({
   return renderWrapper(
     <>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <motion.div
-                initial={{ rotate: -10, scale: 0.9 }}
-                animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25"
-              >
-                <Trash2 className="h-5 w-5 sm:h-6 sm:w-6" />
-              </motion.div>
-              {t("title")}
-            </h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
-              {t("subtitle")}
+        {/* Apple Style Unified Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25 shrink-0">
+              <Trash2 className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
+                {t("title")}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                <span>{t("subtitle")}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                refetchWorkspaces();
+                refetchProjects();
+                refetchTasks();
+              }}
+              className="inline-flex items-center gap-2 self-start sm:self-auto rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted/50 hover:border-border/80 shadow-xs cursor-pointer"
+            >
+              <RefreshCw className="h-4 w-4 text-rose-500" />
+              <span>{t("refresh")}</span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* 4 Apple-Grade KPI Cards with Micro-Halos */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Card 1: Total en Papelera */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f43f5e70";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(244, 63, 94, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                Total Papelera
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 transition-transform duration-300 group-hover:scale-110">
+                <Trash2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {(deletedTasks?.length || 0) +
+                (deletedProjects?.length || 0) +
+                (deletedWorkspaces?.length || 0)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Elementos pendientes de purga
             </p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              refetchWorkspaces();
-              refetchProjects();
-              refetchTasks();
+
+          {/* Card 2: Tareas */}
+          <div
+            onClick={() => handleTabChange("tasks")}
+            role="button"
+            tabIndex={0}
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#a855f770";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(168, 85, 247, 0.2)";
             }}
-            className="inline-flex items-center gap-2 self-start sm:self-auto rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-accent hover:border-border/80 shadow-sm"
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
           >
-            <RefreshCw className="h-4 w-4" />
-            <span>{t("refresh")}</span>
-          </motion.button>
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("tabs.tasks")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 transition-transform duration-300 group-hover:scale-110">
+                <CheckCircle2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {deletedTasks?.length || 0}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              {selectedProjectObj ? selectedProjectObj.name : "Tareas eliminadas"}
+            </p>
+          </div>
+
+          {/* Card 3: Proyectos */}
+          <div
+            onClick={() => handleTabChange("projects")}
+            role="button"
+            tabIndex={0}
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#ec489970";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(236, 72, 153, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("tabs.projects")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-pink-500/10 text-pink-500 transition-transform duration-300 group-hover:scale-110">
+                <LayoutList className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {deletedProjects?.length || 0}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              {selectedWorkspaceObj ? selectedWorkspaceObj.name : "Proyectos eliminados"}
+            </p>
+          </div>
+
+          {/* Card 4: Espacios */}
+          <div
+            onClick={() => handleTabChange("workspaces")}
+            role="button"
+            tabIndex={0}
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f9731670";
+              e.currentTarget.style.boxShadow =
+                "0 10px 25px -5px rgba(249, 115, 22, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "";
+              e.currentTarget.style.boxShadow = "";
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {t("tabs.workspaces")}
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 transition-transform duration-300 group-hover:scale-110">
+                <Building2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {deletedWorkspaces?.length || 0}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              Organizaciones eliminadas
+            </p>
+          </div>
         </div>
 
         {/* Warning Banner */}
@@ -243,30 +414,30 @@ export function UnifiedTrashView({
         {/* Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as TrashTab)}
+          onValueChange={(v) => handleTabChange(v as TrashTab)}
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-3 h-auto p-1.5 bg-muted/60 rounded-2xl border border-border/40 gap-1">
             <TabsTrigger
-              value="workspaces"
+              value="tasks"
               className={cn(
                 "gap-2 rounded-xl py-2.5 font-medium transition-all duration-200",
-                activeTab === "workspaces"
-                  ? "bg-orange-500 text-white shadow-sm shadow-orange-500/25 data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                activeTab === "tasks"
+                  ? "bg-purple-500 text-white shadow-sm shadow-purple-500/25 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
               )}
             >
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("tabs.workspaces")}</span>
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("tabs.tasks")}</span>
               <span
                 className={cn(
                   "ml-auto text-xs px-2 py-0.5 rounded-full font-semibold transition-colors",
-                  activeTab === "workspaces"
+                  activeTab === "tasks"
                     ? "bg-white/20 text-white"
                     : "bg-muted text-foreground"
                 )}
               >
-                {deletedWorkspaces?.length || 0}
+                {deletedTasks?.length || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger
@@ -292,25 +463,25 @@ export function UnifiedTrashView({
               </span>
             </TabsTrigger>
             <TabsTrigger
-              value="tasks"
+              value="workspaces"
               className={cn(
                 "gap-2 rounded-xl py-2.5 font-medium transition-all duration-200",
-                activeTab === "tasks"
-                  ? "bg-purple-500 text-white shadow-sm shadow-purple-500/25 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+                activeTab === "workspaces"
+                  ? "bg-orange-500 text-white shadow-sm shadow-orange-500/25 data-[state=active]:bg-orange-500 data-[state=active]:text-white"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
               )}
             >
-              <CheckCircle2 className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("tabs.tasks")}</span>
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("tabs.workspaces")}</span>
               <span
                 className={cn(
                   "ml-auto text-xs px-2 py-0.5 rounded-full font-semibold transition-colors",
-                  activeTab === "tasks"
+                  activeTab === "workspaces"
                     ? "bg-white/20 text-white"
                     : "bg-muted text-foreground"
                 )}
               >
-                {deletedTasks?.length || 0}
+                {deletedWorkspaces?.length || 0}
               </span>
             </TabsTrigger>
           </TabsList>

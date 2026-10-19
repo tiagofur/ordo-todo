@@ -1,45 +1,27 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import {
   Users,
   TrendingUp,
   TrendingDown,
   Minus,
-  AlertTriangle,
   CheckCircle2,
-  Clock,
   BarChart3,
   RefreshCw,
   ChevronRight,
   Sparkles,
   Briefcase,
-  UserCheck,
-  Target,
-  Zap,
-  ArrowRightLeft,
+  ChevronDown,
+  Search,
+  X,
+  CheckSquare,
 } from "lucide-react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-  Progress,
-} from "@ordo-todo/ui";
-import { cn } from "@/lib/utils";
+import { cn } from "@ordo-todo/ui";
 import { apiClient } from "@/lib/api-client";
-import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/motion";
+import { PageTransition } from "@/components/motion";
 import { useWorkspaces } from "@/lib/shared-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 interface MemberWorkload {
   userId: string;
@@ -56,7 +38,10 @@ interface MemberWorkload {
 
 interface WorkloadSuggestion {
   type: "REDISTRIBUTE" | "URGENT_HELP" | "BALANCE";
-  reason: string;
+  message?: string;
+  reason?: string;
+  fromMember?: string;
+  toMember?: string;
   fromUserName?: string;
   toUserName?: string;
   taskCount?: number;
@@ -71,48 +56,92 @@ interface TeamWorkloadData {
   redistributionSuggestions: WorkloadSuggestion[];
 }
 
+type LevelFilter = "ALL" | "LOW" | "MODERATE" | "HIGH" | "OVERLOADED";
+
 export function Workload() {
   const { t } = (useTranslation as any)();
-  const accentColor = "#f97316"; // Orange
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>("ALL");
   const [workloadData, setWorkloadData] = useState<TeamWorkloadData | null>(null);
 
+  const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const { data: workspaces = [] } = useWorkspaces();
+
+  // Active workspace fallback
+  const activeWorkspaceId =
+    selectedWorkspaceId || (workspaces.length > 0 ? workspaces[0].id : null);
 
   const fetchWorkload = async (workspaceId: string) => {
     setIsRefreshing(true);
     try {
       const data: any = await apiClient.getWorkspaceWorkload(workspaceId);
-      
-      // Map API response to local TeamWorkloadData structure
-      const mappedData: TeamWorkloadData = {
-          workspaceId: workspaceId,
-          workspaceName: workspaces.find((w: any) => w.id === workspaceId)?.name || "Workspace",
-          members: (data.members || []).map((m: any) => ({
-              userId: m.userId,
-              userName: m.userName || "Unknown",
-              userEmail: m.userEmail || "",
-              avatarUrl: m.avatarUrl,
-              workloadScore: m.workloadScore || 0,
-              assignedTasks: m.activeTaskCount || 0, // Map from likely API field
-              completedTasks: m.completedTaskCount || 0, // Map from likely API field
-              hoursWorkedThisWeek: m.hoursLogged || 0, // Map from likely API field
-              trend: "STABLE", // Default or map if available
-              workloadLevel: m.workloadScore > 80 ? "OVERLOADED" : m.workloadScore > 60 ? "HIGH" : m.workloadScore > 30 ? "MODERATE" : "LOW"
-          })),
-          averageWorkload: data.workloadScore || 0,
-          balanceScore: 100 - (data.variance || 0), // Mock calculation if variance exists or just use 100
-          redistributionSuggestions: (data.recommendations || []).map((rec: string) => ({
-              type: "BALANCE",
-              reason: rec,
-          }))
-      };
 
-      setWorkloadData(mappedData);
+      const members: MemberWorkload[] = (data?.members || []).map((m: any) => ({
+        userId: m.userId || m.id || "",
+        userName: m.userName || m.name || "Usuario",
+        userEmail: m.userEmail || m.email || "",
+        avatarUrl: m.avatarUrl || m.image,
+        workloadScore: m.workloadScore ?? 0,
+        assignedTasks: m.assignedTasks ?? m.activeTaskCount ?? 0,
+        completedTasks: m.completedTasks ?? m.completedTaskCount ?? 0,
+        hoursWorkedThisWeek: m.hoursWorkedThisWeek ?? m.hoursLogged ?? 0,
+        trend: m.trend || "STABLE",
+        workloadLevel:
+          m.workloadLevel ||
+          (m.workloadScore > 80
+            ? "OVERLOADED"
+            : m.workloadScore > 60
+              ? "HIGH"
+              : m.workloadScore > 30
+                ? "MODERATE"
+                : "LOW"),
+      }));
+
+      const averageWorkload =
+        data?.averageWorkload ??
+        (members.length > 0
+          ? Math.round(
+              members.reduce((acc: number, m: MemberWorkload) => acc + m.workloadScore, 0) /
+                members.length
+            )
+          : 0);
+
+      const balanceScore =
+        data?.balanceScore ?? (data?.variance !== undefined ? Math.max(0, 100 - data.variance) : 100);
+
+      const redistributionSuggestions: WorkloadSuggestion[] = (
+        data?.redistributionSuggestions ||
+        (data?.recommendations || []).map((rec: string) => ({
+          type: "BALANCE",
+          reason: rec,
+          message: rec,
+        }))
+      ).map((s: any) => ({
+        type: s.type || "BALANCE",
+        message: s.message || s.reason || "",
+        reason: s.reason || s.message || "",
+        fromUserName: s.fromUserName || s.fromMember,
+        toUserName: s.toUserName || s.toMember,
+        taskCount: s.taskCount,
+      }));
+
+      setWorkloadData({
+        workspaceId,
+        workspaceName:
+          data?.workspaceName ||
+          workspaces.find((w: any) => w.id === workspaceId)?.name ||
+          "Workspace",
+        members,
+        averageWorkload,
+        balanceScore,
+        redistributionSuggestions,
+      });
     } catch (error) {
-      console.error("Failed to fetch workload:", error);
+      if (import.meta.env?.DEV) {
+        console.error("Failed to fetch workload:", error);
+      }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -123,341 +152,664 @@ export function Workload() {
     if (workspaces.length > 0 && !selectedWorkspaceId) {
       setSelectedWorkspaceId(workspaces[0].id);
     }
-  }, [workspaces, selectedWorkspaceId]);
+  }, [workspaces, selectedWorkspaceId, setSelectedWorkspaceId]);
 
   useEffect(() => {
-    if (selectedWorkspaceId) {
-      fetchWorkload(selectedWorkspaceId);
+    if (activeWorkspaceId) {
+      fetchWorkload(activeWorkspaceId);
     } else {
       setIsLoading(false);
     }
-  }, [selectedWorkspaceId]);
+  }, [activeWorkspaceId]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyles = (status: string) => {
     switch (status) {
-      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10", border: "border-blue-500/30" };
-      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10", border: "border-green-500/30" };
-      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10", border: "border-orange-500/30" };
-      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10", border: "border-red-500/30" };
-      default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-500/10", border: "border-gray-500/30" };
+      case "LOW":
+        return {
+          bar: "bg-blue-500",
+          badge:
+            "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20",
+          color: "#3b82f6",
+        };
+      case "MODERATE":
+        return {
+          bar: "bg-emerald-500",
+          badge:
+            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
+          color: "#10b981",
+        };
+      case "HIGH":
+        return {
+          bar: "bg-amber-500",
+          badge:
+            "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
+          color: "#f59e0b",
+        };
+      case "OVERLOADED":
+        return {
+          bar: "bg-rose-500",
+          badge:
+            "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20",
+          color: "#f43f5e",
+        };
+      default:
+        return {
+          bar: "bg-muted-foreground",
+          badge: "bg-muted text-muted-foreground border border-border",
+          color: "#6b7280",
+        };
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "LOW": return "Disponible";
-      case "MODERATE": return "Óptimo";
-      case "HIGH": return "Ocupado";
-      case "OVERLOADED": return "Sobrecargado";
-      default: return status;
+      case "LOW":
+        return t("Workload.levels.LOW") || "Baja carga";
+      case "MODERATE":
+        return t("Workload.levels.MODERATE") || "Óptimo";
+      case "HIGH":
+        return t("Workload.levels.HIGH") || "Sobrecargado";
+      case "OVERLOADED":
+        return t("Workload.levels.OVERLOADED") || "Crítico";
+      default:
+        return status;
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case "INCREASING": return <TrendingUp className="h-4 w-4 text-red-500" />;
-      case "DECREASING": return <TrendingDown className="h-4 w-4 text-green-500" />;
-      default: return <Minus className="h-4 w-4 text-yellow-500" />;
+      case "INCREASING":
+        return (
+          <span
+            title={t("Workload.trends.INCREASING") || "En aumento"}
+            aria-label={t("Workload.trends.INCREASING") || "En aumento"}
+          >
+            <TrendingUp className="h-4 w-4 text-rose-500" />
+          </span>
+        );
+      case "DECREASING":
+        return (
+          <span
+            title={t("Workload.trends.DECREASING") || "Disminuyendo"}
+            aria-label={t("Workload.trends.DECREASING") || "Disminuyendo"}
+          >
+            <TrendingDown className="h-4 w-4 text-emerald-500" />
+          </span>
+        );
+      default:
+        return (
+          <span
+            title={t("Workload.trends.STABLE") || "Estable"}
+            aria-label={t("Workload.trends.STABLE") || "Estable"}
+          >
+            <Minus className="h-4 w-4 text-amber-500" />
+          </span>
+        );
     }
   };
 
-  const getBalanceColor = (score: number) => {
-    if (score >= 70) return "text-green-500";
-    if (score >= 40) return "text-yellow-500";
-    return "text-red-500";
-  };
+  const membersList = workloadData?.members || [];
+  const totalAssignedTasks = useMemo(
+    () => membersList.reduce((acc, m) => acc + (m.assignedTasks || 0), 0),
+    [membersList]
+  );
+  const balanceScore = workloadData?.balanceScore ?? 100;
 
-  if (isLoading) {
+  const lowCount = useMemo(
+    () => membersList.filter((m) => m.workloadLevel === "LOW").length,
+    [membersList]
+  );
+  const moderateCount = useMemo(
+    () => membersList.filter((m) => m.workloadLevel === "MODERATE").length,
+    [membersList]
+  );
+  const highCount = useMemo(
+    () => membersList.filter((m) => m.workloadLevel === "HIGH").length,
+    [membersList]
+  );
+  const overloadedCount = useMemo(
+    () => membersList.filter((m) => m.workloadLevel === "OVERLOADED").length,
+    [membersList]
+  );
+
+  const filteredMembers = useMemo(() => {
+    return membersList.filter((member) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const nameMatch = member.userName?.toLowerCase().includes(q);
+        const emailMatch = member.userEmail?.toLowerCase().includes(q);
+        if (!nameMatch && !emailMatch) return false;
+      }
+
+      if (levelFilter !== "ALL" && member.workloadLevel !== levelFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [membersList, searchQuery, levelFilter]);
+
+  if (isLoading && !workloadData) {
     return (
       <PageTransition>
         <div className="space-y-6">
           <div className="animate-pulse space-y-6">
-            <div className="h-12 bg-muted rounded-xl w-1/3" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-muted rounded-xl" />
+            <div className="h-12 bg-muted rounded-2xl w-1/3" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="h-28 bg-card rounded-2xl border border-border/60"
+                />
               ))}
             </div>
-            <div className="h-64 bg-muted rounded-xl" />
+            <div className="h-64 bg-card rounded-2xl border border-border/60" />
           </div>
         </div>
       </PageTransition>
     );
   }
 
+  const balanceColor =
+    balanceScore >= 70
+      ? "#10b981"
+      : balanceScore >= 40
+        ? "#f59e0b"
+        : "#f43f5e";
+
   return (
     <PageTransition>
-      <div className="space-y-6">
-        {/* Header */}
-        <SlideIn direction="top">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                  }}
-                >
-                  <Users className="h-6 w-6" />
-                </div>
-                {t("Sidebar.workload")}
+      <div className="space-y-6 pb-10">
+        {/* Apple Style Unified Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25 shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
+                {t("Workload.title") || "Carga de Trabajo"}
               </h1>
-              <p className="text-muted-foreground flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Visualiza y balancea la carga del equipo
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate">
+                {t("Workload.subtitle") || "Visualiza y balancea la carga del equipo"}
               </p>
             </div>
-            <div className="flex items-center gap-3">
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {/* Live Summary Pills */}
+            {workloadData && (
+              <div className="hidden lg:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
+                <span className="h-2 w-2 rounded-full bg-purple-500" />
+                <span>{t("Workload.teamMembers") || "Miembros"}:</span>
+                <span className="font-bold text-foreground">
+                  {membersList.length}
+                </span>
+                <span className="text-border">|</span>
+                <span>{t("Workload.averageWorkload") || "Carga Media"}:</span>
+                <span className="font-bold text-foreground">
+                  {workloadData.averageWorkload}%
+                </span>
+                <span className="text-border">|</span>
+                <span>{t("Workload.teamBalance") || "Balance"}:</span>
+                <span className="font-bold" style={{ color: balanceColor }}>
+                  {balanceScore}%
+                </span>
+              </div>
+            )}
+
+            {/* Workspace Selector */}
+            <div className="relative inline-flex items-center">
               <select
-                value={selectedWorkspaceId || ""}
+                aria-label={t("Workload.selectWorkspace") || "Seleccionar espacio"}
+                value={activeWorkspaceId || ""}
                 onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
               >
                 {workspaces.map((ws: any) => (
-                  <option key={ws.id} value={ws.id}>{ws.name}</option>
+                  <option key={ws.id} value={ws.id}>
+                    {ws.name}
+                  </option>
                 ))}
               </select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => selectedWorkspaceId && fetchWorkload(selectedWorkspaceId)}
-                disabled={isRefreshing}
-                className="gap-2"
-              >
-                <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-                Actualizar
-              </Button>
+              <ChevronDown className="h-4 w-4 text-muted-foreground absolute right-2.5 pointer-events-none" />
             </div>
+
+            {/* Refresh Button */}
+            <button
+              type="button"
+              onClick={() => activeWorkspaceId && fetchWorkload(activeWorkspaceId)}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3.5 py-2 text-sm font-medium text-foreground hover:bg-muted/60 transition-all duration-200 shadow-xs disabled:opacity-60 cursor-pointer"
+            >
+              <RefreshCw
+                className={cn(
+                  "h-4 w-4 text-muted-foreground",
+                  isRefreshing && "animate-spin text-foreground"
+                )}
+              />
+              <span className="hidden sm:inline">
+                {isRefreshing
+                  ? t("Workload.refreshing") || "Actualizando..."
+                  : t("Workload.refresh") || "Actualizar"}
+              </span>
+            </button>
           </div>
-        </SlideIn>
+        </div>
 
         {workloadData ? (
           <>
-            {/* Overview Stats */}
-            <StaggerList className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StaggerItem>
-                <Card className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10">
-                      <Users className="h-5 w-5 text-blue-500" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{workloadData.members.length}</p>
-                      <p className="text-xs text-muted-foreground">Miembros activos</p>
-                    </div>
+            {/* 4 Apple-grade KPI Stats Cards with Micro-Halo Hover Effects */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Card 1: Miembros */}
+              <div
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+                onClick={() => setLevelFilter("ALL")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#a855f770";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px -5px rgba(168, 85, 247, 0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "";
+                  e.currentTarget.style.boxShadow = "";
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                    {t("Workload.teamMembers") || "Miembros del equipo"}
+                  </span>
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 transition-transform duration-300 group-hover:scale-110">
+                    <Users className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                   </div>
-                </Card>
-              </StaggerItem>
-              <StaggerItem>
-                <Card className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500/10">
-                      <BarChart3 className="h-5 w-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{workloadData.averageWorkload}%</p>
-                      <p className="text-xs text-muted-foreground">Carga promedio</p>
-                    </div>
-                  </div>
-                </Card>
-              </StaggerItem>
-              <StaggerItem>
-                <Card className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "p-2 rounded-lg",
-                      (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-500/10" :
-                      (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-500/10" : "bg-red-500/10"
-                    )}>
-                      <Target className={cn(
-                        "h-5 w-5",
-                        getBalanceColor(workloadData.balanceScore ?? 100)
-                      )} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{workloadData.balanceScore ?? 100}%</p>
-                      <p className="text-xs text-muted-foreground">Balance del equipo</p>
-                    </div>
-                  </div>
-                </Card>
-              </StaggerItem>
-              <StaggerItem>
-                <Card className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10">
-                      <AlertTriangle className="h-5 w-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {workloadData.members.filter(m => m.workloadLevel === "OVERLOADED" || m.workloadLevel === "HIGH").length}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Necesitan ayuda</p>
-                    </div>
-                  </div>
-                </Card>
-              </StaggerItem>
-            </StaggerList>
+                </div>
+                <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {membersList.length}
+                </div>
+              </div>
 
-            {/* AI Suggestions */}
-            {workloadData.redistributionSuggestions && workloadData.redistributionSuggestions.length > 0 && (
-              <SlideIn delay={0.15}>
-                <Card className="border-2 border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      Sugerencias de Redistribución con IA
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      {workloadData.redistributionSuggestions.map((suggestion, idx) => (
+              {/* Card 2: Carga Promedio */}
+              <div
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#3b82f670";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px -5px rgba(59, 130, 246, 0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "";
+                  e.currentTarget.style.boxShadow = "";
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                    {t("Workload.averageWorkload") || "Carga promedio"}
+                  </span>
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500 transition-transform duration-300 group-hover:scale-110">
+                    <BarChart3 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {workloadData.averageWorkload}%
+                </div>
+              </div>
+
+              {/* Card 3: Tareas Asignadas */}
+              <div
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#f59e0b70";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px -5px rgba(245, 158, 11, 0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "";
+                  e.currentTarget.style.boxShadow = "";
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                    {t("Workload.assignedTasks") || "Tareas Asignadas"}
+                  </span>
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-transform duration-300 group-hover:scale-110">
+                    <CheckSquare className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {totalAssignedTasks}
+                </div>
+              </div>
+
+              {/* Card 4: Balance del Equipo */}
+              <div
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${balanceColor}70`;
+                  e.currentTarget.style.boxShadow = `0 10px 25px -5px ${balanceColor}20`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "";
+                  e.currentTarget.style.boxShadow = "";
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                    {t("Workload.teamBalance") || "Balance del equipo"}
+                  </span>
+                  <div
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+                    style={{
+                      backgroundColor: `${balanceColor}18`,
+                      color: balanceColor,
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                  </div>
+                </div>
+                <div
+                  className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight"
+                  style={{ color: balanceColor }}
+                >
+                  {balanceScore}%
+                </div>
+              </div>
+            </div>
+
+            {/* AI Suggestions (Redistribution Recommendations) */}
+            {workloadData.redistributionSuggestions &&
+              workloadData.redistributionSuggestions.length > 0 && (
+                <div className="rounded-2xl border border-purple-500/20 bg-purple-500/[0.03] p-5 shadow-xs space-y-3">
+                  <h2 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    <span>{t("Workload.aiSuggestions") || "Sugerencias de IA"}</span>
+                  </h2>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {workloadData.redistributionSuggestions.map(
+                      (suggestion: WorkloadSuggestion, idx: number) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 p-4 rounded-xl border bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
+                          className="flex items-start gap-3 p-3.5 rounded-xl border border-border/60 bg-card hover:bg-muted/30 transition-colors"
                         >
-                          <div className="p-2 rounded-lg bg-orange-500/10 group-hover:bg-orange-500/20 transition-colors">
-                            <ArrowRightLeft className="h-5 w-5 text-orange-500" />
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 mt-0.5">
+                            <Users className="h-4 w-4" />
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{suggestion.reason}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-2">
+                              {suggestion.reason || suggestion.message}
+                            </p>
                             {suggestion.fromUserName && suggestion.toUserName && (
-                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                <span className="font-medium">{suggestion.fromUserName}</span>
-                                <ChevronRight className="h-3 w-3" />
-                                <span className="font-medium">{suggestion.toUserName}</span>
+                              <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                <span className="font-semibold text-foreground/90">
+                                  {suggestion.fromUserName}
+                                </span>
+                                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+                                <span className="font-semibold text-foreground/90">
+                                  {suggestion.toUserName}
+                                </span>
                                 {suggestion.taskCount && (
-                                  <Badge variant="secondary" className="ml-2 text-xs">
-                                    {suggestion.taskCount} tareas
-                                  </Badge>
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium text-[11px]">
+                                    ({suggestion.taskCount} tareas)
+                                  </span>
                                 )}
                               </p>
                             )}
                           </div>
-                          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            Aplicar
-                          </Button>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </SlideIn>
-            )}
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
 
-            {/* Team Members Table */}
-            <SlideIn delay={0.2}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <UserCheck className="h-5 w-5" />
-                    Carga por Miembro
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {workloadData.members.map((member, idx) => (
-                      <div
-                        key={member.userId}
-                        className={cn(
-                          "flex items-center gap-4 p-4 rounded-xl border transition-all hover:shadow-md",
-                          getStatusColor(member.workloadLevel).border
-                        )}
-                      >
-                        {/* Avatar */}
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Avatar className="h-12 w-12">
-                                <AvatarImage src={member.avatarUrl} alt={member.userName} />
-                                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                                  {member.userName?.[0]?.toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{member.userEmail}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+            {/* Apple Toolbar: Search + Workload Level Filter Pills */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Search Bar */}
+              <div className="relative w-full sm:w-72 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar miembro o email..."
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
+              {/* Workload Level Filter Pills */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+                <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                  {(
+                    [
+                      { key: "ALL", label: "Todos", count: membersList.length },
+                      {
+                        key: "LOW",
+                        label: t("Workload.levels.LOW") || "Baja carga",
+                        count: lowCount,
+                      },
+                      {
+                        key: "MODERATE",
+                        label: t("Workload.levels.MODERATE") || "Óptimo",
+                        count: moderateCount,
+                      },
+                      {
+                        key: "HIGH",
+                        label: t("Workload.levels.HIGH") || "Sobrecargado",
+                        count: highCount,
+                      },
+                      {
+                        key: "OVERLOADED",
+                        label: t("Workload.levels.OVERLOADED") || "Crítico",
+                        count: overloadedCount,
+                      },
+                    ] as const
+                  ).map((filter) => (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setLevelFilter(filter.key)}
+                      className={cn(
+                        "px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
+                        levelFilter === filter.key
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <span>{filter.label}</span>
+                      <span className="text-[11px] opacity-70">
+                        ({filter.count})
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Team Members List */}
+            <div className="space-y-3">
+              {filteredMembers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-muted/10">
+                  <Users className="h-10 w-10 text-muted-foreground/60 mb-3" />
+                  <h3 className="text-base font-semibold text-foreground">
+                    No se encontraron miembros
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                    Ningún miembro del equipo coincide con el criterio de búsqueda o nivel de carga seleccionado.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setLevelFilter("ALL");
+                    }}
+                    className="mt-4 rounded-xl border border-border/60 bg-card px-4 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 cursor-pointer"
+                  >
+                    Restablecer filtros
+                  </button>
+                </div>
+              ) : (
+                filteredMembers.map((member, idx) => {
+                  const styles = getStatusStyles(member.workloadLevel);
+                  return (
+                    <motion.div
+                      key={member.userId}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: idx * 0.03 }}
+                      className="group flex flex-col sm:flex-row sm:items-center gap-4 p-4 sm:p-5 rounded-2xl border border-border/60 bg-card hover:bg-muted/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = `${styles.color}70`;
+                        e.currentTarget.style.boxShadow = `0 10px 25px -5px ${styles.color}15`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "";
+                        e.currentTarget.style.boxShadow = "";
+                      }}
+                    >
+                      {/* Avatar & User Info */}
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                        <div className="relative shrink-0">
+                          {member.avatarUrl ? (
+                            <img
+                              src={member.avatarUrl}
+                              alt={member.userName}
+                              className="h-11 w-11 rounded-2xl object-cover border border-border/60"
+                            />
+                          ) : (
+                            <div
+                              className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-base transition-transform duration-300 group-hover:scale-105"
+                              style={{
+                                backgroundColor: `${styles.color}18`,
+                                color: styles.color,
+                              }}
+                            >
+                              {member.userName?.[0]?.toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-medium truncate">{member.userName}</h3>
+                            <h3 className="font-bold text-sm sm:text-base truncate text-foreground">
+                              {member.userName}
+                            </h3>
                             {getTrendIcon(member.trend)}
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">{member.userEmail}</p>
-                        </div>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {member.userEmail}
+                          </p>
 
-                        {/* Stats */}
-                        <div className="hidden lg:grid grid-cols-3 gap-8 text-center">
-                          <div>
-                            <p className="text-lg font-bold">{member.assignedTasks}</p>
-                            <p className="text-xs text-muted-foreground">Asignadas</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-bold text-green-500">{member.completedTasks}</p>
-                            <p className="text-xs text-muted-foreground">Completadas</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-bold">{member.hoursWorkedThisWeek}h</p>
-                            <p className="text-xs text-muted-foreground">Esta semana</p>
-                          </div>
-                        </div>
-
-                        {/* Workload Progress */}
-                        <div className="w-40 hidden md:block">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-muted-foreground">Carga</span>
-                            <span className={cn("text-sm font-bold", getStatusColor(member.workloadLevel).text)}>
-                              {member.workloadScore}%
+                          {/* Mobile inline stats */}
+                          <div className="sm:hidden flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                            <span>
+                              <strong className="text-foreground">
+                                {member.assignedTasks}
+                              </strong>{" "}
+                              {t("Workload.tasks") || "tareas"}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              <strong className="text-foreground">
+                                {member.hoursWorkedThisWeek}h
+                              </strong>{" "}
+                              esta semana
                             </span>
                           </div>
-                          <Progress
-                            value={Math.min(member.workloadScore, 100)}
-                            className={cn("h-2", getStatusColor(member.workloadLevel).light)}
+                        </div>
+                      </div>
+
+                      {/* Desktop Stats */}
+                      <div className="hidden sm:flex items-center gap-6 text-sm shrink-0">
+                        <div className="text-center min-w-[60px]">
+                          <p className="font-bold text-foreground text-base">
+                            {member.assignedTasks}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("Workload.tasks") || "Tareas"}
+                          </p>
+                        </div>
+                        <div className="text-center min-w-[60px]">
+                          <p className="font-bold text-foreground text-base">
+                            {member.completedTasks}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("Workload.today") || "Hoy"}
+                          </p>
+                        </div>
+                        <div className="text-center min-w-[60px]">
+                          <p className="font-bold text-foreground text-base">
+                            {member.hoursWorkedThisWeek}h
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("Workload.hours") || "Horas"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Workload Progress Bar */}
+                      <div className="w-full sm:w-40 md:w-48 flex flex-col justify-center shrink-0">
+                        <div className="flex items-center justify-between mb-1.5 text-xs font-semibold">
+                          <span className="text-muted-foreground">
+                            {t("Workload.load") || "Carga"}
+                          </span>
+                          <span style={{ color: styles.color }}>
+                            {member.workloadScore}%
+                          </span>
+                        </div>
+                        <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden shadow-inner">
+                          <div
+                            className={cn(
+                              "h-full rounded-full transition-all duration-500",
+                              styles.bar
+                            )}
+                            style={{
+                              width: `${Math.min(member.workloadScore, 100)}%`,
+                            }}
                           />
                         </div>
+                      </div>
 
-                        {/* Status Badge */}
-                        <Badge
-                          variant="outline"
+                      {/* Status Badge */}
+                      <div className="flex sm:justify-end shrink-0">
+                        <span
                           className={cn(
-                            "whitespace-nowrap",
-                            getStatusColor(member.workloadLevel).light,
-                            getStatusColor(member.workloadLevel).text,
-                            "border-0"
+                            "px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap",
+                            styles.badge
                           )}
                         >
                           {getStatusLabel(member.workloadLevel)}
-                        </Badge>
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </SlideIn>
+                    </motion.div>
+                  );
+                })
+              )}
+            </div>
           </>
-        ) : workspaces.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Briefcase className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No hay workspaces</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Crea un workspace para ver la carga de trabajo del equipo
-            </p>
-          </Card>
         ) : (
-          <Card className="p-12 text-center">
-            <Users className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Selecciona un workspace</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Elige un workspace para ver la carga de trabajo del equipo
+          <div className="rounded-2xl border border-dashed border-border/60 bg-card/50 p-12 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 mx-auto mb-4">
+              <Briefcase className="h-7 w-7" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1 text-foreground">
+              {t("Workload.selectWorkspacePrompt") || "Selecciona un espacio de trabajo"}
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              {t("Workload.selectWorkspaceDesc") || "Elige un espacio de trabajo para ver la carga de trabajo del equipo"}
             </p>
-          </Card>
+          </div>
         )}
       </div>
     </PageTransition>
   );
 }
+
+export default Workload;

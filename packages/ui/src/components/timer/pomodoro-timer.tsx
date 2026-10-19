@@ -1,6 +1,5 @@
-
-import { type ReactNode } from 'react';
-import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2 } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2, LayoutList, CircleDot } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,7 @@ import {
   DialogTitle,
 } from '../ui/dialog.js';
 import type { TimerMode } from './timer-widget.js';
+import { cn } from '../../utils/index.js';
 
 export interface TimerState {
   isLoaded: boolean;
@@ -33,7 +33,7 @@ export interface TimerActions {
   setSelectedTaskId: (taskId: string | null) => void;
 }
 
-interface PomodoroTimerProps {
+export interface PomodoroTimerProps {
   /** Timer state - typically from useTimer hook */
   state: TimerState;
   /** Timer actions - typically from useTimer hook */
@@ -54,16 +54,24 @@ interface PomodoroTimerProps {
     switchTaskDescription?: string;
     switchTaskButtonTitle?: string;
     enterFocusMode?: string;
+    currentTask?: string;
+    completed?: string;
+    horizontalView?: string;
+    circularView?: string;
   };
   /** Dialog state controlled by parent */
   showSwitchDialog?: boolean;
   setShowSwitchDialog?: (show: boolean) => void;
+  /** Layout variant: 'horizontal' (compact console) | 'circular' (classic ring). Defaults to 'horizontal' */
+  variant?: 'horizontal' | 'circular';
+  /** Allow user to toggle between horizontal and circular */
+  allowVariantToggle?: boolean;
 }
 
-const MODE_COLORS = {
-  WORK: '#ef4444',
-  SHORT_BREAK: '#4ade80',
-  LONG_BREAK: '#15803d',
+const MODE_COLORS: Record<string, string> = {
+  WORK: '#f43f5e',
+  SHORT_BREAK: '#10b981',
+  LONG_BREAK: '#0d9488',
   CONTINUOUS: '#3b82f6',
 };
 
@@ -84,27 +92,8 @@ function formatTime(seconds: number): string {
 /**
  * PomodoroTimer - Platform-agnostic timer display with controls
  * 
- * All state and actions are passed via props for maximum flexibility.
- * 
- * @example
- * // In web app
- * const timerContext = useTimer();
- * 
- * <PomodoroTimer
- *   state={{
- *     isLoaded: timerContext.isLoaded,
- *     isRunning: timerContext.isRunning,
- *     // ... other state
- *   }}
- *   actions={{
- *     start: timerContext.start,
- *     pause: timerContext.pause,
- *     // ... other actions
- *   }}
- *   TaskSelectorComponent={<TaskSelector ... />}
- *   onFocusModeClick={() => router.push('/focus')}
- *   labels={{ ... }}
- * />
+ * Supports both horizontal Apple-grade cockpit layout (compact, no scrolling needed)
+ * and classic circular SVG ring layout.
  */
 export function PomodoroTimer({
   state,
@@ -114,7 +103,14 @@ export function PomodoroTimer({
   labels = {},
   showSwitchDialog = false,
   setShowSwitchDialog,
+  variant,
+  allowVariantToggle = true,
 }: PomodoroTimerProps) {
+  const [internalVariant, setInternalVariant] = useState<'horizontal' | 'circular'>(
+    variant || 'horizontal'
+  );
+  const activeVariant = variant !== undefined ? variant : internalVariant;
+
   const {
     isLoaded,
     isRunning,
@@ -130,19 +126,22 @@ export function PomodoroTimer({
   const { start, pause, resume, stop, skipToNext } = actions;
 
   const {
-    stopwatch = 'Stopwatch',
+    stopwatch = 'Cronómetro',
     pomodoroCount = (count: number) => `Pomodoro ${count}`,
-    shortBreak = 'Short Break',
-    longBreak = 'Long Break',
-    paused = 'Paused',
-    pauseCount: pauseCountLabel = (count: number) => `${count} pause${count !== 1 ? 's' : ''}`,
-    switchTaskTitle = 'Switch Task',
-    switchTaskDescription = 'Select a different task to track time against.',
-    switchTaskButtonTitle = 'Switch task',
-    enterFocusMode = 'Enter Focus Mode',
+    shortBreak = 'Descanso Corto',
+    longBreak = 'Descanso Largo',
+    paused = 'En Pausa',
+    pauseCount: pauseCountLabel = (count: number) => `${count} pausa${count !== 1 ? 's' : ''}`,
+    switchTaskTitle = 'Cambiar Tarea',
+    switchTaskDescription = 'Selecciona una tarea diferente para registrar tiempo.',
+    switchTaskButtonTitle = 'Cambiar tarea',
+    enterFocusMode = 'Modo Enfoque',
+    currentTask = 'Tarea Asignada',
+    horizontalView = 'Vista Horizontal',
+    circularView = 'Vista Circular',
   } = labels;
 
-  const accentColor = MODE_COLORS[mode] || '#ef4444';
+  const accentColor = MODE_COLORS[mode] || '#f43f5e';
 
   const getModeLabel = () => {
     if (defaultMode === 'CONTINUOUS') return stopwatch;
@@ -164,16 +163,197 @@ export function PomodoroTimer({
 
   if (!isLoaded) return null;
 
+  // Horizontal Cockpit (Apple-grade, compact, minimal vertical height)
+  if (activeVariant === 'horizontal') {
+    return (
+      <div className="relative w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-card/95 via-card/85 to-card p-5 sm:p-6 shadow-xs backdrop-blur-xs transition-all duration-300">
+        {/* Ambient gradient glow in the corner corresponding to mode */}
+        <div
+          className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15"
+          style={{ backgroundColor: accentColor }}
+        />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          {/* Left: Time display, mode pill & horizontal progress */}
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border shadow-2xs"
+                style={{
+                  borderColor: `${accentColor}40`,
+                  backgroundColor: `${accentColor}15`,
+                  color: accentColor,
+                }}
+              >
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    isRunning && !isPaused ? "animate-pulse" : ""
+                  )}
+                  style={{ backgroundColor: accentColor }}
+                />
+                <span>{getModeLabel()}</span>
+              </div>
+
+              {isPaused && (
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                  {paused}
+                </span>
+              )}
+
+              {isRunning && pauseCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {pauseCountLabel(pauseCount)}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-baseline gap-3 my-0.5">
+              <h1 className="text-5xl sm:text-6xl font-bold font-mono tracking-tight tabular-nums text-foreground leading-none">
+                {formatTime(timeLeft)}
+              </h1>
+              <span className="text-sm font-medium text-muted-foreground tabular-nums">
+                {Math.round(progress)}%
+              </span>
+            </div>
+
+            {/* Sleek Horizontal Progress Bar */}
+            <div className="space-y-1.5 w-full max-w-md">
+              <div className="h-2.5 w-full rounded-full bg-muted/50 overflow-hidden relative border border-border/30">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${Math.min(100, Math.max(0, progress))}%`,
+                    backgroundColor: accentColor,
+                    boxShadow: `0 0 10px ${accentColor}80`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Center: Tactile Controls */}
+          <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-4 shrink-0 py-1">
+            {/* Play / Pause Primary Button */}
+            <button
+              onClick={handlePlayPause}
+              className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl text-white shadow-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+              style={{
+                backgroundColor: accentColor,
+                boxShadow: `0 8px 24px -4px ${accentColor}60`,
+              }}
+              title={isRunning && !isPaused ? "Pausar" : "Iniciar"}
+            >
+              {isRunning && !isPaused ? (
+                <Pause className="h-6 w-6 sm:h-7 sm:w-7" />
+              ) : (
+                <Play className="h-6 w-6 sm:h-7 sm:w-7 ml-0.5" />
+              )}
+            </button>
+
+            {/* Secondary Controls */}
+            {(isRunning || isPaused) && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => stop(false)}
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-xs"
+                  title="Detener"
+                >
+                  <Square className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                </button>
+
+                {defaultMode === 'POMODORO' && (
+                  <button
+                    onClick={skipToNext}
+                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-xs"
+                    title="Saltar al siguiente bloque"
+                  >
+                    <SkipForward className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setShowSwitchDialog?.(true)}
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-xs"
+                  title={switchTaskButtonTitle}
+                >
+                  <RefreshCw className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Task selector context & Actions */}
+          {TaskSelectorComponent && (
+            <div className="w-full lg:w-72 xl:w-80 shrink-0 border-t lg:border-t-0 lg:border-l border-border/50 pt-4 lg:pt-0 lg:pl-6 flex flex-col justify-center">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
+                  {currentTask}
+                </span>
+                <div className="flex items-center gap-2">
+                  {allowVariantToggle && (
+                    <button
+                      onClick={() => setInternalVariant('circular')}
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors cursor-pointer p-1 rounded-lg hover:bg-muted/50"
+                      title={circularView}
+                    >
+                      <CircleDot className="h-3.5 w-3.5" />
+                      <span className="sr-only">Circular</span>
+                    </button>
+                  )}
+                  {onFocusModeClick && (
+                    <button
+                      onClick={onFocusModeClick}
+                      title={enterFocusMode}
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors cursor-pointer p-1 rounded-lg hover:bg-muted/50"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      <span>Enfoque</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="w-full">
+                {TaskSelectorComponent}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Switch Task Dialog */}
+        <Dialog open={showSwitchDialog} onOpenChange={setShowSwitchDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{switchTaskTitle}</DialogTitle>
+              <DialogDescription>{switchTaskDescription}</DialogDescription>
+            </DialogHeader>
+            <div className="py-4">{TaskSelectorComponent}</div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // Circular Layout (Classic Mode)
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8 relative">
-      {/* Focus Mode Link */}
-      {onFocusModeClick && (
-        <div className="absolute top-0 right-0">
-          <button onClick={onFocusModeClick} title={enterFocusMode}>
-            <Maximize2 className="w-6 h-6 text-muted-foreground/50 hover:text-foreground transition-colors" />
+      {/* Top Controls: Switch Layout & Focus Mode */}
+      <div className="absolute top-0 right-0 flex items-center gap-2">
+        {allowVariantToggle && (
+          <button
+            onClick={() => setInternalVariant('horizontal')}
+            title={horizontalView}
+            className="p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <LayoutList className="w-5 h-5" />
           </button>
-        </div>
-      )}
+        )}
+        {onFocusModeClick && (
+          <button onClick={onFocusModeClick} title={enterFocusMode} className="p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors">
+            <Maximize2 className="w-5 h-5" />
+          </button>
+        )}
+      </div>
 
       {/* Mode & Settings Info */}
       <div className="text-center w-full max-w-sm">
@@ -239,7 +419,7 @@ export function PomodoroTimer({
       <div className="flex items-center justify-center gap-4">
         <button
           onClick={handlePlayPause}
-          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
+          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
           style={{
             backgroundColor: accentColor,
             boxShadow: `0 10px 20px -5px ${accentColor}50`,
@@ -256,7 +436,7 @@ export function PomodoroTimer({
           <>
             <button
               onClick={() => stop(false)}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background cursor-pointer"
             >
               <Square className="h-6 w-6" />
             </button>
@@ -264,7 +444,7 @@ export function PomodoroTimer({
             {defaultMode === 'POMODORO' && (
               <button
                 onClick={skipToNext}
-                className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
+                className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background cursor-pointer"
               >
                 <SkipForward className="h-6 w-6" />
               </button>
@@ -272,7 +452,7 @@ export function PomodoroTimer({
 
             <button
               onClick={() => setShowSwitchDialog?.(true)}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background cursor-pointer"
               title={switchTaskButtonTitle}
             >
               <RefreshCw className="h-6 w-6" />

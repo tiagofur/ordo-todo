@@ -17,6 +17,7 @@
  */
 
 import { Target, TrendingUp, AlertTriangle, ChevronRight, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 
 /**
@@ -115,10 +116,14 @@ export function OkrWidget({
   }
 
   return (
-    <div
+    <motion.div
+      whileHover={{
+        y: -3,
+        borderColor: `${accentColor}70`,
+        boxShadow: `0 12px 28px -6px ${accentColor}25`,
+      }}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300',
-        'hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20 flex flex-col h-full',
+        'group relative overflow-hidden rounded-2xl border border-border/60 bg-card/90 backdrop-blur-xl transition-all duration-300 flex flex-col justify-between shadow-xs h-full',
         className
       )}
     >
@@ -127,33 +132,33 @@ export function OkrWidget({
         className="absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all opacity-5 group-hover:opacity-10 pointer-events-none"
         style={{ backgroundColor: accentColor }}
       />
-      <div
-        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl transition-all opacity-5 group-hover:opacity-10 pointer-events-none"
-        style={{ backgroundColor: '#a855f7' }}
-      />
 
       {/* Header */}
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-sm"
-              style={{ backgroundColor: accentColor }}
+              className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 shrink-0"
+              style={{
+                backgroundColor: `${accentColor}15`,
+                color: accentColor,
+                border: `1px solid ${accentColor}25`,
+              }}
             >
               <Target className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold">{t.title}</h3>
+              <h3 className="text-sm font-semibold tracking-tight text-foreground">{t.title}</h3>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
-                {Math.round(averageProgress)}% {t.averageProgress}
+                <span className="tabular-nums font-medium text-foreground">{Math.round(averageProgress)}%</span> {t.averageProgress}
               </p>
             </div>
           </div>
           {onNavigate && (
             <button
               onClick={() => onNavigate('/goals')}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {t.viewAll}
               <ChevronRight className="h-3 w-3" />
@@ -283,6 +288,6 @@ export function OkrWidget({
           to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }

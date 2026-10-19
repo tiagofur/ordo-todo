@@ -1,17 +1,17 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { UnifiedTrashView } from "@/components/trash/unified-trash-view";
 
-export default function TasksTrashPage() {
+export default function TasksTrashLegacyRedirectPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId") || "";
 
-  return (
-    <UnifiedTrashView
-      defaultTab="tasks"
-      initialProjectId={projectId}
-      wrapInAppLayout={false}
-    />
-  );
+  useEffect(() => {
+    const query = searchParams.toString();
+    router.replace(`/trash/tasks${query ? `?${query}` : ""}`);
+  }, [router, searchParams]);
+
+  return null;
 }

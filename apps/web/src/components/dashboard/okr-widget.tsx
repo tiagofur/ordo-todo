@@ -17,15 +17,17 @@ import { OkrWidget as SharedOkrWidget } from "@ordo-todo/ui";
 
 interface OkrWidgetProps {
   accentColor?: string;
+  className?: string;
 }
 
-export function OkrWidget({ accentColor = "#ec4899" }: OkrWidgetProps) {
+export function OkrWidget({ accentColor = "#ec4899", className }: OkrWidgetProps) {
   const t = useTranslations("Goals");
   const router = useRouter();
   const { data: summary, isLoading } = useObjectivesDashboardSummary();
 
   return (
     <SharedOkrWidget
+      className={className}
       summary={summary}
       isLoading={isLoading}
       onNavigate={(path) => router.push(path)}

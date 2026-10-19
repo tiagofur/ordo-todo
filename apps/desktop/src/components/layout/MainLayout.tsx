@@ -1,12 +1,15 @@
 import { Outlet } from "react-router-dom";
 import TitleBar from "../TitleBar";
 import { Sidebar } from "../layout/Sidebar";
+import { TopBar } from "../layout/TopBar";
 import { useState, useEffect } from "react";
 import { QuickActionsOverlay } from "../quick-actions/QuickActionsOverlay";
 import { QuickAddTask } from "../quick-actions/QuickAddTask";
 import { KeyboardShortcutsHelp } from "../keyboard-shortcuts/KeyboardShortcutsHelp";
 import { useGlobalKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSystemIntegration } from "../system/SystemIntegration";
+
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 export function MainLayout() {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -21,8 +24,8 @@ export function MainLayout() {
   useEffect(() => {
     // Check window state on mount
     const checkWindowState = async () => {
-      if (window.electronAPI) {
-        const maximized = await window.electronAPI.isMaximized();
+      if (desktopBridge.isNative()) {
+        const maximized = await desktopBridge.isMaximized();
         setIsMaximized(maximized);
       }
     };
@@ -57,13 +60,14 @@ export function MainLayout() {
       <TitleBar isMaximized={isMaximized} />
 
       {/* Main content with sidebar (sidebar is fixed positioned) */}
-      <div className="pt-16">
+      <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground pt-8">
         <Sidebar />
-        <main className="pl-64 min-h-screen bg-background">
-          <div className="p-6">
+        <div className="flex flex-1 flex-col overflow-hidden pl-64 min-w-0">
+          <TopBar />
+          <main className="flex-1 overflow-y-auto flex flex-col min-h-0 p-4 sm:p-6">
             <Outlet />
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Enhanced Desktop Features Overlays */}

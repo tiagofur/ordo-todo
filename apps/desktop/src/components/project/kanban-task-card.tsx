@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
+import { isCalendarDateOverdue } from "@ordo-todo/core";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { TaskHealthBadge } from "@/components/task/task-health-badge";
 
@@ -51,7 +52,7 @@ export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
     return format(dateObj, "d MMM", { locale: es });
   };
 
-  const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const isOverdue = isCalendarDateOverdue(task.dueDate, isCompleted);
 
   return (
     <>

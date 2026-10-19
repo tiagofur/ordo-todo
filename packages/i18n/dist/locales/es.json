@@ -54,9 +54,9 @@
     "workload": "Carga de trabajo",
     "notes": "Notas",
     "insights": "Insights",
-    "sectionPlan": "Planificar",
-    "sectionInsights": "Análisis",
-    "sectionTeam": "Equipo"
+    "sectionPlan": "Planificación",
+    "sectionInsights": "Rendimiento",
+    "sectionTeam": "Equipo & Enfoque"
   },
   "Settings": {
     "title": "Configuración",
@@ -819,9 +819,15 @@
   },
   "Notifications": {
     "title": "Notificaciones",
+    "subtitle": "Mantente al día con la actividad de tu equipo y tareas",
     "empty": "No hay notificaciones",
+    "emptyUnread": "¡Estás al día! No tienes notificaciones pendientes",
+    "emptyAll": "No tienes notificaciones en este momento",
     "loading": "Cargando...",
-    "markAllRead": "Marcar todas como leídas"
+    "markAllRead": "Marcar todas como leídas",
+    "markAsRead": "Marcar como leída",
+    "filterAll": "Todas",
+    "filterUnread": "No leídas"
   },
   "FileUpload": {
     "errors": {
@@ -1012,7 +1018,8 @@
     "addTask": "Nueva Tarea",
     "tasksSection": "Tareas del Proyecto",
     "breadcrumbs": {
-      "projects": "Proyectos"
+      "projects": "Proyectos",
+      "workspaces": "Espacios de trabajo"
     },
     "badges": {
       "archived": "Archivado",
@@ -1349,6 +1356,9 @@
     }
   },
   "PomodoroTimer": {
+    "currentTask": "Tarea Asignada",
+    "horizontalView": "Vista Horizontal",
+    "circularView": "Vista Circular",
     "enterFocusMode": "Entrar al Modo Enfoque",
     "mode": "Modo: {mode}",
     "modes": {
@@ -1834,6 +1844,7 @@
   },
   "Profile": {
     "title": "Configuración de Perfil",
+    "subtitle": "Gestiona tu identidad, preferencias de IA, seguridad y suscripción",
     "tabs": {
       "profile": "Perfil",
       "ai": "IA",
@@ -1841,6 +1852,7 @@
       "privacy": "Privacidad",
       "integrations": "Integraciones",
       "subscription": "Suscripción",
+      "gamification": "Nivel & XP",
       "account": "Cuenta"
     },
     "profile": {

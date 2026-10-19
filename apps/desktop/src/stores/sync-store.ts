@@ -1,15 +1,7 @@
-/**
- * Sync Store - Manages sync state in the renderer process
- * 
- * Provides reactive sync status for UI components
- */
-
 import { create } from 'zustand';
 
-export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline';
-
 export interface SyncState {
-  status: SyncStatus;
+  status: 'idle' | 'syncing' | 'offline' | 'error';
   lastSyncTime: number | null;
   pendingChanges: number;
   failedChanges: number;
@@ -18,18 +10,9 @@ export interface SyncState {
   error?: string;
 }
 
-export interface SyncQueueStats {
-  pending: number;
-  failed: number;
-  total: number;
-}
-
-interface SyncStore extends SyncState {
-  // Actions
+export interface SyncStore extends SyncState {
   setSyncState: (state: Partial<SyncState>) => void;
   setOnlineStatus: (isOnline: boolean) => void;
-  
-  // Electron API actions
   initialize: () => Promise<void>;
   forceSync: () => Promise<void>;
   setAuthToken: (token: string | null) => Promise<void>;
@@ -37,8 +20,6 @@ interface SyncStore extends SyncState {
   stopAutoSync: () => Promise<void>;
   refreshState: () => Promise<void>;
 }
-
-const isElectron = typeof window !== 'undefined' && window.electronAPI;
 
 export const useSyncStore = create<SyncStore>((set, get) => ({
   // Initial state
@@ -52,84 +33,94 @@ export const useSyncStore = create<SyncStore>((set, get) => ({
 
   // Actions
   setSyncState: (state) => set((prev) => ({ ...prev, ...state })),
-  
+
   setOnlineStatus: (isOnline) => {
     set({ isOnline, status: isOnline ? 'idle' : 'offline' });
-    if (isElectron) {
-      window.electronAPI.sync.setOnlineStatus(isOnline);
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (electronAPI?.sync) {
+      electronAPI.sync.setOnlineStatus(isOnline);
     }
   },
 
   initialize: async () => {
-    if (!isElectron) return;
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) {
+      window.addEventListener('online', () => get().setOnlineStatus(true));
+      window.addEventListener('offline', () => get().setOnlineStatus(false));
+      get().setOnlineStatus(navigator.onLine);
+      return;
+    }
 
-    // Listen for sync state changes from main process
-    window.electronAPI.sync.onStateChanged((state) => {
+    electronAPI.sync.onStateChanged((state: any) => {
       set(state);
     });
 
-    // Get initial state
-    const state = await window.electronAPI.sync.getState();
+    const state = await electronAPI.sync.getState();
     set(state);
 
-    // Listen for online/offline events
     window.addEventListener('online', () => get().setOnlineStatus(true));
     window.addEventListener('offline', () => get().setOnlineStatus(false));
-
-    // Set initial online status
     get().setOnlineStatus(navigator.onLine);
   },
 
   forceSync: async () => {
-    if (!isElectron) return;
-    
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) return;
+
     set({ status: 'syncing' });
     try {
-      const state = await window.electronAPI.sync.force();
+      const state = await electronAPI.sync.force();
       set(state);
     } catch (error) {
-      set({ 
-        status: 'error', 
-        error: error instanceof Error ? error.message : 'Sync failed' 
+      set({
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Sync failed',
       });
     }
   },
 
   setAuthToken: async (token) => {
-    if (!isElectron) return;
-    await window.electronAPI.sync.setAuthToken(token);
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) return;
+    await electronAPI.sync.setAuthToken(token);
   },
 
   startAutoSync: async (intervalMs = 30000) => {
-    if (!isElectron) return;
-    await window.electronAPI.sync.startAuto(intervalMs);
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) return;
+    await electronAPI.sync.startAuto(intervalMs);
   },
 
   stopAutoSync: async () => {
-    if (!isElectron) return;
-    await window.electronAPI.sync.stopAuto();
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) return;
+    await electronAPI.sync.stopAuto();
   },
 
   refreshState: async () => {
-    if (!isElectron) return;
-    const state = await window.electronAPI.sync.getState();
+    const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
+    if (!electronAPI?.sync) return;
+    const state = await electronAPI.sync.getState();
     set(state);
   },
 }));
 
-/**
- * Hook to get formatted last sync time
- */
-export function useLastSyncFormatted(): string {
+export const useSyncState = () => useSyncStore();
+
+export const useLastSyncFormatted = () => {
   const lastSyncTime = useSyncStore((s) => s.lastSyncTime);
-  
-  if (!lastSyncTime) return 'Never synced';
-  
-  const now = Date.now();
-  const diff = now - lastSyncTime;
-  
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (!lastSyncTime) return 'Nunca';
+
+  const diff = Date.now() - lastSyncTime;
+  const minutes = Math.floor(diff / 60000);
+
+  if (minutes < 1) return 'Justo ahora';
+  if (minutes === 1) return 'Hace 1 minuto';
+  if (minutes < 60) return `Hace ${minutes} minutos`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours === 1) return 'Hace 1 hora';
+  if (hours < 24) return `Hace ${hours} horas`;
+
   return new Date(lastSyncTime).toLocaleDateString();
-}
+};

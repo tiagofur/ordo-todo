@@ -1,96 +1,79 @@
-import { Bell, Search, User, Settings, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { TopBar as TopBarUI, Dialog, DialogContent } from "@ordo-todo/ui";
 import { useAuth } from "@ordo-todo/auth-provider";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@ordo-todo/ui";
-import { ConnectionStatusIndicator } from "@/components/shared/connection-status-indicator";
-import type { SocketConnectionState } from "@/hooks/use-notifications-socket";
+import { useGamificationProfile } from "@/lib/shared-hooks";
+import { SyncStatusIndicator } from "@/components/sync/SyncStatusIndicator";
+import { NotificationPopover } from "@/components/notifications/NotificationPopover";
+import { SmartSearch } from "@/components/search/SmartSearch";
 
 interface TopBarProps {
-  connectionState?: SocketConnectionState;
+  onMenuClick?: () => void;
+  connectionState?: any;
   onReconnect?: () => void;
 }
 
-export function TopBar({ connectionState, onReconnect }: TopBarProps) {
+export function TopBar({ onMenuClick }: TopBarProps) {
   const { t } = (useTranslation as any)();
   const { user, logout } = useAuth();
+  const { data: gamification } = useGamificationProfile({ enabled: !!user });
+  const navigate = useNavigate();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Global CMD+K / Ctrl+K listener for search
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      setIsSearchOpen((prev) => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
-      {/* Search */}
-      <div className="flex flex-1 items-center gap-2">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder={t("TopBar.searchPlaceholder")}
-            className="h-10 w-full rounded-lg border bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+    <>
+      <TopBarUI
+        user={{
+          name: user?.name,
+          email: user?.email,
+          level: gamification?.level ?? (user as any)?.level ?? 1,
+          xp: gamification?.xp ?? (user as any)?.xp ?? 0,
+        }}
+        onLogout={logout}
+        onProfileClick={() => navigate("/profile")}
+        onSettingsClick={() => navigate("/settings")}
+        onMenuClick={onMenuClick}
+        onSearchClick={() => setIsSearchOpen(true)}
+        onAICopilotClick={() => navigate("/ai-chat")}
+        renderNotifications={() => <NotificationPopover />}
+        renderSyncStatus={() => <SyncStatusIndicator size="sm" />}
+        labels={{
+          searchPlaceholder: t("TopBar.searchPlaceholder", "Buscar con lenguaje natural (IA)"),
+          myAccount: t("TopBar.myAccount", "Mi Cuenta"),
+          profile: t("TopBar.profile", "Perfil"),
+          settings: t("TopBar.settings", "Configuración"),
+          logout: t("TopBar.logout", "Cerrar sesión"),
+          aiCopilot: "Ordo AI Copilot",
+          level: "Lvl",
+          menu: t("TopBar.menu", "Menú"),
+        }}
+      />
+
+      {/* Smart Search Dialog */}
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent className="sm:max-w-2xl p-0 gap-0 bg-transparent border-none shadow-none">
+          <SmartSearch
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
           />
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        {/* Connection Status Indicator */}
-        {connectionState && (
-          <ConnectionStatusIndicator
-            connected={connectionState.connected}
-            connecting={connectionState.connecting}
-            error={connectionState.error}
-            onReconnect={onReconnect}
-          />
-        )}
-
-        {/* Notifications */}
-        {/* Notifications */}
-        <Link to="/notifications" className="relative flex h-10 w-10 items-center justify-center rounded-lg hover:bg-accent">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-        </Link>
-
-        {/* User Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex h-10 items-center gap-2 rounded-lg px-3 hover:bg-accent">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                {user?.name?.[0]?.toUpperCase() || "U"}
-              </div>
-              <span className="hidden text-sm font-medium md:inline-block">
-                {user?.name || "Usuario"}
-              </span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>{t("TopBar.myAccount")}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
-                <User className="h-4 w-4" />
-                {t("TopBar.profile")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
-                <Settings className="h-4 w-4" />
-                {t("TopBar.settings")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer">
-              <LogOut className="h-4 w-4" />
-              {t("TopBar.logout")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
+export default TopBar;

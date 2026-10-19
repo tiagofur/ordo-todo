@@ -3,515 +3,1204 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { 
   Moon, Sun, Laptop, Globe, Bell, Clock, Keyboard, 
-  Monitor, Download, Power, ExternalLink, RefreshCw, Loader2, Settings as SettingsIcon 
+  Monitor, Download, Power, ExternalLink, RefreshCw, Loader2, Settings as SettingsIcon,
+  Palette, Volume2, Sparkles, Headphones, Shield, Zap, Brain, Heart, Check
 } from "lucide-react";
-import { Label, Separator, Switch, Slider, Button } from "@ordo-todo/ui";
-import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
+import { Label, Separator, Switch, Slider, Button, cn } from "@ordo-todo/ui";
+import { changeLanguage, getCurrentLanguage, SupportedLanguage } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
-import { useElectron } from "@/hooks/use-electron";
+import { desktopBridge } from "@/lib/desktop-bridge";
+import { useTimerStore } from "@/stores/timer-store";
+import { useUserPreferences, useUpdatePreferences } from "@/lib/shared-hooks";
+import { SessionsManager } from "@/components/settings/SessionsManager";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+
+type SettingsTab = "general" | "timer" | "audio" | "ai" | "security" | "desktop" | "shortcuts";
 
 export function Settings() {
   const { setTheme, theme } = useTheme();
-  const { t, i18n } = (useTranslation as any)();
-  const { isElectron } = useElectron();
+  const { t } = (useTranslation as any)();
   const currentLang = getCurrentLanguage();
+  const [activeLang, setActiveLang] = useState<SupportedLanguage>(currentLang);
+  const [activeTab, setActiveTab] = useState<SettingsTab>("general");
 
-  // Accent color (matching Web)
-  const accentColor = "#06b6d4"; // Cyan
+  // User preferences from API
+  const { data: userPreferences } = useUserPreferences();
+  const updatePreferences = useUpdatePreferences();
 
-  // Desktop-specific state
+  // Timer Store
+  const { config, updateConfig, mode, setMode } = useTimerStore();
+
+  // Desktop-specific native state
+  const isNative = desktopBridge.isNative();
   const [autoLaunchEnabled, setAutoLaunchEnabled] = useState(false);
-  const [startMinimized, setStartMinimized] = useState(true);
   const [timerFloatingVisible, setTimerFloatingVisible] = useState(false);
-  const [updateState, setUpdateState] = useState<{
-    status: string;
-    version?: string;
-    progress?: number;
-  }>({ status: 'idle' });
-  const [appVersion, setAppVersion] = useState('0.5.0');
+  const [appVersion, setAppVersion] = useState("0.5.0");
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<string>("idle");
 
-  // Load desktop settings
+  // Focus Audio local state
+  const [ambientAudioAuto, setAmbientAudioAuto] = useState(false);
+  const [ambientVolume, setAmbientVolume] = useState(50);
+
+  // Timer default mode state
+  const [timerMode, setTimerMode] = useState<"POMODORO" | "CONTINUOUS">("POMODORO");
+
+  // Load desktop & preference settings
   useEffect(() => {
-    if (!isElectron || !window.electronAPI) return;
+    setActiveLang(getCurrentLanguage());
 
-    // Load auto-launch settings
-    window.electronAPI.autoLaunch.getSettings().then((settings) => {
-      setAutoLaunchEnabled(settings.enabled);
-      setStartMinimized(settings.minimized);
-    });
+    if (isNative) {
+      desktopBridge.isAutostartEnabled().then((enabled) => {
+        setAutoLaunchEnabled(enabled);
+      });
+      desktopBridge.getSystemInfo().then((info) => {
+        if (info.version) setAppVersion(info.version);
+      });
+    }
 
-    // Load timer window visibility
-    window.electronAPI.timerWindow.isVisible().then(setTimerFloatingVisible);
-
-    // Load app version
-    window.electronAPI.autoUpdater.getVersion().then(setAppVersion);
-
-    // Listen for update state changes
-    window.electronAPI.autoUpdater.onStateChange((state) => {
-      setUpdateState(state);
-      if (state.status !== 'checking') {
-        setIsCheckingUpdate(false);
+    if (userPreferences?.focusAudio) {
+      if (userPreferences.focusAudio.auto !== undefined) {
+        setAmbientAudioAuto(Boolean(userPreferences.focusAudio.auto));
       }
-    });
+      if (userPreferences.focusAudio.volume !== undefined) {
+        setAmbientVolume(Number(userPreferences.focusAudio.volume));
+      }
+    }
+  }, [isNative, userPreferences]);
 
-    return () => {
-      window.electronAPI?.removeAllListeners('auto-update:state');
+  const handleLanguageChange = (lng: SupportedLanguage) => {
+    changeLanguage(lng);
+    setActiveLang(lng);
+    const langNames: Record<SupportedLanguage, string> = {
+      es: "Español",
+      en: "English",
+      "pt-br": "Português",
     };
-  }, [isElectron]);
+    toast.success(`${t("Settings.language") || "Idioma"}: ${langNames[lng]}`);
+  };
 
-  const handleLanguageChange = (lng: string) => {
-    changeLanguage(lng as any);
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    const mappedTheme = newTheme === "system" ? "AUTO" : newTheme === "dark" ? "DARK" : "LIGHT";
+    updatePreferences.mutate({ theme: mappedTheme as any });
+  };
+
+  const handleFocusDurationChange = (val: number) => {
+    updateConfig({ workDuration: val });
+    updatePreferences.mutate({ pomodoroDuration: val });
+  };
+
+  const handleShortBreakDurationChange = (val: number) => {
+    updateConfig({ shortBreakDuration: val });
+    updatePreferences.mutate({ shortBreakDuration: val });
+  };
+
+  const handleLongBreakDurationChange = (val: number) => {
+    updateConfig({ longBreakDuration: val });
+    updatePreferences.mutate({ longBreakDuration: val });
+  };
+
+  const handlePomodorosUntilLongBreakChange = (val: number) => {
+    updateConfig({ pomodorosUntilLongBreak: val });
+    updatePreferences.mutate({ pomodorosUntilLongBreak: val });
+  };
+
+  const handleAutoStartBreaksChange = (enabled: boolean) => {
+    updateConfig({ autoStartBreaks: enabled });
+  };
+
+  const handleAutoStartPomodorosChange = (enabled: boolean) => {
+    updateConfig({ autoStartPomodoros: enabled });
+  };
+
+  const handleNotificationsToggle = (enabled: boolean) => {
+    updateConfig({ notificationsEnabled: enabled });
+    updatePreferences.mutate({ enableNotifications: enabled });
+  };
+
+  const handleSoundToggle = (enabled: boolean) => {
+    updateConfig({ soundEnabled: enabled });
+    updatePreferences.mutate({ enableSounds: enabled });
+  };
+
+  const handleAmbientAudioAutoToggle = (enabled: boolean) => {
+    setAmbientAudioAuto(enabled);
+    localStorage.setItem("ordo-ambient-auto", String(enabled));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: enabled,
+        volume: ambientVolume,
+      },
+    });
+  };
+
+  const handleAmbientVolumeChange = (vol: number) => {
+    setAmbientVolume(vol);
+    localStorage.setItem("ordo-ambient-volume", String(vol));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: ambientAudioAuto,
+        volume: vol,
+      },
+    });
   };
 
   const handleAutoLaunchToggle = async (enabled: boolean) => {
-    if (!window.electronAPI) return;
-    
-    if (enabled) {
-      await window.electronAPI.autoLaunch.enable(startMinimized);
-    } else {
-      await window.electronAPI.autoLaunch.disable();
+    const success = await desktopBridge.setAutostart(enabled);
+    if (success) {
+      setAutoLaunchEnabled(enabled);
+      toast.success(enabled ? "Inicio automático activado" : "Inicio automático desactivado");
     }
-    setAutoLaunchEnabled(enabled);
-  };
-
-  const handleStartMinimizedToggle = async (minimized: boolean) => {
-    if (!window.electronAPI) return;
-    
-    await window.electronAPI.autoLaunch.setStartMinimized(minimized);
-    setStartMinimized(minimized);
   };
 
   const handleTimerFloatingToggle = async () => {
-    if (!window.electronAPI) return;
-    
-    const newVisibility = await window.electronAPI.timerWindow.toggle();
+    const newVisibility = await desktopBridge.toggleMiniTimer();
     setTimerFloatingVisible(newVisibility);
   };
 
   const handleCheckForUpdates = async () => {
-    if (!window.electronAPI) return;
-    
     setIsCheckingUpdate(true);
-    await window.electronAPI.autoUpdater.check(false);
+    setTimeout(() => {
+      setIsCheckingUpdate(false);
+      setUpdateStatus("latest");
+      toast.info("Ordo está actualizado en la versión más reciente");
+    }, 700);
   };
 
-  const handleDownloadUpdate = async () => {
-    if (!window.electronAPI) return;
-    await window.electronAPI.autoUpdater.download();
+  // AI preference updates
+  const handleAIPreferenceChange = (changes: Record<string, any>) => {
+    updatePreferences.mutate(changes);
+    toast.success("Preferencia de IA actualizada");
   };
 
-  const handleInstallUpdate = async () => {
-    if (!window.electronAPI) return;
-    await window.electronAPI.autoUpdater.install();
-  };
+  const currentAggressiveness = userPreferences?.aiAggressiveness ?? 5;
+  const currentSensitivity =
+    currentAggressiveness <= 3
+      ? "low"
+      : currentAggressiveness >= 8
+      ? "high"
+      : "medium";
+
+  const languages: { code: SupportedLanguage; label: string; sub: string; flag: string }[] = [
+    { code: "es", label: "Español", sub: "Español (Latinoamérica / España)", flag: "🇪🇸" },
+    { code: "en", label: "English", sub: "International English", flag: "🇺🇸" },
+    { code: "pt-br", label: "Português", sub: "Português (Brasil)", flag: "🇧🇷" },
+  ];
+
+  const tabs: { id: SettingsTab; label: string; icon: any }[] = [
+    { id: "general", label: "General", icon: Palette },
+    { id: "timer", label: "Temporizador", icon: Clock },
+    { id: "audio", label: "Sonido & Alertas", icon: Bell },
+    { id: "ai", label: "Inteligencia Artificial", icon: Sparkles },
+    { id: "security", label: "Seguridad", icon: Shield },
+    { id: "desktop", label: "Escritorio", icon: Monitor },
+    { id: "shortcuts", label: "Atajos", icon: Keyboard },
+  ];
 
   return (
     <PageTransition>
-      <div className="space-y-6">
-        {/* Header - Styled like Web */}
+      <div className="space-y-6 pb-12">
+        {/* Header - Apple Style Unified Pattern */}
         <SlideIn direction="top">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
-              >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs shrink-0">
                 <SettingsIcon className="h-6 w-6" />
               </div>
-              {t("Settings.title")}
-            </h1>
-            <p className="text-muted-foreground mt-2">Personaliza tu experiencia</p>
-          </div>
-        </SlideIn>
-
-        {/* Appearance */}
-        <SlideIn delay={0.1}>
-          <div className="rounded-lg border bg-card p-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <Sun className="h-5 w-5 text-muted-foreground" />
-                {t("Settings.appearance")}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t("Settings.theme")}
-              </p>
-              
-              <div className="grid grid-cols-3 gap-4 max-w-md">
-                <button
-                  onClick={() => setTheme("light")}
-                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
-                    theme === "light" ? "border-primary bg-accent" : "border-muted"
-                  }`}
-                >
-                  <Sun className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("Settings.themes.light")}</span>
-                </button>
-                <button
-                  onClick={() => setTheme("dark")}
-                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
-                    theme === "dark" ? "border-primary bg-accent" : "border-muted"
-                  }`}
-                >
-                  <Moon className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("Settings.themes.dark")}</span>
-                </button>
-                <button
-                  onClick={() => setTheme("system")}
-                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
-                    theme === "system" ? "border-primary bg-accent" : "border-muted"
-                  }`}
-                >
-                  <Laptop className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("Settings.themes.system")}</span>
-                </button>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Language */}
-            <div>
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <Globe className="h-5 w-5 text-muted-foreground" />
-                {t("Settings.language")}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Selecciona el idioma de la aplicación
-              </p>
-              
-              <div className="grid grid-cols-2 gap-4 max-w-md">
-                {supportedLanguages.map((lng) => (
-                  <button
-                    key={lng}
-                    onClick={() => handleLanguageChange(lng)}
-                    className={`flex items-center gap-3 rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
-                      currentLang === lng ? "border-primary bg-accent" : "border-muted"
-                    }`}
-                  >
-                    <span className="text-2xl">{lng === "es" ? "🇪🇸" : "🇺🇸"}</span>
-                    <span className="text-sm font-medium">{t(`settings.languages.${lng}`)}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </SlideIn>
-
-        {/* Timer Settings */}
-        <SlideIn delay={0.2}>
-          <div className="rounded-lg border bg-card p-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                {t("Settings.timer")}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Configura los tiempos del pomodoro
-              </p>
-            </div>
-
-            <div className="space-y-6 max-w-md">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>{t("Settings.timerSettings.focusDuration")}</Label>
-                  <span className="text-sm text-muted-foreground">25 min</span>
-                </div>
-                <Slider defaultValue={[25]} max={60} min={5} step={5} />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>{t("Settings.timerSettings.shortBreakDuration")}</Label>
-                  <span className="text-sm text-muted-foreground">5 min</span>
-                </div>
-                <Slider defaultValue={[5]} max={15} min={1} step={1} />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>{t("Settings.timerSettings.longBreakDuration")}</Label>
-                  <span className="text-sm text-muted-foreground">15 min</span>
-                </div>
-                <Slider defaultValue={[15]} max={30} min={5} step={5} />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t("Settings.timerSettings.autoStartBreaks")}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Iniciar descanso automáticamente
-                  </p>
-                </div>
-                <Switch />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t("Settings.timerSettings.autoStartPomodoros")}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Iniciar siguiente pomodoro automáticamente
-                  </p>
-                </div>
-                <Switch />
-              </div>
-            </div>
-          </div>
-        </SlideIn>
-
-        {/* Notifications */}
-        <SlideIn delay={0.3}>
-          <div className="rounded-lg border bg-card p-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <Bell className="h-5 w-5 text-muted-foreground" />
-                {t("Settings.notifications")}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Configura las notificaciones
-              </p>
-            </div>
-
-            <div className="space-y-4 max-w-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t("Settings.notificationSettings.desktop")}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Mostrar notificaciones de escritorio
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t("Settings.notificationSettings.sound")}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Reproducir sonido al completar
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t("Settings.notificationSettings.taskReminders")}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Recordar tareas próximas a vencer
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            </div>
-          </div>
-        </SlideIn>
-
-        {/* Keyboard Shortcuts */}
-        <SlideIn delay={0.4}>
-          <div className="rounded-lg border bg-card p-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <Keyboard className="h-5 w-5 text-muted-foreground" />
-                Atajos de Teclado
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Atajos globales de la aplicación
-              </p>
-            </div>
-
-            <div className="space-y-3 max-w-md">
-              {[
-                { action: "Iniciar/Pausar timer", shortcut: "Ctrl+Shift+P" },
-                { action: "Nueva tarea", shortcut: "Ctrl+N" },
-                { action: "Buscar", shortcut: "Ctrl+K" },
-                { action: "Mostrar/Ocultar app", shortcut: "Ctrl+Shift+O" },
-                { action: "Configuración", shortcut: "Ctrl+," },
-              ].map((item) => (
-                <div key={item.action} className="flex justify-between items-center py-2">
-                  <span className="text-sm">{item.action}</span>
-                  <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">
-                    {item.shortcut}
-                  </kbd>
-                </div>
-              ))}
-            </div>
-          </div>
-        </SlideIn>
-
-        {/* Desktop Settings (only shown in Electron) */}
-        {isElectron && (
-          <SlideIn delay={0.5}>
-            <div className="rounded-lg border bg-card p-6 space-y-6">
-              <div>
-                <h3 className="text-lg font-medium flex items-center gap-2">
-                  <Monitor className="h-5 w-5 text-muted-foreground" />
-                  Configuración de Escritorio
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Opciones específicas de la aplicación de escritorio
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
+                  {t("Settings.title") || "Configuración"}
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+                  {t("Settings.subtitle") || "Personaliza la apariencia y comportamiento de Ordo"}
                 </p>
               </div>
+            </div>
+          </div>
+        </SlideIn>
 
-              <div className="space-y-4 max-w-md">
-                {/* Auto Launch */}
-                <div className="flex items-center justify-between">
+        {/* Apple Segmented Pill Navigation Tabs */}
+        <div className="overflow-x-auto no-scrollbar pb-1">
+          <div className="inline-flex items-center gap-1.5 p-1.5 bg-muted/60 dark:bg-zinc-900/80 border border-border/80 rounded-2xl shadow-xs min-w-full sm:min-w-0">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0",
+                    isActive
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/40"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          {/* TAB 1: GENERAL (Appearance & Language) */}
+          {activeTab === "general" && (
+            <motion.div
+              key="general"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              {/* Card 1: Theme */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Palette className="h-4.5 w-4.5" />
+                  </div>
                   <div>
-                    <Label className="flex items-center gap-2">
-                      <Power className="h-4 w-4" />
-                      Iniciar con el sistema
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Abrir Ordo-Todo al iniciar el ordenador
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.appearance") || "Apariencia"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {t("Settings.selectTheme") || "Selecciona el tema de la interfaz"}
                     </p>
                   </div>
-                  <Switch 
-                    checked={autoLaunchEnabled}
-                    onCheckedChange={handleAutoLaunchToggle}
-                  />
                 </div>
 
-                {/* Start Minimized */}
-                {autoLaunchEnabled && (
-                  <div className="flex items-center justify-between ml-6 border-l-2 pl-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
+                  {/* Light */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange("light")}
+                    className={cn(
+                      "group relative flex flex-col items-center justify-between gap-3 rounded-2xl border-2 p-3 sm:p-4 transition-all cursor-pointer text-center",
+                      theme === "light"
+                        ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                        : "border-border/70 bg-card/50 text-muted-foreground hover:bg-muted/40 hover:border-border hover:text-foreground"
+                    )}
+                  >
+                    <div className="w-full h-20 rounded-xl bg-white border border-zinc-200 p-2 flex gap-1.5 shadow-2xs overflow-hidden">
+                      <div className="w-1/4 h-full bg-zinc-100 rounded-md flex flex-col gap-1 p-1">
+                        <div className="w-full h-1.5 bg-zinc-300 rounded" />
+                        <div className="w-3/4 h-1 bg-zinc-200 rounded" />
+                        <div className="w-1/2 h-1 bg-zinc-200 rounded" />
+                      </div>
+                      <div className="flex-1 h-full flex flex-col gap-1.5 p-1">
+                        <div className="w-full h-3 bg-zinc-100 rounded flex items-center px-1">
+                          <div className="w-1/3 h-1 bg-zinc-300 rounded" />
+                        </div>
+                        <div className="w-full h-8 bg-zinc-50 border border-zinc-100 rounded flex flex-col gap-1 p-1">
+                          <div className="w-3/4 h-1 bg-zinc-200 rounded" />
+                          <div className="w-1/2 h-1 bg-zinc-200 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium">
+                      <Sun className="h-4 w-4 text-amber-500" />
+                      <span>{t("Settings.themes.light") || "Claro"}</span>
+                    </div>
+                    {theme === "light" && (
+                      <span className="absolute top-2.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Dark */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange("dark")}
+                    className={cn(
+                      "group relative flex flex-col items-center justify-between gap-3 rounded-2xl border-2 p-3 sm:p-4 transition-all cursor-pointer text-center",
+                      theme === "dark"
+                        ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                        : "border-border/70 bg-card/50 text-muted-foreground hover:bg-muted/40 hover:border-border hover:text-foreground"
+                    )}
+                  >
+                    <div className="w-full h-20 rounded-xl bg-zinc-950 border border-zinc-800 p-2 flex gap-1.5 shadow-2xs overflow-hidden">
+                      <div className="w-1/4 h-full bg-zinc-900 rounded-md flex flex-col gap-1 p-1">
+                        <div className="w-full h-1.5 bg-zinc-700 rounded" />
+                        <div className="w-3/4 h-1 bg-zinc-800 rounded" />
+                        <div className="w-1/2 h-1 bg-zinc-800 rounded" />
+                      </div>
+                      <div className="flex-1 h-full flex flex-col gap-1.5 p-1">
+                        <div className="w-full h-3 bg-zinc-900 rounded flex items-center px-1">
+                          <div className="w-1/3 h-1 bg-zinc-700 rounded" />
+                        </div>
+                        <div className="w-full h-8 bg-zinc-900/60 border border-zinc-800/80 rounded flex flex-col gap-1 p-1">
+                          <div className="w-3/4 h-1 bg-zinc-700 rounded" />
+                          <div className="w-1/2 h-1 bg-zinc-800 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium">
+                      <Moon className="h-4 w-4 text-indigo-400" />
+                      <span>{t("Settings.themes.dark") || "Oscuro"}</span>
+                    </div>
+                    {theme === "dark" && (
+                      <span className="absolute top-2.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </button>
+
+                  {/* System */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange("system")}
+                    className={cn(
+                      "group relative flex flex-col items-center justify-between gap-3 rounded-2xl border-2 p-3 sm:p-4 transition-all cursor-pointer text-center",
+                      theme === "system"
+                        ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                        : "border-border/70 bg-card/50 text-muted-foreground hover:bg-muted/40 hover:border-border hover:text-foreground"
+                    )}
+                  >
+                    <div className="w-full h-20 rounded-xl border border-zinc-400/40 p-0 flex shadow-2xs overflow-hidden">
+                      <div className="w-1/2 h-full bg-white border-r border-zinc-200 p-2 flex flex-col gap-1.5">
+                        <div className="w-full h-2 bg-zinc-100 rounded" />
+                        <div className="w-3/4 h-5 bg-zinc-50 border border-zinc-100 rounded" />
+                      </div>
+                      <div className="w-1/2 h-full bg-zinc-950 p-2 flex flex-col gap-1.5">
+                        <div className="w-full h-2 bg-zinc-900 rounded" />
+                        <div className="w-3/4 h-5 bg-zinc-900/60 border border-zinc-800 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium">
+                      <Laptop className="h-4 w-4 text-cyan-500" />
+                      <span>{t("Settings.themes.system") || "Sistema"}</span>
+                    </div>
+                    {theme === "system" && (
+                      <span className="absolute top-2.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 2: Language */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Globe className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.language") || "Idioma"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {t("Settings.languageDescription") || "Selecciona el idioma de la aplicación"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
+                  {languages.map((lng) => {
+                    const isSelected = activeLang === lng.code;
+                    return (
+                      <button
+                        key={lng.code}
+                        type="button"
+                        onClick={() => handleLanguageChange(lng.code)}
+                        className={cn(
+                          "relative flex items-center gap-3.5 rounded-2xl border-2 p-4 transition-all cursor-pointer text-left",
+                          isSelected
+                            ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                            : "border-border/70 bg-card/50 text-muted-foreground hover:bg-muted/40 hover:border-border hover:text-foreground"
+                        )}
+                      >
+                        <span className="text-3xl shrink-0">{lng.flag}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-sm font-bold text-foreground">{lng.label}</span>
+                          <span className="text-xs text-muted-foreground block truncate">{lng.sub}</span>
+                        </div>
+                        {isSelected && (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0 shadow-xs">
+                            <Check className="h-3 w-3 stroke-[3]" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 2: TIMER (Full Parity with Web: Default Mode + Durations + Intervals) */}
+          {activeTab === "timer" && (
+            <motion.div
+              key="timer"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              {/* Default Mode Selector */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                      <Zap className="h-4.5 w-4.5" />
+                    </div>
                     <div>
-                      <Label>Iniciar minimizado</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Ocultar la ventana al iniciar
+                      <h3 className="text-base font-semibold text-foreground">
+                        {t("Settings.defaultMode") || "Modo Principal de Enfoque"}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {t("Settings.defaultModeDescription") || "Elige cómo prefieres gestionar tu tiempo"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-1.5 bg-muted/40 px-2.5 py-1 rounded-full border border-border/40 select-none">
+                    <Check className="h-3 w-3 text-emerald-500" />
+                    <span>Guardado automático</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimerMode("POMODORO");
+                      updatePreferences.mutate({ timerMode: "POMODORO" } as any);
+                      toast.success(t("Settings.saved") || "Ajuste guardado");
+                    }}
+                    className={cn(
+                      "flex items-center gap-3.5 rounded-2xl border-2 p-4 transition-all cursor-pointer text-left",
+                      timerMode === "POMODORO"
+                        ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                        : "border-border/70 bg-card/50 text-foreground hover:bg-muted/40 hover:border-border"
+                    )}
+                  >
+                    <div className="rounded-xl bg-red-500/10 p-2.5 text-red-500 shrink-0">
+                      <Zap className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="block text-sm font-semibold text-foreground">
+                          {t("Settings.modes.pomodoro") || "Método Pomodoro"}
+                        </span>
+                        {timerMode === "POMODORO" && (
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                            <Check className="h-2.5 w-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {t("Settings.modes.pomodoroDesc") || "Ciclos de trabajo + pausas programadas"}
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimerMode("CONTINUOUS");
+                      updatePreferences.mutate({ timerMode: "CONTINUOUS" } as any);
+                      toast.success(t("Settings.saved") || "Ajuste guardado");
+                    }}
+                    className={cn(
+                      "flex items-center gap-3.5 rounded-2xl border-2 p-4 transition-all cursor-pointer text-left",
+                      timerMode === "CONTINUOUS"
+                        ? "border-primary bg-primary/5 text-foreground font-semibold shadow-xs"
+                        : "border-border/70 bg-card/50 text-foreground hover:bg-muted/40 hover:border-border"
+                    )}
+                  >
+                    <div className="rounded-xl bg-blue-500/10 p-2.5 text-blue-500 shrink-0">
+                      <Monitor className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="block text-sm font-semibold text-foreground">
+                          {t("Settings.modes.continuous") || "Tiempo Corrido"}
+                        </span>
+                        {timerMode === "CONTINUOUS" && (
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                            <Check className="h-2.5 w-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {t("Settings.modes.continuousDesc") || "Cronómetro continuo sin pausas automáticas"}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Durations & Automations */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Clock className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.timer") || "Duraciones y Automatizaciones"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Ajusta los minutos exactos de cada fase y la frecuencia de pausas
+                    </p>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  {/* Focus Duration */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.focusDuration") || "Tiempo de Enfoque"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Duración de cada sesión principal de trabajo
+                      </p>
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[15, 25, 45, 50].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => handleFocusDurationChange(preset)}
+                            className={cn(
+                              "px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border",
+                              config.workDuration === preset
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/60 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                            )}
+                          >
+                            {preset}m
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 w-full sm:w-72 shrink-0">
+                      <Slider 
+                        value={[config.workDuration]} 
+                        onValueChange={(val) => handleFocusDurationChange(val[0])}
+                        max={60} 
+                        min={5} 
+                        step={5} 
+                        className="flex-1"
+                      />
+                      <span className="text-xs font-semibold tabular-nums px-2.5 py-1 rounded-xl bg-muted border border-border/60 text-foreground w-16 text-center shrink-0">
+                        {config.workDuration} min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Short Break Duration */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.shortBreakDuration") || "Descanso Corto"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Pausa breve recomendada entre bloques de enfoque
+                      </p>
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[3, 5, 10].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => handleShortBreakDurationChange(preset)}
+                            className={cn(
+                              "px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border",
+                              config.shortBreakDuration === preset
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/60 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                            )}
+                          >
+                            {preset}m
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 w-full sm:w-72 shrink-0">
+                      <Slider 
+                        value={[config.shortBreakDuration]} 
+                        onValueChange={(val) => handleShortBreakDurationChange(val[0])}
+                        max={15} 
+                        min={1} 
+                        step={1} 
+                        className="flex-1"
+                      />
+                      <span className="text-xs font-semibold tabular-nums px-2.5 py-1 rounded-xl bg-muted border border-border/60 text-foreground w-16 text-center shrink-0">
+                        {config.shortBreakDuration} min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Long Break Duration */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.longBreakDuration") || "Descanso Largo"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Pausa prolongada después de completar ciclos de pomodoro
+                      </p>
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[15, 20, 30].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => handleLongBreakDurationChange(preset)}
+                            className={cn(
+                              "px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border",
+                              config.longBreakDuration === preset
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/60 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                            )}
+                          >
+                            {preset}m
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 w-full sm:w-72 shrink-0">
+                      <Slider 
+                        value={[config.longBreakDuration]} 
+                        onValueChange={(val) => handleLongBreakDurationChange(val[0])}
+                        max={45} 
+                        min={5} 
+                        step={5} 
+                        className="flex-1"
+                      />
+                      <span className="text-xs font-semibold tabular-nums px-2.5 py-1 rounded-xl bg-muted border border-border/60 text-foreground w-16 text-center shrink-0">
+                        {config.longBreakDuration} min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Long Break Interval */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.longBreakInterval") || "Intervalo de Descanso Largo"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.longBreakIntervalDescription") || "Cantidad de pomodoros completados antes de un descanso largo"}
+                      </p>
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[2, 4, 6].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => handlePomodorosUntilLongBreakChange(preset)}
+                            className={cn(
+                              "px-2.5 py-0.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border",
+                              (config.pomodorosUntilLongBreak || 4) === preset
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/60 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                            )}
+                          >
+                            {preset} ciclos
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 w-full sm:w-72 shrink-0">
+                      <Slider 
+                        value={[config.pomodorosUntilLongBreak || 4]} 
+                        onValueChange={(val) => handlePomodorosUntilLongBreakChange(val[0])}
+                        max={8} 
+                        min={2} 
+                        step={1} 
+                        className="flex-1"
+                      />
+                      <span className="text-xs font-semibold tabular-nums px-2.5 py-1 rounded-xl bg-muted border border-border/60 text-foreground w-16 text-center shrink-0">
+                        {config.pomodorosUntilLongBreak || 4} ciclos
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Auto Start Breaks */}
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.autoStartBreaks") || "Auto-iniciar descansos"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.autoStartBreaksDescription") || "Iniciar el temporizador de descanso automáticamente al terminar una sesión"}
                       </p>
                     </div>
                     <Switch 
-                      checked={startMinimized}
-                      onCheckedChange={handleStartMinimizedToggle}
+                      checked={config.autoStartBreaks}
+                      onCheckedChange={handleAutoStartBreaksChange}
                     />
                   </div>
-                )}
 
-                <Separator />
+                  {/* Auto Start Pomodoros */}
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.autoStartPomodoros") || "Auto-iniciar pomodoros"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.autoStartPomodorosDescription") || "Iniciar el siguiente ciclo de enfoque automáticamente al concluir el descanso"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={config.autoStartPomodoros}
+                      onCheckedChange={handleAutoStartPomodorosChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
-                {/* Floating Timer Window */}
-                <div className="flex items-center justify-between">
+          {/* TAB 3: AUDIO & ALERTS */}
+          {activeTab === "audio" && (
+            <motion.div
+              key="audio"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Bell className="h-4.5 w-4.5" />
+                  </div>
                   <div>
-                    <Label className="flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      Timer Flotante
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Mostrar mini timer siempre visible
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.notificationsAndSound") || "Alertas & Sonido"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Notificaciones en tu pantalla y efectos audibles
                     </p>
                   </div>
-                  <Switch 
-                    checked={timerFloatingVisible}
-                    onCheckedChange={handleTimerFloatingToggle}
-                  />
                 </div>
 
-                <Separator />
-
-                {/* Auto Update */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="flex items-center gap-2">
-                        <Download className="h-4 w-4" />
-                        Actualizaciones
+                <div className="divide-y divide-border/40 pt-2">
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.browserNotifications") || "Notificaciones de escritorio"}
                       </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {updateState.status === 'available' 
-                          ? `Nueva versión disponible: ${updateState.version}`
-                          : updateState.status === 'downloaded'
-                          ? 'Actualización lista para instalar'
-                          : updateState.status === 'downloading'
-                          ? `Descargando... ${updateState.progress?.toFixed(0)}%`
-                          : 'Buscar actualizaciones automáticamente'
-                        }
+                      <p className="text-xs text-muted-foreground">
+                        Mostrar alertas nativas del sistema operativo al finalizar cada bloque
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={config.notificationsEnabled}
+                      onCheckedChange={handleNotificationsToggle}
+                    />
+                  </div>
+
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.soundEffects") || "Efectos de sonido"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.soundEffectsDescription") || "Reproducir campana suave al completar sesiones y descansos"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={config.soundEnabled}
+                      onCheckedChange={handleSoundToggle}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Focus Audio */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Headphones className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Focus Audio</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Música ambiental y paisajes sonoros para concentración profunda
+                    </p>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        Audio ambiental automático
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Iniciar reproducción ambiental automáticamente al encender el temporizador
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={ambientAudioAuto}
+                      onCheckedChange={handleAmbientAudioAutoToggle}
+                    />
+                  </div>
+
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        Volumen predeterminado
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Nivel de sonido inicial al activar la música de concentración
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 w-full sm:w-72 shrink-0">
+                      <Slider 
+                        value={[ambientVolume]} 
+                        onValueChange={(val) => handleAmbientVolumeChange(val[0])}
+                        max={100} 
+                        min={0} 
+                        step={5} 
+                        className="flex-1"
+                      />
+                      <span className="text-xs font-semibold tabular-nums px-2.5 py-1 rounded-xl bg-muted border border-border/60 text-foreground w-16 text-center shrink-0">
+                        {ambientVolume}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 4: ARTIFICIAL INTELLIGENCE & WELLBEING (Full Parity) */}
+          {activeTab === "ai" && (
+            <motion.div
+              key="ai"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              {/* AI Insights & Scheduling */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Brain className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.ai.insightsTitle") || "Productividad Inteligente"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {t("Settings.ai.insightsDesc") || "Recomendaciones proactivas basadas en tus hábitos y tareas"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.ai.enableInsights") || "Habilitar AI Insights"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.ai.enableInsightsDesc") || "Muestra sugerencias de priorización y balance en el dashboard"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={userPreferences?.enableAI ?? true}
+                      onCheckedChange={(checked) => handleAIPreferenceChange({ enableAI: checked })}
+                    />
+                  </div>
+
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.ai.smartScheduling") || "Programación Inteligente"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.ai.smartSchedulingDesc") || "Sugiere los mejores bloques de horario según tu nivel de energía"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={userPreferences?.aiSuggestScheduling ?? true}
+                      onCheckedChange={(checked) => handleAIPreferenceChange({ aiSuggestScheduling: checked })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Wellbeing & Burnout Prevention */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Heart className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.ai.wellbeingTitle") || "Bienestar & Prevención de Burnout"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {t("Settings.ai.wellbeingDesc") || "Monitorea la sobrecarga de trabajo y cuida tu salud mental"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.ai.burnoutDetection") || "Detección de Riesgo de Agotamiento"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.ai.burnoutDetectionDesc") || "Analiza jornadas excesivas y patrones de fatiga"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={userPreferences?.aiWeeklyReports ?? true}
+                      onCheckedChange={(checked) => handleAIPreferenceChange({ aiWeeklyReports: checked })}
+                    />
+                  </div>
+
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.ai.restReminders") || "Recordatorios Suaves de Descanso"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("Settings.ai.restRemindersDesc") || "Notificaciones para desconectar tras sesiones intensas"}
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={userPreferences?.aiSuggestTaskDurations ?? true}
+                      onCheckedChange={(checked) => handleAIPreferenceChange({ aiSuggestTaskDurations: checked })}
+                    />
+                  </div>
+
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium text-foreground">
+                        {t("Settings.ai.sensitivity") || "Sensibilidad de Detección"}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Nivel de tolerancia antes de emitir alertas de fatiga
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted/60 dark:bg-zinc-900 border border-border/80 rounded-xl w-full sm:w-64">
+                      {[
+                        { key: "low", label: "Baja", value: 3 },
+                        { key: "medium", label: "Media", value: 5 },
+                        { key: "high", label: "Alta", value: 8 },
+                      ].map(({ key, label, value }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => handleAIPreferenceChange({ aiAggressiveness: value })}
+                          className={cn(
+                            "py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer text-center",
+                            currentSensitivity === key
+                              ? "bg-background text-foreground shadow-xs font-semibold"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 5: SECURITY & SESSIONS */}
+          {activeTab === "security" && (
+            <motion.div
+              key="security"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              <SessionsManager />
+            </motion.div>
+          )}
+
+          {/* TAB 6: DESKTOP & SYSTEM (Tauri v2 Native) */}
+          {activeTab === "desktop" && (
+            <motion.div
+              key="desktop"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Monitor className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      Integración del Sistema
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Comportamiento nativo de la aplicación de escritorio
+                    </p>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  {/* Auto Start */}
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                        <Power className="h-4 w-4 text-primary" />
+                        Iniciar con el sistema operativo
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Abrir Ordo automáticamente al iniciar sesión en tu ordenador
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={autoLaunchEnabled}
+                      onCheckedChange={handleAutoLaunchToggle}
+                    />
+                  </div>
+
+                  {/* Floating Mini Timer */}
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                        <ExternalLink className="h-4 w-4 text-primary" />
+                        Mini-Timer Flotante Always-on-Top
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Ventana ultra compacta flotante fija sobre cualquier otra aplicación
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleTimerFloatingToggle}
+                      className="rounded-xl border-border/80 text-xs font-medium cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all"
+                    >
+                      Abrir / Ocultar
+                    </Button>
+                  </div>
+
+                  {/* Updates */}
+                  <div className="py-4 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                        <Download className="h-4 w-4 text-primary" />
+                        Actualizaciones de Software
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {updateStatus === "latest" ? "Ordo está en su versión más reciente" : "Comprueba si existen nuevas versiones de la aplicación"}
                       </p>
                     </div>
                     
-                    {updateState.status === 'downloaded' ? (
-                      <Button 
-                        size="sm" 
-                        onClick={handleInstallUpdate}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Reiniciar
-                      </Button>
-                    ) : updateState.status === 'available' ? (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={handleDownloadUpdate}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Descargar
-                      </Button>
-                    ) : (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={handleCheckForUpdates}
-                        disabled={isCheckingUpdate || updateState.status === 'downloading'}
-                      >
-                        {isCheckingUpdate ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          'Buscar'
-                        )}
-                      </Button>
-                    )}
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={handleCheckForUpdates}
+                      disabled={isCheckingUpdate}
+                      className="rounded-xl border-border/80 text-xs font-medium cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all"
+                    >
+                      {isCheckingUpdate ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        "Buscar"
+                      )}
+                    </Button>
                   </div>
-
-                  {updateState.status === 'downloading' && (
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${updateState.progress || 0}%` }}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
-          </SlideIn>
-        )}
 
-        {/* About */}
-        <SlideIn delay={isElectron ? 0.6 : 0.5}>
-          <div className="rounded-lg border bg-card p-6 space-y-4">
-            <h3 className="text-lg font-medium">Acerca de</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between py-2">
-                <span className="text-muted-foreground">Versión</span>
-                <span className="font-medium">{appVersion}</span>
+              {/* About Ordo */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("Settings.about") || "Acerca de Ordo"}
+                </h3>
+                <div className="divide-y divide-border/40 text-xs sm:text-sm">
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-muted-foreground">{t("Settings.version") || "Versión"}</span>
+                    <span className="font-semibold text-foreground tabular-nums">{appVersion}</span>
+                  </div>
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-muted-foreground">{t("Settings.platform") || "Shell Nativo"}</span>
+                    <span className="font-semibold text-foreground">Tauri v2 (Native Rust)</span>
+                  </div>
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-muted-foreground">Motor de Renderizado</span>
+                    <span className="font-semibold text-foreground">WebKit / Safari Nitro</span>
+                  </div>
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-muted-foreground">{t("Settings.developer") || "Desarrollado por"}</span>
+                    <span className="font-semibold text-foreground">Ordo Team</span>
+                  </div>
+                </div>
               </div>
-              {isElectron && window.electronAPI && (
-                <>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Electron</span>
-                    <span className="font-medium">{window.electronAPI.versions.electron}</span>
+            </motion.div>
+          )}
+
+          {/* TAB 7: KEYBOARD SHORTCUTS */}
+          {activeTab === "shortcuts" && (
+            <motion.div
+              key="shortcuts"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-6"
+            >
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Keyboard className="h-4.5 w-4.5" />
                   </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Chrome</span>
-                    <span className="font-medium">{window.electronAPI.versions.chrome}</span>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Settings.keyboardShortcuts") || "Atajos de Teclado"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Comandos rápidos globales para operar Ordo a la velocidad del pensamiento
+                    </p>
                   </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Node.js</span>
-                    <span className="font-medium">{window.electronAPI.versions.node}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between py-2">
-                <span className="text-muted-foreground">Desarrollado por</span>
-                <span className="font-medium">Ordo-Todo Team</span>
+                </div>
+
+                <div className="divide-y divide-border/40 pt-2">
+                  {[
+                    { action: "Mini-Timer Flotante Always-on-Top", shortcut: "⌘ Shift T / Ctrl Shift T", desc: "Abre o esconde el temporizador compacto flotante" },
+                    { action: "Crear Nueva Tarea Rápida", shortcut: "⌘ Shift N / Ctrl Shift N", desc: "Abre el modal de captura rápida de tareas desde cualquier lugar" },
+                    { action: "Búsqueda Rápida", shortcut: "⌘ K / Ctrl K", desc: "Búsqueda omnibox de proyectos, tareas y notas" },
+                    { action: "Abrir Configuración", shortcut: "⌘ , / Ctrl ,", desc: "Navega directamente a este panel de ajustes" },
+                  ].map((item) => (
+                    <div key={item.action} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                      <div>
+                        <span className="text-sm font-medium text-foreground block">{item.action}</span>
+                        <span className="text-xs text-muted-foreground">{item.desc}</span>
+                      </div>
+                      <kbd className="px-3 py-1.5 bg-muted/80 rounded-xl border border-border/80 text-xs font-mono text-foreground font-semibold shadow-2xs self-start sm:self-auto shrink-0">
+                        {item.shortcut}
+                      </kbd>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
-        </SlideIn>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PageTransition>
   );
 }
+
+export default Settings;

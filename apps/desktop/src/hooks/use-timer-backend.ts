@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { formatTimerDisplay } from "@ordo-todo/core";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/hooks/api";
 import { toast } from "sonner";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 
 export type TimerSessionMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "IDLE" | "CONTINUOUS";
@@ -53,17 +54,25 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         }
     }, [config]);
 
-    // Sync to Electron
+    // Sync to Desktop
     useEffect(() => {
-        if (typeof window !== 'undefined' && window.electronAPI) {
-            window.electronAPI.sendTimerState({
-                timerActive: isRunning,
-                isPaused: isPaused,
-                timeRemaining: formatTimerDisplay(timeLeft),
-                currentTask: (activeSession as any)?.task || null,
-                mode: mode as any,
-            });
+        const formatted = formatTimerDisplay(timeLeft);
+        if (isRunning && !isPaused) {
+            desktopBridge.updateTrayTitle(formatted);
+        } else if (isPaused) {
+            desktopBridge.updateTrayTitle(`⏸ ${formatted}`);
+        } else {
+            desktopBridge.updateTrayTitle('Ordo');
         }
+
+        desktopBridge.broadcastTimerState({
+            timeRemaining: formatted,
+            mode: mode as any,
+            isRunning,
+            isPaused,
+            taskTitle: (activeSession as any)?.task?.title || null,
+            progress: 0,
+        });
     }, [isRunning, isPaused, timeLeft, mode, activeSession]);
 
     // Sync with backend active session
@@ -95,13 +104,32 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             // No active session logic
             if (!isRunning) { // Only reset if not running locally (race condition protection)
                 if (type === "CONTINUOUS") {
-                    // Logic to stay or switch mode
+                    setTimeLeft(0);
+                    setMode("CONTINUOUS");
+                } else if (mode === "CONTINUOUS") {
+                    setTimeLeft(getDuration("WORK"));
+                    setMode("WORK");
                 }
                 setIsRunning(false);
                 setIsPaused(false);
             }
         }
     }, [activeSession, getDuration, type]); // removed isRunning to avoid loops, relying on activeSession change
+
+    // Reset when config or type changes
+    useEffect(() => {
+        if (!activeSession && !isRunning && !isPaused) {
+            if (type === "CONTINUOUS") {
+                setTimeLeft(0);
+                setMode("CONTINUOUS");
+            } else if (mode === "CONTINUOUS") {
+                setTimeLeft(getDuration("WORK"));
+                setMode("WORK");
+            } else {
+                setTimeLeft(getDuration(mode));
+            }
+        }
+    }, [config, getDuration, activeSession, isRunning, isPaused, type, mode]);
 
     const start = useCallback(async () => {
         try {
@@ -147,19 +175,27 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const stop = useCallback(async (wasCompleted: boolean = false) => {
         try {
             await stopTimerMutation.mutateAsync({ wasCompleted });
+        } catch (error: any) {
+            console.warn("Timer stop backend error:", error);
+        } finally {
             setIsRunning(false);
             setIsPaused(false);
-            // Reset to default
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
             if (type === "POMODORO" && !wasCompleted) {
                 setTimeLeft(getDuration(mode));
             } else if (type === "CONTINUOUS") {
                 setTimeLeft(0);
             }
 
-            await refetchActiveSession();
+            try {
+                await refetchActiveSession();
+            } catch {
+                // Ignore refetch errors during stop
+            }
             if (onSessionComplete) onSessionComplete();
-        } catch (error: any) {
-            toast.error(error.message || "Error al detener timer");
         }
     }, [stopTimerMutation, refetchActiveSession, onSessionComplete, type, mode, getDuration]);
 
@@ -182,16 +218,30 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 setTimeLeft(prev => {
                     if (type === "CONTINUOUS") return prev + 1;
                     if (prev <= 1) {
-                        stop(true);
+                        if (intervalRef.current) {
+                            clearInterval(intervalRef.current);
+                            intervalRef.current = null;
+                        }
+                        setTimeout(() => {
+                            stop(true);
+                        }, 0);
                         return 0;
                     }
                     return prev - 1;
                 });
             }, 1000);
         } else {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         }
-        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
     }, [isRunning, isPaused, type, stop]);
 
     const getProgress = (): number => {

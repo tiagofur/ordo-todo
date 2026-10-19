@@ -190,38 +190,39 @@ export function QuickFilters({
   const hasActiveFilters = Object.keys(activeFilters).length > 0;
 
   return (
-    <div className={cn("flex items-center gap-2 flex-wrap", className)}>
+    <div className={cn("flex items-center gap-1.5 flex-nowrap overflow-x-auto py-0.5 no-scrollbar sm:flex-wrap", className)}>
       {/* Built-in preset chips */}
       {presets.slice(0, 6).map((preset) => (
-        <Button
+        <button
           key={preset.id}
-          variant={activePresetId === preset.id ? "default" : "outline"}
-          size="sm"
+          type="button"
           onClick={() => handlePresetClick(preset)}
           className={cn(
-            "gap-1.5 h-8 transition-all",
-            activePresetId === preset.id && "ring-2 ring-offset-2"
+            "inline-flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-semibold transition-all border shrink-0 cursor-pointer",
+            activePresetId === preset.id
+              ? "text-white shadow-xs"
+              : "text-foreground bg-card/70 hover:bg-muted/80 backdrop-blur-xs"
           )}
           style={{
             ...(activePresetId === preset.id
-              ? { backgroundColor: preset.color, borderColor: preset.color }
-              : { borderColor: `${preset.color}50` }),
+              ? { backgroundColor: preset.color, borderColor: preset.color, color: "#ffffff" }
+              : { borderColor: `${preset.color}35`, backgroundColor: `${preset.color}0d` }),
           }}
         >
-          <span style={{ color: activePresetId === preset.id ? "white" : preset.color }}>
-            {iconMap[preset.icon] || <Filter className="h-4 w-4" />}
+          <span style={{ color: activePresetId === preset.id ? "#ffffff" : preset.color }}>
+            {iconMap[preset.icon] || <Filter className="h-3.5 w-3.5" />}
           </span>
-          <span className={activePresetId === preset.id ? "text-white" : ""}>
+          <span style={{ color: activePresetId === preset.id ? "#ffffff" : "currentColor" }}>
             {preset.name}
           </span>
-        </Button>
+        </button>
       ))}
 
       {/* More presets dropdown */}
       {presets.length > 6 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1 h-8">
+            <Button variant="outline" size="sm" className="gap-1 h-8 rounded-xl text-xs font-medium">
               Más
               <ChevronDown className="h-3 w-3" />
             </Button>
@@ -262,9 +263,9 @@ export function QuickFilters({
           variant="ghost"
           size="sm"
           onClick={() => setShowCreateDialog(true)}
-          className="gap-1 h-8 text-muted-foreground hover:text-foreground"
+          className="gap-1 h-8 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground"
         >
-          <Save className="h-4 w-4" />
+          <Save className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Guardar filtro</span>
         </Button>
       )}
@@ -278,9 +279,9 @@ export function QuickFilters({
             setActivePresetId(null);
             onFiltersChange({});
           }}
-          className="gap-1 h-8 text-muted-foreground hover:text-foreground"
+          className="gap-1 h-8 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
           Limpiar
         </Button>
       )}

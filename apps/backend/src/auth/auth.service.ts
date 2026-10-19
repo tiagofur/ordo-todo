@@ -100,7 +100,13 @@ export class AuthService {
     requestContext?: { ip?: string; userAgent?: string },
   ): Promise<AuthResponseDto> {
     try {
-      const user = await this.userRepository.findByEmail(loginDto.email, true);
+      const identifier = loginDto.email.trim();
+      const user = identifier.includes('@')
+        ? await this.userRepository.findByEmail(identifier, true)
+        : await this.userRepository.findByUsername(
+            identifier.toLowerCase(),
+            true,
+          );
       const clientIp = this.getRequestIp(requestContext);
       const clientUserAgent = this.getRequestUserAgent(requestContext);
 

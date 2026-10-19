@@ -111,6 +111,7 @@ declare function createHooks(config: CreateHooksConfig): {
     useProjects: (workspaceId: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Project[], Error>;
     useAllProjects: () => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Project[], Error>;
     useProject: (projectId: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Project, Error>;
+    useProjectBySlugs: (workspaceSlug: string, projectSlug: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Project, Error>;
     useCreateProject: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.Project, Error, CreateProjectDto, unknown>;
     useUpdateProject: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.Project, Error, {
         projectId: string;

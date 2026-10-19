@@ -67,25 +67,25 @@ export function ProfileTabs({
   }
 
   return (
-    <Tabs.Root defaultValue="profile" className="mt-6">
-      <Tabs.List className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6 h-auto p-1">
-        {TAB_ITEMS.map(({ value, label, icon: Icon, iconClassName }) => (
-          <Tabs.Trigger
-            key={value}
-            value={value}
-            className={cn(
-              "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              "disabled:pointer-events-none disabled:opacity-50",
-              "flex items-center gap-2"
-            )}
-          >
-            <Icon className={cn("h-4 w-4", iconClassName)} />
-            <span className="hidden sm:inline">{label}</span>
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
+    <Tabs.Root defaultValue="profile" className="mt-4">
+      <div className="overflow-x-auto no-scrollbar mb-6 pb-1">
+        <Tabs.List className="inline-flex items-center gap-1.5 p-1.5 bg-muted/60 dark:bg-zinc-900/80 border border-border/80 rounded-2xl shadow-xs min-w-full sm:min-w-0">
+          {TAB_ITEMS.map(({ value, label, icon: Icon, iconClassName }) => (
+            <Tabs.Trigger
+              key={value}
+              value={value}
+              className={cn(
+                "inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0",
+                "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold",
+                "text-muted-foreground hover:text-foreground hover:bg-background/40"
+              )}
+            >
+              <Icon className={cn("h-4 w-4 shrink-0", iconClassName)} />
+              <span>{label}</span>
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </div>
 
       <Tabs.Content value="profile" className="mt-2">
         <ProfileGeneralTab

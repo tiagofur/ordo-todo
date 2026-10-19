@@ -81,6 +81,7 @@ export default function Sidebar({ className }: SidebarProps) {
     <SidebarUI
       pathname={location.pathname}
       navItems={navItems}
+      safeAreaTop={true}
       renderLink={({ href, className, children }) => (
         <Link to={href} className={className}>
           {children}

@@ -42,6 +42,7 @@ describe('TasksService', () => {
       findFirst: jest.fn(),
       count: jest.fn(),
       create: jest.fn(),
+      findMany: jest.fn(),
     },
     recurrence: {
       delete: jest.fn(),

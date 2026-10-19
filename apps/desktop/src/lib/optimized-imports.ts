@@ -103,10 +103,8 @@ export { toast } from 'sonner';
 // Internationalization
 export { useTranslation } from 'react-i18next';
 
-// Electron API - conditional import
-export const electronAPI = typeof window !== 'undefined' && window.electronAPI
-  ? window.electronAPI
-  : null;
+// Desktop API
+export const electronAPI = null;
 
 // Performance utilities
 export const performance = {
@@ -131,9 +129,10 @@ export const isTest = process.env.NODE_ENV === 'test';
 
 // Platform detection
 export const platform = {
-  isElectron: typeof window !== 'undefined' && !!window.electronAPI,
-  isWeb: typeof window !== 'undefined' && !window.electronAPI,
-  isNode: typeof process !== 'undefined' && process.versions?.node,
+  isElectron: false,
+  isNative: typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window,
+  isWeb: typeof window !== 'undefined' && !('__TAURI_INTERNALS__' in window),
+  isNode: typeof process !== 'undefined' && (process.versions as any)?.node,
 };
 
 // Constants for bundle optimization

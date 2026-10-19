@@ -21,7 +21,7 @@ export interface TimerActions {
     switchTask: (taskId: string) => Promise<void>;
     setSelectedTaskId: (taskId: string | null) => void;
 }
-interface PomodoroTimerProps {
+export interface PomodoroTimerProps {
     /** Timer state - typically from useTimer hook */
     state: TimerState;
     /** Timer actions - typically from useTimer hook */
@@ -42,36 +42,24 @@ interface PomodoroTimerProps {
         switchTaskDescription?: string;
         switchTaskButtonTitle?: string;
         enterFocusMode?: string;
+        currentTask?: string;
+        completed?: string;
+        horizontalView?: string;
+        circularView?: string;
     };
     /** Dialog state controlled by parent */
     showSwitchDialog?: boolean;
     setShowSwitchDialog?: (show: boolean) => void;
+    /** Layout variant: 'horizontal' (compact console) | 'circular' (classic ring). Defaults to 'horizontal' */
+    variant?: 'horizontal' | 'circular';
+    /** Allow user to toggle between horizontal and circular */
+    allowVariantToggle?: boolean;
 }
 /**
  * PomodoroTimer - Platform-agnostic timer display with controls
  *
- * All state and actions are passed via props for maximum flexibility.
- *
- * @example
- * // In web app
- * const timerContext = useTimer();
- *
- * <PomodoroTimer
- *   state={{
- *     isLoaded: timerContext.isLoaded,
- *     isRunning: timerContext.isRunning,
- *     // ... other state
- *   }}
- *   actions={{
- *     start: timerContext.start,
- *     pause: timerContext.pause,
- *     // ... other actions
- *   }}
- *   TaskSelectorComponent={<TaskSelector ... />}
- *   onFocusModeClick={() => router.push('/focus')}
- *   labels={{ ... }}
- * />
+ * Supports both horizontal Apple-grade cockpit layout (compact, no scrolling needed)
+ * and classic circular SVG ring layout.
  */
-export declare function PomodoroTimer({ state, actions, TaskSelectorComponent, onFocusModeClick, labels, showSwitchDialog, setShowSwitchDialog, }: PomodoroTimerProps): import("react/jsx-runtime").JSX.Element | null;
-export {};
+export declare function PomodoroTimer({ state, actions, TaskSelectorComponent, onFocusModeClick, labels, showSwitchDialog, setShowSwitchDialog, variant, allowVariantToggle, }: PomodoroTimerProps): import("react/jsx-runtime").JSX.Element | null;
 //# sourceMappingURL=pomodoro-timer.d.ts.map

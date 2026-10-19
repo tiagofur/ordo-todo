@@ -66,8 +66,6 @@ export default function SignInPage() {
     const newErrors: { email?: string; password?: string } = {};
     if (!formData.email.trim()) {
       newErrors.email = t("errors.requiredFields");
-    } else if (!formData.email.includes("@") || !formData.email.includes(".")) {
-      newErrors.email = t("errors.invalidEmail");
     }
 
     if (!formData.password) {
@@ -126,8 +124,8 @@ export default function SignInPage() {
       >
         {/* Logo and Header */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25">
-            <CheckSquare className="h-8 w-8" />
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ad46ff] text-white shadow-lg shadow-[#ad46ff]/30">
+            <CheckSquare className="h-8 w-8 stroke-[2.2]" />
           </div>
           <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {t("title")}
@@ -151,8 +149,8 @@ export default function SignInPage() {
                 </div>
                 <input
                   id="email"
-                  type="email"
-                  autoComplete="email"
+                  type="text"
+                  autoComplete="username"
                   required
                   value={formData.email}
                   onChange={(e) => handleFieldChange("email", e.target.value)}

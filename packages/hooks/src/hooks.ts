@@ -1578,6 +1578,7 @@ export function createHooks(config: CreateHooksConfig) {
     useProjects,
     useAllProjects,
     useProject,
+    useProjectBySlugs,
     useCreateProject,
     useUpdateProject,
     useArchiveProject,

@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Sparkles, Flame, CheckCircle2, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 const DEFAULT_LABELS = {
     title: 'Daily Habits',
@@ -9,9 +10,17 @@ const DEFAULT_LABELS = {
     createHabit: 'Create habit',
     moreHabits: (count) => `+${count} more`,
 };
-export function HabitsWidget({ habits, summary, accentColor = '#10B981', isLoading = false, onToggleHabit, onViewAll, onCreateHabit, labels = {}, }) {
+export function HabitsWidget({ habits, summary, accentColor = '#10B981', className, isLoading = false, onToggleHabit, onViewAll, onCreateHabit, labels = {}, }) {
     const t = { ...DEFAULT_LABELS, ...labels };
-    return (_jsxs("div", { className: cn('group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300', 'hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20'), children: [_jsxs("div", { className: "p-4 border-b border-border/50", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-xl text-white", style: { backgroundColor: accentColor }, children: _jsx(Sparkles, { className: "h-5 w-5" }) }), _jsxs("div", { children: [_jsx("h3", { className: "font-semibold", children: t.title }), _jsx("p", { className: "text-xs text-muted-foreground", children: t.todayProgress(summary.completed, summary.total) })] })] }), onViewAll && (_jsxs("button", { onClick: onViewAll, className: "flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors", children: [t.viewAll, _jsx(ChevronRight, { className: "h-3 w-3" })] }))] }), summary.total > 0 && (_jsx("div", { className: "mt-3", children: _jsx("div", { className: "h-2 rounded-full bg-muted overflow-hidden", children: _jsx("div", { className: "h-full rounded-full transition-all duration-700 ease-out", style: {
+    return (_jsxs(motion.div, { whileHover: {
+            y: -3,
+            borderColor: `${accentColor}70`,
+            boxShadow: `0 12px 28px -6px ${accentColor}25`,
+        }, className: cn('group relative overflow-hidden rounded-2xl border border-border/60 bg-card/90 backdrop-blur-xl transition-all duration-300 flex flex-col justify-between shadow-xs h-full', className), children: [_jsxs("div", { className: "p-4 border-b border-border/50", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 shrink-0", style: {
+                                            backgroundColor: `${accentColor}15`,
+                                            color: accentColor,
+                                            border: `1px solid ${accentColor}25`,
+                                        }, children: _jsx(Sparkles, { className: "h-5 w-5" }) }), _jsxs("div", { children: [_jsx("h3", { className: "text-sm font-semibold tracking-tight text-foreground", children: t.title }), _jsx("p", { className: "text-xs text-muted-foreground", children: t.todayProgress(summary.completed, summary.total) })] })] }), onViewAll && (_jsxs("button", { onClick: onViewAll, className: "flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer", children: [t.viewAll, _jsx(ChevronRight, { className: "h-3 w-3" })] }))] }), summary.total > 0 && (_jsx("div", { className: "mt-3", children: _jsx("div", { className: "h-1.5 rounded-full bg-muted overflow-hidden", children: _jsx("div", { className: "h-full rounded-full transition-all duration-700 ease-out", style: {
                                     width: `${summary.percentage}%`,
                                     backgroundColor: accentColor,
                                 } }) }) }))] }), _jsx("div", { className: "p-2", children: isLoading ? (_jsx("div", { className: "flex items-center justify-center py-8", children: _jsx("div", { className: "animate-spin rounded-full h-6 w-6 border-b-2 border-primary" }) })) : habits.length === 0 ? (_jsxs("div", { className: "flex flex-col items-center justify-center py-6 text-center", children: [_jsx(Sparkles, { className: "h-8 w-8 text-muted-foreground/50 mb-2" }), _jsx("p", { className: "text-sm text-muted-foreground", children: t.noHabits }), onCreateHabit && (_jsx("button", { onClick: onCreateHabit, className: "mt-2 text-xs font-medium hover:underline", style: { color: accentColor }, children: t.createHabit }))] })) : (_jsxs("div", { className: "space-y-1", children: [habits.slice(0, 4).map((habit, index) => {

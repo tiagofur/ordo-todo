@@ -829,9 +829,15 @@ export declare const locales: {
         };
         Notifications: {
             title: string;
+            subtitle: string;
             empty: string;
+            emptyUnread: string;
+            emptyAll: string;
             loading: string;
             markAllRead: string;
+            markAsRead: string;
+            filterAll: string;
+            filterUnread: string;
         };
         FileUpload: {
             errors: {
@@ -1023,6 +1029,7 @@ export declare const locales: {
             tasksSection: string;
             breadcrumbs: {
                 projects: string;
+                workspaces: string;
             };
             badges: {
                 archived: string;
@@ -1359,6 +1366,9 @@ export declare const locales: {
             };
         };
         PomodoroTimer: {
+            currentTask: string;
+            horizontalView: string;
+            circularView: string;
             enterFocusMode: string;
             mode: string;
             modes: {
@@ -1844,6 +1854,7 @@ export declare const locales: {
         };
         Profile: {
             title: string;
+            subtitle: string;
             tabs: {
                 profile: string;
                 ai: string;
@@ -1851,6 +1862,7 @@ export declare const locales: {
                 privacy: string;
                 integrations: string;
                 subscription: string;
+                gamification: string;
                 account: string;
             };
             profile: {
@@ -3578,9 +3590,15 @@ export declare const locales: {
         };
         Notifications: {
             title: string;
+            subtitle: string;
             empty: string;
+            emptyUnread: string;
+            emptyAll: string;
             loading: string;
             markAllRead: string;
+            markAsRead: string;
+            filterAll: string;
+            filterUnread: string;
         };
         FileUpload: {
             errors: {
@@ -3772,6 +3790,7 @@ export declare const locales: {
             tasksSection: string;
             breadcrumbs: {
                 projects: string;
+                workspaces: string;
             };
             badges: {
                 archived: string;
@@ -4108,6 +4127,9 @@ export declare const locales: {
             };
         };
         PomodoroTimer: {
+            currentTask: string;
+            horizontalView: string;
+            circularView: string;
             enterFocusMode: string;
             mode: string;
             modes: {
@@ -4593,6 +4615,7 @@ export declare const locales: {
         };
         Profile: {
             title: string;
+            subtitle: string;
             tabs: {
                 profile: string;
                 ai: string;
@@ -4600,6 +4623,7 @@ export declare const locales: {
                 privacy: string;
                 integrations: string;
                 subscription: string;
+                gamification: string;
                 account: string;
             };
             profile: {
@@ -6319,9 +6343,15 @@ export declare const locales: {
         };
         Notifications: {
             title: string;
+            subtitle: string;
             empty: string;
+            emptyUnread: string;
+            emptyAll: string;
             loading: string;
             markAllRead: string;
+            markAsRead: string;
+            filterAll: string;
+            filterUnread: string;
         };
         FileUpload: {
             errors: {
@@ -6513,6 +6543,7 @@ export declare const locales: {
             tasksSection: string;
             breadcrumbs: {
                 projects: string;
+                workspaces: string;
             };
             badges: {
                 archived: string;
@@ -6778,6 +6809,9 @@ export declare const locales: {
             };
         };
         PomodoroTimer: {
+            currentTask: string;
+            horizontalView: string;
+            circularView: string;
             enterFocusMode: string;
             mode: string;
             modes: {
@@ -7334,6 +7368,7 @@ export declare const locales: {
         };
         Profile: {
             title: string;
+            subtitle: string;
             tabs: {
                 profile: string;
                 ai: string;

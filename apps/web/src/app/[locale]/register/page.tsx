@@ -184,9 +184,9 @@ export default function SignUpPage() {
         {/* Logo and Header */}
         <div className="mb-8 text-center">
           <div
-            className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500 shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-3"
+            className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#ad46ff] shadow-lg shadow-[#ad46ff]/30 transition-all duration-300 hover:scale-105"
           >
-            <CheckSquare className="h-9 w-9 text-white" />
+            <CheckSquare className="h-9 w-9 text-white stroke-[2.2]" />
           </div>
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
             Crear Cuenta

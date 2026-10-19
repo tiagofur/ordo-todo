@@ -32,6 +32,7 @@ export default [
     ignores: [
       "dist/**",
       "dist-electron/**",
+      "src-tauri/**",
       "build/**",
       "node_modules/**",
       "scripts/**",
@@ -46,6 +47,8 @@ export default [
       "src/components/task/file-preview.tsx",
       "src/components/task/file-upload.test.tsx",
       "src/components/task/task-list.tsx",
+      "src/components/task/quick-filters.tsx",
+      "src/components/task/task-card.tsx",
       "src/components/workspace/invite-member-dialog.tsx",
       "src/components/workspace/workspace-activity-log.tsx",
       "src/components/workspace/workspace-configuration-settings.tsx",

@@ -313,25 +313,68 @@ export function WorkspaceDetail() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) {
-  const colorStyles: Record<string, string> = {
-    blue: "bg-blue-500/10 text-blue-600",
-    green: "bg-green-500/10 text-green-600",
-    purple: "bg-purple-500/10 text-purple-600",
-  };
+const statColorConfig: Record<
+  string,
+  { hex: string; bg: string; text: string }
+> = {
+  blue: {
+    hex: "#3b82f6",
+    bg: "bg-blue-500/15",
+    text: "text-blue-600 dark:text-blue-400",
+  },
+  green: {
+    hex: "#10b981",
+    bg: "bg-emerald-500/15",
+    text: "text-emerald-600 dark:text-emerald-400",
+  },
+  purple: {
+    hex: "#8b5cf6",
+    bg: "bg-purple-500/15",
+    text: "text-purple-600 dark:text-purple-400",
+  },
+};
+
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  color,
+}: {
+  title: string;
+  value: number;
+  icon: any;
+  color: string;
+}) {
+  const cfg = statColorConfig[color] || statColorConfig.blue;
 
   return (
-    <Card>
-      <CardContent className="p-6 flex items-center gap-4">
-        <div className={cn("p-3 rounded-xl", colorStyles[color])}>
-          <Icon className="h-6 w-6" />
+    <motion.div
+      whileHover={{
+        y: -4,
+        borderColor: `${cfg.hex}70`,
+        boxShadow: `0 12px 28px -6px ${cfg.hex}25`,
+        transition: { duration: 0.2, ease: "easeOut" },
+      }}
+      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 cursor-pointer shadow-xs transition-colors"
+    >
+      <div className="flex items-center gap-3.5">
+        <div
+          className={cn(
+            "flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105",
+            cfg.bg,
+            cfg.text
+          )}
+        >
+          <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold">{value}</h3>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground truncate">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground tabular-nums mt-0.5">
+            {value}
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }
 

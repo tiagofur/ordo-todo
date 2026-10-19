@@ -465,10 +465,10 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
       applyLocalUpdate: async (entityType: string, entityId: string, data: any) => {
         // Implementation to update local SQLite database
         // This would use the electron API to update the local database
-        if (window.electronAPI) {
+        if ((window as any).electronAPI) {
           switch (entityType) {
             case 'task':
-              await window.electronAPI.db.task.update(entityId, data);
+              await (window as any).electronAPI.db.task.update(entityId, data);
               break;
             // ... other entity types
           }

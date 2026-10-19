@@ -22,7 +22,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   });
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Desktop Sidebar */}
       <DesktopSidebar collapsed={sidebarCollapsed} />
 
@@ -36,7 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           id="main-content"
           role="main"
           aria-label="Contenido principal"
-          className="flex-1 overflow-y-auto p-4 sm:p-6"
+          className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col min-h-0"
         >
           <ErrorBoundary>
             {children}
