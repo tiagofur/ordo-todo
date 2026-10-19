@@ -42,6 +42,7 @@ import { FAQModule } from './faq/faq.module';
 import { KnowledgeBaseModule } from './knowledge-base/knowledge-base.module';
 import { EmailModule } from './email/email.module';
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -102,6 +103,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     KnowledgeBaseModule,
     EmailModule,
     ApiTokensModule,
+    OAuthModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
