@@ -82,6 +82,12 @@ model User {
   // Auth Audit Logs
   authAuditLogs AuthAuditLog[]
 
+  // Personal Access Tokens (public API)
+  apiTokens ApiToken[]
+
+  // Webhook subscriptions (public API)
+  webhookSubscriptions WebhookSubscription[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -388,6 +394,119 @@ model UserIntegration {
 
   @@unique([userId, provider])
   @@index([userId])
+}
+
+model ApiToken {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  name        String
+  tokenHash   String   @db.Text
+  tokenPrefix String
+  scopes      String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([tokenPrefix])
+}
+
+model OAuthClient {
+  id String @id @default(cuid())
+
+  clientId    String  @unique
+  clientName  String
+  metadataUrl String?
+
+  redirectUris String[]
+  scopes       String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WebhookSubscription {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  url        String
+  events     String[]
+  secretCiphertext String @db.Text
+  secretFingerprint String
+  isActive   Boolean  @default(true)
+
+  deliveries WebhookDelivery[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model WebhookDelivery {
+  id String @id @default(cuid())
+
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscriptionId String
+
+  event       String
+  payload     Json
+  status      WebhookDeliveryStatus @default(pending)
+  attempts    Int                   @default(0)
+  lastError   String?               @db.Text
+  nextRetryAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subscriptionId])
+  @@index([status, nextRetryAt])
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  delivered
+  failed
+}
+
+model OAuthAuthorizationCode {
+  id String @id @default(cuid())
+
+  code     String   @unique
+  userId   String
+  clientId String
+
+  redirectUri         String
+  scopes              String[]
+  codeChallenge       String
+  codeChallengeMethod String
+  expiresAt           DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([code])
+  @@index([expiresAt])
+}
+
+model OAuthRefreshToken {
+  id String @id @default(cuid())
+
+  tokenHash   String   @db.Text
+  tokenPrefix String
+  userId      String
+  clientId    String
+  scopes      String[]
+  expiresAt   DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([tokenPrefix])
+  @@index([clientId])
 }
 
 enum IntegrationProvider {
@@ -1698,5 +1817,12 @@ enum AuthEventType {
   ACCOUNT_UNLOCKED
   SESSION_REVOKED
   SESSION_REVOKED_ALL
+  PAT_CREATED
+  PAT_REVOKED
+  OAUTH_CLIENT_REGISTERED
+  OAUTH_TOKEN_ISSUED
+  WEBHOOK_CREATED
+  WEBHOOK_DELETED
+  MCP_TOOL_CALL
 }
 

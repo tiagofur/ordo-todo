@@ -41,6 +41,11 @@ import { ImagesModule } from './images/images.module';
 import { FAQModule } from './faq/faq.module';
 import { KnowledgeBaseModule } from './knowledge-base/knowledge-base.module';
 import { EmailModule } from './email/email.module';
+import { ApiTokensModule } from './api-tokens/api-tokens.module';
+import { OAuthModule } from './oauth/oauth.module';
+import { V1Module } from './v1/v1.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { McpModule } from './mcp/mcp.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -100,6 +105,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     FAQModule,
     KnowledgeBaseModule,
     EmailModule,
+    ApiTokensModule,
+    OAuthModule,
+    V1Module,
+    WebhooksModule,
+    McpModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
