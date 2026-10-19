@@ -93,6 +93,8 @@ import type {
   AIInsightsResponse,
   // AI
   AIProfile,
+  ParsedTaskInput,
+  ParseTaskRequest,
   OptimalScheduleResponse,
   PredictDurationResponse,
   ProductivityReport,
@@ -822,6 +824,13 @@ export const apiClient = {
   // AI
   getAIProfile: (): Promise<AIProfile> =>
     axiosInstance.get("/ai/profile").then((res) => res.data),
+  parseTask: (
+    input: string,
+    options?: Pick<ParseTaskRequest, "fast" | "projectId" | "timezone">,
+  ): Promise<ParsedTaskInput> =>
+    axiosInstance
+      .post("/ai/parse-task", { input, ...options })
+      .then((res) => res.data),
   getOptimalSchedule: (params?: {
     topN?: number;
   }): Promise<OptimalScheduleResponse> =>

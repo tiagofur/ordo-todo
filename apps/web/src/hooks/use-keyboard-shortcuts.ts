@@ -90,6 +90,13 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
             category: "Creación",
         },
         {
+            // Bare N (outside inputs — guarded by the input check below).
+            key: "n",
+            action: () => onNewTask?.(),
+            description: "Nueva tarea (atajo rápido)",
+            category: "Creación",
+        },
+        {
             key: "n",
             ctrl: true,
             shift: true,
