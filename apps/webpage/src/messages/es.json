@@ -804,7 +804,9 @@
         "title": "Codex no muestra las herramientas de Ordo",
         "fix": "Revisa que la URL en config.toml sea exactamente la de arriba, sin espacios ni barra final de más, y reinicia Codex."
       }
-    }
+    },
+    "listing_title": "Ficha oficial en camino",
+    "listing_text": "Estamos publicando Ordo en el directorio de ChatGPT. Mientras tanto, la configuración manual de arriba funciona con la misma conexión segura."
   },
   "GuideConnectClaude": {
     "badge": "Claude",
@@ -850,7 +852,9 @@
         "title": "Claude responde sin usar tus datos",
         "fix": "Menciona Ordo explícitamente en tu mensaje, por ejemplo: usando Ordo, ¿qué tengo hoy? Así Claude sabe qué conector usar."
       }
-    }
+    },
+    "listing_title": "Ficha oficial en camino",
+    "listing_text": "Estamos registrando el conector oficial de Ordo. Mientras tanto, el comando manual de arriba conecta al mismo servidor."
   },
   "GuideConnectHermes": {
     "badge": "Hermes",
@@ -942,7 +946,9 @@
         "title": "El asistente responde sin tus datos",
         "fix": "Nombra Ordo en tu mensaje, por ejemplo: con Ordo, ¿qué tengo pendiente? Así usa la conexión correcta."
       }
-    }
+    },
+    "listing_title": "Complemento oficial en camino",
+    "listing_text": "El complemento @ordo-todo/openclaw-plugin está listo y en revisión para ClawHub. Mientras tanto puedes instalarlo desde el repositorio."
   },
   "GuideConnectSlack": {
     "badge": "Slack",
@@ -1000,6 +1006,8 @@
     },
     "example_title": "Ejemplo: email importante → tarea",
     "example_text": "Cuando llegue un email marcado como importante, crear una tarea en Ordo con el asunto como título:",
-    "example_code": "Disparador: Gmail › Nuevo email importante\nAcción: Ordo › Crear tarea\n  Título: {{asunto del email}}\n  Proyecto: Bandeja de entrada"
+    "example_code": "Disparador: Gmail › Nuevo email importante\nAcción: Ordo › Crear tarea\n  Título: {{asunto del email}}\n  Proyecto: Bandeja de entrada",
+    "listing_title": "Integración propia en camino",
+    "listing_text": "Estamos preparando la app oficial de Ordo en Zapier. Mientras tanto, el puente documentado arriba cubre ambos sentidos."
   }
 }

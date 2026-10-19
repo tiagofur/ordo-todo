@@ -804,7 +804,9 @@
         "title": "O Codex não mostra as ferramentas do Ordo",
         "fix": "Confira se a URL no config.toml é exatamente a de cima, sem espaços nem barra final a mais, e reinicie o Codex."
       }
-    }
+    },
+    "listing_title": "Ficha oficial a caminho",
+    "listing_text": "Estamos publicando o Ordo no diretório do ChatGPT. Enquanto isso, a configuração manual acima usa a mesma conexão segura."
   },
   "GuideConnectClaude": {
     "badge": "Claude",
@@ -850,7 +852,9 @@
         "title": "O Claude responde sem usar seus dados",
         "fix": "Mencione o Ordo explicitamente na sua mensagem, por exemplo: usando o Ordo, o que tenho hoje? Assim o Claude sabe qual conector usar."
       }
-    }
+    },
+    "listing_title": "Ficha oficial a caminho",
+    "listing_text": "Estamos registrando o conector oficial do Ordo. Enquanto isso, o comando manual acima conecta ao mesmo servidor."
   },
   "GuideConnectHermes": {
     "badge": "Hermes",
@@ -942,7 +946,9 @@
         "title": "O assistente responde sem seus dados",
         "fix": "Nomeie o Ordo na sua mensagem, por exemplo: com o Ordo, o que está pendente? Assim ele usa a conexão certa."
       }
-    }
+    },
+    "listing_title": "Complemento oficial a caminho",
+    "listing_text": "O pacote @ordo-todo/openclaw-plugin está pronto e em revisão para o ClawHub. Enquanto isso você pode instalá-lo pelo repositório."
   },
   "GuideConnectSlack": {
     "badge": "Slack",
@@ -1000,6 +1006,8 @@
     },
     "example_title": "Exemplo: email importante → tarefa",
     "example_text": "Quando chegar um email marcado como importante, criar uma tarefa no Ordo com o assunto como título:",
-    "example_code": "Gatilho: Gmail › Novo email importante\nAção: Ordo › Criar tarefa\n  Título: {{assunto do email}}\n  Projeto: Caixa de entrada"
+    "example_code": "Gatilho: Gmail › Novo email importante\nAção: Ordo › Criar tarefa\n  Título: {{assunto do email}}\n  Projeto: Caixa de entrada",
+    "listing_title": "Integração própria a caminho",
+    "listing_text": "Estamos preparando o app oficial do Ordo no Zapier. Enquanto isso, a ponte documentada acima cobre os dois sentidos."
   }
 }
