@@ -26,6 +26,7 @@ import {
   Tags,
   ChevronRight,
   Check,
+  CalendarDays,
 } from "lucide-react";
 import { Label, Button, Separator, Switch, Slider, cn } from "@ordo-todo/ui";
 import { toast } from "sonner";
@@ -35,6 +36,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
 import { SessionsManager } from "@/components/settings/sessions-manager";
+import { CalendarConnections } from "@/components/settings/calendar-connections";
 import { useUserPreferences, useUpdatePreferences } from "@/lib/api-hooks";
 import type { UpdatePreferencesDto } from "@ordo-todo/api-client";
 
@@ -393,6 +395,20 @@ export default function SettingsPage() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Calendar Connections */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500 shrink-0">
+                    <CalendarDays className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">{t("calendar.title")}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{t("calendar.description")}</p>
+                  </div>
+                </div>
+                <CalendarConnections />
               </div>
             </motion.div>
           )}

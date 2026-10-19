@@ -16,6 +16,7 @@ import type {
   UserPreferences,
   UpdatePreferencesDto,
   UserIntegration,
+  CalendarAccountStatus,
   // Workspace
   Workspace,
   WorkspaceWithMembers,
@@ -834,6 +835,39 @@ export class OrdoApiClient {
       "/users/me/integrations",
     );
     return response.data;
+  }
+
+  /**
+   * Calendar sync account status
+   * GET /integrations/calendar/status
+   */
+  async getCalendarStatus(): Promise<CalendarAccountStatus[]> {
+    const response = await this.axios.get<CalendarAccountStatus[]>(
+      "/integrations/calendar/status",
+    );
+    return response.data;
+  }
+
+  /**
+   * Start calendar OAuth
+   * POST /integrations/calendar/:provider/connect
+   */
+  async startCalendarConnect(
+    provider: string,
+  ): Promise<{ authorizeUrl: string; state: string }> {
+    const response = await this.axios.post<{
+      authorizeUrl: string;
+      state: string;
+    }>(`/integrations/calendar/${provider}/connect`);
+    return response.data;
+  }
+
+  /**
+   * Disconnect calendar provider
+   * DELETE /integrations/calendar/:provider
+   */
+  async disconnectCalendar(provider: string): Promise<void> {
+    await this.axios.delete(`/integrations/calendar/${provider}`);
   }
 
   /**

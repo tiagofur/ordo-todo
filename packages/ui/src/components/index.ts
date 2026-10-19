@@ -31,6 +31,7 @@ export * from './analytics/index.js';
 
 // Phase 3 components
 export * from './tag/index.js';
+export * from './integrations/index.js';
 export * from './workspace/index.js';
 export * from './auth/index.js';
 export * from './user/index.js';
