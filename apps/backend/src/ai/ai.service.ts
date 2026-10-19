@@ -119,10 +119,34 @@ export class AIService {
     input: string,
     projectId?: string,
     timezone?: string,
+    fast = false,
   ) {
     // Fast deterministic first pass (no LLM): dates, recurrence,
     // #project, @priority, confidence. Enriched by Gemini below.
     const local = this.nlParser.parse(input, new Date());
+
+    // fast: skip Gemini entirely (typing preview, <200ms feedback).
+    if (fast) {
+      return {
+        title: local.title,
+        description: undefined,
+        dueDate: local.dueAt,
+        priority: local.priority,
+        estimatedMinutes: undefined,
+        tags: [],
+        confidence: (local.confidenceScore >= 0.6 ? 'HIGH' : 'LOW') as
+          | 'LOW'
+          | 'MEDIUM'
+          | 'HIGH',
+        reasoning: 'Deterministic parse (fast mode, no LLM)',
+        projectId: projectId ?? local.projectHint,
+        dueAt: local.dueAt?.toISOString(),
+        recurrence: local.recurrence,
+        projectHint: local.projectHint,
+        confidenceScore: local.confidenceScore,
+        needsConfirmation: local.confidenceScore < 0.6,
+      };
+    }
 
     const result = await this.geminiService.parseNaturalLanguageTask(
       input,

@@ -1,3 +1,5 @@
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
 export class AIChatDto {
   message: string;
   history?: { role: 'user' | 'assistant' | 'system'; content: string }[];
@@ -17,9 +19,21 @@ export class ChatResponse {
 }
 
 export class AIParseTaskDto {
+  @IsString()
+  @IsNotEmpty()
   input: string;
+
+  @IsString()
+  @IsOptional()
   projectId?: string;
+
+  @IsString()
+  @IsOptional()
   timezone?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  fast?: boolean;
 }
 
 export class ParsedTaskResult {

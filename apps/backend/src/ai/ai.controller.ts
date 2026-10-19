@@ -100,6 +100,7 @@ export class AIController {
       parseDto.input,
       parseDto.projectId,
       parseDto.timezone,
+      parseDto.fast,
     );
   }
 

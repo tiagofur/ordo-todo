@@ -111,6 +111,32 @@ describe('AIController', () => {
         parseDto.input,
         parseDto.projectId,
         parseDto.timezone,
+        undefined,
+      );
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should pass the fast flag through to the service', async () => {
+      const parseDto = {
+        input: 'Informe viernes 9h',
+        fast: true,
+      };
+      const expectedResult = {
+        title: 'Informe',
+        confidenceScore: 0.75,
+        needsConfirmation: false,
+      };
+      aiService.parseNaturalLanguageTask.mockResolvedValue(
+        expectedResult as any,
+      );
+
+      const result = await controller.parseTask(parseDto);
+
+      expect(aiService.parseNaturalLanguageTask).toHaveBeenCalledWith(
+        parseDto.input,
+        undefined,
+        undefined,
+        true,
       );
       expect(result).toEqual(expectedResult);
     });
