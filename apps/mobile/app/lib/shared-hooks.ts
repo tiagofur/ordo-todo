@@ -119,7 +119,7 @@ export function useStopTimer() { return getHooks().useStopTimer(); }
 export function usePauseTimer() { return getHooks().usePauseTimer(); }
 export function useResumeTimer() { return getHooks().useResumeTimer(); }
 export function useSwitchTask() { return getHooks().useSwitchTask(); }
-export function useSessionHistory(params?: { page?: number; limit?: number; startDate?: string; endDate?: string }) {
+export function useSessionHistory(params?: { page?: number; limit?: number; startDate?: string; endDate?: string; completedOnly?: boolean }) {
     return getHooks().useSessionHistory(params);
 }
 export function useTimerStats(params?: { startDate?: string; endDate?: string }) {

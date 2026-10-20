@@ -13,6 +13,7 @@ import {
   DEFAULT_ENGINE_CONFIG,
   completePhase,
   durationForMode,
+  nextMode,
   resetPhase,
   type EngineConfig,
   type EngineMode,
@@ -56,6 +57,13 @@ export interface TimerBackendNotify {
   error: (message: string) => void;
 }
 
+/** Last closed session of the day, for initial turn derivation (I11/I12). */
+export interface LastClosedSession {
+  type: TimerBackendMode;
+  endedAt: string | Date;
+  wasCompleted: boolean;
+}
+
 export interface UseTimerBackendProps {
   type: TimerBackendType;
   config: TimerBackendConfig;
@@ -68,6 +76,13 @@ export interface UseTimerBackendProps {
    * from zero until the server value arrives.
    */
   completedToday: number | null;
+  /**
+   * Most recent closed session (ODD 015, I11/I12). When there is no active
+   * session and the user hasn't interacted yet, the initial turn is derived
+   * from it: last WORK closed today → BREAK, last BREAK → WORK, anything
+   * older than today (or null) → fresh WORK #1.
+   */
+  lastClosedSession?: LastClosedSession | null;
   onSessionComplete?: () => void;
 }
 
@@ -102,6 +117,12 @@ export function formatTimerBackendDisplay(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+function isToday(value: string | Date): boolean {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  return date.toDateString() === new Date().toDateString();
+}
+
 export function useTimerBackend({
   type,
   config,
@@ -109,6 +130,7 @@ export function useTimerBackend({
   api,
   notify,
   completedToday,
+  lastClosedSession = null,
   onSessionComplete,
 }: UseTimerBackendProps): UseTimerBackendReturn {
   const [isRunning, setIsRunning] = useState(false);
@@ -160,6 +182,12 @@ export function useTimerBackend({
   modeRef.current = mode;
   const configRef = useRef(config);
   configRef.current = config;
+  const isRunningRef = useRef(isRunning);
+  isRunningRef.current = isRunning;
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  const typeRef = useRef(type);
+  typeRef.current = type;
 
   const { activeSession } = api;
 
@@ -227,6 +255,68 @@ export function useTimerBackend({
     }
   }, [activeSession, type]);
 
+  // Initial turn derivation (ODD 015, I11/I12): with no active session and
+  // no user interaction yet, restore the turn from today's last closed
+  // session so a restart never loses an earned break. Runs on every change
+  // of its inputs until the first interaction (queries resolve async).
+  const hasInteractedRef = useRef(false);
+  useEffect(() => {
+    if (type !== 'POMODORO') return;
+    if (activeSession || hasInteractedRef.current || isTransitioningRef.current) return;
+    if (pendingModeRef.current) return;
+    if (
+      !lastClosedSession ||
+      !lastClosedSession.wasCompleted ||
+      !isToday(lastClosedSession.endedAt)
+    ) {
+      return;
+    }
+    const closedType =
+      lastClosedSession.type === 'CONTINUOUS' ? 'WORK' : lastClosedSession.type;
+    // nextMode() adds +1 for the closing WORK itself, but the server count
+    // already includes it — subtract to avoid double-counting.
+    const countBeforeClose =
+      closedType === 'WORK'
+        ? Math.max(0, completedPomodorosRef.current - 1)
+        : completedPomodorosRef.current;
+    const derived = nextMode(
+      closedType,
+      countBeforeClose,
+      configRef.current,
+    );
+    pendingModeRef.current = derived;
+    setMode(derived);
+    setTimeLeft(durationOf(derived, configRef.current));
+    setIsRunning(false);
+    setIsPaused(false);
+  }, [activeSession, lastClosedSession, completedPomodoros, type]);
+
+  // Midnight rollover watch (ODD 015, I12): if the local day changes while
+  // idle with no active session, reset to a fresh WORK #1. A running or
+  // paused cycle is never touched — it resolves when the phase closes.
+  const dayRef = useRef(new Date().toDateString());
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (new Date().toDateString() === dayRef.current) return;
+      dayRef.current = new Date().toDateString();
+      if (api.activeSession || isRunningRef.current || isPausedRef.current) return;
+      pendingModeRef.current = null;
+      hasInteractedRef.current = false;
+      setOptimisticExtra(0);
+      if (typeRef.current !== 'CONTINUOUS') {
+        setMode('WORK');
+        setTimeLeft(durationOf('WORK', configRef.current));
+      } else {
+        setMode('CONTINUOUS');
+        setTimeLeft(0);
+      }
+      setIsRunning(false);
+      setIsPaused(false);
+      setLocalPauseStartTime(null);
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [api]);
+
   // Adopt config changes without breaking an active cycle (I10): when idle,
   // refresh the current phase duration; when running, leave it untouched —
   // new durations apply to future phases via the engine.
@@ -247,6 +337,7 @@ export function useTimerBackend({
   }, [config, activeSession, isRunning, isPaused, type]);
 
   const start = useCallback(async () => {
+    hasInteractedRef.current = true;
     pendingModeRef.current = null;
     try {
       await api.start({
@@ -265,6 +356,7 @@ export function useTimerBackend({
   }, [api, notify, taskId, type]);
 
   const pause = useCallback(async () => {
+    hasInteractedRef.current = true;
     const pauseStart = new Date();
     setLocalPauseStartTime(pauseStart);
     try {
@@ -296,6 +388,7 @@ export function useTimerBackend({
 
   const stop = useCallback(
     async (wasCompleted: boolean = false) => {
+      hasInteractedRef.current = true;
       clearLocalInterval();
       try {
         await api.stop({ wasCompleted });
@@ -332,6 +425,7 @@ export function useTimerBackend({
 
   const skipToNext = useCallback(async () => {
     if (isTransitioningRef.current) return;
+    hasInteractedRef.current = true;
     isTransitioningRef.current = true;
     clearLocalInterval();
 

@@ -13,6 +13,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   useTimerBackend,
+  type LastClosedSession,
   type TimerBackendApi,
   type TimerBackendConfig,
   type TimerBackendNotify,
@@ -76,12 +77,19 @@ function setupHook(
     config?: TimerBackendConfig;
     taskId?: string | null;
     completedToday?: number | null;
+    lastClosedSession?: LastClosedSession | null;
   } = {},
 ) {
   const api = parts.api ?? createApi();
   const notify = parts.notify ?? createNotify();
   const utils = renderHook(
-    ({ completedToday }: { completedToday?: number | null } = {}) =>
+    ({
+      completedToday,
+      lastClosedSession,
+    }: {
+      completedToday?: number | null;
+      lastClosedSession?: LastClosedSession | null;
+    } = {}) =>
       useTimerBackend({
         type: parts.type ?? 'POMODORO',
         config: parts.config ?? config,
@@ -89,15 +97,25 @@ function setupHook(
         api,
         notify,
         completedToday: completedToday ?? parts.completedToday ?? null,
+        lastClosedSession: lastClosedSession ?? parts.lastClosedSession ?? null,
       }),
-    { initialProps: { completedToday: parts.completedToday ?? null } },
+    {
+      initialProps: {
+        completedToday: parts.completedToday ?? null,
+        lastClosedSession: parts.lastClosedSession ?? null,
+      },
+    },
   );
   return { ...utils, api, notify };
 }
 
 beforeEach(() => {
   vi.useFakeTimers();
-  vi.setSystemTime(new Date('2026-10-20T10:00:00.000Z'));
+  // Local noon: relative day arithmetic (±20h) never crosses midnight,
+  // in any timezone.
+  const noon = new Date('2026-10-20T10:00:00.000Z');
+  noon.setHours(12, 0, 0, 0);
+  vi.setSystemTime(noon);
 });
 
 afterEach(() => {
@@ -470,5 +488,180 @@ describe('useTimerBackend (unified)', () => {
     await advanceThrottled(5, 65);
 
     expect(hook.result.current.timeLeft).toBe(65);
+  });
+
+  it('I11: WORK closed today restores SHORT_BREAK stopped with full duration', () => {
+    const hook = setupHook({
+      completedToday: 1,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.timeLeft).toBe(5 * 60);
+    expect(hook.result.current.isRunning).toBe(false);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('I11: 4th WORK closed today restores LONG_BREAK', () => {
+    const hook = setupHook({
+      completedToday: 4,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('LONG_BREAK');
+    expect(hook.result.current.timeLeft).toBe(15 * 60);
+  });
+
+  it('I11: break closed today restores WORK stopped', () => {
+    const hook = setupHook({
+      completedToday: 1,
+      lastClosedSession: {
+        type: 'SHORT_BREAK',
+        endedAt: new Date(Date.now() - 25 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+    expect(hook.result.current.isRunning).toBe(false);
+  });
+
+  it('I12: WORK closed yesterday resets to WORK #1', () => {
+    const hook = setupHook({
+      completedToday: 0,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 20 * 60 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.completedPomodoros).toBe(0);
+  });
+
+  it('I11: interrupted session is ignored for turn derivation', () => {
+    const hook = setupHook({
+      completedToday: 0,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: false,
+      },
+    });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+  });
+
+  it('I11: null last session keeps default WORK start', () => {
+    const hook = setupHook({ completedToday: 0, lastClosedSession: null });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+  });
+
+  it('I11: late-arriving history still derives the turn before first interaction', () => {
+    const hook = setupHook({ completedToday: 1, lastClosedSession: null });
+    expect(hook.result.current.mode).toBe('WORK');
+
+    hook.rerender({
+      completedToday: 1,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.timeLeft).toBe(5 * 60);
+  });
+
+  it('I11: derivation never overrides user interaction', async () => {
+    const hook = setupHook({
+      config: { ...config, workDuration: 25 },
+      completedToday: 0,
+      lastClosedSession: null,
+    });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await advance(10);
+
+    // History arrives late AND the user already started: keep running WORK.
+    hook.rerender({
+      completedToday: 0,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.isRunning).toBe(true);
+    expect(hook.result.current.timeLeft).toBe(25 * 60 - 10);
+  });
+
+  it('I12: midnight rollover with no active session resets to WORK #1', async () => {
+    // Dates are built relative to the mocked now (timezone-agnostic: the
+    // hook compares local calendar days).
+    const now = new Date();
+    const closedToday = new Date(now.getTime() - 30 * 60 * 1000);
+    const justBeforeMidnight = new Date(now);
+    justBeforeMidnight.setHours(23, 59, 0, 0);
+
+    const hook = setupHook({
+      completedToday: 3,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: closedToday,
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+
+    // Cross local midnight: new day, backend count drops to 0.
+    await act(async () => {
+      vi.setSystemTime(new Date(justBeforeMidnight.getTime() + 90 * 1000));
+      await vi.advanceTimersByTimeAsync(31 * 1000);
+    });
+    await flushPromises();
+    hook.rerender({ completedToday: 0, lastClosedSession: null });
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+    expect(hook.result.current.isRunning).toBe(false);
+    expect(hook.result.current.completedPomodoros).toBe(0);
+  });
+
+  it('I12: midnight rollover with a running session leaves the cycle untouched', async () => {
+    // Start just before local midnight with a 25-min WORK: crossing it
+    // must not reset the running cycle.
+    const now = new Date();
+    const justBeforeMidnight = new Date(now);
+    justBeforeMidnight.setHours(23, 59, 0, 0);
+    vi.setSystemTime(justBeforeMidnight);
+
+    const hook = setupHook({
+      config: { ...config, workDuration: 25 },
+      completedToday: 1,
+      lastClosedSession: null,
+    });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await act(async () => {
+      vi.setSystemTime(new Date(justBeforeMidnight.getTime() + 90 * 1000));
+      await vi.advanceTimersByTimeAsync(31 * 1000);
+    });
+    await flushPromises();
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.isRunning).toBe(true);
+    expect(hook.result.current.timeLeft).toBeLessThan(25 * 60);
+    expect(hook.result.current.timeLeft).toBeGreaterThan(0);
   });
 });

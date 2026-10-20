@@ -92,6 +92,7 @@ Notas:
 | `odd/tasks/012-billing-stripe.md` | #240 | M4 Confianza + ingresos | [FEATURE] Facturación real con Stripe + planes enforced |
 | `odd/tasks/013-marketing-docs-cleanup.md` | #241 | M0 Higiene | [TASK] Limpieza marketing/docs: cero promesas falsas |
 | `odd/tasks/014-pomodoro-engine.md` | #282 | M0 Higiene | [FIX] Motor Pomodoro unificado (un solo motor, contador y reloj) |
+| `odd/tasks/015-phase-persistence.md` | #300 | M0 Higiene | [FIX] Persistencia de fase Pomodoro (el turno sobrevive al restart) |
 
 ## Reglas de ejecución
 

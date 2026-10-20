@@ -21,7 +21,8 @@ import {
     usePauseTimer,
     useResumeTimer,
     useSwitchTask,
-    useTimerStats
+    useTimerStats,
+    useSessionHistory
 } from "@/app/lib/shared-hooks";
 import Toast from "react-native-toast-message";
 
@@ -62,6 +63,8 @@ function startOfTodayISO(): string {
 export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps): UseTimerBackendReturn {
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
     const { data: todayStats } = useTimerStats({ startDate: startOfTodayISO() });
+    // Last closed session for initial turn derivation (ODD 015, I11/I12).
+    const { data: lastClosedPage } = useSessionHistory({ completedOnly: true, limit: 1 });
     const startTimerMutation = useStartTimer();
     const stopTimerMutation = useStopTimer();
     const pauseTimerMutation = usePauseTimer();
@@ -148,6 +151,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         },
     }), [config.autoStartBreaks, config.autoStartPomodoros]);
 
+    const lastClosed = lastClosedPage?.sessions?.[0];
     const timer = useSharedTimerBackend({
         type,
         config,
@@ -155,6 +159,13 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         api,
         notify: notifyAdapter,
         completedToday: todayStats?.pomodorosCompleted ?? null,
+        lastClosedSession: lastClosed?.endedAt
+            ? {
+                type: lastClosed.type as TimerBackendMode,
+                endedAt: lastClosed.endedAt,
+                wasCompleted: lastClosed.wasCompleted,
+            }
+            : null,
         onSessionComplete,
     });
 
