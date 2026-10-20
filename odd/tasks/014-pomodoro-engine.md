@@ -76,7 +76,7 @@ Fuera de alcance: reescritura del backend de timers (sano); nuevas features (aut
 | T1 | S1 | Motor puro `timer/engine/` + suite del contrato (I1,I2,I4,I10) | inline | done | `554d2667` — 22/22 Jest GREEN, tsc build OK |
 | T2a | S2 | Hook único en `@ordo-todo/hooks` + test RED→GREEN del síntoma | inline | done | `085d7144` — 15/15 Vitest GREEN (suite 150/150), tsc OK |
 | T2b | S2 | Migrar web al hook único (provider + settings wiring) | inline | done | `a2d5c9ea` — adaptador 125 líneas (-429), tsc/eslint limpios, provider intacto |
-| T2c | S2 | Migrar desktop al hook único (transición+contador+LONG_BREAK+notif+switchTask) | inline | pending | — |
+| T2c | S2 | Migrar desktop al hook único (transición+contador+LONG_BREAK+notif+switchTask) | inline | done | `d8f23d37` — adaptador 154 líneas (-224), tsc 1 preexistente antes/después, eslint limpio |
 | T2d | S2 | Migrar móvil-timer al hook único | inline | pending | — |
 | T3 | S3 | Desktop: dueño único + eliminar provider duplicado (tray/atajos/mini/Settings al hook) | inline | pending | — |
 | T4 | S4 | Contador único desde backend (eliminar storages divergentes) | inline | pending | — |
@@ -91,3 +91,4 @@ L1. "el sistema de Pomodoro no esta funcionando correctamente, porque solo pasa 
 L2. T1 done 2026-10-20: `timer/engine/` (types+engine+index) + `test/engine.test.ts` (22 tests, I1/I2/I4/I5/I10). TDD RED→GREEN. `npx jest src/timer` 22/22; `tsc -p tsconfig.build.json` 0 errores. Commit `554d2667`.
 L3. T2a done 2026-10-20: `packages/hooks/src/use-timer-backend.ts` (hook único) + `__tests__/use-timer-backend.test.tsx` (15 tests). Fix sync-reset vía `pendingModeRef` (intención local); tick con `timeLeftRef` propio (batching React 18+). Suite hooks 150/150 GREEN; `tsc --noEmit` OK (tras rebuild local de core dist, no commiteado). Commit `085d7144`.
 L4. T2b done 2026-10-20: `apps/web/src/hooks/use-timer-backend.ts` reescrito como adaptador fino (478→125 líneas). Toasts/sonidos preservados. `timer-provider.tsx` intacto (firma compatible). tsc: 9 errores preexistentes antes y después (dists ui/api-client), 0 en timer; eslint limpio. Commit `a2d5c9ea`.
+L5. T2c done 2026-10-20: `apps/desktop/src/hooks/use-timer-backend.ts` reescrito como adaptador (269→154 líneas). Gana: transición al expirar, contador, LONG_BREAK, notificaciones nativas, switchTask real, pauseCount real (contexto: eliminada línea `pauseCount: 0`). Tray sync preservado. tsc: 1 preexistente antes/después (parse-task); eslint limpio. Commit `d8f23d37`.
