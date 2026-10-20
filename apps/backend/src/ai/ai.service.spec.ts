@@ -3,6 +3,7 @@ import { AIService } from './ai.service';
 import { GeminiAIService } from './gemini-ai.service';
 import { TaskNlParserService } from './task-nl-parser.service';
 import { PrismaService } from '../database/prisma.service';
+import { SchedulingService } from '../scheduling/scheduling.service';
 
 describe('AIService.parseNaturalLanguageTask', () => {
   let service: AIService;
@@ -19,6 +20,8 @@ describe('AIService.parseNaturalLanguageTask', () => {
         { provide: 'ProductivityReportRepository', useValue: {} },
         { provide: 'AnalyticsRepository', useValue: {} },
         { provide: 'TimerRepository', useValue: {} },
+        { provide: 'TaskRepository', useValue: {} },
+        { provide: SchedulingService, useValue: {} },
         { provide: GeminiAIService, useValue: mockGemini },
         { provide: PrismaService, useValue: {} },
         TaskNlParserService,

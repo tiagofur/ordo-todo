@@ -49,6 +49,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { McpModule } from './mcp/mcp.module';
 import { CalendarSyncModule } from './calendar-sync/calendar-sync.module';
 import { SlackModule } from './slack/slack.module';
+import { SchedulingModule } from './scheduling/scheduling.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -116,6 +117,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     McpModule,
     CalendarSyncModule,
     SlackModule,
+    SchedulingModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
