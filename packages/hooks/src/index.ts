@@ -68,6 +68,7 @@ export {
   type TimerBackendNotify,
   type TimerBackendSession,
   type TimerBackendType,
+  type LastClosedSession,
   type UseTimerBackendProps,
   type UseTimerBackendReturn,
 } from './use-timer-backend';
