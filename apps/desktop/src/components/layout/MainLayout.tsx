@@ -8,6 +8,7 @@ import { QuickAddTask } from "../quick-actions/QuickAddTask";
 import { KeyboardShortcutsHelp } from "../keyboard-shortcuts/KeyboardShortcutsHelp";
 import { useGlobalKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSystemIntegration } from "../system/SystemIntegration";
+import { useElectron } from "@/hooks/use-electron";
 
 import { desktopBridge } from "@/lib/desktop-bridge";
 
@@ -17,6 +18,10 @@ export function MainLayout() {
 
   // Initialize global keyboard shortcuts
   useGlobalKeyboardShortcuts();
+
+  // Native shell: tray quick-add listener + global shortcuts (single
+  // mount site — previously only registered while Profile was mounted).
+  useElectron();
 
   // Initialize system integration
   const { updateBadgeCount } = useSystemIntegration();
