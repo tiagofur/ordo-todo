@@ -417,29 +417,47 @@ export function useTimerBackend({
     [api, notify, type],
   );
 
-  // Countdown / count-up effect. The tick owns timeLeftRef as its source of
-  // truth (updated on every tick, not only on render) because React 18+
-  // batches setStates across timer macrotasks — a render-mirrored ref would
-  // lag behind and miss expiry. External writers (start/stop/skip/sync) go
-  // through setState, which re-renders and re-syncs the ref before the next
-  // tick. Expiry fires synchronously in the tick — no nested setTimeout.
+  // Wall-clock countdown / count-up (ODD 014 T5). Ticks recompute the
+  // remaining time from a fixed deadline instead of decrementing by one, so
+  // throttled timers (hidden tab, backgrounded app, locked screen) and
+  // per-tick drift can never desync the clock: the first tick after a gap
+  // lands on the correct value, or fires the transition if the phase
+  // expired while suspended. Expiry fires synchronously in the tick — no
+  // nested setTimeout.
   const timeLeftRef = useRef(timeLeft);
   timeLeftRef.current = timeLeft;
+  // Deadline for POMODORO phases (ms epoch), or anchor for CONTINUOUS
+  // count-up (Date.now() - elapsedSeconds * 1000 at (re)start).
+  const deadlineRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isRunning || isPaused || isTransitioningRef.current) {
       clearLocalInterval();
       return;
     }
+    // (Re)anchor the deadline from the current remainder every time the
+    // countdown (re)starts: start, resume, auto-start, backend sync.
+    if (modeRef.current === 'CONTINUOUS') {
+      deadlineRef.current = Date.now() - timeLeftRef.current * 1000;
+    } else {
+      deadlineRef.current = Date.now() + timeLeftRef.current * 1000;
+    }
     intervalRef.current = setInterval(() => {
+      const deadline = deadlineRef.current;
+      if (deadline === null) return;
       if (modeRef.current === 'CONTINUOUS') {
-        timeLeftRef.current += 1;
-        setTimeLeft(timeLeftRef.current);
+        const elapsed = Math.max(0, Math.floor((Date.now() - deadline) / 1000));
+        timeLeftRef.current = elapsed;
+        setTimeLeft(elapsed);
         return;
       }
-      const next = timeLeftRef.current - 1;
-      if (next <= 0) {
+      const remaining = Math.max(
+        0,
+        Math.round((deadline - Date.now()) / 1000),
+      );
+      if (remaining <= 0) {
         clearLocalInterval();
+        deadlineRef.current = null;
         timeLeftRef.current = 0;
         setTimeLeft(0);
         if (!isTransitioningRef.current) {
@@ -451,8 +469,8 @@ export function useTimerBackend({
         }
         return;
       }
-      timeLeftRef.current = next;
-      setTimeLeft(next);
+      timeLeftRef.current = remaining;
+      setTimeLeft(remaining);
     }, 1000);
     return () => {
       clearLocalInterval();

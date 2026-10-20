@@ -128,6 +128,16 @@ async function startAndExpire(hook: ReturnType<typeof setupHook>, seconds: numbe
   await advance(seconds);
 }
 
+/**
+ * Simulate timer throttling (hidden tab / backgrounded app): the JS clock
+ * advances only `tickedSeconds` while wall-clock time jumps `realSeconds`.
+ */
+async function advanceThrottled(tickedSeconds: number, realSeconds: number) {
+  const now = Date.now();
+  vi.setSystemTime(now + (realSeconds - tickedSeconds) * 1000);
+  await advance(tickedSeconds);
+}
+
 describe('useTimerBackend (unified)', () => {
   it('SYMPTOM: expiring WORK transitions to SHORT_BREAK/5:00 with counter=1 (never WORK/25:00)', async () => {
     const hook = setupHook({ config: { ...config, workDuration: 1 } });
@@ -399,5 +409,66 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.completedPomodoros).toBe(0);
     await startAndExpire(hook, 60);
     expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('T5: throttled ticks compute remaining from the wall clock, not tick count', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 25 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    // Only 10 ticks fire while 120 real seconds elapse (backgrounded app).
+    await advanceThrottled(10, 120);
+
+    expect(hook.result.current.timeLeft).toBe(25 * 60 - 120);
+    expect(hook.result.current.isRunning).toBe(true);
+  });
+
+  it('T5: expiry during suspension transitions on the next tick after wake', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 1 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    // App suspended for 5 minutes; a single tick fires on wake.
+    await advanceThrottled(1, 300);
+
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.timeLeft).toBe(5 * 60);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('T5: pause freezes the deadline; resume recomputes it without drift', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 25 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await advance(10);
+    const frozen = hook.result.current.timeLeft;
+
+    await act(async () => {
+      await hook.result.current.pause();
+    });
+    // 60 real seconds pass while paused (timers + wall clock advance, but
+    // the hook is paused so no tick runs).
+    vi.setSystemTime(Date.now() + 60 * 1000);
+    expect(hook.result.current.timeLeft).toBe(frozen);
+
+    await act(async () => {
+      await hook.result.current.resume();
+    });
+    await advance(5);
+    expect(hook.result.current.timeLeft).toBe(frozen - 5);
+  });
+
+  it('T5: CONTINUOUS count-up reflects wall-clock time after a jump', async () => {
+    const hook = setupHook({ type: 'CONTINUOUS' });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    await advanceThrottled(5, 65);
+
+    expect(hook.result.current.timeLeft).toBe(65);
   });
 });

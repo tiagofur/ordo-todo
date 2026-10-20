@@ -5,7 +5,8 @@
  * it wires React Query mutations, Toast messages and AsyncStorage-backed
  * counter persistence. All cycle logic lives in the shared hook + engine.
  */
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import * as Notifications from "expo-notifications";
 import {
     useTimerBackend as useSharedTimerBackend,
     type TimerBackendMode,
@@ -147,7 +148,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         },
     }), [config.autoStartBreaks, config.autoStartPomodoros]);
 
-    return useSharedTimerBackend({
+    const timer = useSharedTimerBackend({
         type,
         config,
         taskId,
@@ -156,4 +157,62 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         completedToday: todayStats?.pomodorosCompleted ?? null,
         onSessionComplete,
     });
+
+    // Background completion notification (ODD 014 T5): while a timed phase
+    // runs, schedule an OS notification at its deadline so the user is told
+    // even with the app backgrounded. Cancelled on pause/stop/transition/
+    // unmount. Depends on run-state only — never on timeLeft (no reschedule
+    // per tick).
+    const scheduledIdRef = useRef<string | null>(null);
+    const { isRunning, isPaused, mode, timeLeft } = timer;
+    useEffect(() => {
+        const cancelScheduled = () => {
+            if (scheduledIdRef.current) {
+                const id = scheduledIdRef.current;
+                scheduledIdRef.current = null;
+                Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined);
+            }
+        };
+
+        if (!isRunning || isPaused || mode === "CONTINUOUS" || timeLeft <= 0) {
+            cancelScheduled();
+            return;
+        }
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const { status } = await Notifications.getPermissionsAsync();
+                if (status !== "granted" || cancelled) return;
+                const id = await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: mode === "WORK" ? "🍅 Pomodoro completado" : "☕ Descanso terminado",
+                        body: mode === "WORK"
+                            ? "Excelente trabajo. Hora de tomar un descanso."
+                            : "Hora de volver al trabajo.",
+                        sound: "default",
+                    },
+                    trigger: {
+                        type: Notifications.SchedulableTriggerInputTypes.DATE,
+                        date: new Date(Date.now() + timeLeft * 1000),
+                    },
+                });
+                if (!cancelled) {
+                    scheduledIdRef.current = id;
+                } else {
+                    Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined);
+                }
+            } catch {
+                // Best-effort: foreground Toasts still fire on completion.
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+            cancelScheduled();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isRunning, isPaused, mode]);
+
+    return timer;
 }
