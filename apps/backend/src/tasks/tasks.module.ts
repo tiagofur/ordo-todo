@@ -30,7 +30,9 @@ import { AIModule } from '../ai/ai.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'default-jwt-secret-ordo-calendar',
+        secret:
+          configService.get<string>('JWT_SECRET') ||
+          'default-jwt-secret-ordo-calendar',
       }),
       inject: [ConfigService],
     }),

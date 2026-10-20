@@ -283,7 +283,8 @@ export class TasksController {
       );
     }
 
-    const tasks = await this.tasksService.findTasksForCalendarExport(targetUserId);
+    const tasks =
+      await this.tasksService.findTasksForCalendarExport(targetUserId);
     const icsContent = generateIcsFeed(tasks, 'Ordo Tasks');
 
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
