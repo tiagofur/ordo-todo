@@ -1,4 +1,5 @@
-export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
+import type { TimerMode as CoreTimerMode } from '@ordo-todo/core';
+export type TimerMode = CoreTimerMode;
 interface TimerWidgetProps {
     /** Whether timer is currently running */
     isRunning: boolean;
