@@ -182,6 +182,12 @@ export function useTimerBackend({
   modeRef.current = mode;
   const configRef = useRef(config);
   configRef.current = config;
+  const isRunningRef = useRef(isRunning);
+  isRunningRef.current = isRunning;
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  const typeRef = useRef(type);
+  typeRef.current = type;
 
   const { activeSession } = api;
 
@@ -284,6 +290,32 @@ export function useTimerBackend({
     setIsRunning(false);
     setIsPaused(false);
   }, [activeSession, lastClosedSession, completedPomodoros, type]);
+
+  // Midnight rollover watch (ODD 015, I12): if the local day changes while
+  // idle with no active session, reset to a fresh WORK #1. A running or
+  // paused cycle is never touched — it resolves when the phase closes.
+  const dayRef = useRef(new Date().toDateString());
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (new Date().toDateString() === dayRef.current) return;
+      dayRef.current = new Date().toDateString();
+      if (api.activeSession || isRunningRef.current || isPausedRef.current) return;
+      pendingModeRef.current = null;
+      hasInteractedRef.current = false;
+      setOptimisticExtra(0);
+      if (typeRef.current !== 'CONTINUOUS') {
+        setMode('WORK');
+        setTimeLeft(durationOf('WORK', configRef.current));
+      } else {
+        setMode('CONTINUOUS');
+        setTimeLeft(0);
+      }
+      setIsRunning(false);
+      setIsPaused(false);
+      setLocalPauseStartTime(null);
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [api]);
 
   // Adopt config changes without breaking an active cycle (I10): when idle,
   // refresh the current phase duration; when running, leave it untouched —

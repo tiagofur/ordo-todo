@@ -111,7 +111,11 @@ function setupHook(
 
 beforeEach(() => {
   vi.useFakeTimers();
-  vi.setSystemTime(new Date('2026-10-20T10:00:00.000Z'));
+  // Local noon: relative day arithmetic (±20h) never crosses midnight,
+  // in any timezone.
+  const noon = new Date('2026-10-20T10:00:00.000Z');
+  noon.setHours(12, 0, 0, 0);
+  vi.setSystemTime(noon);
 });
 
 afterEach(() => {
@@ -491,7 +495,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 1,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-20T09:30:00.000Z'),
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
         wasCompleted: true,
       },
     });
@@ -506,7 +510,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 4,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-20T09:30:00.000Z'),
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
         wasCompleted: true,
       },
     });
@@ -519,7 +523,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 1,
       lastClosedSession: {
         type: 'SHORT_BREAK',
-        endedAt: new Date('2026-10-20T09:35:00.000Z'),
+        endedAt: new Date(Date.now() - 25 * 60 * 1000),
         wasCompleted: true,
       },
     });
@@ -533,7 +537,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 0,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-19T18:00:00.000Z'),
+        endedAt: new Date(Date.now() - 20 * 60 * 60 * 1000),
         wasCompleted: true,
       },
     });
@@ -546,7 +550,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 0,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-20T09:30:00.000Z'),
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
         wasCompleted: false,
       },
     });
@@ -568,7 +572,7 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 1,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-20T09:30:00.000Z'),
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
         wasCompleted: true,
       },
     });
@@ -592,12 +596,72 @@ describe('useTimerBackend (unified)', () => {
       completedToday: 0,
       lastClosedSession: {
         type: 'WORK',
-        endedAt: new Date('2026-10-20T09:30:00.000Z'),
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
         wasCompleted: true,
       },
     });
     expect(hook.result.current.mode).toBe('WORK');
     expect(hook.result.current.isRunning).toBe(true);
     expect(hook.result.current.timeLeft).toBe(25 * 60 - 10);
+  });
+
+  it('I12: midnight rollover with no active session resets to WORK #1', async () => {
+    // Dates are built relative to the mocked now (timezone-agnostic: the
+    // hook compares local calendar days).
+    const now = new Date();
+    const closedToday = new Date(now.getTime() - 30 * 60 * 1000);
+    const justBeforeMidnight = new Date(now);
+    justBeforeMidnight.setHours(23, 59, 0, 0);
+
+    const hook = setupHook({
+      completedToday: 3,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: closedToday,
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+
+    // Cross local midnight: new day, backend count drops to 0.
+    await act(async () => {
+      vi.setSystemTime(new Date(justBeforeMidnight.getTime() + 90 * 1000));
+      await vi.advanceTimersByTimeAsync(31 * 1000);
+    });
+    await flushPromises();
+    hook.rerender({ completedToday: 0, lastClosedSession: null });
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+    expect(hook.result.current.isRunning).toBe(false);
+    expect(hook.result.current.completedPomodoros).toBe(0);
+  });
+
+  it('I12: midnight rollover with a running session leaves the cycle untouched', async () => {
+    // Start just before local midnight with a 25-min WORK: crossing it
+    // must not reset the running cycle.
+    const now = new Date();
+    const justBeforeMidnight = new Date(now);
+    justBeforeMidnight.setHours(23, 59, 0, 0);
+    vi.setSystemTime(justBeforeMidnight);
+
+    const hook = setupHook({
+      config: { ...config, workDuration: 25 },
+      completedToday: 1,
+      lastClosedSession: null,
+    });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await act(async () => {
+      vi.setSystemTime(new Date(justBeforeMidnight.getTime() + 90 * 1000));
+      await vi.advanceTimersByTimeAsync(31 * 1000);
+    });
+    await flushPromises();
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.isRunning).toBe(true);
+    expect(hook.result.current.timeLeft).toBeLessThan(25 * 60);
+    expect(hook.result.current.timeLeft).toBeGreaterThan(0);
   });
 });
