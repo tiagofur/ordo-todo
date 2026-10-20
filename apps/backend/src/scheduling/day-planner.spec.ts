@@ -154,4 +154,62 @@ describe('planDay (ODD 005 S2)', () => {
     });
     expect(plan.blocks.map((b) => b.taskId)).toEqual(['a-task', 'b-task']);
   });
+
+  it('fixes the full scheduled order explicitly (readable failures)', () => {
+    const plan = planDay(INPUT);
+    expect(plan.blocks.map((b) => b.taskId)).toEqual([
+      't01',
+      't10',
+      't02',
+      't03',
+      't06',
+      't04',
+      't05',
+      't07',
+      't08',
+      't09',
+    ]);
+  });
+
+  it('merges overlapping events and handles an empty task list', () => {
+    const plan = planDay({
+      tasks: [
+        {
+          taskId: 'only',
+          title: 'only',
+          estimatedMinutes: 30,
+          dueDate: null,
+          priority: 'MEDIUM',
+        },
+      ],
+      events: [
+        { start: '09:00', end: '10:00' },
+        { start: '09:30', end: '11:00' },
+      ],
+      workingHours: { start: '09:00', end: '18:00' },
+    });
+    expect(plan.blocks).toMatchObject([{ taskId: 'only', start: '11:00' }]);
+    expect(
+      planDay({ tasks: [], workingHours: { start: '09:00', end: '18:00' } }),
+    ).toEqual({ blocks: [], unscheduled: [] });
+  });
+
+  it('treats NaN durations as zero-length blocks (defensive)', () => {
+    const plan = planDay({
+      tasks: [
+        {
+          taskId: 'nan',
+          title: 'nan',
+          estimatedMinutes: Number.NaN,
+          dueDate: null,
+          priority: 'MEDIUM',
+        },
+      ],
+      workingHours: { start: '09:00', end: '18:00' },
+    });
+    expect(plan.blocks).toMatchObject([
+      { taskId: 'nan', start: '09:00', end: '09:00' },
+    ]);
+    expect(plan.unscheduled).toHaveLength(0);
+  });
 });
