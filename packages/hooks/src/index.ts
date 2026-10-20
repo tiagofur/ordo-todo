@@ -70,6 +70,21 @@ export {
   type UseTimerReturn,
 } from './use-timer';
 
+// Unified backend timer hook (ODD 014)
+export {
+  useTimerBackend,
+  formatTimerBackendDisplay,
+  type TimerBackendApi,
+  type TimerBackendConfig,
+  type TimerBackendMode,
+  type TimerBackendNotify,
+  type TimerBackendSession,
+  type TimerBackendStorage,
+  type TimerBackendType,
+  type UseTimerBackendProps,
+  type UseTimerBackendReturn,
+} from './use-timer-backend';
+
 // Username validation hook
 export {
   useUsernameValidation,
