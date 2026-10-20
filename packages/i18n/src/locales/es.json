@@ -207,6 +207,30 @@
       "noChannel": "Sin canal asignado",
       "dailySummary": "Resumen diario en el canal",
       "focusSync": "Sincronizar estado de foco"
+    },
+    "agentJobs": {
+      "title": "Trabajos recurrentes",
+      "description": "Programa resúmenes y tareas en lenguaje natural.",
+      "namePlaceholder": "Nombre del job (ej. Resumen semanal)",
+      "schedulePlaceholder": "Horario (ej. cada viernes a las 5)",
+      "scheduleHint": "Prueba: cada día a las 8 · every friday at 5pm · toda sexta às 17h",
+      "promptPlaceholder": "Qué hacer (ej. prepárame el resumen semanal)",
+      "create": "Crear job",
+      "creating": "Creando…",
+      "created": "Job creado",
+      "createError": "No se pudo crear el job",
+      "active": "Activo",
+      "paused": "Pausado",
+      "nextRun": "Próxima ejecución",
+      "neverRan": "Sin programar",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "runNow": "Ejecutar ahora",
+      "delete": "Borrar",
+      "ranOk": "Job ejecutado",
+      "ranError": "Falló la ejecución",
+      "loading": "Cargando jobs…",
+      "empty": "Sin jobs todavía. Crea el primero arriba."
     }
   },
   "TimerWidget": {

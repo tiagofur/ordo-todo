@@ -99,6 +99,31 @@ export interface SlackTeamMapping {
 
 export type EnergyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
+export interface AgentJob {
+  id: string;
+  name: string;
+  schedule: string;
+  timezone: string;
+  taskPrompt: string;
+  isActive: boolean;
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  lastStatus: string | null;
+}
+
+export interface CreateAgentJobInput {
+  name: string;
+  scheduleText: string;
+  taskPrompt: string;
+  timezone?: string;
+}
+
+export interface UpdateAgentJobInput {
+  name?: string;
+  taskPrompt?: string;
+  isActive?: boolean;
+}
+
 export interface FocusAudioPreferences {
   auto?: boolean;
   volume?: number;

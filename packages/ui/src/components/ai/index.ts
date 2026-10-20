@@ -7,6 +7,7 @@
 
 // Platform-agnostic presentational component
 export * from './report-card.js';
+export * from './agent-job-card.js';
 
 // NOTE: The following components have been moved to apps/web/src/components/ai/:
 // - generate-report-dialog (uses useState)
