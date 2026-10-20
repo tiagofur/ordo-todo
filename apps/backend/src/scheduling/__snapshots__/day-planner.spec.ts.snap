@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`planDay (ODD 005 S2) is deterministic: deep-equal twice + snapshot 1`] = `
+[
+  "t01@09:00-09:45",
+  "t10@09:45-10:00",
+  "t02@10:30-11:00",
+  "t03@11:00-12:30",
+  "t06@12:30-13:00",
+  "t04@14:00-15:00",
+  "t05@16:00-16:45",
+  "t07@16:45-17:05",
+  "t08@17:05-17:30",
+  "t09@17:30-18:00",
+]
+`;
