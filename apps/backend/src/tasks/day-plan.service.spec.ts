@@ -1,0 +1,213 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { DayPlanService } from './day-plan.service';
+import { PrismaService } from '../database/prisma.service';
+import { SchedulingService } from '../scheduling/scheduling.service';
+
+// ODD 005 S3 (T3b): day-plan proposal persistence + freeze/apply.
+// TDD RED: this spec pins the DayPlanService API before it exists.
+describe('DayPlanService (ODD 005 S3)', () => {
+  let service: DayPlanService;
+  let prisma: {
+    dayPlanProposal: {
+      findFirst: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+      updateMany: jest.Mock;
+    };
+    task: { updateMany: jest.Mock; update: jest.Mock };
+    user: { findUnique: jest.Mock };
+  };
+  let scheduling: { replanOnDayStart: jest.Mock };
+
+  const PROPOSAL = {
+    id: 'prop-1',
+    userId: 'user-1',
+    date: new Date('2026-10-20T00:00:00.000Z'),
+    blocks: [
+      { taskId: 'a', start: '09:00', end: '10:00', reason: 'seed' },
+      { taskId: 'b', start: '10:00', end: '11:00', reason: 'seed' },
+    ],
+    frozenTaskIds: [] as string[],
+    changes: [
+      {
+        taskId: 'a',
+        type: 'added',
+        to: { start: '09:00', end: '10:00' },
+        reason: 'r',
+      },
+    ],
+    status: 'PROPOSED',
+    createdAt: new Date(),
+  };
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    prisma = {
+      dayPlanProposal: {
+        findFirst: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        updateMany: jest.fn(),
+      },
+      task: { updateMany: jest.fn(), update: jest.fn() },
+      user: { findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }) },
+    };
+    scheduling = { replanOnDayStart: jest.fn() };
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        DayPlanService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: SchedulingService, useValue: scheduling },
+      ],
+    }).compile();
+    service = module.get<DayPlanService>(DayPlanService);
+  });
+
+  it('getDayPlan returns the latest proposal with blocks + pending changes', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    const result = await service.getDayPlan('user-1');
+
+    expect(prisma.dayPlanProposal.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userId: 'user-1' }),
+        orderBy: { createdAt: 'desc' },
+      }),
+    );
+    expect(result).toMatchObject({
+      proposalId: 'prop-1',
+      status: 'PROPOSED',
+      blocks: PROPOSAL.blocks,
+      frozenTaskIds: [],
+      changes: PROPOSAL.changes,
+    });
+  });
+
+  it('getDayPlan builds a fresh proposal via replanOnDayStart when none exists', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(null);
+    scheduling.replanOnDayStart.mockResolvedValue({
+      plan: {
+        blocks: [{ taskId: 'a', start: '09:00', end: '10:00', reason: 'x' }],
+        unscheduled: [],
+      },
+      changes: [{ taskId: 'a', type: 'added', reason: 'first plan' }],
+    });
+    prisma.dayPlanProposal.create.mockResolvedValue({
+      ...PROPOSAL,
+      blocks: [{ taskId: 'a', start: '09:00', end: '10:00', reason: 'x' }],
+    });
+
+    const result = await service.getDayPlan('user-1');
+
+    expect(scheduling.replanOnDayStart).toHaveBeenCalledWith('user-1');
+    expect(prisma.dayPlanProposal.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: 'user-1', status: 'PROPOSED' }),
+      }),
+    );
+    expect(result.proposalId).toBe('prop-1');
+  });
+
+  it('freeze adds the task to frozenTaskIds (idempotent)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    prisma.dayPlanProposal.update.mockResolvedValue({
+      ...PROPOSAL,
+      frozenTaskIds: ['b'],
+    });
+
+    const result = await service.freeze('user-1', 'b');
+
+    expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'prop-1' },
+        data: { frozenTaskIds: ['b'] },
+      }),
+    );
+    expect(result.frozenTaskIds).toEqual(['b']);
+
+    // Idempotent: freezing twice does not duplicate.
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      frozenTaskIds: ['b'],
+    });
+    prisma.dayPlanProposal.update.mockResolvedValue({
+      ...PROPOSAL,
+      frozenTaskIds: ['b'],
+    });
+    const again = await service.freeze('user-1', 'b');
+    expect(again.frozenTaskIds).toEqual(['b']);
+  });
+
+  it('freeze rejects a task not in the plan', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    await expect(service.freeze('user-1', 'zzz')).rejects.toThrow(
+      NotFoundException,
+    );
+    expect(prisma.dayPlanProposal.update).not.toHaveBeenCalled();
+  });
+
+  it('unfreeze removes the task from frozenTaskIds', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      frozenTaskIds: ['a', 'b'],
+    });
+    prisma.dayPlanProposal.update.mockResolvedValue({
+      ...PROPOSAL,
+      frozenTaskIds: ['a'],
+    });
+
+    const result = await service.unfreeze('user-1', 'b');
+    expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { frozenTaskIds: ['a'] } }),
+    );
+    expect(result.frozenTaskIds).toEqual(['a']);
+  });
+
+  it('apply writes doDate/scheduledTime per block and marks APPLIED', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    prisma.dayPlanProposal.update.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'APPLIED',
+    });
+
+    const result = await service.apply('user-1', 'prop-1');
+
+    // One update per block: doDate = plan day, times from the block.
+    expect(prisma.task.update).toHaveBeenCalledTimes(2);
+    expect(prisma.task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: 'a' }),
+        data: expect.objectContaining({
+          scheduledTime: '09:00',
+          scheduledEndTime: '10:00',
+          isTimeBlocked: true,
+        }),
+      }),
+    );
+    expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'prop-1' },
+        data: { status: 'APPLIED' },
+      }),
+    );
+    expect(result.status).toBe('APPLIED');
+  });
+
+  it('apply rejects an already-APPLIED proposal', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'APPLIED',
+    });
+    await expect(service.apply('user-1', 'prop-1')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(prisma.task.update).not.toHaveBeenCalled();
+  });
+
+  it('apply rejects a proposal owned by another user', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(null);
+    await expect(service.apply('user-1', 'prop-x')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+});

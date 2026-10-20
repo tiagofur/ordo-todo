@@ -285,6 +285,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.externalCalendarBlock;
   }
 
+  get dayPlanProposal() {
+    return this.prisma.dayPlanProposal;
+  }
+
   get slackWorkspaceMap() {
     return this.prisma.slackWorkspaceMap;
   }

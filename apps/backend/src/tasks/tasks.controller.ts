@@ -42,12 +42,15 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
+import { DayPlanService } from './day-plan.service';
 import { TagsService } from '../tags/tags.service';
 import { CommentsService } from '../comments/comments.service';
 import { AttachmentsService } from '../attachments/attachments.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { FreezeTaskDto } from './dto/freeze-task.dto';
+import { ApplyDayPlanDto } from './dto/apply-day-plan.dto';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -56,6 +59,7 @@ export class TasksController {
 
   constructor(
     private readonly tasksService: TasksService,
+    private readonly dayPlanService: DayPlanService,
     @Inject(forwardRef(() => TagsService))
     private readonly tagsService: TagsService,
     @Inject(forwardRef(() => CommentsService))
@@ -189,6 +193,53 @@ export class TasksController {
     const end = endStr ? new Date(endStr) : defaultEnd;
 
     return this.tasksService.findTimeBlocks(user.id, start, end);
+  }
+
+  /**
+   * Get the current day plan (latest proposal + pending changes).
+   * ODD 005 S3 (T3b). Builds the first plan of the day when none exists.
+   * Must be BEFORE @Get(':id') to avoid route conflicts.
+   */
+  @Get('day-plan')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @ApiOperation({ summary: 'Get the current day plan with pending changes' })
+  getDayPlan(@CurrentUser() user: RequestUser) {
+    return this.dayPlanService.getDayPlan(user.id);
+  }
+
+  @Post('day-plan/freeze')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Freeze a day-plan block (it will never move)' })
+  @ApiBodyDecorator({ type: FreezeTaskDto })
+  freezeDayPlanBlock(
+    @Body() dto: FreezeTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.dayPlanService.freeze(user.id, dto.taskId);
+  }
+
+  @Post('day-plan/unfreeze')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Unfreeze a day-plan block' })
+  @ApiBodyDecorator({ type: FreezeTaskDto })
+  unfreezeDayPlanBlock(
+    @Body() dto: FreezeTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.dayPlanService.unfreeze(user.id, dto.taskId);
+  }
+
+  @Post('day-plan/apply')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Apply a proposed day plan onto tasks (doDate + time blocks)',
+  })
+  @ApiBodyDecorator({ type: ApplyDayPlanDto })
+  applyDayPlan(@Body() dto: ApplyDayPlanDto, @CurrentUser() user: RequestUser) {
+    return this.dayPlanService.apply(user.id, dto.proposalId);
   }
 
   /**

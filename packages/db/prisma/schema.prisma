@@ -94,6 +94,9 @@ model User {
   calendarEventMappings CalendarEventMapping[]
   externalCalendarBlocks ExternalCalendarBlock[]
 
+  // Day-plan proposals (ODD 005 T3)
+  dayPlanProposals DayPlanProposal[]
+
   // Slack integration (ODD 011)
   slackWorkspaceMaps SlackWorkspaceMap[]
 
@@ -427,6 +430,36 @@ model SlackWorkspaceMap {
   @@unique([userId, teamId, channelId, projectId])
   @@index([userId])
   @@index([teamId])
+}
+
+// Day-plan proposals (ODD 005 S3, T3b): persisted replan output with
+// frozen blocks + pending changes ("what changed and why"). Apply writes
+// doDate/scheduledTime back to Task; status tracks the proposal lifecycle.
+model DayPlanProposal {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  date   DateTime @db.Date
+  blocks Json // PlanBlock[]: { taskId, start, end, reason }
+
+  frozenTaskIds String[] @default([])
+  changes       Json     @default("[]") // PlanChange[] pending review
+
+  status DayPlanProposalStatus @default(PROPOSED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+  @@index([userId, status])
+}
+
+enum DayPlanProposalStatus {
+  PROPOSED
+  APPLIED
+  DISMISSED
 }
 
 model CalendarEventMapping {

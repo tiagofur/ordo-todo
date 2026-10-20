@@ -5,6 +5,8 @@ import { DatabaseModule } from '../database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { DayPlanService } from './day-plan.service';
+import { SchedulingModule } from '../scheduling/scheduling.module';
 import { TagsModule } from '../tags/tags.module';
 import { CommentsModule } from '../comments/comments.module';
 import { AttachmentsModule } from '../attachments/attachments.module';
@@ -24,6 +26,7 @@ import { AIModule } from '../ai/ai.module';
     NotificationsModule,
     GamificationModule,
     AIModule,
+    SchedulingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -33,7 +36,7 @@ import { AIModule } from '../ai/ai.module';
     }),
   ],
   controllers: [TasksController],
-  providers: [TasksService],
-  exports: [TasksService],
+  providers: [TasksService, DayPlanService],
+  exports: [TasksService, DayPlanService],
 })
 export class TasksModule {}
