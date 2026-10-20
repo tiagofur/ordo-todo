@@ -36,6 +36,47 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
 
   const EMPTY_PLAN: DayPlan = { blocks: [], unscheduled: [] };
 
+  // Hermetic wall-clock helper: instant of HH:MM on "today" (or ±days) in
+  // America/Mexico_City, independent of the process TZ (CI runs UTC).
+  // setHours-based dates silently shift when TZ != CDMX — never use them here.
+  const TZ = 'America/Mexico_City';
+  const cdmxOffsetMs = (around: Date): number => {
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    const parts = dtf.formatToParts(around);
+    const get = (t: string): number =>
+      Number(parts.find((p) => p.type === t)?.value ?? 0);
+    const wallAsUtc = Date.UTC(
+      get('year'),
+      get('month') - 1,
+      get('day'),
+      get('hour') % 24,
+      get('minute'),
+      get('second'),
+    );
+    return wallAsUtc - around.getTime();
+  };
+  const cdmxAt = (dayOffset: number, h: number, m = 0): Date => {
+    const now = new Date();
+    const todayKey = new Intl.DateTimeFormat('en-CA', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(now);
+    const [y, mo, d] = todayKey.split('-').map(Number);
+    const guess = new Date(Date.UTC(y, mo - 1, d + dayOffset, h, m, 0));
+    return new Date(guess.getTime() - cdmxOffsetMs(guess));
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     prisma = {
@@ -163,10 +204,8 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
 
   it('passes real calendar events as busy time (read-only)', async () => {
     repos().findByOwnerId.mockResolvedValue([openTask('a')]);
-    const startAt = new Date();
-    startAt.setHours(9, 30, 0, 0);
-    const endAt = new Date();
-    endAt.setHours(10, 0, 0, 0);
+    const startAt = cdmxAt(0, 9, 30);
+    const endAt = cdmxAt(0, 10, 0);
     prisma.externalCalendarBlock.findMany.mockResolvedValue([
       { title: 'Standup', startAt, endAt },
     ]);
@@ -187,11 +226,8 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
     repos().findByOwnerId.mockResolvedValue([openTask('a')]);
     // Event started yesterday 22:00, ends today 10:00 -> must block 00:00-10:00
     // today, not map to the inverted 22:00-10:00 (which the engine discards).
-    const startAt = new Date();
-    startAt.setDate(startAt.getDate() - 1);
-    startAt.setHours(22, 0, 0, 0);
-    const endAt = new Date();
-    endAt.setHours(10, 0, 0, 0);
+    const startAt = cdmxAt(-1, 22, 0);
+    const endAt = cdmxAt(0, 10, 0);
     prisma.externalCalendarBlock.findMany.mockResolvedValue([
       { title: 'Overnight on-call', startAt, endAt },
     ]);
@@ -210,15 +246,10 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
     // 17:00-18:00, so it must be unscheduled. Without the fix, 17:00-02:00
     // maps to the inverted 17:00-02:00, the engine discards it, and the task
     // wrongly lands 16:00-18:00 overlapping the meeting.
-    const fillerStart = new Date();
-    fillerStart.setHours(9, 0, 0, 0);
-    const fillerEnd = new Date();
-    fillerEnd.setHours(16, 0, 0, 0);
-    const startAt = new Date();
-    startAt.setHours(17, 0, 0, 0);
-    const endAt = new Date(startAt);
-    endAt.setDate(endAt.getDate() + 1);
-    endAt.setHours(2, 0, 0, 0);
+    const fillerStart = cdmxAt(0, 9, 0);
+    const fillerEnd = cdmxAt(0, 16, 0);
+    const startAt = cdmxAt(0, 17, 0);
+    const endAt = cdmxAt(1, 2, 0);
     prisma.externalCalendarBlock.findMany.mockResolvedValue([
       { title: 'Morning block', startAt: fillerStart, endAt: fillerEnd },
       { title: 'Evening on-call', startAt, endAt },
@@ -232,12 +263,8 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
 
   it('treats all-day-covering events as a fully busy day', async () => {
     repos().findByOwnerId.mockResolvedValue([openTask('a')]);
-    const startAt = new Date();
-    startAt.setDate(startAt.getDate() - 1);
-    startAt.setHours(12, 0, 0, 0);
-    const endAt = new Date();
-    endAt.setDate(endAt.getDate() + 1);
-    endAt.setHours(12, 0, 0, 0);
+    const startAt = cdmxAt(-1, 12, 0);
+    const endAt = cdmxAt(1, 12, 0);
     prisma.externalCalendarBlock.findMany.mockResolvedValue([
       { title: 'Offsite', startAt, endAt },
     ]);
