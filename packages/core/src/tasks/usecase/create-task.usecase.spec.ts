@@ -31,6 +31,21 @@ describe('CreateTaskUseCase', () => {
         expect(repository.save).toHaveBeenCalledWith(task);
     });
 
+    it('should pass doDate through to the created task (ODD 005 S1)', async () => {
+        const doDate = new Date('2026-10-25T09:00:00.000Z');
+        const input = {
+            title: 'Test Task',
+            projectId: 'project-1',
+            ownerId: 'user-1',
+            doDate,
+        };
+
+        const task = await useCase.execute(input);
+
+        expect(task.props.doDate).toEqual(doDate);
+        expect(repository.save).toHaveBeenCalledWith(task);
+    });
+
     it('should throw error if title is missing', async () => {
         const input = {
             title: '',

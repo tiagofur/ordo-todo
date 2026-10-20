@@ -540,6 +540,46 @@ describe('TasksService', () => {
         tasksCreated: 1,
       });
     });
+
+    it('should pass doDate through to CreateTaskUseCase (ODD 005 S1)', async () => {
+      const userId = 'user-123';
+      const doDate = new Date('2026-10-25T09:00:00.000Z');
+      const createTaskDto = {
+        title: 'Task with doDate',
+        projectId: 'project-123',
+        doDate,
+      };
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'Task with doDate',
+          ownerId: userId,
+          assigneeId: userId,
+          projectId: 'project-123',
+          doDate,
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask as any);
+
+      const result = await service.create(createTaskDto, userId);
+
+      expect(executeSpy).toHaveBeenCalledWith({
+        ...createTaskDto,
+        ownerId: userId,
+        assigneeId: userId,
+      });
+      expect(result.doDate).toEqual(doDate);
+    });
   });
 
   describe('createSubtask', () => {
@@ -657,6 +697,71 @@ describe('TasksService', () => {
       await expect(
         service.update(taskId, updateTaskDto as any, userId),
       ).rejects.toThrow('Task not found');
+    });
+
+    it('should pass doDate through task.update (ODD 005 S1)', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+      const doDate = new Date('2026-10-26T09:00:00.000Z');
+      const updateTaskDto = { doDate };
+
+      const existingTask = {
+        id: taskId,
+        title: 'Task',
+        ownerId: userId,
+        status: 'TODO',
+        doDate: null,
+      };
+
+      const mockTask = {
+        id: taskId,
+        props: { ...existingTask },
+        update: jest.fn().mockReturnValue({
+          id: taskId,
+          props: { ...existingTask, doDate },
+        }),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
+
+      const result = await service.update(taskId, updateTaskDto as any, userId);
+
+      expect(mockTask.update).toHaveBeenCalledWith(
+        expect.objectContaining({ doDate }),
+      );
+      expect(result.doDate).toEqual(doDate);
+    });
+
+    it('preserves legacy contract: update without doDate returns doDate field (ODD 005 S1)', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+      const updateTaskDto = { title: 'Updated Title' };
+
+      const existingTask = {
+        id: taskId,
+        title: 'Task',
+        ownerId: userId,
+        status: 'TODO',
+        doDate: null,
+      };
+
+      const mockTask = {
+        id: taskId,
+        props: { ...existingTask },
+        update: jest.fn().mockReturnValue({
+          id: taskId,
+          props: { ...existingTask, title: 'Updated Title' },
+        }),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
+
+      const result = await service.update(taskId, updateTaskDto as any, userId);
+
+      expect(result.title).toBe('Updated Title');
+      expect('doDate' in result).toBe(true);
     });
   });
 
