@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "AuthEventType" ADD VALUE 'AGENT_TOOL_CALL';

@@ -11,6 +11,8 @@ import { LLM_PROVIDER } from './llm/llm-provider.interface';
 import { GeminiLlmProvider } from './llm/gemini-llm-provider';
 import { EmbeddingIndexerService } from './retrieval/embedding-indexer.service';
 import { RetrievalService } from './retrieval/retrieval.service';
+import { AgentToolsService } from './tools/agent-tools.service';
+import { AuthAuditService } from '../auth/auth-audit.service';
 
 @Module({
   imports: [ConfigModule, DatabaseModule, RepositoriesModule],
@@ -22,6 +24,11 @@ import { RetrievalService } from './retrieval/retrieval.service';
     BurnoutPreventionService,
     EmbeddingIndexerService,
     RetrievalService,
+    AgentToolsService,
+    // Direct provider (exact MCP precedent: mcp.module.ts): works because
+    // ConfigService is global, and the audit repo @Optional() resolves via
+    // RepositoriesModule (imported above) so events persist.
+    AuthAuditService,
     { provide: LLM_PROVIDER, useClass: GeminiLlmProvider },
   ],
   exports: [

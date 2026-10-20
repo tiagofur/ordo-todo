@@ -31,6 +31,7 @@ import {
   AIDecomposeTaskDto,
 } from './dto/ai-chat.dto';
 import { AIAskDto } from './dto/ai-ask.dto';
+import { ExecutePlanDto, ProposePlanDto } from './tools/dto/agent-tools.dto';
 
 @ApiTags('AI')
 @ApiBearerAuth()
@@ -101,6 +102,80 @@ export class AIController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async ask(@Body() dto: AIAskDto, @CurrentUser() user: RequestUser) {
     return this.aiService.ask(user.id, dto.question, dto.limit);
+  }
+
+  // ============ AGENT TOOLS (ODD 004 S3) ============
+
+  @Post('tools/propose')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Propose an audited action plan',
+    description:
+      'Validates permission-checked tool calls and returns a human-described plan with its confirmation requirement.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Proposed plan',
+    schema: {
+      example: {
+        planId: '550e8400-e29b-41d4-a716-446655440000',
+        steps: [
+          {
+            tool: 'complete_task',
+            args: { taskId: 'task-123' },
+            description: "Completar tarea 'Buy milk'",
+          },
+        ],
+        requiresConfirmation: false,
+        reason: 'acción única de bajo riesgo',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'No access to target resource' })
+  async proposePlan(
+    @Body() dto: ProposePlanDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    const plan = await this.aiService.proposePlan(user.id, dto.calls);
+    return { plan };
+  }
+
+  @Post('tools/execute')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Execute an audited action plan',
+    description:
+      'Re-validates the re-sent calls (stateless), re-derives the confirmation requirement server-side, and executes step by step. Plans requiring confirmation are rejected with 403 unless confirmed. Successful steps are audit-logged.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Execution result',
+    schema: {
+      example: {
+        planId: '550e8400-e29b-41d4-a716-446655440000',
+        executed: [{ step: 0, tool: 'complete_task', ok: true, result: {} }],
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Plan requires confirmation or no access to resource',
+  })
+  async executePlan(
+    @Body() dto: ExecutePlanDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    const result = await this.aiService.executePlan(
+      user.id,
+      dto.planId,
+      dto.calls,
+      dto.confirmed,
+    );
+    return { result };
   }
 
   // ============ NATURAL LANGUAGE TASK PARSING ============
