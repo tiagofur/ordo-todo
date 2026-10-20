@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:0.8.7-pg16
     container_name: ordo-todo-db
     restart: unless-stopped
     ports:

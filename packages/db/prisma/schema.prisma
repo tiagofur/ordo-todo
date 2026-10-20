@@ -1439,6 +1439,28 @@ model ProductivityReport {
   @@index([userId, scope, generatedAt])
 }
 
+// ============ AI AGENT EMBEDDINGS (ODD 004) ============
+
+model AiEmbedding {
+  id String @id @default(cuid())
+
+  // Content type as plain string: TASK | PROJECT | NOTE | COMMENT | HABIT
+  // (no Prisma enum to avoid a migration per new type; no polymorphic FK)
+  contentType String
+  contentId   String
+  chunkIndex  Int     @default(0)
+  content     String  @db.Text
+  embedding   Unsupported("vector(768)")?
+  metadata    Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([contentType, contentId, chunkIndex])
+  @@index([contentType, contentId])
+  @@index([contentId])
+}
+
 // ============ SUBSCRIPTIONS ============
 
 model Subscription {

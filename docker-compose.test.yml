@@ -10,7 +10,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:0.8.7-pg16
     container_name: ordo-test-postgres
     restart: unless-stopped
     ports:
