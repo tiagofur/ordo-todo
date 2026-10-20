@@ -3,6 +3,7 @@ import { AIService } from './ai.service';
 import { GeminiAIService } from './gemini-ai.service';
 import { TaskNlParserService } from './task-nl-parser.service';
 import { PrismaService } from '../database/prisma.service';
+import { SchedulingService } from '../scheduling/scheduling.service';
 
 /**
  * S4 contract: daily AM/PM reports keep a stable versioned shape. Generating
@@ -50,6 +51,8 @@ describe('AIService.generateDailyReport (S4 stable format)', () => {
         { provide: 'ProductivityReportRepository', useValue: {} },
         { provide: 'AnalyticsRepository', useValue: mockAnalytics },
         { provide: 'TimerRepository', useValue: mockTimers },
+        { provide: 'TaskRepository', useValue: {} },
+        { provide: SchedulingService, useValue: {} },
         { provide: GeminiAIService, useValue: mockGemini },
         { provide: PrismaService, useValue: mockPrisma },
         TaskNlParserService,

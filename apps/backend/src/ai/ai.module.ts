@@ -14,9 +14,10 @@ import { RetrievalService } from './retrieval/retrieval.service';
 import { AgentToolsService } from './tools/agent-tools.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { CreditsService } from './credits/credits.service';
+import { SchedulingModule } from '../scheduling/scheduling.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, RepositoriesModule],
+  imports: [ConfigModule, DatabaseModule, RepositoriesModule, SchedulingModule],
   controllers: [AIController],
   providers: [
     AIService,

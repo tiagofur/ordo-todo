@@ -9,6 +9,7 @@ export interface PlanTaskInput {
   taskId: string;
   title: string;
   estimatedMinutes: number;
+  // T3: doDate drives replan/frozen blocks; accepted but unused by the T2 engine.
   doDate?: string | null;
   dueDate?: string | null;
   priority: PlanPriority;
@@ -119,7 +120,8 @@ export const planDay = (input: PlanDayInput): DayPlan => {
   const unscheduled: UnscheduledTask[] = [];
 
   for (const task of ordered) {
-    const need = Math.max(0, Math.round(task.estimatedMinutes));
+    const raw = Math.round(task.estimatedMinutes);
+    const need = Number.isFinite(raw) ? Math.max(0, raw) : 0;
     const slot = free.find((s) => s.end - s.start >= need);
     if (!slot) {
       unscheduled.push({
