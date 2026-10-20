@@ -15,6 +15,7 @@ import { TagsModule } from './tags/tags.module';
 import { TimersModule } from './timers/timers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AIModule } from './ai/ai.module';
+import { AgentJobsModule } from './agent-jobs/agent-jobs.module';
 import { ChatModule } from './chat/chat.module';
 import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
@@ -85,6 +86,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     TimersModule,
     AnalyticsModule,
     AIModule,
+    AgentJobsModule,
     ChatModule,
     CommentsModule,
     AttachmentsModule,

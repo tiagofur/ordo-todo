@@ -292,4 +292,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get aiEmbedding() {
     return this.prisma.aiEmbedding;
   }
+
+  get agentJob() {
+    return this.prisma.agentJob;
+  }
 }
