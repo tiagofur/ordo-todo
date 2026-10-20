@@ -82,6 +82,19 @@ export class AgentJobsService implements OnModuleInit {
       select: { timezone: true },
     });
     const timezone = dto.timezone ?? user?.timezone ?? 'America/Mexico_City';
+    try {
+      // Validate cron AND timezone together before persisting: a bad zone
+      // must 400 here, never 500 after the row is committed.
+      CronJob.from({
+        cronTime: parsed.cron,
+        onTick: () => {},
+        timeZone: timezone,
+      });
+    } catch {
+      throw new BadRequestException(
+        `Zona horaria inválida (${timezone}). ${SCHEDULE_EXAMPLES}`,
+      );
+    }
 
     const job = await this.prisma.agentJob.create({
       data: {
@@ -163,7 +176,11 @@ export class AgentJobsService implements OnModuleInit {
     }
     const now = new Date();
     try {
-      const result = await this.runPrompt(job.userId, job.taskPrompt);
+      const result = await this.runPrompt(
+        job.userId,
+        job.taskPrompt,
+        job.timezone,
+      );
       const summary = summarize(result);
       const nextRunAt = this.scheduler.isRegistered(job.id)
         ? this.nextDateOf(job)
@@ -200,6 +217,7 @@ export class AgentJobsService implements OnModuleInit {
   private async runPrompt(
     userId: string,
     taskPrompt: string,
+    timezone: string,
   ): Promise<unknown> {
     if (/resumen semanal|weekly summary|resumo semanal/i.test(taskPrompt)) {
       return this.aiService.generateWeeklyReport(userId);
@@ -213,6 +231,7 @@ export class AgentJobsService implements OnModuleInit {
         new Intl.DateTimeFormat('en-GB', {
           hour: '2-digit',
           hourCycle: 'h23',
+          timeZone: timezone,
         }).format(new Date()),
         10,
       );

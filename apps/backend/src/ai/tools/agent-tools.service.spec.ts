@@ -217,6 +217,44 @@ describe('AgentToolsService', () => {
         ]),
       ).rejects.toThrow(ForbiddenException);
     });
+
+    it('JD-01: create_task requires a writer role (VIEWER stays read-only)', async () => {
+      prisma.project.findFirst.mockResolvedValue({ id: 'p1', name: 'P' });
+
+      await service.propose(USER, [
+        { tool: 'create_task', args: { title: 'X', projectId: 'p1' } },
+      ]);
+
+      const where = prisma.project.findFirst.mock.calls[0][0].where;
+      expect(where.workspace.members.some.role).toEqual({
+        in: ['OWNER', 'ADMIN', 'MEMBER'],
+      });
+    });
+
+    it('JD-01: create_project rejects VIEWER membership', async () => {
+      prisma.workspaceMember.findUnique.mockResolvedValue({ role: 'VIEWER' });
+
+      await expect(
+        service.propose(USER, [
+          {
+            tool: 'create_project',
+            args: { name: 'P', workspaceId: 'w1' },
+          },
+        ]),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('JD-05: complete_task rejects members who are neither owner nor assignee', async () => {
+      prisma.task.findFirst
+        .mockResolvedValueOnce({ id: 't1', title: 'T' })
+        .mockResolvedValueOnce(null);
+
+      await expect(
+        service.propose(USER, [
+          { tool: 'complete_task', args: { taskId: 't1' } },
+        ]),
+      ).rejects.toThrow(ForbiddenException);
+    });
   });
 
   describe('execute', () => {
@@ -373,6 +411,7 @@ describe('AgentToolsService', () => {
       prisma.workspaceMember.findUnique.mockResolvedValue({
         workspaceId: 'w1',
         userId: USER,
+        role: 'MEMBER',
       });
       prisma.workspace.findFirst.mockResolvedValue({ name: 'Acme' });
       projects.create.mockResolvedValue({ id: 'np', name: 'N' });

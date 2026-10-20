@@ -173,7 +173,12 @@ export class AgentToolsService {
         isDeleted: false,
         workspace: {
           isDeleted: false,
-          members: { some: { userId } },
+          members: {
+            some: {
+              userId,
+              role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+            },
+          },
         },
       },
       select: { id: true, name: true },
@@ -233,6 +238,20 @@ export class AgentToolsService {
   ): Promise<{ description: string; run: () => Promise<unknown> }> {
     const taskId = reqString(args, 'taskId', 'complete_task');
     const task = await this.requireVisibleTask(userId, taskId);
+    // CompleteTaskUseCase rejects callers who are neither owner nor assignee;
+    // fail here at propose time so propose/execute never disagree.
+    const ownership = await this.prisma.task.findFirst({
+      where: {
+        id: taskId,
+        OR: [{ ownerId: userId }, { assigneeId: userId }],
+      },
+      select: { id: true },
+    });
+    if (!ownership) {
+      throw new ForbiddenException(
+        'Only the task owner or assignee can complete it',
+      );
+    }
     return {
       description: `Completar tarea '${task.title}'`,
       run: () => this.tasks.complete(taskId, userId),
@@ -250,7 +269,10 @@ export class AgentToolsService {
     const membership = await this.prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId, userId } },
     });
-    if (!membership) {
+    if (
+      !membership ||
+      !['OWNER', 'ADMIN', 'MEMBER'].includes(membership.role)
+    ) {
       throw new ForbiddenException('No access to workspace');
     }
 
@@ -314,6 +336,8 @@ export class AgentToolsService {
   /**
    * Canonical task visibility (same OR as retrieval.service taskVisibility):
    * owned, assigned, or in a non-deleted workspace the user belongs to.
+   * Mutations additionally require a writer role (OWNER/ADMIN/MEMBER),
+   * mirroring the REST @Roles guards — VIEWERs stay read-only.
    */
   private async requireVisibleTask(
     userId: string,
@@ -332,6 +356,7 @@ export class AgentToolsService {
                 members: {
                   some: {
                     userId,
+                    role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
                     workspace: { isDeleted: false },
                   },
                 },

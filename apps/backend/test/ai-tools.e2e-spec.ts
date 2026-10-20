@@ -264,6 +264,60 @@ describe('AI Tools (e2e)', () => {
     ).expect(403);
   });
 
+  it('authz: VIEWER member cannot mutate via tools (JD-01)', async () => {
+    const viewer = await createTestUser(prisma, {
+      email: 'tools-viewer@example.com',
+      name: 'Tools Viewer',
+    });
+    const authV = await generateAuthToken(prisma, jwtService, viewer.id);
+    await prisma.workspaceMember.create({
+      data: { workspaceId: workspace.id, userId: viewer.id, role: 'VIEWER' },
+    });
+
+    await propose(
+      {
+        calls: [
+          {
+            tool: 'create_task',
+            args: { title: 'viewer task', projectId: project.id },
+          },
+        ],
+      },
+      authV.token,
+    ).expect(403);
+
+    await propose(
+      {
+        calls: [
+          {
+            tool: 'create_project',
+            args: { name: 'viewer project', workspaceId: workspace.id },
+          },
+        ],
+      },
+      authV.token,
+    ).expect(403);
+  });
+
+  it('authz: MEMBER non-owner gets 403 on complete_task at propose (JD-05)', async () => {
+    const task = await createTestTask(prisma, project.id, user.id, {
+      title: 'completable',
+    });
+    const member = await createTestUser(prisma, {
+      email: 'tools-member@example.com',
+      name: 'Tools Member',
+    });
+    const authM = await generateAuthToken(prisma, jwtService, member.id);
+    await prisma.workspaceMember.create({
+      data: { workspaceId: workspace.id, userId: member.id, role: 'MEMBER' },
+    });
+
+    await propose(
+      { calls: [{ tool: 'complete_task', args: { taskId: task.id } }] },
+      authM.token,
+    ).expect(403);
+  });
+
   it('rejects malformed payloads (DTO boundary)', async () => {
     await propose({ calls: [] }).expect(400);
     await propose({
