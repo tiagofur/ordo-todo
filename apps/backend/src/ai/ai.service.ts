@@ -1,4 +1,11 @@
-import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  NotFoundException,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import type {
   AIProfileRepository,
   ProductivityReportRepository,
@@ -17,6 +24,15 @@ import type { ChatMessageDto } from './dto/ai-chat.dto';
 import { PrismaService } from '../database/prisma.service';
 import type { Prisma } from '@prisma/client';
 import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
+import { RetrievalService } from './retrieval/retrieval.service';
+import type { Citation } from './retrieval/retrieval.service';
+import { LLM_PROVIDER } from './llm/llm-provider.interface';
+import type { LlmProvider } from './llm/llm-provider.interface';
+
+const ASK_SYSTEM_PROMPT =
+  'Answer the question using ONLY the provided sources. ' +
+  'If the sources do not contain enough information, say so clearly. ' +
+  'Reply in the same language as the question.';
 
 @Injectable()
 export class AIService {
@@ -34,6 +50,8 @@ export class AIService {
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
     private readonly nlParser: TaskNlParserService,
+    @Optional() private readonly retrieval?: RetrievalService,
+    @Optional() @Inject(LLM_PROVIDER) private readonly llm?: LlmProvider,
   ) {}
 
   // ============ AI CHAT ============
@@ -606,5 +624,36 @@ export class AIService {
 
   getModelStats() {
     return this.geminiService.getModelStats();
+  }
+
+  // ============ ASK (ODD 004 S2) ============
+
+  async ask(
+    userId: string,
+    question: string,
+    limit?: number,
+  ): Promise<{ answer: string; citations: Citation[] }> {
+    if (!this.retrieval || !this.llm) {
+      throw new ServiceUnavailableException('ask not configured');
+    }
+    const citations = await this.retrieval.retrieve(
+      userId,
+      question,
+      limit ?? 8,
+    );
+    const context = citations
+      .map((c) => `[${c.type} ${c.id}] ${c.title}: ${c.excerpt}`)
+      .join('\n');
+    const answer = await this.llm.chat(
+      [
+        { role: 'system', content: ASK_SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `Pregunta: ${question}\n\nFuentes:\n${context}`,
+        },
+      ],
+      { complexity: 'low' },
+    );
+    return { answer, citations };
   }
 }
