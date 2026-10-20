@@ -201,6 +201,53 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
     expect(plan.blocks).toMatchObject([{ taskId: 'a', start: '10:00' }]);
   });
 
+  it('clamps evening cross-midnight events (never 20:00-00:00 discarded)', async () => {
+    repos().findByOwnerId.mockResolvedValue([
+      openTask('a', { estimatedMinutes: 120 }),
+    ]);
+    // Morning filler 09:00-16:00 + event 17:00 -> tomorrow 02:00 (crosses
+    // midnight): the 120min task needs 16:00-18:00 but the meeting occupies
+    // 17:00-18:00, so it must be unscheduled. Without the fix, 17:00-02:00
+    // maps to the inverted 17:00-02:00, the engine discards it, and the task
+    // wrongly lands 16:00-18:00 overlapping the meeting.
+    const fillerStart = new Date();
+    fillerStart.setHours(9, 0, 0, 0);
+    const fillerEnd = new Date();
+    fillerEnd.setHours(16, 0, 0, 0);
+    const startAt = new Date();
+    startAt.setHours(17, 0, 0, 0);
+    const endAt = new Date(startAt);
+    endAt.setDate(endAt.getDate() + 1);
+    endAt.setHours(2, 0, 0, 0);
+    prisma.externalCalendarBlock.findMany.mockResolvedValue([
+      { title: 'Morning block', startAt: fillerStart, endAt: fillerEnd },
+      { title: 'Evening on-call', startAt, endAt },
+    ]);
+
+    const { plan } = await service.replanOnDayStart('user-1');
+
+    expect(plan.blocks).toHaveLength(0);
+    expect(plan.unscheduled.map((u) => u.taskId)).toContain('a');
+  });
+
+  it('treats all-day-covering events as a fully busy day', async () => {
+    repos().findByOwnerId.mockResolvedValue([openTask('a')]);
+    const startAt = new Date();
+    startAt.setDate(startAt.getDate() - 1);
+    startAt.setHours(12, 0, 0, 0);
+    const endAt = new Date();
+    endAt.setDate(endAt.getDate() + 1);
+    endAt.setHours(12, 0, 0, 0);
+    prisma.externalCalendarBlock.findMany.mockResolvedValue([
+      { title: 'Offsite', startAt, endAt },
+    ]);
+
+    const { plan } = await service.replanOnDayStart('user-1');
+
+    expect(plan.blocks).toHaveLength(0);
+    expect(plan.unscheduled.map((u) => u.taskId)).toContain('a');
+  });
+
   it('rebuilds candidates with the documented T2 criterion (doDate today or undated+due<=7d)', async () => {
     const now = Date.now();
     const in2d = new Date(now + 2 * 24 * 60 * 60 * 1000);

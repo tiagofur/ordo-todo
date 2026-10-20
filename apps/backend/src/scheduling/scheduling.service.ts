@@ -158,12 +158,18 @@ export class SchedulingService {
     // Clamp cross-midnight events to this day BEFORE formatting: an event
     // Mon 22:00 -> Tue 10:00 would otherwise map on Tuesday to the inverted
     // range 22:00-10:00, which the engine discards (and then overlaps real
-    // meeting time). Clamped to 00:00-10:00 instead.
+    // meeting time). Clamped to 00:00-10:00 instead. Symmetrically, an event
+    // ending at/after dayEnd maps its end to "24:00" (never "00:00", which
+    // the engine would read as an empty range and discard): the engine clips
+    // it to working hours. This also avoids wall-clock drift of dayEnd on
+    // 23h/25h DST days.
     const clamp = (d: Date): Date =>
       d < dayStart ? dayStart : d > dayEnd ? dayEnd : d;
+    const endKey = (d: Date): string =>
+      clamp(d).getTime() === dayEnd.getTime() ? '24:00' : fmt.format(clamp(d));
     return blocks.map((b) => ({
       start: fmt.format(clamp(b.startAt)),
-      end: fmt.format(clamp(b.endAt)),
+      end: endKey(b.endAt),
     }));
   }
 }
