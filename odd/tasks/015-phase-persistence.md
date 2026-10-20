@@ -50,10 +50,13 @@ Fuera de alcance: chips de fase clicables (Fase 3 del plan, decisión pendiente 
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| P1 | S1+S2 | Turno derivado + 6 tests + 3 adaptadores | inline | pending | — |
-| P2 | S3 | Vigilancia medianoche + 2 tests | inline | pending | — |
-| P3 | S4 | Gates + PR + CI + merge + limpieza | inline | pending | — |
+| P1 | S1+S2 | Turno derivado + 6 tests + 3 adaptadores | inline | done | `9ebddc68` — 8 tests (6+2 guards), suite 30/30→32/32, tsc 0 |
+| P2 | S3 | Vigilancia medianoche + 2 tests | inline | done | `b68e9e5b` — 32/32 en GMT-11/-6/+14, tsc 0, lint 0 |
+| P3 | S4 | Gates + PR + CI + merge + limpieza | inline | done | build 16/16, check 15/15, suites 159+22+1060, lint 0 |
 
 ## Log
 
 L1. "tenia uno terminado y era el turno de descanso, pero por los restart se perdio y regreso a Pomodoro, pero contando correctamente que es el pomodoro 2... tendria que mantener el tipo persistentemente pero resetar al final del dia" + "planeamos muy bien esta solucion... arrancamos" (usuario 2026-10-20). Fase 3 (chips clicables) propuesta, sin decisión del usuario.
+L2. P1 done 2026-10-20: prop `lastClosedSession` + efecto derivación (`nextMode` con count-1 para WORK, evita doble-conteo) + guard `hasInteractedRef`. 3 adaptadores con `useSessionHistory({completedOnly, limit:1})` (+1 línea firma móvil). 8 tests (6 plan + llegada-tardía + no-pisar-interacción). Suite 30/30; tsc 0 (tras rebuild dists locales); eslint 0. Commit `9ebddc68`.
+L3. P2 done 2026-10-20: watcher 30s, reset WORK#1 al cambiar día sin sesión/corriendo; ciclo activo intacto. Tests con fechas relativas + `beforeEach` a mediodía local: 32/32 en GMT-11, GMT-6, GMT+14 (absolutas UTC fallaban en zonas extremas — `toDateString` es local). tsc 0, lint 0, suite hooks 159/159. Commit `b68e9e5b`.
+L4. P3 done 2026-10-20: gates CI-sim verdes (build 16/16, check-types 15/15, hooks 159/159, engine 22/22, backend 1060/1060, lint 0 nuevos). Incidente: `tsconfig.tsbuildinfo` corrupto en api-client generaba dist sin AgentJob (código del otro chat) → rebuild limpio (`rm -rf dist tsbuildinfo`) lo resolvió; dists NO commiteados.
