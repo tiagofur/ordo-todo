@@ -90,6 +90,19 @@ describe('AgentJobsService', () => {
       ).rejects.toThrow(BadRequestException);
       expect(mockAgentJob.create).not.toHaveBeenCalled();
     });
+
+    it('JD-02: rejects an invalid timezone with 400 before persisting', async () => {
+      await expect(
+        service.create('user-1', {
+          name: 'X',
+          scheduleText: 'cada día a las 8',
+          taskPrompt: 'dame el resumen diario',
+          timezone: 'Mars/Olympus',
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockAgentJob.create).not.toHaveBeenCalled();
+      expect(mockScheduler.register).not.toHaveBeenCalled();
+    });
   });
 
   describe('ownership', () => {
@@ -149,6 +162,33 @@ describe('AgentJobsService', () => {
         'user-1',
         expect.stringMatching(/AM|PM/),
       );
+    });
+
+    it('JD-03: daily kind follows job.timezone, not server time', async () => {
+      // Pacific/Kiritimati (UTC+14) vs Pacific/Midway (UTC-11) can never
+      // share the same hour: at least one differs from the server clock,
+      // so asserting both zones pins the timezone-aware branch.
+      for (const timezone of ['Pacific/Kiritimati', 'Pacific/Midway']) {
+        jest.clearAllMocks();
+        mockAgentJob.findUnique.mockResolvedValueOnce({
+          ...job,
+          timezone,
+          taskPrompt: 'dame el resumen diario',
+        });
+        const expectedHour = parseInt(
+          new Intl.DateTimeFormat('en-GB', {
+            hour: '2-digit',
+            hourCycle: 'h23',
+            timeZone: timezone,
+          }).format(new Date()),
+          10,
+        );
+        await service.executeJob('job-1');
+        expect(mockAi.generateDailyReport).toHaveBeenCalledWith(
+          'user-1',
+          expectedHour < 12 ? 'AM' : 'PM',
+        );
+      }
     });
 
     it('routes free prompts to chat', async () => {

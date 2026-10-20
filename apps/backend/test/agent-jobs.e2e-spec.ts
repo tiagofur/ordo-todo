@@ -106,6 +106,21 @@ describe('Agent Jobs (e2e)', () => {
     expect(res.body.message).toContain('Ejemplos');
   });
 
+  it('JD-02: rejects an invalid timezone with 400 and persists nothing', async () => {
+    const before = await prisma.agentJob.count();
+    await request(app.getHttpServer())
+      .post('/agent-jobs')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        name: 'Bad zone',
+        scheduleText: 'cada día a las 8',
+        taskPrompt: 'dame el resumen diario',
+        timezone: 'Mars/Olympus',
+      })
+      .expect(400);
+    expect(await prisma.agentJob.count()).toBe(before);
+  });
+
   it('lists, gets, pauses, resumes and deletes', async () => {
     const created = await request(app.getHttpServer())
       .post('/agent-jobs')

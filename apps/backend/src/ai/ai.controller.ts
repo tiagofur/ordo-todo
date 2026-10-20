@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -882,6 +883,9 @@ export class AIController {
     @CurrentUser() user: RequestUser,
   ) {
     const parsedDate = dto.date ? new Date(dto.date) : undefined;
+    if (parsedDate && Number.isNaN(parsedDate.getTime())) {
+      throw new BadRequestException('date must be a valid date string');
+    }
     return this.aiService.generateDailyReport(user.id, dto.kind, parsedDate);
   }
 
