@@ -36,6 +36,7 @@ import {
 } from './tools/agent-tool.types';
 import { LLM_PROVIDER } from './llm/llm-provider.interface';
 import type { LlmProvider } from './llm/llm-provider.interface';
+import { CreditsService } from './credits/credits.service';
 
 const ASK_SYSTEM_PROMPT =
   'Answer the question using ONLY the provided sources. ' +
@@ -61,6 +62,7 @@ export class AIService {
     @Optional() private readonly retrieval?: RetrievalService,
     @Optional() @Inject(LLM_PROVIDER) private readonly llm?: LlmProvider,
     @Optional() private readonly agentTools?: AgentToolsService,
+    @Optional() private readonly credits?: CreditsService,
   ) {}
 
   // ============ AI CHAT ============
@@ -379,6 +381,10 @@ export class AIService {
     );
 
     const result = await useCase.execute({ userId, weekStart });
+    // S6: charge only for freshly generated reports, never for cache hits.
+    if (this.credits && result.isNew) {
+      await this.credits.charge(userId, 'report', 'reports/weekly');
+    }
     return {
       ...result.report.props,
       isNew: result.isNew,
@@ -469,6 +475,11 @@ export class AIService {
         aiModel: 'gemini-1.5-pro',
       },
     });
+
+    // S6: monthly reports always generate fresh — charge accordingly.
+    if (this.credits) {
+      await this.credits.charge(userId, 'report', 'reports/monthly');
+    }
 
     return {
       ...report,
@@ -563,6 +574,11 @@ export class AIService {
         aiModel: 'gemini-2.0-flash-exp',
       },
     });
+
+    // S6: project reports always generate fresh — charge accordingly.
+    if (this.credits) {
+      await this.credits.charge(userId, 'report', 'reports/project');
+    }
 
     return {
       ...report,
@@ -669,6 +685,11 @@ export class AIService {
       },
     });
 
+    // S6: daily reports always generate fresh — charge accordingly.
+    if (this.credits) {
+      await this.credits.charge(userId, 'report', 'reports/daily');
+    }
+
     return {
       ...report,
       id: savedReport.id,
@@ -754,6 +775,10 @@ export class AIService {
     if (!this.retrieval || !this.llm) {
       throw new ServiceUnavailableException('ask not configured');
     }
+    // S6: charge before the LLM call — a 402 must not spend a completion.
+    if (this.credits) {
+      await this.credits.charge(userId, 'ask', question.slice(0, 200));
+    }
     const citations = await this.retrieval.retrieve(
       userId,
       question,
@@ -802,7 +827,7 @@ export class AIService {
       throw new ServiceUnavailableException('agent tools not configured');
     }
     const fresh = await this.agentTools.propose(userId, calls);
-    return this.agentTools.execute(
+    const result = await this.agentTools.execute(
       userId,
       {
         planId,
@@ -812,5 +837,34 @@ export class AIService {
       },
       confirmed,
     );
+    // S6: charge per successfully executed step (failed steps cost nothing).
+    if (this.credits) {
+      for (const step of result.executed) {
+        if (step.ok) {
+          await this.credits.charge(
+            userId,
+            'tool',
+            `${step.tool} (plan ${planId})`,
+          );
+        }
+      }
+    }
+    return result;
+  }
+
+  // ============ USAGE (ODD 004 S6) ============
+
+  async getUsage(userId: string) {
+    if (!this.credits) {
+      throw new ServiceUnavailableException('credits not configured');
+    }
+    return this.credits.getUsage(userId);
+  }
+
+  async rechargeCredits(userId: string, amount: number) {
+    if (!this.credits) {
+      throw new ServiceUnavailableException('credits not configured');
+    }
+    return this.credits.recharge(userId, amount);
   }
 }

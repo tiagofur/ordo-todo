@@ -13,6 +13,7 @@ import { EmbeddingIndexerService } from './retrieval/embedding-indexer.service';
 import { RetrievalService } from './retrieval/retrieval.service';
 import { AgentToolsService } from './tools/agent-tools.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
+import { CreditsService } from './credits/credits.service';
 
 @Module({
   imports: [ConfigModule, DatabaseModule, RepositoriesModule],
@@ -29,6 +30,7 @@ import { AuthAuditService } from '../auth/auth-audit.service';
     // ConfigService is global, and the audit repo @Optional() resolves via
     // RepositoriesModule (imported above) so events persist.
     AuthAuditService,
+    CreditsService,
     { provide: LLM_PROVIDER, useClass: GeminiLlmProvider },
   ],
   exports: [

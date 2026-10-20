@@ -1,13 +1,16 @@
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   Get,
+  Optional,
   Post,
   Delete,
   Patch,
   Body,
   Query,
   Param,
+  Req,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -25,6 +28,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { AIService } from './ai.service';
 import { BurnoutPreventionService } from './burnout-prevention.service';
+import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
 import {
   AIChatDto,
   AIParseTaskDto,
@@ -33,6 +38,7 @@ import {
 } from './dto/ai-chat.dto';
 import { AIAskDto } from './dto/ai-ask.dto';
 import { AIDailyReportDto } from './dto/ai-daily-report.dto';
+import { AIRechargeDto } from './dto/ai-usage.dto';
 import { ExecutePlanDto, ProposePlanDto } from './tools/dto/agent-tools.dto';
 
 @ApiTags('AI')
@@ -43,6 +49,9 @@ export class AIController {
   constructor(
     private readonly aiService: AIService,
     private readonly burnoutService: BurnoutPreventionService,
+    // @Optional: keeps ai.controller.spec.ts green (manual testing module
+    // without ConfigService); the real module always provides it.
+    @Optional() private readonly configService?: ConfigService,
   ) {}
 
   // ============ AI CHAT ============
@@ -552,6 +561,84 @@ export class AIController {
   })
   getModelStats() {
     return this.aiService.getModelStats();
+  }
+
+  // ============ USAGE & CREDITS (ODD 004 S6) ============
+
+  @Get('usage')
+  @ApiOperation({
+    summary: 'Get AI credit balance and usage history',
+    description:
+      'Returns the credit balance (trial: 100 on first use) plus the last 50 usage events. Costs: ask 1, tool step 2, report 5.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Balance and history',
+    schema: {
+      example: {
+        balance: 97,
+        trialUsed: true,
+        history: [{ kind: 'ask', cost: -1, balance: 99 }],
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getUsage(@CurrentUser() user: RequestUser) {
+    return this.aiService.getUsage(user.id);
+  }
+
+  @Post('usage/recharge')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Recharge a user (admin stub until Stripe billing)',
+    description:
+      'Adds credits directly. Authorized via x-admin-api-key header (ADMIN_API_KEY) or ADMIN_EMAILS, mirroring auth-security.',
+  })
+  @ApiResponse({ status: 200, description: 'New balance' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Admin only' })
+  rechargeCredits(
+    @Body() dto: AIRechargeDto,
+    @CurrentUser() user: RequestUser,
+    @Req() req: Request,
+  ) {
+    this.assertAdminAccess(user, req);
+    return this.aiService.rechargeCredits(dto.userId, dto.amount);
+  }
+
+  /**
+   * Admin check mirroring AuthSecurityController.assertAdminAccess:
+   * ADMIN_API_KEY header, ADMIN_EMAILS list, or user role/flag.
+   */
+  private assertAdminAccess(user?: RequestUser, req?: Request): void {
+    const adminApiKey = this.configService?.get<string>('ADMIN_API_KEY');
+    const providedKey = req?.headers?.['x-admin-api-key'];
+
+    if (adminApiKey && providedKey && providedKey === adminApiKey) {
+      return;
+    }
+
+    const adminEmailsRaw =
+      this.configService?.get<string>('ADMIN_EMAILS') || '';
+    const adminEmails = adminEmailsRaw
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (
+      user?.email &&
+      adminEmails.length > 0 &&
+      adminEmails.includes(String(user.email).toLowerCase())
+    ) {
+      return;
+    }
+
+    const role = user as { role?: string; isAdmin?: boolean } | undefined;
+    if (role?.role === 'ADMIN' || role?.isAdmin === true) {
+      return;
+    }
+
+    throw new ForbiddenException('Admin access required');
   }
 
   @Patch('profile')
