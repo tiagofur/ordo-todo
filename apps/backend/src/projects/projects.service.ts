@@ -1,4 +1,10 @@
-import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import type { ProjectRepository } from '@ordo-todo/core';
 import {
   CreateProjectUseCase,
@@ -13,6 +19,7 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../database/prisma.service';
+import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 
 @Injectable()
 export class ProjectsService {
@@ -22,6 +29,7 @@ export class ProjectsService {
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
     private readonly prisma: PrismaService,
+    @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
@@ -58,6 +66,11 @@ export class ProjectsService {
       color: createProjectDto.color ?? '#6B7280',
       isDeleted: false,
     });
+    await this.indexer?.indexContent(
+      'PROJECT',
+      String(project.id),
+      `${project.props.name}\n${project.props.description ?? ''}`,
+    );
     return project.props;
   }
 
@@ -94,6 +107,11 @@ export class ProjectsService {
       this.projectRepository,
     );
     const project = await updateProjectUseCase.execute(id, updateProjectDto);
+    await this.indexer?.indexContent(
+      'PROJECT',
+      String(project.id),
+      `${project.props.name}\n${project.props.description ?? ''}`,
+    );
     return project.props;
   }
 
@@ -105,6 +123,11 @@ export class ProjectsService {
     const project = await archiveProjectUseCase.execute(id);
     this.logger.log(
       `Project ${id} archived successfully. Status: ${project.props.archived}`,
+    );
+    await this.indexer?.indexContent(
+      'PROJECT',
+      String(project.id),
+      `${project.props.name}\n${project.props.description ?? ''}`,
     );
     return {
       ...project.props,
@@ -131,6 +154,11 @@ export class ProjectsService {
     });
 
     this.logger.log(`Project ${id} completed at: ${updated.props.completedAt}`);
+    await this.indexer?.indexContent(
+      'PROJECT',
+      String(updated.id),
+      `${updated.props.name}\n${updated.props.description ?? ''}`,
+    );
     return {
       ...updated.props,
       status: updated.props.completed ? 'COMPLETED' : 'ACTIVE',
@@ -142,6 +170,7 @@ export class ProjectsService {
       this.projectRepository,
     );
     await softDeleteProjectUseCase.execute(id);
+    await this.indexer?.removeContent('PROJECT', id);
     return { success: true };
   }
 
@@ -173,6 +202,11 @@ export class ProjectsService {
     if (!project) {
       throw new NotFoundException('Project not found');
     }
+    await this.indexer?.indexContent(
+      'PROJECT',
+      String(project.id),
+      `${project.props.name}\n${project.props.description ?? ''}`,
+    );
     return {
       ...project.props,
       deletedAt: null,
@@ -185,6 +219,7 @@ export class ProjectsService {
     );
     try {
       await permanentDeleteProjectUseCase.execute(id);
+      await this.indexer?.removeContent('PROJECT', id);
       return { success: true };
     } catch (error: any) {
       if (

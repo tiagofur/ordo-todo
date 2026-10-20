@@ -9,6 +9,8 @@ import { TaskNlParserService } from './task-nl-parser.service';
 import { BurnoutPreventionService } from './burnout-prevention.service';
 import { LLM_PROVIDER } from './llm/llm-provider.interface';
 import { GeminiLlmProvider } from './llm/gemini-llm-provider';
+import { EmbeddingIndexerService } from './retrieval/embedding-indexer.service';
+import { RetrievalService } from './retrieval/retrieval.service';
 
 @Module({
   imports: [ConfigModule, DatabaseModule, RepositoriesModule],
@@ -18,8 +20,16 @@ import { GeminiLlmProvider } from './llm/gemini-llm-provider';
     GeminiAIService,
     TaskNlParserService,
     BurnoutPreventionService,
+    EmbeddingIndexerService,
+    RetrievalService,
     { provide: LLM_PROVIDER, useClass: GeminiLlmProvider },
   ],
-  exports: [AIService, GeminiAIService, BurnoutPreventionService, LLM_PROVIDER],
+  exports: [
+    AIService,
+    GeminiAIService,
+    BurnoutPreventionService,
+    EmbeddingIndexerService,
+    LLM_PROVIDER,
+  ],
 })
 export class AIModule {}

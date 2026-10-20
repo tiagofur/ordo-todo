@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   ForbiddenException,
+  Optional,
 } from '@nestjs/common';
 import type { NoteRepository } from '@ordo-todo/core';
 import {
@@ -15,12 +16,14 @@ import {
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { QueryNoteDto } from './dto/query-note.dto';
+import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 
 @Injectable()
 export class NotesService {
   constructor(
     @Inject('NoteRepository')
     private readonly noteRepository: NoteRepository,
+    @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   async create(createNoteDto: CreateNoteDto, authorId: string) {
@@ -30,6 +33,11 @@ export class NotesService {
       content: createNoteDto.content || '',
       authorId,
     });
+    await this.indexer?.indexContent(
+      'NOTE',
+      String(note.id),
+      note.props.content,
+    );
     return note.props;
   }
 
@@ -85,6 +93,11 @@ export class NotesService {
         userId,
         ...updateNoteDto,
       });
+      await this.indexer?.indexContent(
+        'NOTE',
+        String(note.id),
+        note.props.content,
+      );
       return note.props;
     } catch (error) {
       if (error.message === 'Note not found') {
@@ -105,6 +118,7 @@ export class NotesService {
         id,
         userId,
       });
+      await this.indexer?.removeContent('NOTE', id);
       return {
         id: note.id,
         content: note.props.content,

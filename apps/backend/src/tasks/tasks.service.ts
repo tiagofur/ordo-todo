@@ -6,6 +6,7 @@ import {
   BadRequestException,
   ConflictException,
   UnauthorizedException,
+  Optional,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -33,6 +34,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType, ResourceType } from '@prisma/client';
 
 import { GamificationService } from '../gamification/gamification.service';
+import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 
 @Injectable()
 export class TasksService {
@@ -50,6 +52,7 @@ export class TasksService {
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
     private readonly jwtService: JwtService,
+    @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   /**
@@ -131,6 +134,12 @@ export class TasksService {
       date: new Date(),
       tasksCreated: 1,
     });
+
+    await this.indexer?.indexContent(
+      'TASK',
+      task.id,
+      `${task.props.title}\n${task.props.description ?? ''}`,
+    );
 
     return task.props;
   }
@@ -225,6 +234,12 @@ export class TasksService {
     if (!wasAlreadyCompleted) {
       await this.handleRecurrenceOnCompletion(id, userId);
     }
+
+    await this.indexer?.indexContent(
+      'TASK',
+      task.id,
+      `${task.props.title}\n${task.props.description ?? ''}`,
+    );
 
     return task.props;
   }
@@ -817,6 +832,12 @@ export class TasksService {
         await this.activitiesService.logTaskUpdated(id, userId);
       }
 
+      await this.indexer?.indexContent(
+        'TASK',
+        updatedTask.id,
+        `${updatedTask.props.title}\n${updatedTask.props.description ?? ''}`,
+      );
+
       return updatedTask.props;
     } catch (error) {
       this.logger.error(`Failed to update task ${id}`, error);
@@ -877,6 +898,8 @@ export class TasksService {
       `[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`,
     );
 
+    await this.indexer?.removeContent('TASK', id);
+
     return { success: true };
   }
 
@@ -926,6 +949,11 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
+    await this.indexer?.indexContent(
+      'TASK',
+      task.id,
+      `${task.props.title}\n${task.props.description ?? ''}`,
+    );
     return {
       ...task.props,
       deletedAt: null,
@@ -943,6 +971,7 @@ export class TasksService {
       this.taskRepository,
     );
     await permanentDeleteTaskUseCase.execute(id);
+    await this.indexer?.removeContent('TASK', id);
     return { success: true };
   }
 
@@ -984,6 +1013,12 @@ export class TasksService {
 
     // Log creation on the subtask itself
     await this.activitiesService.logTaskCreated(subtask.id, userId);
+
+    await this.indexer?.indexContent(
+      'TASK',
+      subtask.id,
+      `${subtask.props.title}\n${subtask.props.description ?? ''}`,
+    );
 
     return subtask.props;
   }

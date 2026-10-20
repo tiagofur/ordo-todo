@@ -6,9 +6,10 @@ import { ProjectsService } from './projects.service';
 import { ProjectGuard } from '../common/guards/project.guard';
 
 import { WorkspacesModule } from '../workspaces/workspaces.module';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
-  imports: [DatabaseModule, RepositoriesModule, WorkspacesModule],
+  imports: [DatabaseModule, RepositoriesModule, WorkspacesModule, AIModule],
   controllers: [ProjectsController],
   providers: [ProjectsService, ProjectGuard],
   exports: [ProjectsService],
