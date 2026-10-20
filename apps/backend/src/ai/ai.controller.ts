@@ -30,6 +30,7 @@ import {
   AIWorkflowSuggestionDto,
   AIDecomposeTaskDto,
 } from './dto/ai-chat.dto';
+import { AIAskDto } from './dto/ai-ask.dto';
 
 @ApiTags('AI')
 @ApiBearerAuth()
@@ -68,6 +69,38 @@ export class AIController {
       workspaceId: chatDto.workspaceId,
       projectId: chatDto.projectId,
     });
+  }
+
+  // ============ ASK (ODD 004 S2) ============
+
+  @Post('ask')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Ask a question over indexed workspace content',
+    description:
+      'Retrieves content visible to the user via vector search with permission verification, then answers citing sources.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Answer with citations',
+    schema: {
+      example: {
+        answer: 'Task X is due this week.',
+        citations: [
+          {
+            type: 'TASK',
+            id: 'task-123',
+            title: 'Task X',
+            excerpt: 'Task X ...',
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async ask(@Body() dto: AIAskDto, @CurrentUser() user: RequestUser) {
+    return this.aiService.ask(user.id, dto.question, dto.limit);
   }
 
   // ============ NATURAL LANGUAGE TASK PARSING ============
