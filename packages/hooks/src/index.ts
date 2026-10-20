@@ -58,18 +58,6 @@ export { createHooks, type Hooks } from './hooks';
 export { queryKeys } from './query-keys';
 export type { ApiClient, CreateHooksConfig } from './types';
 
-// Timer hook
-export {
-  useTimer,
-  formatTimerDisplay,
-  type TimerMode,
-  type TimerType,
-  type TimerConfig,
-  type UseTimerProps,
-  type SessionData,
-  type UseTimerReturn,
-} from './use-timer';
-
 // Unified backend timer hook (ODD 014)
 export {
   useTimerBackend,

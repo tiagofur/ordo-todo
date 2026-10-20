@@ -82,8 +82,46 @@ Fuera de alcance: reescritura del backend de timers (sano); nuevas features (aut
 | T4 | S4 | Contador único desde backend (eliminar storages divergentes) | inline | done | `a96b4502` — completedToday + optimista, suite 153/153, tsc baselines intactos |
 | T5 | S5 | Reloj por `endsAt` + background (móvil/web minimizada) | inline | done | `a52957be` — deadline clock + bg notify, suite 157/157, baselines intactos |
 | T6 | S6 | Móvil focus-mode al hook único + config desde preferencias | inline | done | `914d988d` — focus-mode migrado, useTimerConfig, baseline 2 intacto |
-| T7 | S7 | Limpieza: eliminar motores muertos + tipos canónicos únicos | inline | pending | — |
-| T8 | — | QA de excelencia: matriz manual por plataforma + checklist del contrato | inline | pending | — |
+| T7 | S7 | Limpieza: eliminar motores muertos + tipos canónicos únicos | inline | done | `e53074ae` — 11 archivos muertos (-1640), suites 149+22, baselines intactos/mejor |
+| T8 | — | QA de excelencia: matriz manual por plataforma + checklist del contrato | inline | done | Gates CI-sim verde; matriz I1–I10 + checklist manual abajo |
+
+## Matriz contrato ↔ tests (T8)
+
+| Invariante | Engine (`timer/engine/test`) | Hook (`use-timer-backend.test`) | Cobertura |
+|---|---|---|---|
+| I1 WORK→BREAK | `completePhase WORK→SHORT_BREAK` | SYMPTOM + ciclo completo N=2 + skip manual | ✅ auto |
+| I2 long cada N | N=4, N=2, break no incrementa | ciclo completo N=2 | ✅ auto |
+| I3 contador=backend | — (propiedad del hook) | 4 tests I3 + degradación null | ✅ auto |
+| I4 stop/reset en break | `resetPhase` en break | stop en break | ✅ auto |
+| I5 pausa sin pérdida | `remainingSeconds` + pausas | pause/resume + deadline T5 | ✅ auto |
+| I6 inicial limpio | — | sync sin sesión (implícito en setup) | ⚠️ parcial → manual |
+| I7 instancia única | — | — (propiedad arquitectural) | 📋 manual |
+| I8 sonido+notif | — | `sessionComplete` llamado | ⚠️ cableado → manual |
+| I9 reapertura | — | sync desde `elapsedSeconds` | ⚠️ parcial → manual |
+| I10 config no rompe | `applyConfigChange` ×3 | config mid-cycle | ✅ auto |
+
+## Checklist manual por plataforma (T8 — pendiente de ejecución humana)
+
+Web (`timer-provider` + settings 1-min):
+- [ ] WORK 1:00 → expira → SHORT_BREAK 5:00 + contador +1 + toast + sonido + notificación OS
+- [ ] 4 ciclos → LONG_BREAK 15:00 (N=4)
+- [ ] Stop a mitad de descanso → descanso reseteado (no salto a WORK)
+- [ ] Cambiar duración en Settings → próximo ciclo la usa; ciclo activo intacto
+- [ ] Pestaña oculta 2 min → tiempo correcto al volver; expiración transiciona
+- [ ] Recargar a mitad de pomodoro → countdown restaurado desde backend (I9)
+- [ ] Contador timer == estadísticas del día (I3)
+
+Desktop (settings 1-min):
+- [ ] Ciclo WORK→SHORT funciona con notificaciones nativas
+- [ ] Mini-ventana/tray: toggle pausa-reanuda el timer VISIBLE; skip avanza fase
+- [ ] Settings: cambiar duración afecta al próximo ciclo
+- [ ] Un solo intervalo: completar fase = 1 llamada stop + 1 start (red)
+
+Móvil (timer + focus-mode):
+- [ ] Timer avanza, transiciona, cuenta; respeta ajustes
+- [ ] Focus-mode avanza (ya no congelado)
+- [ ] Background 2 min → notificación OS al completar; tiempo correcto al volver
+- [ ] Contador == estadísticas del día
 
 ## Log
 
@@ -97,3 +135,5 @@ L7. T3 done 2026-10-20: dueño único desktop. Puente tray/mini→hook unificado
 L8. T4 done 2026-10-20: contador backend. Prop `completedToday` (useTimerStats día actual) + incremento optimista con absorción al confirmar; null→contador de sesión. Storages locales eliminados en 3 adaptadores; `TimerBackendStorage` eliminado. Nota: backend filtra por startedAt (pomodoro 23:50→00:10 cuenta ayer; consistente con stats). Suite hooks 153/153; tsc hooks 0, apps en baselines (9/1/2); eslint limpio. Commit `a96b4502`.
 L9. T5 done 2026-10-20: reloj wall-clock. Deadline fijo por fase (POMODORO) + anchor (CONTINUOUS); ticks recomputan restante (throttling/drift inmunes); pausa congela, resume re-ancla. Móvil programa notificación OS al deadline (solo permiso granted; cancela en pausa/stop/cambio). `useBackgroundTimer` existe pero sin usar (motor paralelo nº5 — NO conectado; T7 decide su suerte). Suite 157/157; tsc/eslint limpios; baselines intactos. Commit `a52957be`.
 L10. T6 done 2026-10-20: focus-mode migrado al hook unificado (adiós store congelado; botón pausa/resume unificado; stop(true) al completar tarea). Nuevo `useTimerConfig` (backend prefs → AsyncStorage móvil → defaults); timer.tsx sin hardcode + respeta timerMode backend. Hallazgo: focus-mode es ruta huérfana (cero navegaciones) → sin provider móvil por ahora; coexistencia teórica tolerada vía sync backend. tsc baseline 2; eslint 0 errores. Commit `914d988d`.
+L11. T7 done 2026-10-20: limpieza. Eliminados 11 archivos (Motor B+test, Motor D, web use-timer, useBackgroundTimer+test, desktop timer-store wrapper, providers/index, routes/index, AppLayout, electron-provider) = -1640 líneas. Tipos: ui TimerMode→alias core; desktop TimerSessionMode→alias shared; ui-mobile mirror documentado; api-client/stores/bridge intencionalmente distintos (documentado). packages/stores NO tocado (uso vivo móvil). Incidente: `git add -A` metió dists regenerados → re-commit solo fuentes. Suites 149/22 GREEN; web 7 (< baseline 9), desktop 1, móvil 2; 0 imports colgados. Commit `e53074ae`.
+L12. T8 done 2026-10-20: QA. Simulación CI (build→check-types): build 16/16, check-types 15/15. Suites: engine 22/22, hooks 149/149, backend 933/933. Lint: 0 errores nuevos (desktop parsing-errors = artefacto dist desactualizado local, archivos idénticos a main; backend -67 = varianza contable, sin tocar). Decisión dist: CI buildea+cachea dists (job packages) → NO commitear dists (commit 3823ff34 revertido en c68172c0; memoria original correcta). Incidente: `git stash pop` aplicó stash AJENO de otra sesión (wip-app-corrections) al worktree → rescatado vía checkout (commits intactos, stash ajeno preservado); no usar stash con stashes ajenos en pila. Matriz I1–I10 + checklist manual añadidos al doc. ÉPICA COMPLETA: 8/8 tareas, síntoma original corregido en 3 plataformas.

@@ -2,8 +2,11 @@
 import { Clock, Play } from 'lucide-react';
 import { cn } from '../../utils/index.js';
 import { TomatoIcon } from '../ui/custom-icons.js';
+import type { TimerMode as CoreTimerMode } from '@ordo-todo/core';
 
-export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
+// Canonical timer phase (ODD 014 T7): single definition in
+// @ordo-todo/core timer.constants; UI only aliases it.
+export type TimerMode = CoreTimerMode;
 
 interface TimerWidgetProps {
   /** Whether timer is currently running */

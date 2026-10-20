@@ -25,6 +25,8 @@ import { Play, Pause, Square, SkipForward, RefreshCw } from 'lucide-react-native
 import { Text } from '../ui/text';
 import { colors } from '@ordo-todo/styles/tokens';
 
+// Mirrors the canonical TimerMode in @ordo-todo/core timer.constants
+// (ui-mobile has no core dependency; keep in sync by value).
 export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
 
 export interface TimerState {
