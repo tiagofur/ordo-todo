@@ -296,4 +296,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get agentJob() {
     return this.prisma.agentJob;
   }
+
+  get aiCreditAccount() {
+    return this.prisma.aiCreditAccount;
+  }
+
+  get aiUsageEvent() {
+    return this.prisma.aiUsageEvent;
+  }
 }
