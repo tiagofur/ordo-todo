@@ -957,6 +957,7 @@ model Task {
 
   // Scheduling
   dueDate          DateTime?
+  doDate           DateTime? // When the task is planned to be done (vs dueDate deadline)
   startDate        DateTime?
   scheduledDate    DateTime? // When the task is scheduled to be worked on
   scheduledTime    String? // Time of day scheduled (e.g., "14:30")
@@ -1040,6 +1041,7 @@ model Task {
   @@index([assigneeId])
   @@index([status])
   @@index([dueDate])
+  @@index([doDate])
   @@index([priority])
   @@index([scheduledDate])
   // Composite indexes for common query patterns

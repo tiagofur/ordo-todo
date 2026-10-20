@@ -10,6 +10,7 @@ export interface TaskProps extends EntityProps<string> {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate?: Date | null;
+  doDate?: Date | null; // When task is planned to be done (vs dueDate deadline)
   startDate?: Date | null; // When task can be started
   scheduledDate?: Date | null; // When task is scheduled to be worked on
   scheduledTime?: string | null; // Time of day scheduled (e.g., "14:30")

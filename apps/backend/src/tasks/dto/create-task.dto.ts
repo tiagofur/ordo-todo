@@ -61,6 +61,12 @@ export class CreateTaskDto {
   @IsDate()
   @Type(() => Date)
   @IsOptional()
+  doDate?: Date | null;
+
+  @ValidateIf((_, val) => val !== null)
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
   startDate?: Date | null;
 
   @ValidateIf((_, val) => val !== null)

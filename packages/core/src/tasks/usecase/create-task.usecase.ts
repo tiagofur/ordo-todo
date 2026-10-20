@@ -7,6 +7,7 @@ export interface CreateTaskInput {
     description?: string;
     priority?: TaskPriority;
     dueDate?: Date | null;
+    doDate?: Date | null;
     startDate?: Date | null;
     scheduledDate?: Date | null;
     scheduledTime?: string | null;
@@ -31,6 +32,7 @@ export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
             description: input.description,
             priority: input.priority ?? "MEDIUM",
             dueDate: input.dueDate,
+            doDate: input.doDate,
             startDate: input.startDate,
             scheduledDate: input.scheduledDate,
             scheduledTime: input.scheduledTime,
