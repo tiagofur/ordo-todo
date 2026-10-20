@@ -84,7 +84,9 @@ interface ProductivityReportContext {
     | 'TASK_COMPLETION'
     | 'WEEKLY_SCHEDULED'
     | 'MONTHLY_SCHEDULED'
-    | 'PROJECT_SUMMARY';
+    | 'PROJECT_SUMMARY'
+    | 'DAILY_AM'
+    | 'DAILY_PM';
   metricsSnapshot: {
     totalTasks?: number;
     completedTasks?: number;
@@ -92,7 +94,7 @@ interface ProductivityReportContext {
     pomodorosCount?: number;
     focusDuration?: number;
     tasksCompletedCount?: number;
-    [key: string]: number | undefined;
+    [key: string]: number | string | undefined;
   };
   sessions?: TimeSession[];
   profile?: AIProfile;
@@ -1005,6 +1007,10 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
         return 'Last 30 days';
       case 'PROJECT_SUMMARY':
         return 'Project Duration';
+      case 'DAILY_AM':
+        return 'Today ahead (morning briefing)';
+      case 'DAILY_PM':
+        return 'Today review (evening shutdown)';
       default:
         return 'Unknown';
     }

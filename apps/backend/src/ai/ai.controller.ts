@@ -31,6 +31,7 @@ import {
   AIDecomposeTaskDto,
 } from './dto/ai-chat.dto';
 import { AIAskDto } from './dto/ai-ask.dto';
+import { AIDailyReportDto } from './dto/ai-daily-report.dto';
 import { ExecutePlanDto, ProposePlanDto } from './tools/dto/agent-tools.dto';
 
 @ApiTags('AI')
@@ -844,6 +845,44 @@ export class AIController {
     @CurrentUser() user: RequestUser,
   ) {
     return this.aiService.generateProjectReport(user.id, projectId);
+  }
+
+  @Post('reports/daily')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Generate daily briefing (AM) or shutdown review (PM)',
+    description:
+      'Generates a daily report with a stable versioned payload (daily/v1) shared with the daily ritual: same keys every day, only data values change.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Daily report generated',
+    schema: {
+      example: {
+        id: 'report123',
+        scope: 'DAILY_AM',
+        summary: 'Today: 3 tasks due, 1 completed yesterday.',
+        productivityScore: 75,
+        metricsSnapshot: {
+          format: 'daily/v1',
+          kind: 'AM',
+          date: '2026-10-19',
+          tasksDue: 3,
+          tasksCompleted: 1,
+          totalMinutesWorked: 120,
+          totalPomodoros: 4,
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async generateDailyReport(
+    @Body() dto: AIDailyReportDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    const parsedDate = dto.date ? new Date(dto.date) : undefined;
+    return this.aiService.generateDailyReport(user.id, dto.kind, parsedDate);
   }
 
   @Get('reports')

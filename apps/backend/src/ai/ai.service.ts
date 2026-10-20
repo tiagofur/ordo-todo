@@ -571,6 +571,111 @@ export class AIService {
     };
   }
 
+  /**
+   * Daily briefing (AM: plan the day ahead) or shutdown review (PM: close the
+   * day). Stable versioned payload (`daily/v1`) shared with the ritual (005):
+   * same keys, same order, every day — only the data values change.
+   */
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
+  async generateDailyReport(
+    userId: string,
+    kind: 'AM' | 'PM',
+    date?: Date,
+  ): Promise<Record<string, unknown>> {
+    const day = date ?? new Date();
+    const start = new Date(day);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(day);
+    end.setHours(23, 59, 59, 999);
+
+    const dailyMetricsEntities = await this.analyticsRepository.getRange(
+      userId,
+      start,
+      end,
+    );
+    const dailyMetrics = dailyMetricsEntities.map((dm) => dm.props);
+
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      start,
+      end,
+    );
+    const completedSessions = sessions.filter((s) => s.props.endedAt !== null);
+
+    const tasksDue = await this.prisma.task.count({
+      where: {
+        ownerId: userId,
+        isDeleted: false,
+        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+        dueDate: { gte: start, lte: end },
+      },
+    });
+    const tasksCompleted = await this.prisma.task.count({
+      where: {
+        ownerId: userId,
+        status: 'COMPLETED',
+        completedAt: { gte: start, lte: end },
+      },
+    });
+
+    const metricsSnapshot = {
+      format: 'daily/v1',
+      kind,
+      date: start.toISOString().slice(0, 10),
+      tasksDue,
+      tasksCompleted,
+      totalMinutesWorked: dailyMetrics.reduce(
+        (sum, d) => sum + d.minutesWorked,
+        0,
+      ),
+      totalPomodoros: dailyMetrics.reduce(
+        (sum, d) => sum + d.pomodorosCompleted,
+        0,
+      ),
+    };
+
+    const profile = await this.aiProfileRepository.findByUserId(userId);
+
+    const report = await this.geminiService.generateProductivityReport({
+      userId,
+      scope: kind === 'AM' ? 'DAILY_AM' : 'DAILY_PM',
+      metricsSnapshot,
+      sessions: completedSessions.slice(0, 20).map((s) => ({
+        id: String(s.id),
+        startedAt: s.props.startedAt,
+        duration: s.props.duration || 0,
+        pauseCount: s.props.pauseCount,
+        wasCompleted: s.props.wasCompleted,
+      })),
+      profile: profile?.props || {
+        peakHours: {},
+        avgTaskDuration: 0,
+        completionRate: 0,
+      },
+    });
+
+    const savedReport = await this.prisma.productivityReport.create({
+      data: {
+        userId,
+        scope: kind === 'AM' ? 'DAILY_AM' : 'DAILY_PM',
+        summary: report.summary,
+        strengths: report.strengths,
+        weaknesses: report.weaknesses,
+        recommendations: report.recommendations,
+        patterns: report.patterns,
+        productivityScore: report.productivityScore,
+        metricsSnapshot: metricsSnapshot as Prisma.InputJsonValue,
+        aiModel: 'gemini-2.0-flash',
+      },
+    });
+
+    return {
+      ...report,
+      id: savedReport.id,
+      isNew: true,
+    };
+  }
+
   private calculateEstimateAccuracy(
     tasks: {
       estimatedMinutes: number | null;
@@ -606,10 +711,14 @@ export class AIService {
       | 'PROJECT_SUMMARY'
       | 'PERSONAL_ANALYSIS'
       | 'WEEKLY_SCHEDULED'
-      | 'MONTHLY_SCHEDULED';
+      | 'MONTHLY_SCHEDULED'
+      | 'DAILY_AM'
+      | 'DAILY_PM';
 
     const reports = await this.reportRepository.findByUserId(userId, {
-      scope: options?.scope as ReportScope | undefined,
+      // Core ReportScope predates DAILY_* (005 extends it there); the Prisma
+      // layer already accepts the new values, so this cast is scope-widening.
+      scope: options?.scope as ReportScope | undefined as never,
       limit: options?.limit ?? 10,
       offset: options?.offset ?? 0,
     });
