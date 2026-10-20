@@ -59,6 +59,7 @@ model User {
   aiProfile           AIProfile?
   productivityReports ProductivityReport[]
   chatConversations   ChatConversation[]
+  agentJobs           AgentJob[]
 
   // Habits
   habits Habit[]
@@ -1461,6 +1462,29 @@ model AiEmbedding {
   @@unique([contentType, contentId, chunkIndex])
   @@index([contentType, contentId])
   @@index([contentId])
+}
+
+// ============ AGENT JOBS (ODD 004 S5) ============
+// Recurring NL-scheduled agent jobs. Execution history lives in
+// ProductivityReport (filter by scope + generatedAt) — no result column here.
+
+model AgentJob {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  schedule   String // cron expression (5-field) as given/derived
+  timezone   String   @default("America/Mexico_City")
+  taskPrompt String   @db.Text // NL instruction executed each run
+  isActive   Boolean  @default(true)
+  lastRunAt  DateTime?
+  nextRunAt  DateTime?
+  lastStatus String? // 'ok' | 'error: <message>' (short)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, isActive])
+  @@index([nextRunAt])
 }
 
 // ============ SUBSCRIPTIONS ============
