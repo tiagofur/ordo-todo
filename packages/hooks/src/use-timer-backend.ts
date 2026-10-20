@@ -99,6 +99,7 @@ export interface UseTimerBackendReturn {
   resume: () => Promise<void>;
   stop: (wasCompleted?: boolean) => Promise<void>;
   skipToNext: () => Promise<void>;
+  goToPhase: (target: EngineMode) => Promise<void>;
   switchTask: (newTaskId: string) => Promise<void>;
   formatTime: (seconds: number) => string;
   getProgress: () => number;
@@ -492,6 +493,45 @@ export function useTimerBackend({
   const stopRef = useRef(stop);
   stopRef.current = stop;
 
+  /**
+   * Jump to an explicit phase while stopped (phase-chip navigation).
+   * No-op unless POMODORO, fully stopped, and targeting another phase.
+   * Leaving WORK counts the pomodoro (same as skip); leaving a BREAK only
+   * switches mode + full duration, counter untouched. Never auto-starts.
+   */
+  const goToPhase = useCallback(
+    async (target: EngineMode) => {
+      if (type !== 'POMODORO') return;
+      if (isTransitioningRef.current) return;
+      if (isRunningRef.current || isPausedRef.current) return;
+      const current = modeRef.current;
+      if (current === 'CONTINUOUS' || current === target) return;
+      hasInteractedRef.current = true;
+      isTransitioningRef.current = true;
+      clearLocalInterval();
+
+      try {
+        if (current === 'WORK') {
+          setOptimisticExtra((extra) => extra + 1);
+          await api.stop({ wasCompleted: true });
+          notify.sessionComplete('WORK');
+        }
+        pendingModeRef.current = target;
+        setMode(target);
+        setTimeLeft(durationOf(target, configRef.current));
+        setIsRunning(false);
+        setIsPaused(false);
+        setLocalPauseStartTime(null);
+        await api.refetch().catch(() => undefined);
+      } catch (error: unknown) {
+        notify.error('Error al cambiar de fase');
+      } finally {
+        isTransitioningRef.current = false;
+      }
+    },
+    [api, clearLocalInterval, notify, type],
+  );
+
   const switchTask = useCallback(
     async (newTaskId: string) => {
       try {
@@ -597,6 +637,7 @@ export function useTimerBackend({
     resume,
     stop,
     skipToNext,
+    goToPhase,
     switchTask,
     formatTime,
     getProgress,

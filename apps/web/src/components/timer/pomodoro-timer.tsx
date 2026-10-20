@@ -7,6 +7,7 @@ import { useTimer } from "@/components/providers/timer-provider";
 import { TaskSelector } from "./task-selector";
 import { useTranslations } from "next-intl";
 import { PomodoroTimer as PomodoroTimerUI, type TimerState, type TimerActions } from "@ordo-todo/ui";
+import { nextMode, durationForMode } from "@ordo-todo/core";
 
 /**
  * PomodoroTimer - Web wrapper for the shared PomodoroTimer component
@@ -72,13 +73,40 @@ export function PomodoroTimer() {
     setSelectedTaskId,
   };
 
+  // Next-phase label for the skip confirmation ("Descanso corto (5:00)").
+  const shortBreakLabel = t('modes.shortBreak');
+  const longBreakLabel = t('modes.longBreak');
+  const skipTargetLabel = (() => {
+    if (!config || mode !== 'WORK') return undefined;
+    try {
+      const next = nextMode('WORK', completedPomodoros, config);
+      const secs = durationForMode(next, config);
+      const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+      const ss = String(secs % 60).padStart(2, '0');
+      const name = next === 'LONG_BREAK' ? longBreakLabel : shortBreakLabel;
+      return `${name} (${mm}:${ss})`;
+    } catch {
+      return undefined;
+    }
+  })();
+
   const labels = {
     stopwatch: t('modes.stopwatch'),
     pomodoroCount: (count: number) => t('modes.pomodoroCount', { count }),
-    shortBreak: t('modes.shortBreak'),
-    longBreak: t('modes.longBreak'),
+    shortBreak: shortBreakLabel,
+    longBreak: longBreakLabel,
     paused: t('paused'),
     pauseCount: (count: number) => t('pauses', { count }),
+    skipConfirmTitle: (phase: string) => t.has('skipConfirm.title')
+      ? t('skipConfirm.title', { phase })
+      : `¿Saltar a ${phase}?`,
+    skipConfirmDescription: t.has('skipConfirm.description')
+      ? t('skipConfirm.description')
+      : 'La fase actual se cerrará como completada.',
+    skipConfirmOk: t.has('skipConfirm.ok') ? t('skipConfirm.ok') : 'Saltar',
+    cancel: t.has('cancel') ? t('cancel') : 'Cancelar',
+    skipTargetLabel,
+    skipButtonTitle: t.has('skipButton') ? t('skipButton') : 'Saltar al siguiente bloque',
     switchTaskTitle: t.has('switchTask.title') ? t('switchTask.title') : 'Cambiar Tarea',
     switchTaskDescription: t.has('switchTask.description') ? t('switchTask.description') : 'Selecciona una nueva tarea para continuar.',
     switchTaskButtonTitle: t.has('switchTask.buttonTitle') ? t('switchTask.buttonTitle') : 'Cambiar tarea',

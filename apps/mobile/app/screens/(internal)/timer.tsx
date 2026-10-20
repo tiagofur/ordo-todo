@@ -13,6 +13,7 @@ import { Text } from '@ordo-todo/ui-mobile';
 import { PomodoroTimer, TaskSelector, SessionHistory } from '@ordo-todo/ui-mobile';
 import { useTimerBackend } from '@/app/hooks/use-timer-backend';
 import { useTimerConfig } from '@/app/hooks/use-timer-config';
+import { nextMode, durationForMode } from '@ordo-todo/core';
 import { useTasks, useSessionHistory } from '@/app/lib/shared-hooks';
 import { colors } from '@ordo-todo/styles/tokens';
 
@@ -93,6 +94,21 @@ export default function TimerScreen() {
 
   const accentColor = MODE_COLORS[timer.mode] || MODE_COLORS.WORK;
 
+  // Next-phase label for the skip confirmation ("Short break (5:00)").
+  const skipTargetLabel = (() => {
+    if (timer.mode !== 'WORK') return undefined;
+    try {
+      const next = nextMode('WORK', timer.completedPomodoros, timerConfig);
+      const secs = durationForMode(next, timerConfig);
+      const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+      const ss = String(secs % 60).padStart(2, '0');
+      const name = next === 'LONG_BREAK' ? 'Long break' : 'Short break';
+      return `${name} (${mm}:${ss})`;
+    } catch {
+      return undefined;
+    }
+  })();
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -162,6 +178,7 @@ export default function TimerScreen() {
                   longBreak: 'Long Break',
                   paused: 'Paused',
                   pauseCount: (count) => `${count} pause${count !== 1 ? 's' : ''}`,
+                  skipTargetLabel,
                 }}
               />
             </View>

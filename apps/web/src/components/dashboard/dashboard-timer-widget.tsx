@@ -43,6 +43,7 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
     resume,
     stop,
     skipToNext,
+    goToPhase,
     formatTime,
     getProgress,
   } = useTimer();
@@ -65,6 +66,10 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
     await skipToNext();
   };
 
+  const handlePhaseSelect = async (phase: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => {
+    await goToPhase(phase);
+  };
+
   return (
     <SharedTimerWidget
       className={className}
@@ -80,6 +85,7 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
       onToggle={handleToggle}
       onReset={handleReset}
       onSkip={handleSkip}
+      onPhaseSelect={handlePhaseSelect}
       onClick={() => !isRunning && router.push("/timer")}
       onFocusModeClick={() => router.push("/focus")}
       formatTime={formatTime}
@@ -107,6 +113,8 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
         assignedTask: pt.has("currentTask") ? pt("currentTask") : "TAREA ASIGNADA",
         pomodoroCount: (count: number) => `Pomodoro #${count}`,
         pauseCount: (count: number) => pt.has("pauses") ? pt("pauses", { count }) : `${count} pausa${count !== 1 ? "s" : ""}`,
+        goToPhase: (phase: string) => t.has("goToPhase") ? t("goToPhase", { phase }) : `Ir a ${phase}`,
+        stopToSwitchPhase: t.has("stopToSwitchPhase") ? t("stopToSwitchPhase") : "Detén el temporizador para cambiar de fase",
       }}
     />
   );

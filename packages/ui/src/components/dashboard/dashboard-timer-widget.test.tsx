@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { DashboardTimerWidget } from './dashboard-timer-widget.js';
 
 const baseProps = {
@@ -37,5 +37,47 @@ describe('DashboardTimerWidget mode badge', () => {
   it('keeps the compact counter badge in WORK', () => {
     render(<DashboardTimerWidget {...baseProps} mode="WORK" completedPomodoros={2} />);
     expect(screen.getByText('#3')).toBeInTheDocument();
+  });
+});
+
+describe('DashboardTimerWidget phase chips', () => {
+  it('calls onPhaseSelect when a stopped chip is clicked', () => {
+    const onPhaseSelect = vi.fn();
+    render(
+      <DashboardTimerWidget
+        {...baseProps}
+        mode="WORK"
+        isRunning={false}
+        isPaused={false}
+        onPhaseSelect={onPhaseSelect}
+      />
+    );
+
+    fireEvent.click(screen.getByTitle('Ir a Pausa Corta'));
+    expect(onPhaseSelect).toHaveBeenCalledWith('SHORT_BREAK');
+  });
+
+  it('renders chips as plain indicators while running', () => {
+    const onPhaseSelect = vi.fn();
+    render(
+      <DashboardTimerWidget
+        {...baseProps}
+        mode="WORK"
+        isRunning={true}
+        isPaused={false}
+        onPhaseSelect={onPhaseSelect}
+      />
+    );
+
+    // No button to click: chips fall back to spans with the disabled hint.
+    expect(screen.queryByTitle('Ir a Pausa Corta')).toBeNull();
+    expect(screen.getAllByTitle('Detén el temporizador para cambiar de fase')).toHaveLength(2);
+  });
+
+  it('renders chips as plain indicators without a handler', () => {
+    render(<DashboardTimerWidget {...baseProps} mode="SHORT_BREAK" />);
+
+    expect(screen.queryByRole('button', { name: /Ir a/ })).toBeNull();
+    expect(screen.getByText('5m')).toBeInTheDocument();
   });
 });
