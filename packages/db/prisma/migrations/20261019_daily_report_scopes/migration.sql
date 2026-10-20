@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "ReportScope" ADD VALUE 'DAILY_AM';
+ALTER TYPE "ReportScope" ADD VALUE 'DAILY_PM';

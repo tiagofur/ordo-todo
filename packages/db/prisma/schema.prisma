@@ -1402,6 +1402,8 @@ enum ReportScope {
   PERSONAL_ANALYSIS
   WEEKLY_SCHEDULED
   MONTHLY_SCHEDULED
+  DAILY_AM
+  DAILY_PM
 }
 
 model ProductivityReport {
