@@ -18,6 +18,7 @@ import {
   GetOptimalScheduleUseCase,
   PredictTaskDurationUseCase,
   GenerateWeeklyReportUseCase,
+  toCalendarDateString,
   type WeeklyReportContext,
 } from '@ordo-todo/core';
 import { GeminiAIService } from './gemini-ai.service';
@@ -332,19 +333,31 @@ export class AIService {
 
   // ODD 005 T2 candidate selection (documented here per task brief):
   // open tasks (TODO/IN_PROGRESS) owned by the user that are EITHER planned
-  // for today (doDate is today) OR have no doDate but a dueDate within the
-  // next 7 days. Tasks without any date stay out (explicit planning is T3).
+  // for today (doDate is today in the USER's timezone) OR have no doDate but
+  // a dueDate within the next 7 days. Tasks without any date stay out
+  // (explicit planning is T3).
   private async buildDayPlan(userId: string): Promise<DayPlan> {
     const tasks = await this.taskRepository.findByOwnerId(userId);
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const weekFromNow = now.getTime() + 7 * 24 * 60 * 60 * 1000;
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+    const timezone = user?.timezone || 'America/Mexico_City';
+    // "Today" in the user's timezone (same pattern as tasks.findToday):
+    // server-local getters would pick the wrong day for ~25% of users' day.
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    const weekFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
 
     const candidates = tasks
       .filter((t: CoreTask) => {
         if (t.props.status !== 'TODO' && t.props.status !== 'IN_PROGRESS')
           return false;
-        const doDate = this.toDateKey(t.props.doDate);
+        const doDate = this.toDateKey(t.props.doDate, timezone);
         if (doDate === today) return true;
         if (t.props.doDate) return false; // planned for another day
         const due = t.props.dueDate ? new Date(t.props.dueDate).getTime() : NaN;
@@ -354,8 +367,8 @@ export class AIService {
         taskId: String(t.id),
         title: t.props.title,
         estimatedMinutes: t.props.estimatedMinutes ?? 30,
-        doDate: this.toDateKey(t.props.doDate),
-        dueDate: this.toDateKey(t.props.dueDate),
+        doDate: this.toDateKey(t.props.doDate, timezone),
+        dueDate: this.toDateKey(t.props.dueDate, timezone),
         priority: t.props.priority,
         energyRequired: t.props.energyRequired,
       }));
@@ -375,10 +388,13 @@ export class AIService {
     });
   }
 
-  private toDateKey(value: Date | string | null | undefined): string | null {
+  private toDateKey(
+    value: Date | string | null | undefined,
+    timezone: string,
+  ): string | null {
     if (!value) return null;
     const d = value instanceof Date ? value : new Date(value);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return toCalendarDateString(d, timezone) || null;
   }
 
   async predictTaskDuration(
