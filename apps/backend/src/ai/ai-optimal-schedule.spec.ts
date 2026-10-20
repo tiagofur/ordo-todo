@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Task, AIProfile } from '@ordo-todo/core';
+// Pin server TZ so "today" math is hermetic: the mocked user timezone is
+// America/Mexico_City, and server-local midnights would flake in CI (UTC)
+// during 00:00-06:00 UTC otherwise.
+process.env.TZ = 'America/Mexico_City';
 import { AIService } from './ai.service';
 import { GeminiAIService } from './gemini-ai.service';
 import { TaskNlParserService } from './task-nl-parser.service';
