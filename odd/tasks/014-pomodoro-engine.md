@@ -73,10 +73,19 @@ Fuera de alcance: reescritura del backend de timers (sano); nuevas features (aut
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| T1 | S1 | Motor puro `timer/engine/` + suite del contrato (I1,I2,I4,I10) | inline | pending | — |
+| T1 | S1 | Motor puro `timer/engine/` + suite del contrato (I1,I2,I4,I10) | inline | done | `554d2667` — 22/22 Jest GREEN, tsc build OK |
 | T2a | S2 | Hook único en `@ordo-todo/hooks` + test RED→GREEN del síntoma | inline | pending | — |
 | T2b | S2 | Migrar web al hook único (provider + settings wiring) | inline | pending | — |
 | T2c | S2 | Migrar desktop al hook único (transición+contador+LONG_BREAK+notif+switchTask) | inline | pending | — |
 | T2d | S2 | Migrar móvil-timer al hook único | inline | pending | — |
-| T3 | S3 | Desktop: dueño único + elimi
-...[truncated 951 chars]
+| T3 | S3 | Desktop: dueño único + eliminar provider duplicado (tray/atajos/mini/Settings al hook) | inline | pending | — |
+| T4 | S4 | Contador único desde backend (eliminar storages divergentes) | inline | pending | — |
+| T5 | S5 | Reloj por `endsAt` + background (móvil/web minimizada) | inline | pending | — |
+| T6 | S6 | Móvil focus-mode al hook único + config desde preferencias | inline | pending | — |
+| T7 | S7 | Limpieza: eliminar motores muertos + tipos canónicos únicos | inline | pending | — |
+| T8 | — | QA de excelencia: matriz manual por plataforma + checklist del contrato | inline | pending | — |
+
+## Log
+
+L1. "el sistema de Pomodoro no esta funcionando correctamente, porque solo pasa los 25 minutos y al terminar no cambia a descanso, no cambia el tiempo al de descanso, solo resetea los 25 minutos por ejemplo, no cuenta correctamente los pomodoros, en fin, un desastre TOTAL..." + "revisa y crea un plan de excelencia para la funcion de pomodoro" + "creamos un nuevo worktree y arrancamos con la solucion del Pomodoro, si prefieres documentar primero y crear los planes de ODD adelante, empezamos y vamos planeando tarea por tarea ante de hacerla" (mensajes del usuario 2026-10-19/20).
+L2. T1 done 2026-10-20: `timer/engine/` (types+engine+index) + `test/engine.test.ts` (22 tests, I1/I2/I4/I5/I10). TDD RED→GREEN. `npx jest src/timer` 22/22; `tsc -p tsconfig.build.json` 0 errores. Commit `554d2667`.
