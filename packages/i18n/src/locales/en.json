@@ -207,6 +207,30 @@
       "noChannel": "No channel assigned",
       "dailySummary": "Daily summary to channel",
       "focusSync": "Sync focus status"
+    },
+    "agentJobs": {
+      "title": "Recurrent jobs",
+      "description": "Schedule summaries and tasks in plain language.",
+      "namePlaceholder": "Job name (e.g. Weekly summary)",
+      "schedulePlaceholder": "Schedule (e.g. every friday at 5pm)",
+      "scheduleHint": "Try: every day at 8am · cada viernes a las 5 · toda sexta às 17h",
+      "promptPlaceholder": "What to do (e.g. prepare my weekly summary)",
+      "create": "Create job",
+      "creating": "Creating…",
+      "created": "Job created",
+      "createError": "Could not create the job",
+      "active": "Active",
+      "paused": "Paused",
+      "nextRun": "Next run",
+      "neverRan": "Not scheduled",
+      "pause": "Pause",
+      "resume": "Resume",
+      "runNow": "Run now",
+      "delete": "Delete",
+      "ranOk": "Job executed",
+      "ranError": "Execution failed",
+      "loading": "Loading jobs…",
+      "empty": "No jobs yet. Create the first one above."
     }
   },
   "TimerWidget": {

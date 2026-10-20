@@ -52,6 +52,9 @@ import type {
   UserIntegration,
   CalendarAccountStatus,
   SlackTeamMapping,
+  AgentJob,
+  CreateAgentJobInput,
+  UpdateAgentJobInput,
   Workspace,
   WorkspaceMember,
   WorkspaceInvitation,
@@ -495,6 +498,21 @@ export const apiClient = {
     axiosInstance
       .delete(`/integrations/calendar/${provider}`)
       .then((res) => res.data),
+  getAgentJobs: (): Promise<AgentJob[]> =>
+    axiosInstance.get("/agent-jobs").then((res) => res.data),
+  createAgentJob: (input: CreateAgentJobInput): Promise<AgentJob> =>
+    axiosInstance.post("/agent-jobs", input).then((res) => res.data),
+  updateAgentJob: (
+    id: string,
+    input: UpdateAgentJobInput,
+  ): Promise<AgentJob> =>
+    axiosInstance.patch(`/agent-jobs/${id}`, input).then((res) => res.data),
+  deleteAgentJob: (id: string): Promise<void> =>
+    axiosInstance.delete(`/agent-jobs/${id}`).then((res) => res.data),
+  runAgentJobNow: (
+    id: string,
+  ): Promise<{ ok: boolean; summary?: string; error?: string }> =>
+    axiosInstance.post(`/agent-jobs/${id}/run`).then((res) => res.data),
   getSlackTeams: (): Promise<SlackTeamMapping[]> =>
     axiosInstance.get("/slack/teams").then((res) => res.data),
   startSlackInstall: (): Promise<{ installUrl: string; state: string }> =>

@@ -18,6 +18,9 @@ import type {
   UserIntegration,
   CalendarAccountStatus,
   SlackTeamMapping,
+  AgentJob,
+  CreateAgentJobInput,
+  UpdateAgentJobInput,
   // Workspace
   Workspace,
   WorkspaceWithMembers,
@@ -871,6 +874,62 @@ export class OrdoApiClient {
    */
   async disconnectCalendar(provider: string): Promise<void> {
     await this.axios.delete(`/integrations/calendar/${provider}`);
+  }
+
+  /**
+   * List agent jobs
+   * GET /agent-jobs
+   */
+  async getAgentJobs(): Promise<AgentJob[]> {
+    const response = await this.axios.get<AgentJob[]>('/agent-jobs');
+    return response.data;
+  }
+
+  /**
+   * Create an agent job from a natural-language schedule
+   * POST /agent-jobs
+   */
+  async createAgentJob(input: CreateAgentJobInput): Promise<AgentJob> {
+    const response = await this.axios.post<AgentJob>('/agent-jobs', input);
+    return response.data;
+  }
+
+  /**
+   * Update an agent job (pause/resume via isActive)
+   * PATCH /agent-jobs/:id
+   */
+  async updateAgentJob(
+    id: string,
+    input: UpdateAgentJobInput,
+  ): Promise<AgentJob> {
+    const response = await this.axios.patch<AgentJob>(
+      `/agent-jobs/${id}`,
+      input,
+    );
+    return response.data;
+  }
+
+  /**
+   * Delete an agent job
+   * DELETE /agent-jobs/:id
+   */
+  async deleteAgentJob(id: string): Promise<void> {
+    await this.axios.delete(`/agent-jobs/${id}`);
+  }
+
+  /**
+   * Run an agent job immediately
+   * POST /agent-jobs/:id/run
+   */
+  async runAgentJobNow(
+    id: string,
+  ): Promise<{ ok: boolean; summary?: string; error?: string }> {
+    const response = await this.axios.post<{
+      ok: boolean;
+      summary?: string;
+      error?: string;
+    }>(`/agent-jobs/${id}/run`);
+    return response.data;
   }
 
   /**
