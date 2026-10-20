@@ -1,12 +1,33 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+/**
+ * Desktop timer hook (ODD 014, T2c/S2).
+ *
+ * Thin adapter over the shared `useTimerBackend` from `@ordo-todo/hooks`:
+ * it wires React Query mutations, sonner toasts + native notifications/tray
+ * sync and localStorage. All cycle logic lives in the shared hook + engine.
+ *
+ * This replaces the former desktop copy, which never transitioned on expiry
+ * (countdown called `stop()` directly), never incremented the counter and
+ * never reached LONG_BREAK.
+ */
+import { useEffect, useMemo } from "react";
 import { formatTimerDisplay } from "@ordo-todo/core";
+import {
+    useTimerBackend as useSharedTimerBackend,
+    type TimerBackendMode,
+    type TimerBackendSession,
+    type UseTimerBackendReturn,
+} from "@ordo-todo/hooks";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/hooks/api";
 import { toast } from "sonner";
 import { desktopBridge } from "@/lib/desktop-bridge";
 
-
-export type TimerSessionMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "IDLE" | "CONTINUOUS";
+// Historical desktop names kept so existing consumers (timer-context)
+// keep working untouched. IDLE is preserved as a type for the floating
+// window / bridge, but the hook itself never reports it (initial mode is
+// WORK, matching web/mobile).
+export type TimerSessionMode = TimerBackendMode | "IDLE";
 export type TimerType = "POMODORO" | "STOPWATCH" | "CONTINUOUS";
+export type { UseTimerBackendReturn };
 
 interface TimerConfig {
     workDuration: number;
@@ -26,243 +47,153 @@ interface UseTimerBackendProps {
     onSessionComplete?: () => void;
 }
 
-export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps) {
-    const [isRunning, setIsRunning] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(type === "CONTINUOUS" ? 0 : config.workDuration * 60);
-    const [mode, setMode] = useState<TimerSessionMode>(type === "CONTINUOUS" ? "CONTINUOUS" : "WORK");
-    const [completedPomodoros, setCompletedPomodoros] = useState(0);
+const storage = {
+    get: (key: string): string | null => {
+        try {
+            return window.localStorage.getItem(key);
+        } catch {
+            return null;
+        }
+    },
+    set: (key: string, value: string): void => {
+        try {
+            window.localStorage.setItem(key, value);
+        } catch {
+            // Best-effort.
+        }
+    },
+};
 
-    const isTransitioningRef = useRef(false);
-    const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(null);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps): UseTimerBackendReturn {
+    // STOPWATCH is vestigial (no consumer passes it); treat it as CONTINUOUS.
+    const sharedType = type === "POMODORO" ? "POMODORO" : "CONTINUOUS";
 
-    // Backend hooks
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
     const startTimerMutation = useStartTimer();
     const stopTimerMutation = useStopTimer();
     const pauseTimerMutation = usePauseTimer();
     const resumeTimerMutation = useResumeTimer();
+    const switchTaskMutation = useSwitchTask();
 
-    const getDuration = useCallback((mode: TimerSessionMode): number => {
-        switch (mode) {
-            case "WORK": return config.workDuration * 60;
-            case "SHORT_BREAK": return config.shortBreakDuration * 60;
-            case "LONG_BREAK": return config.longBreakDuration * 60;
-            case "CONTINUOUS": return 0;
-            default: return 0;
-        }
-    }, [config]);
+    const adaptedSession: TimerBackendSession | null = useMemo(() => {
+        if (!activeSession) return null;
+        return {
+            type: activeSession.type as TimerBackendMode,
+            elapsedSeconds: activeSession.elapsedSeconds,
+            isPaused: activeSession.isPaused,
+            taskId: activeSession.taskId ?? null,
+            pauseCount: activeSession.pauseCount ?? 0,
+            totalPauseTime: activeSession.totalPauseTime ?? 0,
+            currentPauseStart: activeSession.currentPauseStart ?? null,
+        };
+    }, [activeSession]);
 
-    // Sync to Desktop
+    const api = useMemo(() => ({
+        activeSession: adaptedSession,
+        start: async (input: { taskId?: string; type: TimerBackendMode }) => {
+            await startTimerMutation.mutateAsync({
+                taskId: input.taskId,
+                type: input.type,
+            });
+        },
+        stop: async (input: { wasCompleted: boolean }) => {
+            await stopTimerMutation.mutateAsync({ wasCompleted: input.wasCompleted });
+        },
+        pause: async (input: { pauseStartedAt: Date }) => {
+            await pauseTimerMutation.mutateAsync({ pauseStartedAt: input.pauseStartedAt });
+        },
+        resume: async (input: { pauseStartedAt: Date }) => {
+            await resumeTimerMutation.mutateAsync({ pauseStartedAt: input.pauseStartedAt });
+        },
+        switchTask: async (input: { newTaskId: string; type: TimerBackendMode; splitReason: string }) => {
+            await switchTaskMutation.mutateAsync({
+                newTaskId: input.newTaskId,
+                type: input.type,
+                splitReason: input.splitReason,
+            });
+        },
+        refetch: async () => {
+            await refetchActiveSession();
+        },
+    }), [
+        adaptedSession,
+        startTimerMutation,
+        stopTimerMutation,
+        pauseTimerMutation,
+        resumeTimerMutation,
+        switchTaskMutation,
+        refetchActiveSession,
+    ]);
+
+    const notifyAdapter = useMemo(() => ({
+        sessionComplete: (mode: TimerBackendMode) => {
+            // Native notification on every completed phase (new in T2c: the
+            // former desktop copy never notified on expiry).
+            if (mode === "WORK") {
+                void desktopBridge.sendNotification(
+                    "Pomodoro completado",
+                    "¡Excelente trabajo! Tómate un merecido descanso.",
+                );
+            } else if (mode === "SHORT_BREAK") {
+                void desktopBridge.sendNotification(
+                    "Descanso corto finalizado",
+                    "Hora de volver al enfoque y retomar tus tareas.",
+                );
+            } else if (mode === "LONG_BREAK") {
+                void desktopBridge.sendNotification(
+                    "Descanso largo finalizado",
+                    "¿Listo para arrancar un nuevo ciclo productivo?",
+                );
+            }
+        },
+        autoStart: (mode: TimerBackendMode) => {
+            if (mode === "WORK") {
+                toast.success("Iniciando siguiente Pomodoro. ¡A trabajar!");
+            } else if (mode === "SHORT_BREAK") {
+                toast.success("Iniciando descanso corto. Relájate un poco.");
+            } else if (mode === "LONG_BREAK") {
+                toast.success("Iniciando descanso largo. Relájate un poco.");
+            }
+        },
+        success: (message: string) => {
+            toast.success(message);
+        },
+        error: (message: string) => {
+            toast.error(message);
+        },
+    }), []);
+
+    const timer = useSharedTimerBackend({
+        type: sharedType,
+        config,
+        taskId,
+        api,
+        notify: notifyAdapter,
+        storage,
+        onSessionComplete,
+    });
+
+    // Tray title + floating mini-timer sync, preserved from the former
+    // desktop copy.
     useEffect(() => {
-        const formatted = formatTimerDisplay(timeLeft);
-        if (isRunning && !isPaused) {
-            desktopBridge.updateTrayTitle(formatted);
-        } else if (isPaused) {
-            desktopBridge.updateTrayTitle(`⏸ ${formatted}`);
+        const formatted = formatTimerDisplay(timer.timeLeft);
+        if (timer.isRunning && !timer.isPaused) {
+            void desktopBridge.updateTrayTitle(formatted);
+        } else if (timer.isPaused) {
+            void desktopBridge.updateTrayTitle(`⏸ ${formatted}`);
         } else {
-            desktopBridge.updateTrayTitle('Ordo');
+            void desktopBridge.updateTrayTitle('Ordo');
         }
 
-        desktopBridge.broadcastTimerState({
+        void desktopBridge.broadcastTimerState({
             timeRemaining: formatted,
-            mode: mode as any,
-            isRunning,
-            isPaused,
-            taskTitle: (activeSession as any)?.task?.title || null,
+            mode: timer.mode as "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "IDLE",
+            isRunning: timer.isRunning,
+            isPaused: timer.isPaused,
+            taskTitle: (timer.activeSession as { task?: { title?: string } } | null)?.task?.title || null,
             progress: 0,
         });
-    }, [isRunning, isPaused, timeLeft, mode, activeSession]);
+    }, [timer.isRunning, timer.isPaused, timer.timeLeft, timer.mode, timer.activeSession]);
 
-    // Sync with backend active session
-    useEffect(() => {
-        if (activeSession) {
-            setIsRunning(true);
-            setIsPaused(activeSession.isPaused);
-            const elapsed = activeSession.elapsedSeconds;
-
-            if (activeSession.type === "CONTINUOUS") {
-                setTimeLeft(elapsed);
-                setMode("CONTINUOUS");
-            } else {
-                // Cast activeSession.type to TimerSessionMode
-                // API likely returns matching strings
-                const sessionType = activeSession.type as TimerSessionMode;
-                const sessionDuration = getDuration(sessionType);
-                const remaining = Math.max(0, sessionDuration - elapsed);
-                setTimeLeft(remaining);
-                setMode(sessionType);
-            }
-
-            if (activeSession.isPaused && activeSession.currentPauseStart) {
-                setLocalPauseStartTime(new Date(activeSession.currentPauseStart));
-            } else {
-                setLocalPauseStartTime(null);
-            }
-        } else {
-            // No active session logic
-            if (!isRunning) { // Only reset if not running locally (race condition protection)
-                if (type === "CONTINUOUS") {
-                    setTimeLeft(0);
-                    setMode("CONTINUOUS");
-                } else if (mode === "CONTINUOUS") {
-                    setTimeLeft(getDuration("WORK"));
-                    setMode("WORK");
-                }
-                setIsRunning(false);
-                setIsPaused(false);
-            }
-        }
-    }, [activeSession, getDuration, type]); // removed isRunning to avoid loops, relying on activeSession change
-
-    // Reset when config or type changes
-    useEffect(() => {
-        if (!activeSession && !isRunning && !isPaused) {
-            if (type === "CONTINUOUS") {
-                setTimeLeft(0);
-                setMode("CONTINUOUS");
-            } else if (mode === "CONTINUOUS") {
-                setTimeLeft(getDuration("WORK"));
-                setMode("WORK");
-            } else {
-                setTimeLeft(getDuration(mode));
-            }
-        }
-    }, [config, getDuration, activeSession, isRunning, isPaused, type, mode]);
-
-    const start = useCallback(async () => {
-        try {
-            await startTimerMutation.mutateAsync({
-                taskId: (taskId || undefined),
-                type: type === "CONTINUOUS" ? "CONTINUOUS" : (mode === "IDLE" ? "WORK" : mode),
-            });
-            setIsRunning(true);
-            setIsPaused(false);
-            await refetchActiveSession();
-            toast.success("Timer iniciado");
-        } catch (error: any) {
-            toast.error(error.message || "Error al iniciar timer");
-        }
-    }, [taskId, mode, type, startTimerMutation, refetchActiveSession]);
-
-    const pause = useCallback(async () => {
-        const pauseStart = new Date();
-        setLocalPauseStartTime(pauseStart);
-        try {
-            await pauseTimerMutation.mutateAsync({ pauseStartedAt: pauseStart });
-            setIsPaused(true);
-            setIsRunning(false);
-            await refetchActiveSession();
-        } catch (error: any) {
-            toast.error(error.message || "Error al pausar timer");
-        }
-    }, [pauseTimerMutation, refetchActiveSession]);
-
-    const resume = useCallback(async () => {
-        if (!localPauseStartTime) return;
-        try {
-            await resumeTimerMutation.mutateAsync({ pauseStartedAt: localPauseStartTime });
-            setIsPaused(false);
-            setIsRunning(true);
-            setLocalPauseStartTime(null);
-            await refetchActiveSession();
-        } catch (error: any) {
-            toast.error(error.message || "Error al reanudar timer");
-        }
-    }, [localPauseStartTime, resumeTimerMutation, refetchActiveSession]);
-
-    const stop = useCallback(async (wasCompleted: boolean = false) => {
-        try {
-            await stopTimerMutation.mutateAsync({ wasCompleted });
-        } catch (error: any) {
-            console.warn("Timer stop backend error:", error);
-        } finally {
-            setIsRunning(false);
-            setIsPaused(false);
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-            if (type === "POMODORO" && !wasCompleted) {
-                setTimeLeft(getDuration(mode));
-            } else if (type === "CONTINUOUS") {
-                setTimeLeft(0);
-            }
-
-            try {
-                await refetchActiveSession();
-            } catch {
-                // Ignore refetch errors during stop
-            }
-            if (onSessionComplete) onSessionComplete();
-        }
-    }, [stopTimerMutation, refetchActiveSession, onSessionComplete, type, mode, getDuration]);
-
-    const skipToNext = useCallback(async () => {
-        await stop(true);
-        if (type === "POMODORO") {
-            if (mode === "WORK") {
-                setMode("SHORT_BREAK");
-                setTimeLeft(getDuration("SHORT_BREAK"));
-            } else {
-                setMode("WORK");
-                setTimeLeft(getDuration("WORK"));
-            }
-        }
-    }, [stop, type, mode, getDuration]);
-
-    useEffect(() => {
-        if (isRunning && !isPaused) {
-            intervalRef.current = setInterval(() => {
-                setTimeLeft(prev => {
-                    if (type === "CONTINUOUS") return prev + 1;
-                    if (prev <= 1) {
-                        if (intervalRef.current) {
-                            clearInterval(intervalRef.current);
-                            intervalRef.current = null;
-                        }
-                        setTimeout(() => {
-                            stop(true);
-                        }, 0);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-        } else {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        }
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        };
-    }, [isRunning, isPaused, type, stop]);
-
-    const getProgress = (): number => {
-        if (mode === "CONTINUOUS") return 100;
-        const total = getDuration(mode);
-        return ((total - timeLeft) / total) * 100;
-    };
-
-    return {
-        isRunning,
-        isPaused,
-        timeLeft,
-        mode,
-        completedPomodoros,
-        start,
-        pause,
-        resume,
-        stop,
-        skipToNext,
-        formatTime: formatTimerDisplay,
-        getProgress,
-        activeSession
-    };
+    return timer;
 }

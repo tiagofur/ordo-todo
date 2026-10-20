@@ -116,7 +116,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                 setSelectedTaskId,
                 toggleTaskSelection,
                 completeTask,
-                pauseCount: 0, // Not currently tracked in backend hook return
                 config,
             }}
         >
