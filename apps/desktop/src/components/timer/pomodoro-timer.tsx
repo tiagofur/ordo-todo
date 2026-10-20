@@ -8,6 +8,7 @@ import {
   type TimerState,
   type TimerActions,
 } from "@ordo-todo/ui";
+import { nextMode, durationForMode } from "@ordo-todo/core";
 
 export function PomodoroTimer() {
   const { t } = (useTranslation as any)();
@@ -27,6 +28,7 @@ export function PomodoroTimer() {
     getProgress,
     selectedTaskId,
     setSelectedTaskId,
+    config,
   } = useTimerContext();
 
   const [showSwitchDialog, setShowSwitchDialog] = useState(false);
@@ -59,15 +61,42 @@ export function PomodoroTimer() {
     setSelectedTaskId,
   };
 
+  // Next-phase label for the skip confirmation ("Descanso corto (5:00)").
+  const shortBreakLabel = t("Timer.modes.shortBreak", "Descanso Corto");
+  const longBreakLabel = t("Timer.modes.longBreak", "Descanso Largo");
+  const skipTargetLabel = (() => {
+    if (!config || mode !== "WORK") return undefined;
+    try {
+      const next = nextMode("WORK", completedPomodoros, config);
+      const secs = durationForMode(next, config);
+      const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+      const ss = String(secs % 60).padStart(2, "0");
+      const name = next === "LONG_BREAK" ? longBreakLabel : shortBreakLabel;
+      return `${name} (${mm}:${ss})`;
+    } catch {
+      return undefined;
+    }
+  })();
+
   const labels = {
     stopwatch: t("Timer.modes.stopwatch", "Cronómetro"),
     pomodoroCount: (count: number) =>
       t("Timer.modes.pomodoroCount", `Pomodoro ${count}`, { count }),
-    shortBreak: t("Timer.modes.shortBreak", "Descanso Corto"),
-    longBreak: t("Timer.modes.longBreak", "Descanso Largo"),
+    shortBreak: shortBreakLabel,
+    longBreak: longBreakLabel,
     paused: t("Timer.paused", "En Pausa"),
     pauseCount: (count: number) =>
       t("Timer.pauses", `${count} pausa${count !== 1 ? "s" : ""}`, { count }),
+    skipConfirmTitle: (phase: string) =>
+      t("Timer.skipConfirm.title", `¿Saltar a ${phase}?`, { phase }),
+    skipConfirmDescription: t(
+      "Timer.skipConfirm.description",
+      "La fase actual se cerrará como completada."
+    ),
+    skipConfirmOk: t("Timer.skipConfirm.ok", "Saltar"),
+    cancel: t("Timer.cancel", "Cancelar"),
+    skipTargetLabel,
+    skipButtonTitle: t("Timer.skipButton", "Saltar al siguiente bloque"),
     switchTaskTitle: t("Timer.switchTask.title", "Cambiar Tarea"),
     switchTaskDescription: t(
       "Timer.switchTask.description",

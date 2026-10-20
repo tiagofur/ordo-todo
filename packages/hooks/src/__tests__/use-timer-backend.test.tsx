@@ -664,4 +664,84 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.timeLeft).toBeLessThan(25 * 60);
     expect(hook.result.current.timeLeft).toBeGreaterThan(0);
   });
+
+  it('goToPhase: WORK → forced LONG_BREAK counts the pomodoro, stays stopped', async () => {
+    const hook = setupHook({ completedToday: 0 });
+    expect(hook.result.current.mode).toBe('WORK');
+
+    await act(async () => {
+      await hook.result.current.goToPhase('LONG_BREAK');
+    });
+
+    expect(hook.result.current.mode).toBe('LONG_BREAK');
+    expect(hook.result.current.timeLeft).toBe(15 * 60);
+    expect(hook.result.current.isRunning).toBe(false);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+    expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: true });
+  });
+
+  it('goToPhase: BREAK → WORK switches without touching the counter', async () => {
+    const hook = setupHook({
+      completedToday: 1,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+
+    await act(async () => {
+      await hook.result.current.goToPhase('WORK');
+    });
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.timeLeft).toBe(25 * 60);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('goToPhase: BREAK → other BREAK switches duration, counter intact', async () => {
+    const hook = setupHook({
+      completedToday: 2,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+
+    await act(async () => {
+      await hook.result.current.goToPhase('LONG_BREAK');
+    });
+
+    expect(hook.result.current.mode).toBe('LONG_BREAK');
+    expect(hook.result.current.timeLeft).toBe(15 * 60);
+    expect(hook.result.current.completedPomodoros).toBe(2);
+    expect(hook.api.stop).not.toHaveBeenCalled();
+  });
+
+  it('goToPhase: no-op when running, paused, same phase, or CONTINUOUS', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 25 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await act(async () => {
+      await hook.result.current.goToPhase('SHORT_BREAK');
+    });
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.result.current.isRunning).toBe(true);
+
+    const idle = setupHook({});
+    await act(async () => {
+      await idle.result.current.goToPhase('WORK');
+    });
+    expect(idle.api.stop).not.toHaveBeenCalled();
+
+    const cont = setupHook({ type: 'CONTINUOUS' });
+    await act(async () => {
+      await cont.result.current.goToPhase('WORK');
+    });
+    expect(cont.result.current.mode).toBe('CONTINUOUS');
+  });
 });

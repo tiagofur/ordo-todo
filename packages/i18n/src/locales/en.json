@@ -1425,7 +1425,14 @@
       "buttonTitle": "Switch task",
       "title": "Switch Task",
       "description": "Time worked on the current task will be saved. Select a new task to continue."
-    }
+    },
+    "skipConfirm": {
+      "title": "Skip to {phase}?",
+      "description": "The current phase will close as completed.",
+      "ok": "Skip"
+    },
+    "cancel": "Cancel",
+    "skipButton": "Skip to next block"
   },
   "SessionHistory": {
     "error": "Error loading session history",
@@ -2145,7 +2152,16 @@
     "reset": "Reset",
     "start": "Start",
     "pause": "Pause",
-    "skip": "Skip"
+    "skip": "Skip",
+    "skipConfirm": {
+      "title": "Skip to {phase}?",
+      "description": "The current phase will close as completed.",
+      "ok": "Skip"
+    },
+    "cancel": "Cancel",
+    "skipButton": "Skip to next block",
+    "goToPhase": "Go to {phase}",
+    "stopToSwitchPhase": "Stop the timer to switch phases"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Weekly Report",

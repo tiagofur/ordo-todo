@@ -19,6 +19,7 @@ interface TimerContextType {
   resume: () => Promise<void>;
   stop: (wasCompleted?: boolean) => Promise<void>;
   skipToNext: () => Promise<void>;
+  goToPhase: (target: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => Promise<void>;
   switchTask: (taskId: string) => Promise<void>;
   formatTime: (seconds: number) => string;
   getProgress: () => number;
@@ -43,6 +44,7 @@ const defaultTimerContext: TimerContextType = {
   resume: async () => {},
   stop: async () => {},
   skipToNext: async () => {},
+  goToPhase: async () => {},
   switchTask: async () => {},
   formatTime: () => "00:00",
   getProgress: () => 0,

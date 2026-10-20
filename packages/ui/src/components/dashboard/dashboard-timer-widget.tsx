@@ -17,6 +17,8 @@ export interface DashboardTimerWidgetProps {
   onToggle: () => void;
   onReset: () => void;
   onSkip: () => void;
+  /** Jump to an explicit phase. Chips render as buttons only when provided. */
+  onPhaseSelect?: (phase: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => void;
   onClick?: () => void;
   onFocusModeClick?: () => void;
   TaskSelectorComponent?: ReactNode;
@@ -45,10 +47,65 @@ export interface DashboardTimerWidgetProps {
     pomodoroCount?: (count: number) => string;
     pauseCount?: (count: number) => string;
     freeFlow?: string;
+    goToPhase?: (phase: string) => string;
+    stopToSwitchPhase?: string;
   };
 }
 
 export type TimerWidgetProps = DashboardTimerWidgetProps;
+
+interface PhaseChipProps {
+  phase: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
+  label: string;
+  name: string;
+  isActive: boolean;
+  activeClassName: string;
+  disabled: boolean;
+  disabledTitle: string;
+  goToPhaseTitle: string;
+  onSelect?: (phase: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => void;
+}
+
+/**
+ * Duration chip: a button jumping to its phase when the timer is stopped,
+ * a plain indicator otherwise (running/paused, or no handler wired).
+ */
+function PhaseChip({
+  phase,
+  label,
+  name,
+  isActive,
+  activeClassName,
+  disabled,
+  disabledTitle,
+  goToPhaseTitle,
+  onSelect,
+}: PhaseChipProps) {
+  const className = cn(
+    'px-1 py-0.5 rounded transition-colors',
+    isActive ? activeClassName : 'opacity-60',
+    !disabled && !isActive && 'hover:opacity-100 hover:bg-muted cursor-pointer'
+  );
+  if (disabled) {
+    return (
+      <span className={className} title={isActive ? name : disabledTitle}>
+        {label}
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      className={className}
+      title={isActive ? name : goToPhaseTitle}
+      aria-label={isActive ? name : goToPhaseTitle}
+      aria-current={isActive ? 'true' : undefined}
+      onClick={() => onSelect?.(phase)}
+    >
+      {label}
+    </button>
+  );
+}
 
 const MODE_COLORS: Record<string, string> = {
   WORK: '#f43f5e',
@@ -77,6 +134,8 @@ const DEFAULT_LABELS = {
   selectTaskPlaceholder: 'Seleccionar tarea para trabajar...',
   pomodoroCount: (count: number) => `Pomodoro #${count}`,
   pauseCount: (count: number) => `${count} pausa${count !== 1 ? 's' : ''}`,
+  goToPhase: (phase: string) => `Ir a ${phase}`,
+  stopToSwitchPhase: 'Detén el temporizador para cambiar de fase',
 };
 
 export function DashboardTimerWidget({
@@ -91,6 +150,7 @@ export function DashboardTimerWidget({
   onToggle,
   onReset,
   onSkip,
+  onPhaseSelect,
   onClick,
   onFocusModeClick,
   TaskSelectorComponent,
@@ -203,41 +263,41 @@ export function DashboardTimerWidget({
             </div>
           ) : (
             <div className="flex items-center bg-muted/40 px-1.5 py-0.5 rounded-lg border border-border/40 text-[10px] font-semibold text-muted-foreground gap-1 select-none">
-              <span
-                className={cn(
-                  'px-1 py-0.5 rounded transition-colors',
-                  mode === 'WORK' || mode === 'POMODORO'
-                    ? 'text-rose-500 font-bold bg-rose-500/10'
-                    : 'opacity-60'
-                )}
-                title={t.work}
-              >
-                {config?.workDuration || 25}m
-              </span>
+              <PhaseChip
+                phase="WORK"
+                label={`${config?.workDuration || 25}m`}
+                name={t.work}
+                isActive={mode === 'WORK' || mode === 'POMODORO'}
+                activeClassName="text-rose-500 font-bold bg-rose-500/10"
+                disabled={isRunning || isPaused || !onPhaseSelect}
+                disabledTitle={t.stopToSwitchPhase}
+                goToPhaseTitle={t.goToPhase(t.work)}
+                onSelect={onPhaseSelect}
+              />
               <span className="opacity-30">•</span>
-              <span
-                className={cn(
-                  'px-1 py-0.5 rounded transition-colors',
-                  mode === 'SHORT_BREAK'
-                    ? 'text-emerald-500 font-bold bg-emerald-500/10'
-                    : 'opacity-60'
-                )}
-                title={t.shortBreak}
-              >
-                {config?.shortBreakDuration || 5}m
-              </span>
+              <PhaseChip
+                phase="SHORT_BREAK"
+                label={`${config?.shortBreakDuration || 5}m`}
+                name={t.shortBreak}
+                isActive={mode === 'SHORT_BREAK'}
+                activeClassName="text-emerald-500 font-bold bg-emerald-500/10"
+                disabled={isRunning || isPaused || !onPhaseSelect}
+                disabledTitle={t.stopToSwitchPhase}
+                goToPhaseTitle={t.goToPhase(t.shortBreak)}
+                onSelect={onPhaseSelect}
+              />
               <span className="opacity-30">•</span>
-              <span
-                className={cn(
-                  'px-1 py-0.5 rounded transition-colors',
-                  mode === 'LONG_BREAK'
-                    ? 'text-teal-500 font-bold bg-teal-500/10'
-                    : 'opacity-60'
-                )}
-                title={t.longBreak}
-              >
-                {config?.longBreakDuration || 15}m
-              </span>
+              <PhaseChip
+                phase="LONG_BREAK"
+                label={`${config?.longBreakDuration || 15}m`}
+                name={t.longBreak}
+                isActive={mode === 'LONG_BREAK'}
+                activeClassName="text-teal-500 font-bold bg-teal-500/10"
+                disabled={isRunning || isPaused || !onPhaseSelect}
+                disabledTitle={t.stopToSwitchPhase}
+                goToPhaseTitle={t.goToPhase(t.longBreak)}
+                onSelect={onPhaseSelect}
+              />
             </div>
           )}
 

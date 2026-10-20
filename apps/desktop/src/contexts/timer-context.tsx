@@ -66,6 +66,7 @@ interface TimerContextType {
     resume: () => Promise<void>;
     stop: (wasCompleted?: boolean) => Promise<void>;
     skipToNext: () => Promise<void>;
+    goToPhase: (target: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => Promise<void>;
     formatTime: (seconds: number) => string;
     getProgress: () => number;
     activeSession: unknown;

@@ -37,6 +37,7 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
     resume,
     stop,
     skipToNext,
+    goToPhase,
     completedPomodoros,
     pauseCount,
     config,
@@ -62,6 +63,10 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
     skipToNext();
   };
 
+  const handlePhaseSelect = (phase: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK') => {
+    goToPhase(phase);
+  };
+
   return (
     <SharedTimerWidget
       className={className}
@@ -77,6 +82,7 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
       onToggle={handleToggle}
       onReset={handleReset}
       onSkip={handleSkip}
+      onPhaseSelect={handlePhaseSelect}
       onClick={onExpand || (() => navigate("/timer"))}
       onFocusModeClick={() => navigate("/focus")}
       formatTime={formatTime}
@@ -103,6 +109,8 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
         assignedTask: t("Timer.currentTask", "TAREA ASIGNADA"),
         pomodoroCount: (count: number) => `Pomodoro #${count}`,
         pauseCount: (count: number) => t("Timer.pauses", `${count} pausa${count !== 1 ? "s" : ""}`, { count }),
+        goToPhase: (phase: string) => t("Timer.goToPhase", `Ir a ${phase}`, { phase }),
+        stopToSwitchPhase: t("Timer.stopToSwitchPhase", "Detén el temporizador para cambiar de fase"),
       }}
     />
   );

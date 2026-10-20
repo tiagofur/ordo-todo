@@ -18,7 +18,7 @@
  */
 
 import React, { type ReactNode } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Play, Pause, Square, SkipForward, RefreshCw } from 'lucide-react-native';
 
@@ -67,6 +67,13 @@ interface PomodoroTimerProps {
     longBreak?: string;
     paused?: string;
     pauseCount?: (count: number) => string;
+    /** 'Skip to {phase}?' dialog title. {phase} = skipTargetLabel. */
+    skipConfirmTitle?: (phase: string) => string;
+    skipConfirmDescription?: string;
+    skipConfirmOk?: string;
+    cancel?: string;
+    /** Pre-computed next-phase label, e.g. 'Short break (5:00)'. */
+    skipTargetLabel?: string;
   };
 }
 
@@ -121,6 +128,11 @@ export function PomodoroTimer({
     longBreak = 'Long Break',
     paused = 'Paused',
     pauseCount: pauseCountLabel = (count: number) => `${count} pause${count !== 1 ? 's' : ''}`,
+    skipConfirmTitle = (phase: string) => `Skip to ${phase}?`,
+    skipConfirmDescription = 'The current phase will close as completed.',
+    skipConfirmOk = 'Skip',
+    cancel = 'Cancel',
+    skipTargetLabel,
   } = labels;
 
   const accentColor = MODE_COLORS[mode] || MODE_COLORS.WORK;
@@ -140,6 +152,24 @@ export function PomodoroTimer({
       resume();
     } else {
       start();
+    }
+  };
+
+  // Confirm only when there is focus time at stake: an early WORK skip.
+  // Breaks and nearly-finished WORK skip straight through.
+  const SKIP_CONFIRM_PROGRESS = 80;
+  const handleSkip = () => {
+    if (mode === 'WORK' && progress < SKIP_CONFIRM_PROGRESS) {
+      Alert.alert(
+        skipConfirmTitle(skipTargetLabel ?? shortBreak),
+        skipConfirmDescription,
+        [
+          { text: cancel, style: 'cancel' },
+          { text: skipConfirmOk, style: 'default', onPress: skipToNext },
+        ],
+      );
+    } else {
+      skipToNext();
     }
   };
 
@@ -241,9 +271,11 @@ export function PomodoroTimer({
 
             {defaultMode === 'POMODORO' && (
               <TouchableOpacity
-                onPress={skipToNext}
+                onPress={handleSkip}
                 style={styles.secondaryButton}
                 activeOpacity={0.7}
+                accessibilityLabel="Skip to next phase"
+                accessibilityRole="button"
               >
                 <SkipForward size={24} color={colors.mutedForeground} strokeWidth={2.5} />
               </TouchableOpacity>

@@ -1346,7 +1346,14 @@
       "buttonTitle": "Trocar tarefa",
       "title": "Trocar Tarefa",
       "description": "O tempo trabalhado na tarefa atual será salvo. Selecione uma nova tarefa para continuar."
-    }
+    },
+    "skipConfirm": {
+      "title": "Pular para {phase}?",
+      "description": "A fase atual será encerrada como concluída.",
+      "ok": "Pular"
+    },
+    "cancel": "Cancelar",
+    "skipButton": "Pular para o próximo bloco"
   },
   "SessionHistory": {
     "error": "Erro ao carregar histórico de sessões",
@@ -2153,7 +2160,16 @@
     "reset": "Reiniciar",
     "start": "Iniciar",
     "pause": "Pausar",
-    "skip": "Pular"
+    "skip": "Pular",
+    "skipConfirm": {
+      "title": "Pular para {phase}?",
+      "description": "A fase atual será encerrada como concluída.",
+      "ok": "Pular"
+    },
+    "cancel": "Cancelar",
+    "skipButton": "Pular para o próximo bloco",
+    "goToPhase": "Ir para {phase}",
+    "stopToSwitchPhase": "Pare o temporizador para trocar de fase"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Relatório Semanal",

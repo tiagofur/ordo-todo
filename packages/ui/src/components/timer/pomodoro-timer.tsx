@@ -4,9 +4,11 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog.js';
+import { Button } from '../ui/button.js';
 import type { TimerMode } from './timer-widget.js';
 import { cn } from '../../utils/index.js';
 
@@ -58,6 +60,14 @@ export interface PomodoroTimerProps {
     completed?: string;
     horizontalView?: string;
     circularView?: string;
+    /** 'Skip to {phase}?' dialog title. {phase} = skipTargetLabel. */
+    skipConfirmTitle?: (phase: string) => string;
+    skipConfirmDescription?: string;
+    skipConfirmOk?: string;
+    cancel?: string;
+    /** Pre-computed next-phase label, e.g. 'Descanso corto (5:00)'. */
+    skipTargetLabel?: string;
+    skipButtonTitle?: string;
   };
   /** Dialog state controlled by parent */
   showSwitchDialog?: boolean;
@@ -139,7 +149,34 @@ export function PomodoroTimer({
     currentTask = 'Tarea Asignada',
     horizontalView = 'Vista Horizontal',
     circularView = 'Vista Circular',
+    skipConfirmTitle = (phase: string) => `¿Saltar a ${phase}?`,
+    skipConfirmDescription = 'La fase actual se cerrará como completada.',
+    skipConfirmOk = 'Saltar',
+    cancel = 'Cancelar',
+    skipTargetLabel,
+    skipButtonTitle = 'Saltar al siguiente bloque',
   } = labels;
+
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
+
+  // Confirm only when there is focus time at stake: an early WORK skip.
+  // Breaks and nearly-finished WORK skip straight through.
+  const SKIP_CONFIRM_PROGRESS = 80;
+  const needsSkipConfirm =
+    mode === 'WORK' && progress < SKIP_CONFIRM_PROGRESS;
+
+  const handleSkip = () => {
+    if (needsSkipConfirm) {
+      setShowSkipDialog(true);
+    } else {
+      skipToNext();
+    }
+  };
+
+  const confirmSkip = () => {
+    setShowSkipDialog(false);
+    skipToNext();
+  };
 
   const accentColor = MODE_COLORS[mode] || '#f43f5e';
 
@@ -264,9 +301,10 @@ export function PomodoroTimer({
 
                 {defaultMode === 'POMODORO' && (
                   <button
-                    onClick={skipToNext}
+                    onClick={handleSkip}
                     className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-xs"
-                    title="Saltar al siguiente bloque"
+                    title={skipButtonTitle}
+                    aria-label={skipButtonTitle}
                   >
                     <SkipForward className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                   </button>
@@ -328,6 +366,24 @@ export function PomodoroTimer({
               <DialogDescription>{switchTaskDescription}</DialogDescription>
             </DialogHeader>
             <div className="py-4">{TaskSelectorComponent}</div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Skip Confirmation Dialog */}
+        <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{skipConfirmTitle(skipTargetLabel ?? shortBreak)}</DialogTitle>
+              <DialogDescription>{skipConfirmDescription}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSkipDialog(false)}>
+                {cancel}
+              </Button>
+              <Button onClick={confirmSkip} autoFocus>
+                {skipConfirmOk}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -443,8 +499,10 @@ export function PomodoroTimer({
 
             {defaultMode === 'POMODORO' && (
               <button
-                onClick={skipToNext}
+                onClick={handleSkip}
                 className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background cursor-pointer"
+                title={skipButtonTitle}
+                aria-label={skipButtonTitle}
               >
                 <SkipForward className="h-6 w-6" />
               </button>
@@ -469,6 +527,24 @@ export function PomodoroTimer({
             <DialogDescription>{switchTaskDescription}</DialogDescription>
           </DialogHeader>
           <div className="py-4">{TaskSelectorComponent}</div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Skip Confirmation Dialog */}
+      <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{skipConfirmTitle(skipTargetLabel ?? shortBreak)}</DialogTitle>
+            <DialogDescription>{skipConfirmDescription}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSkipDialog(false)}>
+              {cancel}
+            </Button>
+            <Button onClick={confirmSkip} autoFocus>
+              {skipConfirmOk}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

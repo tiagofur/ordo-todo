@@ -1425,7 +1425,14 @@
       "buttonTitle": "Cambiar de tarea",
       "title": "Cambiar de Tarea",
       "description": "El tiempo trabajado en la tarea actual se guardará como completado. Selecciona la nueva tarea para continuar."
-    }
+    },
+    "skipConfirm": {
+      "title": "¿Saltar a {phase}?",
+      "description": "La fase actual se cerrará como completada.",
+      "ok": "Saltar"
+    },
+    "cancel": "Cancelar",
+    "skipButton": "Saltar al siguiente bloque"
   },
   "SessionHistory": {
     "error": "Error al cargar el historial de sesiones",
@@ -2145,7 +2152,16 @@
     "reset": "Reiniciar",
     "start": "Iniciar",
     "pause": "Pausar",
-    "skip": "Saltar"
+    "skip": "Saltar",
+    "skipConfirm": {
+      "title": "¿Saltar a {phase}?",
+      "description": "La fase actual se cerrará como completada.",
+      "ok": "Saltar"
+    },
+    "cancel": "Cancelar",
+    "skipButton": "Saltar al siguiente bloque",
+    "goToPhase": "Ir a {phase}",
+    "stopToSwitchPhase": "Detén el temporizador para cambiar de fase"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Reporte Semanal",
