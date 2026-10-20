@@ -8,7 +8,8 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTimerStore } from "@ordo-todo/stores";
+import { useTimerBackend } from "../../hooks/use-timer-backend";
+import { useTimerConfig } from "../../hooks/use-timer-config";
 import { useTask, useCompleteTask } from "../../lib/shared-hooks";
 import { useDesignTokens } from "../../lib/use-design-tokens";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,10 @@ export default function FocusModeScreen() {
   const [showAudioPanel, setShowAudioPanel] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Unified backend timer (ODD 014 T6): replaces the zustand store whose
+  // interval never ran on mobile (frozen screen).
+  const { config: timerConfig, type: timerType } = useTimerConfig();
+
   const {
     timeLeft,
     isRunning,
@@ -30,14 +35,19 @@ export default function FocusModeScreen() {
     mode,
     start,
     pause,
+    resume,
     stop,
-    skip,
-    selectedTaskId,
-    selectedTaskTitle,
-    getTimeFormatted,
+    skipToNext,
+    formatTime,
     getProgress,
-  } = useTimerStore();
+    activeSession,
+  } = useTimerBackend({
+    type: timerType,
+    config: timerConfig,
+    taskId: null,
+  });
 
+  const selectedTaskId = activeSession?.taskId ?? null;
   const { data: task } = useTask(selectedTaskId || "");
   const completeTask = useCompleteTask();
 
@@ -48,7 +58,7 @@ export default function FocusModeScreen() {
 
     try {
       await completeTask.mutateAsync(selectedTaskId);
-      stop();
+      await stop(true);
     } catch (error) {
       console.error("Error completing task:", error);
     }
@@ -190,7 +200,7 @@ export default function FocusModeScreen() {
               style={[styles.taskTitle, { color: "#FFFFFF" }]}
               numberOfLines={2}
             >
-              {task?.title || selectedTaskTitle}
+              {task?.title}
             </Text>
           ) : (
             <Text
@@ -211,7 +221,7 @@ export default function FocusModeScreen() {
               },
             ]}
           >
-            {getTimeFormatted()}
+            {formatTime(timeLeft)}
           </Text>
 
           {/* Progress Bar */}
@@ -237,7 +247,7 @@ export default function FocusModeScreen() {
         <View style={styles.controls}>
           {!isRunning && !isPaused ? (
             <TouchableOpacity
-              onPress={start}
+              onPress={() => void start()}
               style={[
                 styles.playButton,
                 { backgroundColor: "#FFFFFF", shadowColor: "#FFFFFF" },
@@ -248,7 +258,7 @@ export default function FocusModeScreen() {
           ) : (
             <>
               <TouchableOpacity
-                onPress={pause}
+                onPress={() => void (isPaused ? resume() : pause())}
                 style={[
                   styles.controlIconButton,
                   {
@@ -257,11 +267,15 @@ export default function FocusModeScreen() {
                   },
                 ]}
               >
-                <Ionicons name="pause" size={40} color="#FFFFFF" />
+                <Ionicons
+                  name={isPaused ? "play" : "pause"}
+                  size={40}
+                  color="#FFFFFF"
+                />
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => stop()}
+                onPress={() => void stop(false)}
                 style={[
                   styles.controlIconButton,
                   {
@@ -275,7 +289,7 @@ export default function FocusModeScreen() {
 
               {mode === "WORK" && (
                 <TouchableOpacity
-                  onPress={skip}
+                  onPress={() => void skipToNext()}
                   style={[
                     styles.controlIconButton,
                     {
