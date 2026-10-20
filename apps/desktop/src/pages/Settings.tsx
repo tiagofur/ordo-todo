@@ -10,7 +10,7 @@ import { Label, Separator, Switch, Slider, Button, cn } from "@ordo-todo/ui";
 import { changeLanguage, getCurrentLanguage, SupportedLanguage } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { desktopBridge } from "@/lib/desktop-bridge";
-import { useTimerStore } from "@/stores/timer-store";
+import { useTimer } from "@/contexts/timer-context";
 import { useUserPreferences, useUpdatePreferences } from "@/lib/shared-hooks";
 import { SessionsManager } from "@/components/settings/SessionsManager";
 import { toast } from "sonner";
@@ -29,8 +29,11 @@ export function Settings() {
   const { data: userPreferences } = useUserPreferences();
   const updatePreferences = useUpdatePreferences();
 
-  // Timer Store
-  const { config, updateConfig, mode, setMode } = useTimerStore();
+  // Unified timer config (ODD 014 T3): the timer context owns the config,
+  // initialized from backend preferences. Backend-backed fields dual-write
+  // (instant local update + persisted mutation); autoStart flags persist in
+  // localStorage via the context (no backend counterpart).
+  const { config, updateConfig } = useTimer();
 
   // Desktop-specific native state
   const isNative = desktopBridge.isNative();
@@ -67,6 +70,10 @@ export function Settings() {
       if (userPreferences.focusAudio.volume !== undefined) {
         setAmbientVolume(Number(userPreferences.focusAudio.volume));
       }
+    }
+
+    if (userPreferences?.timerMode) {
+      setTimerMode(userPreferences.timerMode === "CONTINUOUS" ? "CONTINUOUS" : "POMODORO");
     }
   }, [isNative, userPreferences]);
 

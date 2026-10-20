@@ -1,20 +1,29 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { formatTimerDisplay } from "@ordo-todo/hooks";
-import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
+"use client";
+
+/**
+ * Web timer hook (ODD 014, T2b/S2).
+ *
+ * Thin adapter over the shared `useTimerBackend` from `@ordo-todo/hooks`:
+ * it wires React Query mutations, web toasts + sounds/OS notifications and
+ * localStorage. All cycle logic lives in the shared hook + pure engine.
+ */
+import { useMemo } from "react";
+import {
+    useTimerBackend as useSharedTimerBackend,
+    type TimerBackendMode,
+    type TimerBackendSession,
+    type TimerBackendType,
+    type UseTimerBackendReturn,
+} from "@ordo-todo/hooks";
+import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask, useTimerStats } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";
 
-export type TimerMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "CONTINUOUS";
-export type TimerType = "POMODORO" | "CONTINUOUS";
-type SessionTypeValue = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "CONTINUOUS";
-
-// Session type map for backend API - returns typed values
-const SESSION_TYPE_MAP: Record<TimerMode, SessionTypeValue> = {
-    WORK: "WORK",
-    SHORT_BREAK: "SHORT_BREAK",
-    LONG_BREAK: "LONG_BREAK",
-    CONTINUOUS: "CONTINUOUS",
-};
+// Re-export shared types under the historical web names so existing
+// consumers (timer-provider) keep working untouched.
+export type TimerMode = TimerBackendMode;
+export type TimerType = TimerBackendType;
+export type { UseTimerBackendReturn };
 
 interface TimerConfig {
     workDuration: number; // minutes
@@ -34,444 +43,123 @@ interface UseTimerBackendProps {
     onSessionComplete?: () => void;
 }
 
-export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps) {
-    const [isRunning, setIsRunning] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(type === "CONTINUOUS" ? 0 : config.workDuration * 60);
-    const [mode, setMode] = useState<TimerMode>(type === "CONTINUOUS" ? "CONTINUOUS" : "WORK");
-    const [completedPomodoros, setCompletedPomodoros] = useState(() => {
-        if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("ordo-completed-pomodoros");
-            const savedDate = localStorage.getItem("ordo-pomodoros-date");
-            const today = new Date().toDateString();
+/**
+ * Start of the current local day as an ISO string (for the day-scoped stats
+ * query that feeds the backend-owned pomodoro counter, ODD 014 T4).
+ */
+function startOfTodayISO(): string {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now.toISOString();
+}
 
-            if (savedDate !== today) {
-                return 0;
-            }
-
-            return saved ? parseInt(saved, 10) : 0;
-        }
-        return 0;
-    });
-    // Use a ref to track current completed pomodoros to avoid stale closure issues
-    const completedPomodorosRef = useRef(completedPomodoros);
-
-    // Sync day reset to localStorage (side effect belongs in useEffect, not useState)
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const savedDate = localStorage.getItem("ordo-pomodoros-date");
-        const today = new Date().toDateString();
-        if (savedDate !== today) {
-            localStorage.setItem("ordo-pomodoros-date", today);
-            localStorage.setItem("ordo-completed-pomodoros", "0");
-        }
-    }, []);
-    // Flag to prevent multiple transitions
-    const isTransitioningRef = useRef(false);
-
-    useEffect(() => {
-        completedPomodorosRef.current = completedPomodoros;
-        if (typeof window !== "undefined") {
-            const today = new Date().toDateString();
-            localStorage.setItem("ordo-completed-pomodoros", completedPomodoros.toString());
-            localStorage.setItem("ordo-pomodoros-date", today);
-        }
-    }, [completedPomodoros]);
-    const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(null);
-
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Refs to hold latest function references to avoid stale closures in setInterval
-    const skipToNextRef = useRef<(() => Promise<void>) | undefined>(undefined);
-    const stopRef = useRef<((wasCompleted?: boolean) => Promise<void>) | undefined>(undefined);
-
-    // Backend hooks
+export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps): UseTimerBackendReturn {
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
+    const { data: todayStats } = useTimerStats({ startDate: startOfTodayISO() });
     const startTimerMutation = useStartTimer();
     const stopTimerMutation = useStopTimer();
     const pauseTimerMutation = usePauseTimer();
     const resumeTimerMutation = useResumeTimer();
     const switchTaskMutation = useSwitchTask();
 
-    // Notifications hook
     const { notifySessionComplete, notifyAutoStart } = useTimerNotifications({
         soundEnabled: config.soundEnabled,
         notificationsEnabled: config.notificationsEnabled,
     });
 
-    const getDuration = useCallback((mode: TimerMode): number => {
-        switch (mode) {
-            case "WORK":
-                return config.workDuration * 60;
-            case "SHORT_BREAK":
-                return config.shortBreakDuration * 60;
-            case "LONG_BREAK":
-                return config.longBreakDuration * 60;
-            case "CONTINUOUS":
-                return 0; // Continuous mode has no fixed duration
-        }
-    }, [config]);
-
-    // Sync with backend active session
-    useEffect(() => {
-        if (activeSession) {
-            setIsRunning(true);
-            setIsPaused(activeSession.isPaused);
-
-            // Use backend calculated elapsed time
-            const elapsed = activeSession.elapsedSeconds;
-
-            if (activeSession.type === "CONTINUOUS") {
-                setTimeLeft(elapsed);
-                setMode("CONTINUOUS");
-            } else {
-                const sessionDuration = getDuration(activeSession.type as TimerMode);
-                const remaining = Math.max(0, sessionDuration - elapsed);
-                setTimeLeft(remaining);
-                setMode(activeSession.type as TimerMode);
-            }
-
-            // Sync local pause start time if paused
-            if (activeSession.isPaused && activeSession.currentPauseStart) {
-                setLocalPauseStartTime(new Date(activeSession.currentPauseStart));
-            } else {
-                setLocalPauseStartTime(null);
-            }
-        } else {
-            setIsRunning(false);
-            setIsPaused(false);
-            setLocalPauseStartTime(null);
-            // Reset to default if no active session
-            if (!isRunning) {
-                if (type === "CONTINUOUS") {
-                    setTimeLeft(0);
-                    setMode("CONTINUOUS");
-                } else {
-                    setTimeLeft(getDuration("WORK"));
-                    setMode("WORK");
-                }
-            }
-        }
-    }, [activeSession, getDuration, type]);
-
-    // Reset when config changes (e.g. duration updated in settings)
-    useEffect(() => {
-        if (!activeSession && !isRunning && !isPaused) {
-            if (type === "CONTINUOUS") {
-                setTimeLeft(0);
-                setMode("CONTINUOUS");
-            } else {
-                // If we are switching from CONTINUOUS to POMODORO, or if we are currently in CONTINUOUS mode
-                // reset to WORK. Otherwise, keep current mode (WORK, SHORT_BREAK, LONG_BREAK) and update duration.
-                if (mode === "CONTINUOUS") {
-                    setTimeLeft(getDuration("WORK"));
-                    setMode("WORK");
-                } else {
-                    setTimeLeft(getDuration(mode));
-                }
-            }
-        }
-    }, [config, getDuration, activeSession, isRunning, isPaused, type, mode]);
-
-    const start = useCallback(async () => {
-        try {
-            await startTimerMutation.mutateAsync({
-                taskId: (taskId || undefined) as any,
-                type: type === "CONTINUOUS" ? "CONTINUOUS" : mode,
-            });
-            setIsRunning(true);
-            setIsPaused(false);
-            await refetchActiveSession();
-            notify.success("Timer iniciado");
-        } catch (error: unknown) {
-            notify.error(error instanceof Error ? error.message : "Error al iniciar timer");
-        }
-    }, [taskId, mode, type, startTimerMutation, refetchActiveSession]);
-
-    const pause = useCallback(async () => {
-        const pauseStart = new Date();
-        setLocalPauseStartTime(pauseStart);
-
-        try {
-            await pauseTimerMutation.mutateAsync({ pauseStartedAt: pauseStart });
-            setIsPaused(true);
-            setIsRunning(false);
-            await refetchActiveSession();
-        } catch (error: unknown) {
-            notify.error(error instanceof Error ? error.message : "Error al pausar timer");
-        }
-    }, [pauseTimerMutation, refetchActiveSession]);
-
-    const resume = useCallback(async () => {
-        if (!localPauseStartTime) return;
-
-        try {
-            await resumeTimerMutation.mutateAsync({ pauseStartedAt: localPauseStartTime });
-            setIsPaused(false);
-            setIsRunning(true);
-            setLocalPauseStartTime(null);
-            await refetchActiveSession();
-        } catch (error: unknown) {
-            notify.error(error instanceof Error ? error.message : "Error al reanudar timer");
-        }
-    }, [localPauseStartTime, resumeTimerMutation, refetchActiveSession]);
-
-    const stop = useCallback(async (wasCompleted: boolean = false) => {
-        try {
-            await stopTimerMutation.mutateAsync({ wasCompleted });
-            setIsRunning(false);
-            setIsPaused(false);
-            setLocalPauseStartTime(null);
-
-            if (type === "CONTINUOUS") {
-                setTimeLeft(0);
-            } else {
-                setTimeLeft(getDuration(mode));
-            }
-
-            await refetchActiveSession();
-
-            if (onSessionComplete) {
-                onSessionComplete();
-            }
-        } catch (error: unknown) {
-            notify.error(error instanceof Error ? error.message : "Error al detener timer");
-        }
-    }, [stopTimerMutation, mode, type, getDuration, refetchActiveSession, onSessionComplete]);
-
-    const skipToNext = useCallback(async () => {
-        // Prevent multiple simultaneous transitions
-        if (isTransitioningRef.current) {
-            return;
-        }
-        isTransitioningRef.current = true;
-
-        // Clear the interval immediately to prevent further countdown
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-
-        try {
-            if (type === "POMODORO") {
-                const currentMode = mode;
-                let nextMode: TimerMode;
-
-                if (currentMode === "WORK") {
-                    // Use ref to get current value (avoid stale closure)
-                    const newCompletedCount = completedPomodorosRef.current + 1;
-                    setCompletedPomodoros(newCompletedCount);
-                    completedPomodorosRef.current = newCompletedCount;
-
-                    // Determine next mode based on updated count
-                    nextMode = newCompletedCount % config.pomodorosUntilLongBreak === 0
-                        ? "LONG_BREAK"
-                        : "SHORT_BREAK";
-
-                    // Stop current work session (mark as completed)
-                    await stopTimerMutation.mutateAsync({ wasCompleted: true });
-
-                    // Notify session complete
-                    notifySessionComplete(currentMode);
-
-                    // Only show completion toast if NOT auto-starting break
-                    if (!config.autoStartBreaks) {
-                        notify.pomodoro("¡Pomodoro completado!", "Has terminado un pomodoro. ¡Bien hecho!");
-                    }
-
-                    // Update UI state for next mode
-                    setMode(nextMode);
-                    setTimeLeft(getDuration(nextMode));
-                    setIsRunning(false);
-                    setIsPaused(false);
-
-                    // Auto-start break if enabled
-                    if (config.autoStartBreaks) {
-                        try {
-                            await startTimerMutation.mutateAsync({
-                                taskId: taskId || undefined,
-                                type: SESSION_TYPE_MAP[nextMode],
-                            });
-                            setIsRunning(true);
-                            await refetchActiveSession();
-                            notifyAutoStart(nextMode);
-                            // Combined notification
-                            if (nextMode === "LONG_BREAK") {
-                                notify.longBreak(
-                                    `¡Pomodoro completado!`,
-                                    `Iniciando descanso largo. Relájate un poco.`
-                                );
-                            } else {
-                                notify.shortBreak(
-                                    `¡Pomodoro completado!`,
-                                    `Iniciando descanso corto. Relájate un poco.`
-                                );
-                            }
-                        } catch (error: unknown) {
-                            console.error("Error auto-starting break:", error);
-                            notify.error("Error al auto-iniciar descanso");
-                        }
-                    } else {
-                        await refetchActiveSession();
-                    }
-                } else {
-                    // Completed a break session (SHORT_BREAK or LONG_BREAK)
-                    nextMode = "WORK";
-
-                    // Stop current break session (mark as completed)
-                    await stopTimerMutation.mutateAsync({ wasCompleted: true });
-
-                    // Notify session complete
-                    notifySessionComplete(currentMode);
-
-                    // Only show completion toast if NOT auto-starting pomodoro
-                    if (!config.autoStartPomodoros) {
-                        if (currentMode === "LONG_BREAK") {
-                            notify.longBreak("¡Descanso largo completado!", "Hora de volver al trabajo.");
-                        } else {
-                            notify.shortBreak("¡Descanso corto completado!", "Hora de volver al trabajo.");
-                        }
-                    }
-
-                    // Update UI state for next mode
-                    setMode(nextMode);
-                    setTimeLeft(getDuration(nextMode));
-                    setIsRunning(false);
-                    setIsPaused(false);
-
-                    // Auto-start next pomodoro if enabled
-                    if (config.autoStartPomodoros) {
-                        try {
-                            await startTimerMutation.mutateAsync({
-                                taskId: taskId || undefined,
-                                type: SESSION_TYPE_MAP[nextMode],
-                            });
-                            setIsRunning(true);
-                            await refetchActiveSession();
-                            notifyAutoStart(nextMode);
-                            // Combined notification
-                            notify.pomodoro(
-                                "¡Descanso completado!",
-                                "Iniciando siguiente Pomodoro. ¡A trabajar!"
-                            );
-                        } catch (error: unknown) {
-                            console.error("Error auto-starting pomodoro:", error);
-                            notify.error("Error al auto-iniciar Pomodoro");
-                        }
-                    } else {
-                        await refetchActiveSession();
-                    }
-                }
-            } else {
-                // CONTINUOUS mode - just stop
-                await stopTimerMutation.mutateAsync({ wasCompleted: true });
-                notifySessionComplete("WORK");
-                setIsRunning(false);
-                setIsPaused(false);
-                await refetchActiveSession();
-            }
-        } catch (error: unknown) {
-            console.error("Error in skipToNext:", error);
-            notify.error("Error al cambiar de modo");
-        } finally {
-            isTransitioningRef.current = false;
-        }
-    }, [type, mode, config, getDuration, taskId, startTimerMutation, stopTimerMutation, refetchActiveSession, notifySessionComplete, notifyAutoStart]);
-
-    const switchTask = useCallback(async (newTaskId: string) => {
-        try {
-            await switchTaskMutation.mutateAsync({
-                newTaskId,
-                type: type === "CONTINUOUS" ? "CONTINUOUS" : mode,
-                splitReason: "TASK_SWITCH",
-            });
-            await refetchActiveSession();
-            notify.success("Tarea cambiada");
-        } catch (error: unknown) {
-            notify.error(error instanceof Error ? error.message : "Error al cambiar de tarea");
-        }
-    }, [mode, type, switchTaskMutation, refetchActiveSession]);
-
-    // Keep refs updated with latest function references
-    useEffect(() => {
-        skipToNextRef.current = skipToNext;
-    }, [skipToNext]);
-
-    useEffect(() => {
-        stopRef.current = stop;
-    }, [stop]);
-
-    // Timer countdown/countup effect
-    useEffect(() => {
-        if (isRunning && !isPaused && !isTransitioningRef.current) {
-            intervalRef.current = setInterval(() => {
-                setTimeLeft(prev => {
-                    if (mode === "CONTINUOUS") {
-                        return prev + 1;
-                    }
-
-                    if (prev <= 1) {
-                        // Clear interval immediately to prevent subsequent ticks
-                        if (intervalRef.current) {
-                            clearInterval(intervalRef.current);
-                            intervalRef.current = null;
-                        }
-                        // Timer completed - trigger transition
-                        // Use refs to get latest function references and avoid stale closures
-                        setTimeout(() => {
-                            if (!isTransitioningRef.current) {
-                                if (type === "POMODORO") {
-                                    skipToNextRef.current?.();
-                                } else {
-                                    stopRef.current?.(true);
-                                }
-                            }
-                        }, 0);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-        } else {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        }
-
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
+    const adaptedSession: TimerBackendSession | null = useMemo(() => {
+        if (!activeSession) return null;
+        return {
+            type: activeSession.type as TimerBackendMode,
+            elapsedSeconds: activeSession.elapsedSeconds,
+            isPaused: activeSession.isPaused,
+            taskId: activeSession.taskId ?? null,
+            pauseCount: activeSession.pauseCount ?? 0,
+            totalPauseTime: activeSession.totalPauseTime ?? 0,
+            currentPauseStart: activeSession.currentPauseStart ?? null,
         };
-    }, [isRunning, isPaused, type, mode]); // Removed skipToNext and stop - using refs instead
+    }, [activeSession]);
 
-    const formatTime = (seconds: number): string => {
-        return formatTimerDisplay(seconds);
-    };
+    const api = useMemo(() => ({
+        activeSession: adaptedSession,
+        start: async (input: { taskId?: string; type: TimerBackendMode }) => {
+            await startTimerMutation.mutateAsync({
+                taskId: input.taskId,
+                type: input.type,
+            });
+        },
+        stop: async (input: { wasCompleted: boolean }) => {
+            await stopTimerMutation.mutateAsync({ wasCompleted: input.wasCompleted });
+        },
+        pause: async (input: { pauseStartedAt: Date }) => {
+            await pauseTimerMutation.mutateAsync({ pauseStartedAt: input.pauseStartedAt });
+        },
+        resume: async (input: { pauseStartedAt: Date }) => {
+            await resumeTimerMutation.mutateAsync({ pauseStartedAt: input.pauseStartedAt });
+        },
+        switchTask: async (input: { newTaskId: string; type: TimerBackendMode; splitReason: string }) => {
+            await switchTaskMutation.mutateAsync({
+                newTaskId: input.newTaskId,
+                type: input.type,
+                splitReason: input.splitReason,
+            });
+        },
+        refetch: async () => {
+            await refetchActiveSession();
+        },
+    }), [
+        adaptedSession,
+        startTimerMutation,
+        stopTimerMutation,
+        pauseTimerMutation,
+        resumeTimerMutation,
+        switchTaskMutation,
+        refetchActiveSession,
+    ]);
 
-    const getProgress = (): number => {
-        if (mode === "CONTINUOUS") return 100; // Full circle for continuous
-        const total = getDuration(mode);
-        return ((total - timeLeft) / total) * 100;
-    };
+    const notifyAdapter = useMemo(() => ({
+        sessionComplete: (mode: TimerBackendMode) => {
+            notifySessionComplete(mode);
+            // Phase toasts preserved from the pre-unification web hook.
+            if (mode === "WORK") {
+                if (!config.autoStartBreaks) {
+                    notify.pomodoro("¡Pomodoro completado!", "Has terminado un pomodoro. ¡Bien hecho!");
+                }
+            } else if (mode === "SHORT_BREAK") {
+                if (!config.autoStartPomodoros) {
+                    notify.shortBreak("¡Descanso corto completado!", "Hora de volver al trabajo.");
+                }
+            } else if (mode === "LONG_BREAK") {
+                if (!config.autoStartPomodoros) {
+                    notify.longBreak("¡Descanso largo completado!", "Hora de volver al trabajo.");
+                }
+            }
+        },
+        autoStart: (mode: TimerBackendMode) => {
+            notifyAutoStart(mode);
+            if (mode === "LONG_BREAK") {
+                notify.longBreak("¡Pomodoro completado!", "Iniciando descanso largo. Relájate un poco.");
+            } else if (mode === "SHORT_BREAK") {
+                notify.shortBreak("¡Pomodoro completado!", "Iniciando descanso corto. Relájate un poco.");
+            } else if (mode === "WORK") {
+                notify.pomodoro("¡Descanso completado!", "Iniciando siguiente Pomodoro. ¡A trabajar!");
+            }
+        },
+        success: (message: string) => {
+            notify.success(message);
+        },
+        error: (message: string) => {
+            notify.error(message);
+        },
+    }), [config.autoStartBreaks, config.autoStartPomodoros, notifySessionComplete, notifyAutoStart]);
 
-    return {
-        isRunning,
-        isPaused,
-        timeLeft,
-        mode,
-        completedPomodoros,
-        pauseCount: activeSession?.pauseCount ?? 0,
-        totalPauseTime: activeSession?.totalPauseTime ?? 0,
-        start,
-        pause,
-        resume,
-        stop,
-        skipToNext,
-        switchTask,
-        formatTime,
-        getProgress,
-        activeSession,
-    };
+    return useSharedTimerBackend({
+        type,
+        config,
+        taskId,
+        api,
+        notify: notifyAdapter,
+        completedToday: todayStats?.pomodorosCompleted ?? null,
+        onSessionComplete,
+    });
 }

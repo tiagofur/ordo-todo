@@ -79,7 +79,6 @@ export {
   type TimerBackendMode,
   type TimerBackendNotify,
   type TimerBackendSession,
-  type TimerBackendStorage,
   type TimerBackendType,
   type UseTimerBackendProps,
   type UseTimerBackendReturn,

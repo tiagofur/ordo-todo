@@ -5,7 +5,6 @@ import { User as UserIcon } from "lucide-react";
 import { Label, Separator, Switch, Slider, Button } from "@ordo-todo/ui";
 import { ProfileTabs } from "../components/shared/profile-tabs";
 import { PageTransition, SlideIn } from "@/components/motion";
-import { useElectron } from "@/hooks/use-electron";
 import { desktopBridge } from "@/lib/desktop-bridge";
 import {
   useFullProfile,
@@ -19,7 +18,9 @@ import { useNavigate } from "react-router-dom";
 
 export function Profile() {
   const { t } = (useTranslation as any)();
-  const { isElectron } = useElectron();
+  // Native-shell listeners live in MainLayout (single mount site); Profile
+  // only needs the platform flag (ODD 014 T3).
+  const isElectron = desktopBridge.isNative();
   const navigate = useNavigate();
   const addSuccess = (msg: string) => toast.success(msg);
   const addError = (msg: string) => toast.error(msg);

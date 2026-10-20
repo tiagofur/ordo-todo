@@ -1,58 +1,17 @@
 import { useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useTimerStore, startTimerInterval, stopTimerInterval } from '@/stores/timer-store'
-import { useUIStore } from '@/stores/ui-store'
 import { desktopBridge } from '@/lib/desktop-bridge'
 
 /**
  * Hook to handle desktop shortcuts and inter-window actions.
  * Backwards compatible adapter replacing old Electron IPC.
+ *
+ * Note (ODD 014 T3): timer actions from the tray / floating mini-timer are
+ * handled by the bridge inside TimerProvider (timer-context), which owns the
+ * unified timer. This hook only wires global shortcuts and quick-add.
  */
 export function useElectron() {
-  const navigate = useNavigate()
-  const timerStore = useTimerStore()
-  const uiStore = useUIStore()
-
-  // Handle timer actions coming from floating timer window or tray
-  const handleTimerAction = useCallback((action: { type: string }) => {
-    switch (action.type) {
-      case 'toggle':
-        if (timerStore.isRunning && !timerStore.isPaused) {
-          timerStore.pause()
-        } else if (timerStore.isPaused) {
-          timerStore.resume()
-        } else {
-          timerStore.start()
-          startTimerInterval()
-        }
-        break
-      case 'start':
-        timerStore.start()
-        startTimerInterval()
-        break
-      case 'pause':
-        timerStore.pause()
-        break
-      case 'resume':
-        timerStore.resume()
-        break
-      case 'skip':
-        timerStore.skip()
-        break
-      case 'stop':
-        timerStore.stop()
-        stopTimerInterval()
-        break
-      default:
-        break
-    }
-  }, [timerStore])
-
   // Setup desktop listeners and global shortcuts
   useEffect(() => {
-    // Listen for timer actions
-    const unsubscribe = desktopBridge.onTimerAction(handleTimerAction)
-
     // Tray "Quick Add Task..." → focus main window + open Quick-Add.
     const unsubscribeTray = desktopBridge.onQuickAddTask(() => {
       window.dispatchEvent(new CustomEvent('openQuickAdd'))
@@ -73,24 +32,13 @@ export function useElectron() {
     }
 
     return () => {
-      unsubscribe()
       unsubscribeTray()
       if (desktopBridge.isNative()) {
         desktopBridge.unregisterShortcut('CommandOrControl+Shift+T')
         desktopBridge.unregisterShortcut('CommandOrControl+Shift+N')
       }
     }
-  }, [handleTimerAction])
-
-  // Start timer interval if running
-  useEffect(() => {
-    if (timerStore.isRunning && !timerStore.isPaused) {
-      startTimerInterval()
-    }
-    return () => {
-      stopTimerInterval()
-    }
-  }, [timerStore.isRunning, timerStore.isPaused])
+  }, [])
 
   return {
     isElectron: desktopBridge.isNative(),

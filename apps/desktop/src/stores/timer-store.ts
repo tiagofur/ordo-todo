@@ -1,6 +1,12 @@
 /**
  * Timer Store for Desktop app
  *
+ * @deprecated (ODD 014 T3) — The unified timer (`timer-context` +
+ * `@ordo-todo/hooks useTimerBackend`) is the single owner of timer state.
+ * This zustand store is no longer wired to any live UI; tray/mini-timer sync
+ * lives in the `use-timer-backend` adapter and action handling in the
+ * TimerProvider bridge. Removal belongs to T7 (dead-code cleanup).
+ *
  * Re-exports the shared timer store from @ordo-todo/stores
  * and configures native desktop callbacks for tray, notifications, and floating timer window.
  */

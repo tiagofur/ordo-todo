@@ -1,9 +1,13 @@
 /**
- * Shared useTimerBackend tests (ODD 014, T2a/S2).
+ * Shared useTimerBackend tests (ODD 014, T2a/S2 + T4/S4).
  *
  * RED→GREEN suite for the unified timer hook. The first test reproduces the
  * reported symptom (WORK expiring resets to 25:00 instead of BREAK/5:00)
  * that affects all three current per-app copies (sync-reset + desktop-stop).
+ *
+ * Since T4 the pomodoro counter is backend-owned: adapters pass
+ * `completedToday` (WORK completed today per the server, null when unknown)
+ * and the hook adds optimistic session-local increments.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
@@ -12,7 +16,6 @@ import {
   type TimerBackendApi,
   type TimerBackendConfig,
   type TimerBackendNotify,
-  type TimerBackendStorage,
 } from '../use-timer-backend';
 
 const config: TimerBackendConfig = {
@@ -62,20 +65,9 @@ function createNotify(): TimerBackendNotify & {
   };
 }
 
-function createStorage(initial: Record<string, string> = {}): TimerBackendStorage {
-  const map = new Map(Object.entries(initial));
-  return {
-    get: vi.fn((key: string) => (map.has(key) ? map.get(key)! : null)),
-    set: vi.fn((key: string, value: string) => {
-      map.set(key, value);
-    }),
-  };
-}
-
 interface Setup {
   api: ReturnType<typeof createApi>;
   notify: ReturnType<typeof createNotify>;
-  storage: TimerBackendStorage;
 }
 
 function setupHook(
@@ -83,22 +75,24 @@ function setupHook(
     type?: 'POMODORO' | 'CONTINUOUS';
     config?: TimerBackendConfig;
     taskId?: string | null;
+    completedToday?: number | null;
   } = {},
 ) {
   const api = parts.api ?? createApi();
   const notify = parts.notify ?? createNotify();
-  const storage = parts.storage ?? createStorage();
-  const utils = renderHook(() =>
-    useTimerBackend({
-      type: parts.type ?? 'POMODORO',
-      config: parts.config ?? config,
-      taskId: parts.taskId ?? null,
-      api,
-      notify,
-      storage,
-    }),
+  const utils = renderHook(
+    ({ completedToday }: { completedToday?: number | null } = {}) =>
+      useTimerBackend({
+        type: parts.type ?? 'POMODORO',
+        config: parts.config ?? config,
+        taskId: parts.taskId ?? null,
+        api,
+        notify,
+        completedToday: completedToday ?? parts.completedToday ?? null,
+      }),
+    { initialProps: { completedToday: parts.completedToday ?? null } },
   );
-  return { ...utils, api, notify, storage };
+  return { ...utils, api, notify };
 }
 
 beforeEach(() => {
@@ -132,6 +126,16 @@ async function startAndExpire(hook: ReturnType<typeof setupHook>, seconds: numbe
     await hook.result.current.start();
   });
   await advance(seconds);
+}
+
+/**
+ * Simulate timer throttling (hidden tab / backgrounded app): the JS clock
+ * advances only `tickedSeconds` while wall-clock time jumps `realSeconds`.
+ */
+async function advanceThrottled(tickedSeconds: number, realSeconds: number) {
+  const now = Date.now();
+  vi.setSystemTime(now + (realSeconds - tickedSeconds) * 1000);
+  await advance(tickedSeconds);
 }
 
 describe('useTimerBackend (unified)', () => {
@@ -358,26 +362,113 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.timeLeft).toBe(0);
   });
 
-  it('counter survives remount within the same day via storage', async () => {
-    const storage = createStorage({
-      'ordo-completed-pomodoros': '3',
-      'ordo-pomodoros-date': new Date('2026-10-20T10:00:00.000Z').toDateString(),
-    });
-    const first = setupHook({ storage, config: { ...config, workDuration: 1 } });
-    expect(first.result.current.completedPomodoros).toBe(3);
-    first.unmount();
-
-    const second = setupHook({ storage, config: { ...config, workDuration: 1 } });
-    expect(second.result.current.completedPomodoros).toBe(3);
-    second.unmount();
+  it('I3: counter reflects the backend value when provided', () => {
+    const hook = setupHook({ completedToday: 3 });
+    expect(hook.result.current.completedPomodoros).toBe(3);
   });
 
-  it('counter resets on a new day', () => {
-    const storage = createStorage({
-      'ordo-completed-pomodoros': '5',
-      'ordo-pomodoros-date': new Date('2026-10-19T10:00:00.000Z').toDateString(),
+  it('I3: completing WORK increments optimistically on top of the backend value', async () => {
+    const hook = setupHook({
+      completedToday: 3,
+      config: { ...config, workDuration: 1 },
     });
-    const hook = setupHook({ storage });
+    await startAndExpire(hook, 60);
+    expect(hook.result.current.completedPomodoros).toBe(4);
+  });
+
+  it('I3: server confirmation absorbs the optimistic increment without double-counting', async () => {
+    const hook = setupHook({
+      completedToday: 3,
+      config: { ...config, workDuration: 1 },
+    });
+    await startAndExpire(hook, 60);
+    expect(hook.result.current.completedPomodoros).toBe(4);
+
+    // Backend refetch now includes the just-completed pomodoro.
+    hook.rerender({ completedToday: 4 });
+    expect(hook.result.current.completedPomodoros).toBe(4);
+  });
+
+  it('I3: server reset (new day) clears optimistic increments', async () => {
+    const hook = setupHook({
+      completedToday: 3,
+      config: { ...config, workDuration: 1 },
+    });
+    await startAndExpire(hook, 60);
+    expect(hook.result.current.completedPomodoros).toBe(4);
+
+    hook.rerender({ completedToday: 0 });
     expect(hook.result.current.completedPomodoros).toBe(0);
+  });
+
+  it('null backend value degrades to a session-local counter starting at 0', async () => {
+    const hook = setupHook({
+      completedToday: null,
+      config: { ...config, workDuration: 1 },
+    });
+    expect(hook.result.current.completedPomodoros).toBe(0);
+    await startAndExpire(hook, 60);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('T5: throttled ticks compute remaining from the wall clock, not tick count', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 25 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    // Only 10 ticks fire while 120 real seconds elapse (backgrounded app).
+    await advanceThrottled(10, 120);
+
+    expect(hook.result.current.timeLeft).toBe(25 * 60 - 120);
+    expect(hook.result.current.isRunning).toBe(true);
+  });
+
+  it('T5: expiry during suspension transitions on the next tick after wake', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 1 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    // App suspended for 5 minutes; a single tick fires on wake.
+    await advanceThrottled(1, 300);
+
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.timeLeft).toBe(5 * 60);
+    expect(hook.result.current.completedPomodoros).toBe(1);
+  });
+
+  it('T5: pause freezes the deadline; resume recomputes it without drift', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 25 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await advance(10);
+    const frozen = hook.result.current.timeLeft;
+
+    await act(async () => {
+      await hook.result.current.pause();
+    });
+    // 60 real seconds pass while paused (timers + wall clock advance, but
+    // the hook is paused so no tick runs).
+    vi.setSystemTime(Date.now() + 60 * 1000);
+    expect(hook.result.current.timeLeft).toBe(frozen);
+
+    await act(async () => {
+      await hook.result.current.resume();
+    });
+    await advance(5);
+    expect(hook.result.current.timeLeft).toBe(frozen - 5);
+  });
+
+  it('T5: CONTINUOUS count-up reflects wall-clock time after a jump', async () => {
+    const hook = setupHook({ type: 'CONTINUOUS' });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+
+    await advanceThrottled(5, 65);
+
+    expect(hook.result.current.timeLeft).toBe(65);
   });
 });

@@ -11,7 +11,8 @@ import { Clock, History, Timer as TimerIcon } from 'lucide-react-native';
 
 import { Text } from '@ordo-todo/ui-mobile';
 import { PomodoroTimer, TaskSelector, SessionHistory } from '@ordo-todo/ui-mobile';
-import { useTimerBackend, TimerMode } from '@/app/hooks/use-timer-backend';
+import { useTimerBackend } from '@/app/hooks/use-timer-backend';
+import { useTimerConfig } from '@/app/hooks/use-timer-config';
 import { useTasks, useSessionHistory } from '@/app/lib/shared-hooks';
 import { colors } from '@ordo-todo/styles/tokens';
 
@@ -20,23 +21,14 @@ export default function TimerScreen() {
   const params = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState<'timer' | 'history'>((params.tab as 'timer' | 'history') || 'timer');
 
-  // Timer configuration - Ideally fetched from user preferences
-  const timerConfig = {
-    workDuration: 25,
-    shortBreakDuration: 5,
-    longBreakDuration: 15,
-    pomodorosUntilLongBreak: 4,
-    autoStartBreaks: false,
-    autoStartPomodoros: false,
-    soundEnabled: true,
-    notificationsEnabled: true,
-  };
+  // Timer configuration from user preferences (ODD 014 T6).
+  const { config: timerConfig, type: timerType } = useTimerConfig();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   // Use backend timer hook
   const timer = useTimerBackend({
-    type: 'POMODORO',
+    type: timerType,
     config: timerConfig,
     taskId: selectedTaskId,
     onSessionComplete: () => {
@@ -71,7 +63,7 @@ export default function TimerScreen() {
     mode: timer.mode,
     completedPomodoros: timer.completedPomodoros,
     pauseCount: timer.pauseCount,
-    defaultMode: 'POMODORO' as const,
+    defaultMode: timerType,
     selectedTaskId: timer.activeSession?.taskId || selectedTaskId,
     progress: timer.getProgress(),
   };
