@@ -26,6 +26,14 @@ import type { Prisma } from '@prisma/client';
 import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
 import { RetrievalService } from './retrieval/retrieval.service';
 import type { Citation } from './retrieval/retrieval.service';
+import { AgentToolsService } from './tools/agent-tools.service';
+import {
+  planReason,
+  planRequiresConfirmation,
+  type AgentExecuteResult,
+  type AgentPlan,
+  type AgentToolCall,
+} from './tools/agent-tool.types';
 import { LLM_PROVIDER } from './llm/llm-provider.interface';
 import type { LlmProvider } from './llm/llm-provider.interface';
 
@@ -52,6 +60,7 @@ export class AIService {
     private readonly nlParser: TaskNlParserService,
     @Optional() private readonly retrieval?: RetrievalService,
     @Optional() @Inject(LLM_PROVIDER) private readonly llm?: LlmProvider,
+    @Optional() private readonly agentTools?: AgentToolsService,
   ) {}
 
   // ============ AI CHAT ============
@@ -655,5 +664,44 @@ export class AIService {
       { complexity: 'low' },
     );
     return { answer, citations };
+  }
+
+  // ============ AGENT TOOLS (ODD 004 S3) ============
+
+  async proposePlan(
+    userId: string,
+    calls: AgentToolCall[],
+  ): Promise<AgentPlan> {
+    if (!this.agentTools) {
+      throw new ServiceUnavailableException('agent tools not configured');
+    }
+    return this.agentTools.propose(userId, calls);
+  }
+
+  /**
+   * Stateless execute: the client re-sends the calls; the server re-validates
+   * them and re-derives `requiresConfirmation` with the same pure policy as
+   * propose — it never trusts any client-side flag.
+   */
+  async executePlan(
+    userId: string,
+    planId: string,
+    calls: AgentToolCall[],
+    confirmed: boolean,
+  ): Promise<AgentExecuteResult> {
+    if (!this.agentTools) {
+      throw new ServiceUnavailableException('agent tools not configured');
+    }
+    const fresh = await this.agentTools.propose(userId, calls);
+    return this.agentTools.execute(
+      userId,
+      {
+        planId,
+        steps: fresh.steps,
+        requiresConfirmation: planRequiresConfirmation(calls),
+        reason: planReason(calls),
+      },
+      confirmed,
+    );
   }
 }
