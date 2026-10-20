@@ -19,6 +19,7 @@ import type {
   ParsedTaskResult as TypedParsedTaskResult,
   WellbeingAIResponse,
 } from './types/ai-response.types';
+import type { LlmComplexity } from './llm/llm-provider.interface';
 
 export interface ProductivityReportData {
   summary: string;
@@ -177,12 +178,35 @@ export class GeminiAIService {
    * Used by other services like MeetingAssistantService
    */
   @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
-  async generate(systemPrompt: string, userPrompt: string): Promise<string> {
+  async generate(
+    systemPrompt: string,
+    userPrompt: string,
+    complexity: LlmComplexity = 'low',
+  ): Promise<string> {
     if (!this.ai) {
       throw new ServiceUnavailableException('AI service is not initialized');
     }
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    return this.generateContent(this.getModelName('low'), fullPrompt);
+    return this.generateContent(this.getModelName(complexity), fullPrompt);
+  }
+
+  /**
+   * Embed texts with the Gemini embedding model.
+   * Used by the LlmProvider abstraction for retrieval.
+   */
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
+  async embed(texts: string[]): Promise<number[][]> {
+    if (texts.length === 0) {
+      return [];
+    }
+    if (!this.ai) {
+      throw new ServiceUnavailableException('AI service is not initialized');
+    }
+    const response = await this.ai.models.embedContent({
+      model: 'text-embedding-004',
+      contents: texts,
+    });
+    return (response.embeddings ?? []).map((e) => e.values ?? []);
   }
 
   // ============ TASK DECOMPOSITION ============
