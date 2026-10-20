@@ -5,7 +5,7 @@
  * Cycle logic is delegated to the pure engine (`@ordo-todo/core`); this hook
  * owns React state, the countdown interval and backend synchronization.
  *
- * Platform differences (toasts, sounds, storage) are injected via props —
+ * Platform differences (toasts, sounds) are injected via props —
  * this module imports nothing from any app.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -56,19 +56,18 @@ export interface TimerBackendNotify {
   error: (message: string) => void;
 }
 
-/** Synchronous key/value storage (localStorage / AsyncStorage-sync / memory). */
-export interface TimerBackendStorage {
-  get: (key: string) => string | null;
-  set: (key: string, value: string) => void;
-}
-
 export interface UseTimerBackendProps {
   type: TimerBackendType;
   config: TimerBackendConfig;
   taskId: string | null;
   api: TimerBackendApi;
   notify: TimerBackendNotify;
-  storage: TimerBackendStorage;
+  /**
+   * WORK sessions completed today per the backend (I3). Null while unknown
+   * (query loading / error / offline) — the hook then counts session-locally
+   * from zero until the server value arrives.
+   */
+  completedToday: number | null;
   onSessionComplete?: () => void;
 }
 
@@ -91,23 +90,6 @@ export interface UseTimerBackendReturn {
   activeSession: TimerBackendSession | null;
 }
 
-const COUNT_KEY = 'ordo-completed-pomodoros';
-const COUNT_DATE_KEY = 'ordo-pomodoros-date';
-
-function readCounter(storage: TimerBackendStorage): number {
-  try {
-    const savedDate = storage.get(COUNT_DATE_KEY);
-    if (savedDate !== new Date().toDateString()) {
-      return 0;
-    }
-    const saved = storage.get(COUNT_KEY);
-    const parsed = saved ? parseInt(saved, 10) : 0;
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-  } catch {
-    return 0;
-  }
-}
-
 function durationOf(mode: TimerBackendMode, config: TimerBackendConfig): number {
   if (mode === 'CONTINUOUS') return 0;
   return durationForMode(mode, config);
@@ -126,7 +108,7 @@ export function useTimerBackend({
   taskId,
   api,
   notify,
-  storage,
+  completedToday,
   onSessionComplete,
 }: UseTimerBackendProps): UseTimerBackendReturn {
   const [isRunning, setIsRunning] = useState(false);
@@ -137,14 +119,33 @@ export function useTimerBackend({
   const [mode, setMode] = useState<TimerBackendMode>(() =>
     type === 'CONTINUOUS' ? 'CONTINUOUS' : 'WORK',
   );
-  const [completedPomodoros, setCompletedPomodoros] = useState(() =>
-    readCounter(storage),
-  );
+  // Optimistic session-local increments on top of the server count, so the
+  // UI updates instantly while the backend confirms asynchronously.
+  const [optimisticExtra, setOptimisticExtra] = useState(0);
   const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(
     null,
   );
 
+  const serverCount = completedToday ?? 0;
+  const completedPomodoros = serverCount + optimisticExtra;
   const completedPomodorosRef = useRef(completedPomodoros);
+  completedPomodorosRef.current = completedPomodoros;
+
+  // Absorb server confirmations: when the backend count grows, it includes
+  // our optimistic completions — shrink the extra accordingly. When it drops
+  // (new day / reset), clear the extra entirely.
+  const prevServerCountRef = useRef(serverCount);
+  useEffect(() => {
+    const prev = prevServerCountRef.current;
+    prevServerCountRef.current = serverCount;
+    if (serverCount === prev) return;
+    if (serverCount > prev) {
+      setOptimisticExtra((extra) => Math.max(0, extra - (serverCount - prev)));
+    } else {
+      setOptimisticExtra(0);
+    }
+  }, [serverCount]);
+
   const isTransitioningRef = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   /**
@@ -161,32 +162,6 @@ export function useTimerBackend({
   configRef.current = config;
 
   const { activeSession } = api;
-
-  // Keep the counter ref in sync and persist it (day-scoped).
-  useEffect(() => {
-    completedPomodorosRef.current = completedPomodoros;
-    try {
-      storage.set(COUNT_KEY, String(completedPomodoros));
-      storage.set(COUNT_DATE_KEY, new Date().toDateString());
-    } catch {
-      // Storage is best-effort (e.g. private mode).
-    }
-  }, [completedPomodoros, storage]);
-
-  // Reset the day-scoped counter once per mount when the day rolled over.
-  useEffect(() => {
-    try {
-      if (storage.get(COUNT_DATE_KEY) !== new Date().toDateString()) {
-        storage.set(COUNT_DATE_KEY, new Date().toDateString());
-        storage.set(COUNT_KEY, '0');
-        setCompletedPomodoros(0);
-        completedPomodorosRef.current = 0;
-      }
-    } catch {
-      // Ignore storage errors.
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const clearLocalInterval = useCallback(() => {
     if (intervalRef.current) {
@@ -377,8 +352,12 @@ export function useTimerBackend({
         completedPomodorosRef.current,
         configRef.current,
       );
-      setCompletedPomodoros(result.completedPomodoros);
-      completedPomodorosRef.current = result.completedPomodoros;
+      // Optimistic increment only when a WORK phase completes (the engine
+      // only bumps the counter for WORK). The server value absorbs it once
+      // the stats query refetches after stop.
+      if (currentMode === 'WORK') {
+        setOptimisticExtra((extra) => extra + 1);
+      }
 
       await api.stop({ wasCompleted: true });
       notify.sessionComplete(currentMode);

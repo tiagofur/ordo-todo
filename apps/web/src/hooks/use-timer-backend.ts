@@ -15,7 +15,7 @@ import {
     type TimerBackendType,
     type UseTimerBackendReturn,
 } from "@ordo-todo/hooks";
-import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
+import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask, useTimerStats } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";
 
@@ -43,27 +43,19 @@ interface UseTimerBackendProps {
     onSessionComplete?: () => void;
 }
 
-const storage = {
-    get: (key: string): string | null => {
-        if (typeof window === "undefined") return null;
-        try {
-            return window.localStorage.getItem(key);
-        } catch {
-            return null;
-        }
-    },
-    set: (key: string, value: string): void => {
-        if (typeof window === "undefined") return;
-        try {
-            window.localStorage.setItem(key, value);
-        } catch {
-            // Best-effort (e.g. private mode).
-        }
-    },
-};
+/**
+ * Start of the current local day as an ISO string (for the day-scoped stats
+ * query that feeds the backend-owned pomodoro counter, ODD 014 T4).
+ */
+function startOfTodayISO(): string {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now.toISOString();
+}
 
 export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps): UseTimerBackendReturn {
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
+    const { data: todayStats } = useTimerStats({ startDate: startOfTodayISO() });
     const startTimerMutation = useStartTimer();
     const stopTimerMutation = useStopTimer();
     const pauseTimerMutation = usePauseTimer();
@@ -167,7 +159,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         taskId,
         api,
         notify: notifyAdapter,
-        storage,
+        completedToday: todayStats?.pomodorosCompleted ?? null,
         onSessionComplete,
     });
 }

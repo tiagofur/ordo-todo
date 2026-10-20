@@ -5,8 +5,7 @@
  * it wires React Query mutations, Toast messages and AsyncStorage-backed
  * counter persistence. All cycle logic lives in the shared hook + engine.
  */
-import { useEffect, useMemo, useRef } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMemo } from "react";
 import {
     useTimerBackend as useSharedTimerBackend,
     type TimerBackendMode,
@@ -20,7 +19,8 @@ import {
     useStopTimer,
     usePauseTimer,
     useResumeTimer,
-    useSwitchTask
+    useSwitchTask,
+    useTimerStats
 } from "@/app/lib/shared-hooks";
 import Toast from "react-native-toast-message";
 
@@ -49,52 +49,23 @@ interface UseTimerBackendProps {
 }
 
 /**
- * AsyncStorage-backed synchronous storage adapter: an in-memory cache serves
- * the shared hook's synchronous get/set, hydrated once from AsyncStorage on
- * mount and persisted back (fire-and-forget) on every write.
+ * Start of the current local day as an ISO string (for the day-scoped stats
+ * query that feeds the backend-owned pomodoro counter, ODD 014 T4).
  */
-function useAsyncStorageAdapter() {
-    const cacheRef = useRef<Map<string, string>>(new Map());
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const pairs = await AsyncStorage.multiGet([
-                    "ordo-completed-pomodoros",
-                    "ordo-pomodoros-date",
-                ]);
-                if (cancelled) return;
-                for (const [key, value] of pairs) {
-                    if (value !== null) cacheRef.current.set(key, value);
-                }
-            } catch {
-                // Best-effort: fall back to the in-memory cache.
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    return useMemo(() => ({
-        get: (key: string): string | null => cacheRef.current.get(key) ?? null,
-        set: (key: string, value: string): void => {
-            cacheRef.current.set(key, value);
-            AsyncStorage.setItem(key, value).catch(() => undefined);
-        },
-    }), []);
+function startOfTodayISO(): string {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now.toISOString();
 }
 
 export function useTimerBackend({ type, config, taskId, onSessionComplete }: UseTimerBackendProps): UseTimerBackendReturn {
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
+    const { data: todayStats } = useTimerStats({ startDate: startOfTodayISO() });
     const startTimerMutation = useStartTimer();
     const stopTimerMutation = useStopTimer();
     const pauseTimerMutation = usePauseTimer();
     const resumeTimerMutation = useResumeTimer();
     const switchTaskMutation = useSwitchTask();
-
-    const storage = useAsyncStorageAdapter();
 
     const adaptedSession: TimerBackendSession | null = useMemo(() => {
         if (!activeSession) return null;
@@ -182,7 +153,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         taskId,
         api,
         notify: notifyAdapter,
-        storage,
+        completedToday: todayStats?.pomodorosCompleted ?? null,
         onSessionComplete,
     });
 }
