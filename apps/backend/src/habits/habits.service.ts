@@ -4,12 +4,14 @@ import {
   NotFoundException,
   Logger,
   BadRequestException,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
+import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 import {
   Habit,
   HabitFrequency,
@@ -41,6 +43,7 @@ export class HabitsService {
     private readonly habitRepository: IHabitRepository,
     private readonly prisma: PrismaService,
     private readonly gamificationService: GamificationService,
+    @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   /**
@@ -75,6 +78,12 @@ export class HabitsService {
     if (habits.length === 1) {
       await this.gamificationService.addXp(userId, 10, 'Created first habit');
     }
+
+    await this.indexer?.indexContent(
+      'HABIT',
+      habit.id,
+      `${habit.props.name}\n${habit.props.description ?? ''}`,
+    );
 
     return habit.props;
   }
@@ -241,6 +250,12 @@ export class HabitsService {
       startOfDay(new Date()),
     );
 
+    await this.indexer?.indexContent(
+      'HABIT',
+      updatedHabit.id,
+      `${updatedHabit.props.name}\n${updatedHabit.props.description ?? ''}`,
+    );
+
     return {
       ...updatedHabit.props,
       completions: completion ? [completion] : [],
@@ -256,6 +271,7 @@ export class HabitsService {
       throw new NotFoundException(`Habit with ID ${id} not found`);
     }
     await this.habitRepository.delete(id);
+    await this.indexer?.removeContent('HABIT', id);
     return { success: true };
   }
 

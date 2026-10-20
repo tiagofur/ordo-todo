@@ -11,6 +11,7 @@ import { AttachmentsModule } from '../attachments/attachments.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GamificationModule } from '../gamification/gamification.module';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GamificationModule } from '../gamification/gamification.module';
     forwardRef(() => AttachmentsModule),
     NotificationsModule,
     GamificationModule,
+    AIModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

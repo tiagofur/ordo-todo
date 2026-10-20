@@ -4,6 +4,7 @@ import {
   Logger,
   Inject,
   ForbiddenException,
+  Optional,
 } from '@nestjs/common';
 import {
   Comment,
@@ -20,6 +21,7 @@ import { ActivitiesService } from '../activities/activities.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationType, ResourceType } from '@prisma/client';
+import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 
 /**
  * Response DTO for comment with author details.
@@ -72,6 +74,7 @@ export class CommentsService {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
+    @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   /**
@@ -164,6 +167,13 @@ export class CommentsService {
       this.logger.error('Failed to send comment notifications', error);
     });
 
+    await this.indexer?.indexContent(
+      'COMMENT',
+      commentWithAuthor.id,
+      commentWithAuthor.content,
+      { taskId: commentWithAuthor.taskId },
+    );
+
     return commentWithAuthor;
   }
 
@@ -213,6 +223,13 @@ export class CommentsService {
       userId,
     );
 
+    await this.indexer?.indexContent(
+      'COMMENT',
+      id,
+      updatedComment.props.content,
+      { taskId: updatedComment.taskId },
+    );
+
     // Enrich response with author details
     return this.enrichWithAuthor(updatedComment);
   }
@@ -259,6 +276,8 @@ export class CommentsService {
       existingComment.taskId,
       userId,
     );
+
+    await this.indexer?.removeContent('COMMENT', id);
 
     return { success: true };
   }
