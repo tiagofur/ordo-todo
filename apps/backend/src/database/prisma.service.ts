@@ -288,4 +288,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get slackWorkspaceMap() {
     return this.prisma.slackWorkspaceMap;
   }
+
+  get aiEmbedding() {
+    return this.prisma.aiEmbedding;
+  }
 }

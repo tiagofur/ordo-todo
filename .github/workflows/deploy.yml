@@ -41,7 +41,7 @@ jobs:
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:0.8.7-pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

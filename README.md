@@ -50,7 +50,7 @@ docker run --name ordo-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=ordo_todo \
   -p 5432:5432 \
-  -d postgres:16
+  -d pgvector/pgvector:0.8.7-pg16
 
 # 4. Configure environment
 cp apps/web/.env.example apps/web/.env.local
