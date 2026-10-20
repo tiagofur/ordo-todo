@@ -25,7 +25,9 @@ import { desktopBridge } from "@/lib/desktop-bridge";
 // keep working untouched. IDLE is preserved as a type for the floating
 // window / bridge, but the hook itself never reports it (initial mode is
 // WORK, matching web/mobile).
-export type TimerSessionMode = TimerBackendMode | "IDLE";
+// Historical desktop name for the shared backend mode. (The floating
+// window's "IDLE" is a separate UI-state concept owned by desktop-bridge.)
+export type TimerSessionMode = TimerBackendMode;
 export type TimerType = "POMODORO" | "STOPWATCH" | "CONTINUOUS";
 export type { UseTimerBackendReturn };
 
