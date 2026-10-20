@@ -92,10 +92,11 @@ export const replan = (input: ReplanInput): ReplanResult => {
     } else if (prev) {
       missingFrozen.push(taskId);
     }
-    // Frozen id with no previous block: nothing to keep, no noise.
   }
-
-  const unfrozen = input.tasks.filter((t) => !frozen.has(t.taskId));
+  // Frozen id with no previous block: nothing to keep — the candidate (if
+  // any) replans normally below instead of being silently dropped.
+  const keptIds = new Set(keptFrozen.map((b) => b.taskId));
+  const unfrozen = input.tasks.filter((t) => !keptIds.has(t.taskId));
   const replanned = planDay({
     tasks: unfrozen,
     events: [...(input.events ?? []), ...frozenBusy],
@@ -112,13 +113,19 @@ export const replan = (input: ReplanInput): ReplanResult => {
   const plan: DayPlan = { blocks, unscheduled: replanned.unscheduled };
 
   // Diff previous vs new: added / removed / moved / resized + why.
+  // Exactly ONE change per affected task (no duplicates): a task that no
+  // longer fits is reported once, with the engine's rich reason when known.
   const changes: PlanChange[] = [];
   const nextById = new Map(blocks.map((b) => [b.taskId, b]));
+  const unscheduledById = new Map(
+    replanned.unscheduled.map((u) => [u.taskId, u.reason]),
+  );
 
   for (const prev of input.previous.blocks) {
     if (frozen.has(prev.taskId)) continue; // kept ones never change; missing handled below
     const next = nextById.get(prev.taskId);
     if (!next) {
+      const overflow = unscheduledById.get(prev.taskId);
       changes.push({
         taskId: prev.taskId,
         type: 'removed',
@@ -127,7 +134,9 @@ export const replan = (input: ReplanInput): ReplanResult => {
           input.trigger.kind === 'completed' &&
           input.trigger.taskId === prev.taskId
             ? `completed, removed from the plan`
-            : `no longer fits today (${prev.start}-${prev.end} freed)`,
+            : overflow
+              ? `no longer fits today (${overflow})`
+              : `no longer fits today (${prev.start}-${prev.end} freed)`,
       });
       continue;
     }
@@ -180,20 +189,7 @@ export const replan = (input: ReplanInput): ReplanResult => {
       });
     }
   }
-  // Newly unscheduled tasks (were fitted before, now overflow) also surface.
-  for (const u of replanned.unscheduled) {
-    const prev = prevById.get(u.taskId);
-    if (prev && !frozen.has(u.taskId) && !nextById.has(u.taskId)) {
-      changes.push({
-        taskId: u.taskId,
-        type: 'removed',
-        from: slotOf(prev),
-        reason: `no longer fits today (${u.reason})`,
-      });
-    }
-  }
-
-  // Deterministic change order: by taskId, then type (stable output).
+  // Deterministic change order: by taskId (stable output, one per task).
   changes.sort((a, b) =>
     a.taskId < b.taskId ? -1 : a.taskId > b.taskId ? 1 : 0,
   );

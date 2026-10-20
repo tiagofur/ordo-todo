@@ -118,6 +118,11 @@ describe('replan (ODD 005 S3)', () => {
     ]);
     // c no longer fits -> unscheduled; reported as removed with a reason.
     expect(plan.unscheduled.map((u) => u.taskId)).toContain('c');
+    // Exactly ONE change for c (no duplicate removed).
+    const changesC = changes.filter((c) => c.taskId === 'c');
+    expect(changesC).toHaveLength(1);
+    expect(changesC[0]).toMatchObject({ type: 'removed' });
+    expect(changesC[0].reason).toMatch(/no longer fits|no free slot/i);
     const movedB = changes.find((c) => c.taskId === 'b');
     expect(movedB).toMatchObject({ type: 'moved' });
     expect(movedB!.reason).toMatch(/overran|longer|pushed/i);
@@ -125,6 +130,23 @@ describe('replan (ODD 005 S3)', () => {
     expect(changes.find((c) => c.taskId === 'a')).toMatchObject({
       type: 'resized',
     });
+  });
+
+  it('plans a frozen candidate with no previous block normally (never drops it)', () => {
+    // ghost: frozen id, no previous block, but a real candidate -> must be
+    // scheduled (nothing to keep) instead of silently disappearing.
+    const { plan } = replan({
+      previous: PREV,
+      frozenTaskIds: ['ghost'],
+      tasks: [task('ghost', 30)],
+      events: EVENTS,
+      workingHours: WH,
+      trigger: { kind: 'day-start' },
+    });
+
+    const ghost = plan.blocks.find((b) => b.taskId === 'ghost');
+    expect(ghost).toBeDefined();
+    expect(plan.unscheduled.find((u) => u.taskId === 'ghost')).toBeUndefined();
   });
 
   it('treats calendar events as fixed busy time for the replanned part', () => {

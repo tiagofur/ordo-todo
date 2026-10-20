@@ -74,7 +74,10 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
   });
 
   it('replanOnTaskCompleted drops the task and advances the rest', async () => {
+    // 'a' is STILL returned as open by the repo (read-your-write race):
+    // the trigger filter must drop it regardless.
     repos().findByOwnerId.mockResolvedValue([
+      openTask('a', { doDate: new Date() }),
       openTask('b', { doDate: new Date() }),
       openTask('c', { doDate: new Date() }),
     ]);
@@ -177,6 +180,24 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
     );
     // Single 60min task must start at 10:00 (after the 09:30-10:00 meeting),
     // not at 09:00 overlapping it.
+    expect(plan.blocks).toMatchObject([{ taskId: 'a', start: '10:00' }]);
+  });
+
+  it('clamps cross-midnight events to today (never an inverted range)', async () => {
+    repos().findByOwnerId.mockResolvedValue([openTask('a')]);
+    // Event started yesterday 22:00, ends today 10:00 -> must block 00:00-10:00
+    // today, not map to the inverted 22:00-10:00 (which the engine discards).
+    const startAt = new Date();
+    startAt.setDate(startAt.getDate() - 1);
+    startAt.setHours(22, 0, 0, 0);
+    const endAt = new Date();
+    endAt.setHours(10, 0, 0, 0);
+    prisma.externalCalendarBlock.findMany.mockResolvedValue([
+      { title: 'Overnight on-call', startAt, endAt },
+    ]);
+
+    const { plan } = await service.replanOnDayStart('user-1');
+
     expect(plan.blocks).toMatchObject([{ taskId: 'a', start: '10:00' }]);
   });
 
