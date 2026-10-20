@@ -4,7 +4,6 @@ import * as _ordo_todo_api_client from '@ordo-todo/api-client';
 import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto } from '@ordo-todo/api-client';
 import { C as CreateHooksConfig } from './use-username-validation-BQeVmE6V.mjs';
 export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-BQeVmE6V.mjs';
-import { EngineConfig, EngineMode } from '@ordo-todo/core';
 import { z } from 'zod';
 
 /**
@@ -475,83 +474,58 @@ declare const queryKeys: {
     readonly note: (id: string) => readonly ["notes", "detail", string];
 };
 
-type TimerBackendMode = EngineMode | 'CONTINUOUS';
-type TimerBackendType = 'POMODORO' | 'CONTINUOUS';
-type TimerBackendConfig = EngineConfig;
-/** Minimal active-session shape the hook needs from the backend. */
-interface TimerBackendSession {
-    type: TimerBackendMode;
-    elapsedSeconds: number;
-    isPaused: boolean;
-    taskId?: string | null;
-    pauseCount?: number;
-    totalPauseTime?: number;
-    currentPauseStart?: string | Date | null;
+/**
+ * Shared useTimer Hook for Ordo-Todo
+ *
+ * A React hook for managing Pomodoro and continuous timer functionality.
+ * Can be used across web, mobile, and desktop applications.
+ */
+/**
+ * Format time for timer display (MM:SS)
+ * Note: Inlined from @ordo-todo/core to avoid importing Node.js dependencies
+ */
+declare function formatTimerDisplay(seconds: number): string;
+type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
+type TimerType = 'POMODORO' | 'CONTINUOUS';
+interface TimerConfig {
+    workDuration: number;
+    shortBreakDuration: number;
+    longBreakDuration: number;
+    pomodorosUntilLongBreak: number;
 }
-/** Backend operations, adapted per platform from React Query mutations. */
-interface TimerBackendApi {
-    activeSession: TimerBackendSession | null;
-    start: (input: {
-        taskId?: string;
-        type: TimerBackendMode;
-    }) => Promise<unknown>;
-    stop: (input: {
-        wasCompleted: boolean;
-    }) => Promise<unknown>;
-    pause: (input: {
-        pauseStartedAt: Date;
-    }) => Promise<unknown>;
-    resume: (input: {
-        pauseStartedAt: Date;
-    }) => Promise<unknown>;
-    switchTask: (input: {
-        newTaskId: string;
-        type: TimerBackendMode;
-        splitReason: string;
-    }) => Promise<unknown>;
-    refetch: () => Promise<unknown>;
+interface UseTimerProps {
+    type: TimerType;
+    config: TimerConfig;
+    onSessionComplete?: (data: SessionData) => void;
 }
-/** UI feedback, adapted per platform (toast / sound / OS notification). */
-interface TimerBackendNotify {
-    sessionComplete: (mode: TimerBackendMode) => void;
-    autoStart: (mode: TimerBackendMode) => void;
-    success: (message: string) => void;
-    error: (message: string) => void;
+interface SessionData {
+    startedAt: Date;
+    endedAt: Date;
+    duration: number;
+    mode: TimerMode;
+    wasCompleted: boolean;
+    wasInterrupted: boolean;
+    pauseCount: number;
+    totalPauseTime: number;
 }
-interface UseTimerBackendProps {
-    type: TimerBackendType;
-    config: TimerBackendConfig;
-    taskId: string | null;
-    api: TimerBackendApi;
-    notify: TimerBackendNotify;
-    /**
-     * WORK sessions completed today per the backend (I3). Null while unknown
-     * (query loading / error / offline) — the hook then counts session-locally
-     * from zero until the server value arrives.
-     */
-    completedToday: number | null;
-    onSessionComplete?: () => void;
-}
-interface UseTimerBackendReturn {
+interface UseTimerReturn {
     isRunning: boolean;
     isPaused: boolean;
     timeLeft: number;
-    mode: TimerBackendMode;
+    mode: TimerMode;
     completedPomodoros: number;
     pauseCount: number;
     totalPauseTime: number;
-    start: () => Promise<void>;
-    pause: () => Promise<void>;
-    resume: () => Promise<void>;
-    stop: (wasCompleted?: boolean) => Promise<void>;
-    skipToNext: () => Promise<void>;
-    switchTask: (newTaskId: string) => Promise<void>;
+    start: () => void;
+    pause: () => void;
+    stop: (wasCompleted?: boolean) => void;
+    reset: () => void;
+    skipToNext: () => void;
+    split: () => void;
     formatTime: (seconds: number) => string;
     getProgress: () => number;
-    activeSession: TimerBackendSession | null;
 }
-declare function formatTimerBackendDisplay(seconds: number): string;
-declare function useTimerBackend({ type, config, taskId, api, notify, completedToday, onSessionComplete, }: UseTimerBackendProps): UseTimerBackendReturn;
+declare function useTimer({ type, config, onSessionComplete, }: UseTimerProps): UseTimerReturn;
 
 /**
  * Task limits
@@ -788,4 +762,4 @@ interface HooksBundle {
  */
 declare function createUseDashboardData(hooks: HooksBundle): () => DashboardData;
 
-export { CreateHooksConfig, type DashboardData, type DashboardHabit, type DashboardHabitsSummary, type DashboardObjective, type DashboardObjectivesSummary, type DashboardStats, type DashboardStreak, type DashboardTask, type Hooks, MEMBER_ROLES, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, TASK_LIMITS, TASK_STATUS_VALUES, type TimerBackendApi, type TimerBackendConfig, type TimerBackendMode, type TimerBackendNotify, type TimerBackendSession, type TimerBackendType, type UseTimerBackendProps, type UseTimerBackendReturn, WORKSPACE_LIMITS, createHooks, createProjectSchema, createTaskSchema, createUseDashboardData, formatTimerBackendDisplay, inviteMemberSchema, projectBaseSchema, queryKeys, taskBaseSchema, useTimerBackend };
+export { CreateHooksConfig, type DashboardData, type DashboardHabit, type DashboardHabitsSummary, type DashboardObjective, type DashboardObjectivesSummary, type DashboardStats, type DashboardStreak, type DashboardTask, type Hooks, MEMBER_ROLES, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, type SessionData, TASK_LIMITS, TASK_STATUS_VALUES, type TimerConfig, type TimerMode, type TimerType, type UseTimerProps, type UseTimerReturn, WORKSPACE_LIMITS, createHooks, createProjectSchema, createTaskSchema, createUseDashboardData, formatTimerDisplay, inviteMemberSchema, projectBaseSchema, queryKeys, taskBaseSchema, useTimer };
