@@ -91,6 +91,30 @@ describe('PrismaTaskRepository', () => {
       });
     });
 
+    it('should persist doDate on save (ODD 005 S1)', async () => {
+      const doDate = new Date('2026-10-25T09:00:00.000Z');
+      const task = new Task({
+        id: 'task-123',
+        title: 'Task with doDate',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
+        doDate,
+      });
+
+      mockPrismaService.task.upsert.mockResolvedValue({ id: 'task-123' });
+
+      await repository.save(task);
+
+      expect(mockPrismaService.task.upsert).toHaveBeenCalledWith({
+        where: { id: 'task-123' },
+        create: expect.objectContaining({ doDate }),
+        update: expect.objectContaining({ doDate }),
+      });
+    });
+
     it('should handle task with recurrence', async () => {
       const task = new Task({
         id: 'task-123',
@@ -353,6 +377,52 @@ describe('PrismaTaskRepository', () => {
           priority: 'HIGH',
         }),
       });
+    });
+
+    it('should persist doDate on update (ODD 005 S1)', async () => {
+      const doDate = new Date('2026-10-26T09:00:00.000Z');
+      const task = new Task({
+        id: 'task-123',
+        title: 'Task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
+        doDate,
+      });
+
+      mockPrismaService.task.update.mockResolvedValue({ id: 'task-123' });
+
+      await repository.update(task);
+
+      expect(mockPrismaService.task.update).toHaveBeenCalledWith({
+        where: { id: 'task-123' },
+        data: expect.objectContaining({ doDate }),
+      });
+    });
+
+    it('should map doDate from prisma to domain on findById (ODD 005 S1)', async () => {
+      const doDate = new Date('2026-10-25T09:00:00.000Z');
+      const mockPrismaTask = {
+        id: 'task-123',
+        title: 'Test Task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        doDate,
+        isDeleted: false,
+        subTasks: [],
+        recurrence: null,
+        project: null,
+        assignee: null,
+        owner: null,
+      };
+
+      mockPrismaService.task.findFirst.mockResolvedValue(mockPrismaTask);
+
+      const result = await repository.findById('task-123');
+
+      expect(result?.props.doDate).toEqual(doDate);
     });
 
     it('should handle assigneeId update', async () => {
