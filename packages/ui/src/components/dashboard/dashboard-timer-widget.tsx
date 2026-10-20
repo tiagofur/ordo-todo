@@ -105,6 +105,8 @@ export function DashboardTimerWidget({
   const activeModeColor = MODE_COLORS[mode] || customAccentColor || '#f43f5e';
   const isActiveRun = isRunning && !isPaused;
   const isContinuous = mode === 'CONTINUOUS' || mode === 'STOPWATCH';
+  const isIconOnlyBadge =
+    mode === 'SHORT_BREAK' || mode === 'LONG_BREAK' || isContinuous;
 
   const clampedProgress = Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0;
 
@@ -140,7 +142,10 @@ export function DashboardTimerWidget({
         {/* Left: Mode Badge */}
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-2xs shrink-0 select-none"
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full py-0.5 text-xs font-semibold border shadow-2xs shrink-0 select-none',
+              isIconOnlyBadge ? 'px-1.5' : 'px-2.5'
+            )}
             style={{
               borderColor: `${activeModeColor}40`,
               backgroundColor: `${activeModeColor}15`,
@@ -155,15 +160,12 @@ export function DashboardTimerWidget({
                 <span className="font-semibold tabular-nums text-xs">#{completedPomodoros + 1}</span>
               </>
             ) : mode === 'SHORT_BREAK' || mode === 'LONG_BREAK' ? (
-              <>
-                <Coffee className="h-3.5 w-3.5 shrink-0" />
-                <span className="text-xs truncate">{mode === 'SHORT_BREAK' ? t.shortBreak : t.longBreak}</span>
-              </>
+              // Icon-only: the break label overlapped the duration chips on
+              // narrow cards. Full label stays in title/aria-label.
+              <Coffee className="h-3.5 w-3.5 shrink-0" />
             ) : mode === 'CONTINUOUS' || mode === 'STOPWATCH' ? (
-              <>
-                <Timer className="h-3.5 w-3.5 shrink-0" />
-                <span className="text-xs truncate">{t.continuous}</span>
-              </>
+              // Icon-only, same reason as breaks.
+              <Timer className="h-3.5 w-3.5 shrink-0" />
             ) : (
               <>
                 <span
