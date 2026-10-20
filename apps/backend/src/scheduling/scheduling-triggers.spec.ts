@@ -58,15 +58,13 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
   });
 
   const repos = () => ({
-    findByOwnerId: (service as unknown as { taskRepository: { findByOwnerId: jest.Mock } })
-      .taskRepository.findByOwnerId as jest.Mock,
+    findByOwnerId: (
+      service as unknown as { taskRepository: { findByOwnerId: jest.Mock } }
+    ).taskRepository.findByOwnerId,
   });
 
   it('replanOnDayStart with no previous plan returns all-added changes', async () => {
-    repos().findByOwnerId.mockResolvedValue([
-      openTask('a'),
-      openTask('b'),
-    ]);
+    repos().findByOwnerId.mockResolvedValue([openTask('a'), openTask('b')]);
     const { plan, changes } = await service.replanOnDayStart('user-1');
 
     expect(plan.blocks).toHaveLength(2);
@@ -173,7 +171,9 @@ describe('SchedulingService replan triggers (ODD 005 S3)', () => {
     const { plan } = await service.replanOnDayStart('user-1');
 
     expect(prisma.externalCalendarBlock.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ userId: 'user-1' }) }),
+      expect.objectContaining({
+        where: expect.objectContaining({ userId: 'user-1' }),
+      }),
     );
     // Single 60min task must start at 10:00 (after the 09:30-10:00 meeting),
     // not at 09:00 overlapping it.

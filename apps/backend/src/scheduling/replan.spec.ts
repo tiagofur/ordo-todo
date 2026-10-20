@@ -145,9 +145,10 @@ describe('replan (ODD 005 S3)', () => {
       trigger: { kind: 'completed', taskId: 'zzz' },
     });
 
-    expect(
-      plan.blocks.find((b) => b.taskId === 'a'),
-    ).toMatchObject({ start: '09:00', end: '09:30' });
+    expect(plan.blocks.find((b) => b.taskId === 'a')).toMatchObject({
+      start: '09:00',
+      end: '09:30',
+    });
     // b keeps 10:00-11:00 (urgent-first ordering is stable here), c fills 11:00.
     for (const b of plan.blocks) {
       if (b.taskId === 'a') continue;
