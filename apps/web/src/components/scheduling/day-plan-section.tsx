@@ -161,6 +161,9 @@ export function DayPlanSection({ labels }: { labels: DayPlanSectionLabels }) {
               title: labels.risksTitle,
               empty: labels.risksEmpty,
             }}
+            // TODO(ODD 005 follow-up / 006 ritual): wire risk options to real
+            // actions (reschedule/split/delegate/...). T5 surfaces them
+            // read-only; no-op keeps the card presentational.
             onSelectOption={() => undefined}
           />
         )}
