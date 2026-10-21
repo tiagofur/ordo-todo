@@ -613,12 +613,12 @@
       "pro": {
         "name": "Pro",
         "description": "Para usuários avançados",
-        "cta": "Teste Grátis"
+        "cta": "Começar"
       },
       "team": {
         "name": "Equipe",
         "description": "Colabore com seu time",
-        "cta": "Teste Grátis"
+        "cta": "Começar"
       },
       "enterprise": {
         "name": "Empresa",

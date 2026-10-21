@@ -19,7 +19,6 @@ export default function PricingPage() {
       popular: false,
       features: [
         'Unlimited tasks',
-        '3 projects',
         'Pomodoro timer',
         'Basic analytics',
         'Mobile app access',
@@ -205,7 +204,7 @@ export default function PricingPage() {
           </Link>
         </motion.div>
 
-        {/* Money Back Guarantee */}
+        {/* Beta pricing notice */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

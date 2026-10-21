@@ -613,12 +613,12 @@
       "pro": {
         "name": "Pro",
         "description": "For power users who want more",
-        "cta": "Start Free Trial"
+        "cta": "Get Started"
       },
       "team": {
         "name": "Team",
         "description": "Collaborate with your team",
-        "cta": "Start Free Trial"
+        "cta": "Get Started"
       },
       "enterprise": {
         "name": "Enterprise",

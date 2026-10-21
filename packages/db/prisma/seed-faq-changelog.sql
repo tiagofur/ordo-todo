@@ -28,7 +28,7 @@ INSERT INTO "FAQ" (id, question, answer, category, "order", published, "createdA
 VALUES
   (gen_random_uuid()::text, 'How is my data protected?', 'Your account is protected with secure sign-in (Google/GitHub OAuth or password), encrypted connections (TLS), and workspace-scoped access controls. A full data policy ships with our enterprise release.', 'Privacy & Security', 1, true, NOW(), NOW()),
   (gen_random_uuid()::text, 'Do you sell my data?', 'Never. Your data is yours. We don''t sell, share, or monetize your personal information. Our business model is based on subscriptions, not advertising.', 'Privacy & Security', 2, true, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Can I export my data?', 'Yes! You can export all your data at any time in JSON format from your settings. We believe in data portability and never lock you in.', 'Privacy & Security', 3, true, NOW(), NOW());
+  (gen_random_uuid()::text, 'Can I export my data?', 'Yes! You can export all your data at any time in JSON format from your profile. We believe in data portability and never lock you in.', 'Privacy & Security', 3, true, NOW(), NOW());
 
 -- Clear existing Changelog entries
 DELETE FROM "ChangelogEntry";
