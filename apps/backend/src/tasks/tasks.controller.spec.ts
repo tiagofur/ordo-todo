@@ -13,6 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { DayPlanService } from './day-plan.service';
 import { TagsService } from '../tags/tags.service';
 import { CommentsService } from '../comments/comments.service';
 import { AttachmentsService } from '../attachments/attachments.service';
@@ -22,6 +23,7 @@ describe('TasksController', () => {
   let controller: TasksController;
   let tasksService: TasksService;
   let prismaService: PrismaService;
+  let dayPlanService: DayPlanService;
 
   const mockPrismaService = {
     project: {
@@ -77,12 +79,22 @@ describe('TasksController', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: DayPlanService,
+          useValue: {
+            getDayPlan: jest.fn(),
+            freeze: jest.fn(),
+            unfreeze: jest.fn(),
+            apply: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<TasksController>(TasksController);
     tasksService = module.get<TasksService>(TasksService);
     prismaService = module.get<PrismaService>(PrismaService);
+    dayPlanService = module.get<DayPlanService>(DayPlanService);
   });
 
   afterEach(() => {
@@ -431,6 +443,54 @@ describe('TasksController', () => {
       await expect(
         controller.createSubtask(parentTaskId, dto as any, user as any),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ODD 005 S3 (T3b): day-plan endpoints delegate to DayPlanService.
+  describe('day-plan', () => {
+    const user = { id: 'user-1', email: 'test@example.com' } as any;
+
+    it('getDayPlan returns the current plan', async () => {
+      const view = { proposalId: 'p1', status: 'PROPOSED' };
+      (dayPlanService.getDayPlan as jest.Mock).mockResolvedValue(view);
+
+      const result = await controller.getDayPlan(user);
+
+      expect(result).toEqual(view);
+      expect(dayPlanService.getDayPlan).toHaveBeenCalledWith('user-1');
+    });
+
+    it('freezeDayPlanBlock freezes the task', async () => {
+      const view = { proposalId: 'p1', frozenTaskIds: ['a'] };
+      (dayPlanService.freeze as jest.Mock).mockResolvedValue(view);
+
+      const result = await controller.freezeDayPlanBlock({ taskId: 'a' }, user);
+
+      expect(result).toEqual(view);
+      expect(dayPlanService.freeze).toHaveBeenCalledWith('user-1', 'a');
+    });
+
+    it('unfreezeDayPlanBlock unfreezes the task', async () => {
+      const view = { proposalId: 'p1', frozenTaskIds: [] };
+      (dayPlanService.unfreeze as jest.Mock).mockResolvedValue(view);
+
+      const result = await controller.unfreezeDayPlanBlock(
+        { taskId: 'a' },
+        user,
+      );
+
+      expect(result).toEqual(view);
+      expect(dayPlanService.unfreeze).toHaveBeenCalledWith('user-1', 'a');
+    });
+
+    it('applyDayPlan applies the proposal', async () => {
+      const view = { proposalId: 'p1', status: 'APPLIED' };
+      (dayPlanService.apply as jest.Mock).mockResolvedValue(view);
+
+      const result = await controller.applyDayPlan({ proposalId: 'p1' }, user);
+
+      expect(result).toEqual(view);
+      expect(dayPlanService.apply).toHaveBeenCalledWith('user-1', 'p1');
     });
   });
 });
