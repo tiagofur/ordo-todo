@@ -592,9 +592,9 @@ export function ProfileTabs({
                   <AtSign className="h-4 w-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">Change Public Username</span>
                 </div>
-            <span className="text-xs text-muted-foreground font-mono">
-              @{username || "username"}
-            </span>
+                <span className="text-xs text-muted-foreground font-mono">
+                  @{username || "username"}
+                </span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
