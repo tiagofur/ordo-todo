@@ -13,7 +13,7 @@
     },
     "privacy": {
       "title": "Privacidad Primero",
-      "description": "Tus datos son tuyos. Encriptación de extremo a extremo y nunca vendemos datos. Jamás."
+      "description": "Tus datos son tuyos. Acceso con tu cuenta (OAuth de Google/GitHub o contraseña), cifrado en tránsito (TLS) y controles de acceso por espacio de trabajo. Nunca vendemos datos. Jamás."
     },
     "ai_helps": {
       "title": "IA Que Ayuda, No Controla",
@@ -122,7 +122,7 @@
       "description": "La IA predice cuánto tardarán las tareas basándose en tareas similares que has completado antes.",
       "benefit": "Mejor planificación"
     },
-    "ai_statement": "IA que respeta tu privacidad. Todo el procesamiento ocurre de forma segura."
+    "ai_statement": "La IA analiza tus tareas con un proveedor externo (Google Gemini). Puedes activar o desactivar las funciones IA en ajustes."
   },
   "BlogPreview": {
     "badge": "De Nuestro Blog",
@@ -598,12 +598,12 @@
   "Pricing": {
     "badge": "Precios Simples",
     "title": "Elige Tu Plan",
-    "subtitle": "Empieza gratis, actualiza cuando necesites más. Sin costos ocultos, cancela cuando quieras.",
+    "subtitle": "Empieza gratis. Los planes de pago están en beta y sujetos a cambio: el cobro aún no está activo.",
     "most_popular": "Más Popular",
     "questions": "¿Tienes preguntas sobre nuestros planes?",
     "view_faq": "Ver FAQ →",
-    "guarantee_title": "Garantía de 30 Días",
-    "guarantee_text": "Prueba cualquier plan de pago sin riesgo. Si no estás satisfecho, te reembolsamos en 30 días.",
+    "guarantee_title": "Precios en beta",
+    "guarantee_text": "Estos planes están sujetos a cambio: el cobro aún no está activo y no hay límites aplicados. Lo publicado aquí es la intención, no un contrato.",
     "plans": {
       "free": {
         "name": "Gratis",
@@ -613,12 +613,12 @@
       "pro": {
         "name": "Pro",
         "description": "Para usuarios avanzados",
-        "cta": "Prueba Gratis"
+        "cta": "Empezar"
       },
       "team": {
         "name": "Equipo",
         "description": "Colabora con tu equipo",
-        "cta": "Prueba Gratis"
+        "cta": "Empezar"
       },
       "enterprise": {
         "name": "Empresa",

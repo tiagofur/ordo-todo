@@ -19,11 +19,9 @@ export default function PricingPage() {
       popular: false,
       features: [
         'Unlimited tasks',
-        '3 projects',
         'Pomodoro timer',
         'Basic analytics',
         'Mobile app access',
-        '7-day task history',
       ],
     },
     {
@@ -38,9 +36,7 @@ export default function PricingPage() {
         'Unlimited projects',
         'AI task scheduling',
         'Advanced analytics',
-        'Calendar integrations',
         'Recurring tasks',
-        'Custom themes',
         'Priority support',
       ],
     },
@@ -57,8 +53,6 @@ export default function PricingPage() {
         'Shared projects',
         'Team analytics',
         'Admin controls',
-        'SSO/SAML',
-        'API access',
         'Dedicated support',
       ],
     },
@@ -72,12 +66,8 @@ export default function PricingPage() {
       features: [
         'Everything in Team',
         'Unlimited users',
-        'Custom integrations',
-        'Data residency',
-        'SLA guarantee',
         'Dedicated account manager',
         'Custom onboarding',
-        'White-label options',
       ],
     },
   ];
@@ -214,7 +204,7 @@ export default function PricingPage() {
           </Link>
         </motion.div>
 
-        {/* Money Back Guarantee */}
+        {/* Beta pricing notice */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

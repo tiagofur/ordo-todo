@@ -108,7 +108,7 @@ async function main() {
             },
             {
                 question: 'Is there a free plan?',
-                answer: 'Yes! Ordo Todo offers a generous free plan that includes unlimited tasks, basic projects, and access to the Pomodoro timer. Premium features like AI assistance and team collaboration require a paid subscription.',
+                answer: 'Yes! Everything is currently free while paid plans are in beta: unlimited tasks and full access to the Pomodoro timer. Premium tiers will be announced before billing goes live.',
                 category: 'Billing',
                 order: 1,
             },
@@ -126,13 +126,13 @@ async function main() {
             },
             {
                 question: 'Is my data secure?',
-                answer: 'Absolutely. We use bank-level encryption (AES-256) for all data at rest and in transit. Your data is stored in secure data centers with regular backups. We never share your personal information with third parties.',
+                answer: 'Your account is protected with secure sign-in (Google/GitHub OAuth or password), encrypted connections (TLS), and workspace-scoped access controls. We never sell your personal information. A full data policy ships with our enterprise release.',
                 category: 'Privacy & Security',
                 order: 1,
             },
             {
                 question: 'How do I cancel my subscription?',
-                answer: 'You can cancel your subscription at any time from your account settings. After cancellation, you\'ll continue to have access to premium features until the end of your billing period.',
+                answer: 'There is nothing to cancel yet: billing is not live and every account is currently free.',
                 category: 'Billing',
                 order: 2,
             },
