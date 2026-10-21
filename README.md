@@ -20,7 +20,7 @@ Ordo-Todo is a next-generation task management application that combines simplic
 | **AI Copilot** | Intelligent assistant that helps without interrupting |
 | **Advanced Pomodoro Timer** | Multiple modes, task switching, continuous completion |
 | **Multi-platform** | Web, Mobile (iOS/Android), and Desktop (Windows/Mac/Linux) |
-| **Real-time Sync** | Seamless synchronization across all devices |
+| **Sync** | Each platform syncs with the server; offline/queue support varies by platform (per-platform matrix lands in ODD 013 T4 as `docs/guides/platform-parity.md`) |
 | **Analytics** | Focus Score, productivity metrics, actionable insights |
 | **Team Collaboration** | Workspaces, assignments, comments, mentions |
 | **Multi-language** | English, Spanish, Portuguese (Brazil) |
@@ -133,7 +133,7 @@ npm run dev --filter=@ordo-todo/web
 Features:
 - Server Components + App Router
 - TailwindCSS 4 + Radix UI
-- Real-time collaboration
+- Live presence + comments (no concurrent editing)
 - Full i18n support
 
 ### Backend API (NestJS)
@@ -290,8 +290,7 @@ Built with passion by the Ordo-Todo Team
 
 ---
 
-**Status**: In Development
-**Version**: 0.2.0-beta
+**Status**: In Development (no public stable release yet; per-package versions in each `package.json`; real history in GitHub releases)
 
 ---
 

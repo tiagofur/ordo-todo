@@ -1,50 +1,25 @@
-# Welcome to your Expo app 👋
+# Ordo Mobile App (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ordo for iOS/Android: tasks, capture, timer, calendar, ritual and notifications, sharing types and hooks with the monorepo (`@ordo-todo/*`).
 
-## Get started
+## Status
 
-1. Install dependencies
+In development alongside web/desktop. Offline support is partial (see `docs/guides/platform-parity.md` once ODD 013 lands it); push + socket notifications work.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Get started (from the repo root)
 
 ```bash
-npm run reset-project
+npm install --legacy-peer-deps
+npx expo start --config apps/mobile/app.json
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Run inside `apps/mobile/`:
 
-## Learn more
+- `npm start` — Expo dev server
+- `npm run android` / `npm run ios` — native builds
+- `npm run lint` — eslint on `app/`
+- `npx jest` — unit tests (some suites depend on the shared babel workaround, see `babel.jest.js`)
 
-To learn more about developing your project with Expo, look at the following resources:
+## Links
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Repo README](../../README.md) · [Roadmap](../../docs/planning/roadmap.md) · [Shortcuts](../../docs/guides/shortcuts.md)

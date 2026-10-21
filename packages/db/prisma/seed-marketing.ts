@@ -20,13 +20,13 @@ async function main() {
             },
             {
                 title: 'Calendar Integration',
-                description: 'Two-way sync with Google Calendar, Outlook, and Apple Calendar. See your tasks alongside your meetings.',
-                status: 'PLANNED',
+                description: 'Two-way sync with Google Calendar and Outlook. See your tasks alongside your meetings.',
+                status: 'COMPLETED',
                 totalVotes: 35,
             },
             {
                 title: 'Team Collaboration Features',
-                description: 'Share workspaces, assign tasks to team members, and track progress together in real-time.',
+                description: 'Share workspaces, assign tasks to team members, and track progress together.',
                 status: 'IN_PROGRESS',
                 totalVotes: 31,
             },
@@ -50,7 +50,7 @@ async function main() {
             },
             {
                 title: 'Zapier & Make Integration',
-                description: 'Connect Ordo Todo with thousands of other apps through Zapier and Make (formerly Integromat).',
+                description: 'Public API and webhooks already exist; one-click Zapier/Make templates are still planned.',
                 status: 'PLANNED',
                 totalVotes: 19,
             },
@@ -60,36 +60,15 @@ async function main() {
 
     console.log(`✅ Created ${roadmapItems.count} roadmap items`);
 
-    // Seed Changelog Entries
+    // Seed Changelog Entries (demo seed: the real history lives in GitHub releases)
     const changelogEntries = await prisma.changelogEntry.createMany({
         data: [
             {
-                version: '2.1.0',
-                title: 'AI Assistant Improvements',
-                content: 'Enhanced AI suggestions with context-aware task recommendations. The AI now learns from your habits to suggest better scheduling.',
+                version: 'unreleased',
+                title: 'Active development',
+                content: 'Ordo is under active development. This demo entry ships with fresh installs; the real changelog is published with each GitHub release.',
                 type: 'NEW',
-                publishedAt: new Date('2024-12-28'),
-            },
-            {
-                version: '2.0.5',
-                title: 'Performance Optimizations',
-                content: 'Reduced app load time by 40%. Fixed memory leaks in the timer component. Improved database query efficiency.',
-                type: 'IMPROVED',
-                publishedAt: new Date('2024-12-20'),
-            },
-            {
-                version: '2.0.4',
-                title: 'Bug Fixes',
-                content: 'Fixed issue where tasks would disappear after sync. Resolved calendar view rendering issues on Safari.',
-                type: 'FIXED',
-                publishedAt: new Date('2024-12-15'),
-            },
-            {
-                version: '2.0.0',
-                title: 'Ordo Todo 2.0 Launch',
-                content: 'Complete redesign with new UI, AI assistant, habit tracking, and much more. This is our biggest update ever!',
-                type: 'NEW',
-                publishedAt: new Date('2024-12-01'),
+                publishedAt: new Date(),
             },
         ],
         skipDuplicates: true,
