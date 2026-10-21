@@ -16,10 +16,12 @@ import type { RequestUser } from '../common/types/request-user.interface';
 import { RitualService } from './ritual.service';
 import { CompleteMorningDto } from './dto/complete-morning.dto';
 import { CompleteEveningDto } from './dto/complete-evening.dto';
+import { TimeboxMorningDto } from './dto/timebox-morning.dto';
 
 // ODD 006 S1 (T1): morning ritual endpoints. Skippable with one touch;
 // the ritual never blocks the app (no guards beyond auth).
 // ODD 006 S2 (T2): evening ritual endpoints (same guards/roles).
+// ODD 006 S3 (T3): time-boxing endpoints (manual blocks or accept proposal).
 @Controller('ritual')
 @UseGuards(JwtAuthGuard)
 export class RitualController {
@@ -83,5 +85,25 @@ export class RitualController {
   @ApiOperation({ summary: 'Skip the evening ritual (one touch)' })
   skipEvening(@CurrentUser() user: RequestUser) {
     return this.ritualService.skipEvening(user.id);
+  }
+
+  @Post('morning/timebox')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Time-box morning top-3 tasks (manual blocks)' })
+  @ApiBodyDecorator({ type: TimeboxMorningDto })
+  timeboxMorning(
+    @Body() dto: TimeboxMorningDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.ritualService.timeboxMorning(user.id, dto.blocks);
+  }
+
+  @Post('morning/timebox/accept')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Accept the proposed time blocks for the top-3' })
+  acceptTimeboxProposal(@CurrentUser() user: RequestUser) {
+    return this.ritualService.acceptTimeboxProposal(user.id);
   }
 }

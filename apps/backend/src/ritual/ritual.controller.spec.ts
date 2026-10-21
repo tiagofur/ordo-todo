@@ -17,6 +17,8 @@ describe('RitualController morning', () => {
             getMorning: jest.fn(),
             completeMorning: jest.fn(),
             skipMorning: jest.fn(),
+            timeboxMorning: jest.fn(),
+            acceptTimeboxProposal: jest.fn(),
           },
         },
       ],
@@ -59,5 +61,26 @@ describe('RitualController morning', () => {
 
     expect(result).toEqual(view);
     expect(service.skipMorning).toHaveBeenCalledWith('user-1');
+  });
+
+  // ODD 006 S3 (T3): time-boxing endpoints delegate to RitualService.
+  it('timeboxMorning passes the blocks through', async () => {
+    const blocks = [{ taskId: 'a', start: '09:00', end: '09:30' }];
+    (service.timeboxMorning as jest.Mock).mockResolvedValue(blocks);
+
+    const result = await controller.timeboxMorning({ blocks }, user);
+
+    expect(result).toEqual(blocks);
+    expect(service.timeboxMorning).toHaveBeenCalledWith('user-1', blocks);
+  });
+
+  it('acceptTimeboxProposal accepts the proposal', async () => {
+    const blocks = [{ taskId: 'a', start: '09:00', end: '10:00' }];
+    (service.acceptTimeboxProposal as jest.Mock).mockResolvedValue(blocks);
+
+    const result = await controller.acceptTimeboxProposal(user);
+
+    expect(result).toEqual(blocks);
+    expect(service.acceptTimeboxProposal).toHaveBeenCalledWith('user-1');
   });
 });

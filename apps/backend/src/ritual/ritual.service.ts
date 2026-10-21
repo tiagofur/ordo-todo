@@ -359,6 +359,145 @@ export class RitualService {
     });
     return toView(row);
   }
+
+  // ODD 006 S3 (T3): light time-boxing for the morning top-3. Writes
+  // scheduledDate/Time + isTimeBlocked so blocks show in the day calendar
+  // (GET tasks/time-blocks filters on exactly those fields). NO replanning
+  // here (005 owns that): manual times or accept-the-proposal only.
+  async timeboxMorning(
+    userId: string,
+    blocks: TimeboxBlockInput[],
+  ): Promise<TimeboxBlock[]> {
+    const timezone = await this.userTimezone(userId);
+    const date = startOfTodayIn(timezone);
+    const ritual = await this.prisma.ritualDay.findUnique({
+      where: { userId_date: { userId, date } },
+    });
+    if (
+      !ritual ||
+      ritual.morningStatus !== 'DONE' ||
+      ritual.morningTop3.length === 0
+    ) {
+      throw new BadRequestException(
+        'Complete the morning ritual first: time-boxing needs a top-3',
+      );
+    }
+    // Duplicate taskIds would last-win silently inside the transaction.
+    const seen = new Set<string>();
+    for (const b of blocks) {
+      if (seen.has(b.taskId)) {
+        throw new BadRequestException(
+          `Duplicate block for task ${b.taskId}: one block per task`,
+        );
+      }
+      seen.add(b.taskId);
+    }
+    const top3 = new Set(ritual.morningTop3);
+    const tasks = await this.taskRepository.findByOwnerId(userId);
+    const estimated = new Map(
+      tasks.map((t) => [String(t.id), t.props.estimatedMinutes ?? 30]),
+    );
+    // Tenant check: every task must exist and be owned by the caller.
+    const owned = await this.prisma.task.findMany({
+      where: { id: { in: blocks.map((b) => b.taskId) }, ownerId: userId },
+      select: { id: true },
+    });
+    const ownedIds = new Set(owned.map((t) => t.id));
+    const resolved = blocks.map((b) =>
+      this.resolveTimebox(b, top3, ownedIds, estimated),
+    );
+    await this.prisma.$transaction(
+      resolved.map((r) =>
+        this.prisma.task.update({
+          where: { id: r.taskId, ownerId: userId },
+          data: {
+            scheduledDate: date,
+            scheduledTime: r.start,
+            scheduledEndTime: r.end,
+            isTimeBlocked: true,
+          },
+        }),
+      ),
+    );
+    return resolved;
+  }
+
+  // Accept the proposal: copy the plan blocks for the top-3 (top-3 ids
+  // missing from the plan are skipped, never invented). Same DONE guard as
+  // the manual path, BEFORE loading the plan (which can build one lazily) —
+  // accept must 400 like manual does, never succeed silently with [].
+  async acceptTimeboxProposal(userId: string): Promise<TimeboxBlock[]> {
+    const timezone = await this.userTimezone(userId);
+    const ritual = await this.prisma.ritualDay.findUnique({
+      where: { userId_date: { userId, date: startOfTodayIn(timezone) } },
+    });
+    if (
+      !ritual ||
+      ritual.morningStatus !== 'DONE' ||
+      ritual.morningTop3.length === 0
+    ) {
+      throw new BadRequestException(
+        'Complete the morning ritual first: time-boxing needs a top-3',
+      );
+    }
+    const plan = await this.dayPlans.getDayPlan(userId);
+    const byId = new Map(plan.blocks.map((b) => [b.taskId, b]));
+    const blocks = ritual.morningTop3
+      .filter((id) => byId.has(id))
+      .map((id) => {
+        const b = byId.get(id)!;
+        return { taskId: id, start: b.start, end: b.end };
+      });
+    if (blocks.length === 0) return [];
+    return this.timeboxMorning(userId, blocks);
+  }
+
+  private resolveTimebox(
+    block: TimeboxBlockInput,
+    top3: Set<string>,
+    ownedIds: Set<string>,
+    estimated: Map<string, number>,
+  ): TimeboxBlock {
+    if (!top3.has(block.taskId)) {
+      throw new BadRequestException(
+        `Task ${block.taskId} is not in the morning top-3`,
+      );
+    }
+    if (!ownedIds.has(block.taskId)) {
+      throw new BadRequestException(
+        `Task ${block.taskId} not found or not owned by you`,
+      );
+    }
+    const startMin = parseHHMM(block.start);
+    if (startMin === null) {
+      throw new BadRequestException(
+        `Invalid start time for ${block.taskId} (want HH:mm)`,
+      );
+    }
+    let endMin: number | null = null;
+    if (block.end !== undefined) {
+      endMin = parseHHMM(block.end);
+      if (endMin === null || endMin <= startMin) {
+        throw new BadRequestException(
+          `Invalid end time for ${block.taskId} (want HH:mm after start)`,
+        );
+      }
+    } else {
+      endMin = startMin + (estimated.get(block.taskId) ?? 30);
+    }
+    // A default end past midnight (23:30 + 60min) would write an invalid
+    // 24:xx time: reject with a clear error instead of clamping silently.
+    if (endMin >= 24 * 60) {
+      throw new BadRequestException(
+        `Block for ${block.taskId} would end past midnight: pass an explicit end or an earlier start`,
+      );
+    }
+    return {
+      taskId: block.taskId,
+      start: toHHMM(startMin),
+      end: toHHMM(endMin),
+    };
+  }
 }
 
 export interface OverdueTask {
@@ -399,6 +538,18 @@ export interface EveningCompleteView {
   shutdownComplete: boolean;
   suggestion: string;
   unmoved: string[];
+}
+
+export interface TimeboxBlockInput {
+  taskId: string;
+  start: string;
+  end?: string;
+}
+
+export interface TimeboxBlock {
+  taskId: string;
+  start: string;
+  end: string;
 }
 
 type RitualRow = {
@@ -514,3 +665,17 @@ export const shutdownSuggestion = (timezone: string): string => {
     ) + 1;
   return SHUTDOWN_SUGGESTIONS[(dayOfYear - 1) % SHUTDOWN_SUGGESTIONS.length];
 };
+
+// Strict HH:mm <-> minutes helpers (pure). parseHHMM returns null for
+// malformed input (bad shape, hour > 23, minute > 59).
+const parseHHMM = (value: string): number | null => {
+  const match = /^(\d{2}):(\d{2})$/.exec(value);
+  if (!match) return null;
+  const h = Number(match[1]);
+  const m = Number(match[2]);
+  if (h > 23 || m > 59) return null;
+  return h * 60 + m;
+};
+
+const toHHMM = (minutes: number): string =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
