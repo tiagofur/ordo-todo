@@ -2,6 +2,8 @@ import {
   IsBoolean,
   IsInt,
   IsOptional,
+  IsString,
+  Matches,
   Min,
   Max,
   IsEnum,
@@ -89,6 +91,29 @@ export class UpdatePreferencesDto {
   @IsBoolean()
   @IsOptional()
   enableNotifications?: boolean;
+
+  // Daily ritual reminders (ODD 006 S5, T4)
+  @IsBoolean()
+  @IsOptional()
+  ritualMorningReminder?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  ritualEveningReminder?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{2}:\d{2}$/, {
+    message: 'ritualMorningTime must be in HH:mm format',
+  })
+  ritualMorningTime?: string;
+
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{2}:\d{2}$/, {
+    message: 'ritualEveningTime must be in HH:mm format',
+  })
+  ritualEveningTime?: string;
 
   // AI General
   @IsBoolean()

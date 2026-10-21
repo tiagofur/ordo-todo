@@ -49,10 +49,20 @@ export class RitualReminderService {
     rawTimezone: string | null,
     now: Date,
   ): Promise<void> {
-    const prefs = await this.prisma.userPreferences.findUnique({
+    // No preferences row yet (fresh users): default ON, mirroring the
+    // schema defaults — reminders work out of the box (S5 check).
+    const row = await this.prisma.userPreferences.findUnique({
       where: { userId },
     });
-    if (!prefs || !prefs.enableNotifications) return;
+    const prefs = {
+      enableNotifications: true,
+      ritualMorningReminder: true,
+      ritualEveningReminder: true,
+      ritualMorningTime: '08:00',
+      ritualEveningTime: '21:00',
+      ...row,
+    };
+    if (!prefs.enableNotifications) return;
     const timezone = rawTimezone || 'America/Mexico_City';
     const minutesNow = minutesIn(timezone, now);
     const ritual = await this.prisma.ritualDay.findUnique({

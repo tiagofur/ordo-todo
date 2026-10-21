@@ -111,6 +111,17 @@ describe('RitualService streaks (ODD 006 S4)', () => {
     expect(out.longest).toBe(2);
   });
 
+  it('today absent counts from yesterday (tolerance branch)', async () => {
+    // endOffset=1: last row is yesterday, today has no row yet.
+    const days = dayKeys(3, 1);
+    prisma.ritualDay.findMany.mockResolvedValue(days.map((d) => row(d)));
+
+    const out = await service.getStreak('user-1');
+
+    expect(out.current).toBe(3);
+    expect(out.longest).toBe(3);
+  });
+
   it('a skipped day does not count but missing days end the streak', async () => {
     const days = dayKeys(3);
     prisma.ritualDay.findMany.mockResolvedValue([

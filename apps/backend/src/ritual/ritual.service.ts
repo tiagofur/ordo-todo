@@ -107,17 +107,15 @@ export class RitualService {
         // Proxy: completion time (DayPlanView exposes no plan-createdAt;
         // threading it through would be scope creep).
         morningPlannedAt: now,
-        streakDay: true,
       },
       update: {
         morningStatus: 'DONE',
         morningAt: now,
         morningTop3: top3,
         morningPlannedAt: now,
-        streakDay: true,
       },
     });
-    await this.checkStreakMilestones(userId, timezone);
+    await this.checkStreakMilestones(userId);
     return toView(row);
   }
 
@@ -284,13 +282,11 @@ export class RitualService {
           eveningStatus: 'DONE',
           eveningAt: now,
           eveningMoves: stored,
-          streakDay: true,
         },
         update: {
           eveningStatus: 'DONE',
           eveningAt: now,
           eveningMoves: stored,
-          streakDay: true,
         },
       }),
     ]);
@@ -299,7 +295,7 @@ export class RitualService {
     // as `unmoved` so the UI can show them instead of silently dropping them.
     const movedIds = new Set(moves.map((m) => m.taskId));
     const unmoved = [...pendingIds].filter((id) => !movedIds.has(id));
-    await this.checkStreakMilestones(userId, timezone);
+    await this.checkStreakMilestones(userId);
     return {
       shutdownComplete: true,
       suggestion: shutdownSuggestion(timezone),
@@ -308,10 +304,11 @@ export class RitualService {
   }
 
   // ODD 006 S4 (T4): kind ritual streaks. A day counts when morning and/or
-  // evening is DONE (checked via statuses, not streakDay, so backfilled rows
-  // behave identically). Missing/skipped days break consecutiveness; nothing
-  // is ever subtracted (no punishment). Milestones 7/30/100 unlock via
-  // gamification (idempotent: unlock no-ops when already unlocked).
+  // evening is DONE (statuses are the source of truth; the streakDay column
+  // stays reserved for a future indexed query). Missing/skipped days break
+  // consecutiveness; nothing is ever subtracted (no punishment). Milestones
+  // 7/30/100 unlock via gamification (idempotent: unlock no-ops when already
+  // unlocked).
   async getStreak(
     userId: string,
   ): Promise<{ current: number; longest: number }> {
@@ -363,10 +360,7 @@ export class RitualService {
     return { current, longest };
   }
 
-  private async checkStreakMilestones(
-    userId: string,
-    _timezone: string,
-  ): Promise<void> {
+  private async checkStreakMilestones(userId: string): Promise<void> {
     if (!this.gamification) return;
     const { current } = await this.getStreak(userId);
     if (current === 7 || current === 30 || current === 100) {

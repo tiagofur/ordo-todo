@@ -126,4 +126,62 @@ describe('RitualReminderService (ODD 006 S5)', () => {
       }),
     );
   });
+
+  it('sends with schema defaults when the user has no prefs row (B2)', async () => {
+    prisma.user.findMany.mockResolvedValue([{ id: 'user-1', timezone: 'UTC' }]);
+    prisma.userPreferences.findUnique.mockResolvedValue(null);
+
+    await service.checkReminders(at('2026-10-21T08:05:00Z'));
+
+    expect(notifications.create).toHaveBeenCalledTimes(1);
+    expect(notifications.create).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-1', type: 'RITUAL_MORNING' }),
+    );
+  });
+});
+
+describe('RitualReminderService fallback without NotificationsService (N3)', () => {
+  it('persists via Prisma directly with the required fields', async () => {
+    const prisma = {
+      user: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([{ id: 'user-1', timezone: 'UTC' }]),
+      },
+      userPreferences: {
+        findUnique: jest.fn().mockResolvedValue({
+          enableNotifications: true,
+          ritualMorningReminder: true,
+          ritualEveningReminder: true,
+          ritualMorningTime: '08:00',
+          ritualEveningTime: '21:00',
+        }),
+      },
+      ritualDay: { findUnique: jest.fn().mockResolvedValue(null) },
+      notification: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+      },
+    };
+    // No NotificationsService provider: @Optional resolves undefined (prod path).
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        RitualReminderService,
+        { provide: PrismaService, useValue: prisma },
+      ],
+    }).compile();
+    const service = module.get<RitualReminderService>(RitualReminderService);
+
+    await service.checkReminders(new Date('2026-10-21T08:05:00Z'));
+
+    expect(prisma.notification.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'user-1',
+        type: 'RITUAL_MORNING',
+        title: expect.any(String),
+        message: expect.any(String),
+        resourceType: 'TASK',
+      }),
+    });
+  });
 });
