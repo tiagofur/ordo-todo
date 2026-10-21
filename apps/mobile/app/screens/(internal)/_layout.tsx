@@ -50,6 +50,14 @@ export default function InternalLayout() {
             headerBackTitle: "Volver",
           }}
         />
+        <Stack.Screen
+          name="ritual"
+          options={{
+            headerTitle: "Ritual",
+            headerShown: false,
+            headerBackTitle: "Volver",
+          }}
+        />
       </Stack>
     </ForceAuthentication>
   );

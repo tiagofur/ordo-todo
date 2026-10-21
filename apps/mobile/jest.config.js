@@ -3,7 +3,13 @@ const path = require("path");
 module.exports = {
   preset: "jest-expo",
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+    // ODD 006 T5: scoped babel config without the nativewind plugin, which
+    // breaks babel-core 7.28 repo-wide (see babel.jest.js). Metro builds are
+    // unaffected (they use babel.config.js).
+    "^.+\\.(js|jsx|ts|tsx)$": [
+      "babel-jest",
+      { configFile: path.join(__dirname, "babel.jest.js") },
+    ],
   },
   transformIgnorePatterns: [
     "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@ordo-todo/.*)",
