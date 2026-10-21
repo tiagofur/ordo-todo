@@ -26,6 +26,8 @@ import { AIModule } from '../ai/ai.module';
     NotificationsModule,
     GamificationModule,
     AIModule,
+    // ODD 005 S3/T3b + S4/T4: DayPlanService + RiskAlertService needs.
+    // No cycle: SchedulingModule imports RepositoriesModule only.
     SchedulingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
