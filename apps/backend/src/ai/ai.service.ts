@@ -12,13 +12,11 @@ import type {
   AnalyticsRepository,
   TimerRepository,
   TaskRepository,
-  Task as CoreTask,
 } from '@ordo-todo/core';
 import {
   GetOptimalScheduleUseCase,
   PredictTaskDurationUseCase,
   GenerateWeeklyReportUseCase,
-  toCalendarDateString,
   type WeeklyReportContext,
 } from '@ordo-todo/core';
 import { GeminiAIService } from './gemini-ai.service';
@@ -42,6 +40,7 @@ import type { LlmProvider } from './llm/llm-provider.interface';
 import { CreditsService } from './credits/credits.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
 import type { DayPlan } from '../scheduling/day-planner';
+import { selectDayPlanCandidates } from '../scheduling/candidate-criteria';
 
 const ASK_SYSTEM_PROMPT =
   'Answer the question using ONLY the provided sources. ' +
@@ -331,11 +330,9 @@ export class AIService {
     return { ...legacy, dayPlan };
   }
 
-  // ODD 005 T2 candidate selection (documented here per task brief):
-  // open tasks (TODO/IN_PROGRESS) owned by the user that are EITHER planned
-  // for today (doDate is today in the USER's timezone) OR have no doDate but
-  // a dueDate within the next 7 days. Tasks without any date stay out
-  // (explicit planning is T3).
+  // ODD 005 T2 candidate selection, shared with T3 triggers since T3a:
+  // see candidate-criteria.ts for the documented rule (EXTRACT decision:
+  // identical behavior, single source of truth).
   private async buildDayPlan(userId: string): Promise<DayPlan> {
     const tasks = await this.taskRepository.findByOwnerId(userId);
     const user = await this.prisma.user.findUnique({
@@ -351,27 +348,13 @@ export class AIService {
       month: '2-digit',
       day: '2-digit',
     }).format(new Date());
-    const weekFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
 
-    const candidates = tasks
-      .filter((t: CoreTask) => {
-        if (t.props.status !== 'TODO' && t.props.status !== 'IN_PROGRESS')
-          return false;
-        const doDate = this.toDateKey(t.props.doDate, timezone);
-        if (doDate === today) return true;
-        if (t.props.doDate) return false; // planned for another day
-        const due = t.props.dueDate ? new Date(t.props.dueDate).getTime() : NaN;
-        return !Number.isNaN(due) && due <= weekFromNow;
-      })
-      .map((t: CoreTask) => ({
-        taskId: String(t.id),
-        title: t.props.title,
-        estimatedMinutes: t.props.estimatedMinutes ?? 30,
-        doDate: this.toDateKey(t.props.doDate, timezone),
-        dueDate: this.toDateKey(t.props.dueDate, timezone),
-        priority: t.props.priority,
-        energyRequired: t.props.energyRequired,
-      }));
+    const candidates = selectDayPlanCandidates({
+      tasks,
+      timezone,
+      todayKey: today,
+      weekFromNowMs: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    });
 
     // TODO(ODD 005 T3 / ODD 010): pass real synced calendar events here.
     // In T2 no backend calendar source exists yet, so the day plan assumes
@@ -386,15 +369,6 @@ export class AIService {
         lunchEnd: '14:00',
       },
     });
-  }
-
-  private toDateKey(
-    value: Date | string | null | undefined,
-    timezone: string,
-  ): string | null {
-    if (!value) return null;
-    const d = value instanceof Date ? value : new Date(value);
-    return toCalendarDateString(d, timezone) || null;
   }
 
   async predictTaskDuration(

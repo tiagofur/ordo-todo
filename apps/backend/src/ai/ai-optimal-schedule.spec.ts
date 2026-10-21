@@ -15,7 +15,43 @@ import { SchedulingService } from '../scheduling/scheduling.service';
 describe('AIService.getOptimalSchedule (ODD 005 T2 contract)', () => {
   let service: AIService;
 
-  // doDate = today (in the mocked user timezone) so tasks pass the T2 filter.
+  // doDate = midnight TODAY in the mocked user timezone (America/Mexico_City),
+  // built timezonelessly so the spec is hermetic in any server TZ (CI=UTC).
+  // Server-local midnights flake during 00:00-06:00 UTC — never use them here.
+  const TZ = 'America/Mexico_City';
+  const cdmxMidnightToday = (): Date => {
+    const todayKey = new Intl.DateTimeFormat('en-CA', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    const [y, mo, d] = todayKey.split('-').map(Number);
+    const guess = new Date(Date.UTC(y, mo - 1, d, 12, 0, 0));
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    const parts = dtf.formatToParts(guess);
+    const get = (t: string): number =>
+      Number(parts.find((p) => p.type === t)?.value ?? 0);
+    const wallAsUtc = Date.UTC(
+      get('year'),
+      get('month') - 1,
+      get('day'),
+      get('hour') % 24,
+      get('minute'),
+      get('second'),
+    );
+    const offsetMs = wallAsUtc - guess.getTime();
+    return new Date(Date.UTC(y, mo - 1, d, 0, 0, 0) - offsetMs);
+  };
   const today = new Date();
   const openTask = (id: string, title: string) =>
     new Task({
@@ -28,7 +64,7 @@ describe('AIService.getOptimalSchedule (ODD 005 T2 contract)', () => {
       isDeleted: false,
       estimatedMinutes: 60,
       dueDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      doDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+      doDate: cdmxMidnightToday(),
       energyRequired: 'HIGH',
     });
 
