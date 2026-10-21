@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { TasksModule } from '../tasks/tasks.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { AIModule } from '../ai/ai.module';
+import { GamificationModule } from '../gamification/gamification.module';
 import { RitualService } from './ritual.service';
+import { RitualReminderService } from './ritual-reminder.service';
 import { RitualController } from './ritual.controller';
 
 // ODD 006 (T1): ritual state (morning/evening, streaks in T4).
@@ -13,11 +15,13 @@ import { RitualController } from './ritual.controller';
 // TasksService/DayPlanService) — RitualService could not resolve
 // AIService without this line. No cycles: none of the three imports
 // RitualModule back (bootstrap-verified).
+// ODD 006 S4 (T4): + GamificationModule (streak milestones). Same no-cycle
+// guarantee (bootstrap-verified).
 // PrismaService arrives via @Global DatabaseModule.
 @Module({
-  imports: [TasksModule, RepositoriesModule, AIModule],
+  imports: [TasksModule, RepositoriesModule, AIModule, GamificationModule],
   controllers: [RitualController],
-  providers: [RitualService],
+  providers: [RitualService, RitualReminderService],
   exports: [RitualService],
 })
 export class RitualModule {}

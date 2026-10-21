@@ -19,6 +19,7 @@ describe('RitualController morning', () => {
             skipMorning: jest.fn(),
             timeboxMorning: jest.fn(),
             acceptTimeboxProposal: jest.fn(),
+            getStreak: jest.fn(),
           },
         },
       ],
@@ -82,5 +83,15 @@ describe('RitualController morning', () => {
 
     expect(result).toEqual(blocks);
     expect(service.acceptTimeboxProposal).toHaveBeenCalledWith('user-1');
+  });
+
+  it('getStreak returns the streak', async () => {
+    const streak = { current: 5, longest: 9 };
+    (service.getStreak as jest.Mock).mockResolvedValue(streak);
+
+    const result = await controller.getStreak(user);
+
+    expect(result).toEqual(streak);
+    expect(service.getStreak).toHaveBeenCalledWith('user-1');
   });
 });

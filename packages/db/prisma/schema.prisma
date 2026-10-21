@@ -295,6 +295,8 @@ enum NotificationType {
   DUE_DATE_APPROACHING
   INVITATION_RECEIVED
   SYSTEM
+  RITUAL_MORNING
+  RITUAL_EVENING
 }
 
 enum ResourceType {
@@ -346,6 +348,12 @@ model UserPreferences {
   // Notifications
   enableSounds        Boolean @default(true)
   enableNotifications Boolean @default(true)
+
+  // Daily ritual reminders (ODD 006 S5, T4)
+  ritualMorningReminder Boolean @default(true)
+  ritualEveningReminder Boolean @default(true)
+  ritualMorningTime     String  @default("08:00") // HH:mm in user TZ
+  ritualEveningTime     String  @default("21:00") // HH:mm in user TZ
 
   // UI
   theme       Theme    @default(LIGHT)

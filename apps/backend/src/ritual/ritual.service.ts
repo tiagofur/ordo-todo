@@ -3,10 +3,12 @@ import {
   Inject,
   Injectable,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import type { TaskRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { AIService } from '../ai/ai.service';
+import { GamificationService } from '../gamification/gamification.service';
 import {
   DayPlanService,
   startOfTodayIn,
@@ -26,11 +28,12 @@ import {
 // Reads: plan via DayPlanService (TasksModule), tasks via TaskRepository
 // (RepositoriesModule), PM summary via AIService (AIModule), user/timezone
 // + ritual rows via Prisma.
-// DI: RitualModule imports TasksModule + RepositoriesModule + AIModule (no
-// cycles: none imports RitualModule back). PrismaService via @Global
-// DatabaseModule. AIModule is imported DIRECTLY (not transitively through
-// TasksModule) because Nest does not re-export transitive imports —
-// TasksModule imports AIModule but only exports TasksService/DayPlanService.
+// DI: RitualModule imports TasksModule + RepositoriesModule + AIModule +
+// GamificationModule (no cycles: none imports RitualModule back).
+// PrismaService via @Global DatabaseModule. AIModule is imported DIRECTLY
+// (not transitively through TasksModule) because Nest does not re-export
+// transitive imports — TasksModule imports AIModule but only exports
+// TasksService/DayPlanService.
 @Injectable()
 export class RitualService {
   private readonly logger = new Logger(RitualService.name);
@@ -41,6 +44,11 @@ export class RitualService {
     private readonly ai: AIService,
     @Inject('TaskRepository')
     private readonly taskRepository: TaskRepository,
+    // @Optional: getStreak milestones need it, but morning/evening/timebox
+    // paths (and their specs) resolve without GamificationModule.
+    @Optional()
+    @Inject(GamificationService)
+    private readonly gamification?: GamificationService,
   ) {}
 
   async getMorning(userId: string): Promise<MorningView> {
@@ -99,14 +107,17 @@ export class RitualService {
         // Proxy: completion time (DayPlanView exposes no plan-createdAt;
         // threading it through would be scope creep).
         morningPlannedAt: now,
+        streakDay: true,
       },
       update: {
         morningStatus: 'DONE',
         morningAt: now,
         morningTop3: top3,
         morningPlannedAt: now,
+        streakDay: true,
       },
     });
+    await this.checkStreakMilestones(userId, timezone);
     return toView(row);
   }
 
@@ -273,11 +284,13 @@ export class RitualService {
           eveningStatus: 'DONE',
           eveningAt: now,
           eveningMoves: stored,
+          streakDay: true,
         },
         update: {
           eveningStatus: 'DONE',
           eveningAt: now,
           eveningMoves: stored,
+          streakDay: true,
         },
       }),
     ]);
@@ -286,11 +299,79 @@ export class RitualService {
     // as `unmoved` so the UI can show them instead of silently dropping them.
     const movedIds = new Set(moves.map((m) => m.taskId));
     const unmoved = [...pendingIds].filter((id) => !movedIds.has(id));
+    await this.checkStreakMilestones(userId, timezone);
     return {
       shutdownComplete: true,
       suggestion: shutdownSuggestion(timezone),
       unmoved,
     };
+  }
+
+  // ODD 006 S4 (T4): kind ritual streaks. A day counts when morning and/or
+  // evening is DONE (checked via statuses, not streakDay, so backfilled rows
+  // behave identically). Missing/skipped days break consecutiveness; nothing
+  // is ever subtracted (no punishment). Milestones 7/30/100 unlock via
+  // gamification (idempotent: unlock no-ops when already unlocked).
+  async getStreak(
+    userId: string,
+  ): Promise<{ current: number; longest: number }> {
+    const timezone = await this.userTimezone(userId);
+    const todayKey = toTodayKey(timezone);
+    const rows = await this.prisma.ritualDay.findMany({
+      where: { userId },
+      orderBy: { date: 'desc' },
+      take: 365,
+    });
+    const counts = (r: { morningStatus: string; eveningStatus: string }) =>
+      r.morningStatus === 'DONE' || r.eveningStatus === 'DONE';
+    const keyOf = (d: Date) =>
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(d);
+    // Current: consecutive counting days back from today (today may still be
+    // pending — the streak stays alive until the day ends without DONE).
+    let current = 0;
+    let cursor = todayKey;
+    const byKey = new Map(rows.map((r) => [keyOf(r.date), r]));
+    // If today has no counting row yet, start from yesterday without penalty.
+    const todayRow = byKey.get(cursor);
+    if (!todayRow || !counts(todayRow)) {
+      cursor = addDaysToKey(cursor, -1);
+    }
+    while (true) {
+      const row = byKey.get(cursor);
+      if (!row || !counts(row)) break;
+      current += 1;
+      cursor = addDaysToKey(cursor, -1);
+    }
+    // Longest: best run anywhere in the fetched window.
+    let longest = 0;
+    let run = 0;
+    let prevKey: string | null = null;
+    const asc = [...rows]
+      .filter(counts)
+      .map((r) => keyOf(r.date))
+      .sort();
+    for (const key of asc) {
+      run = prevKey !== null && addDaysToKey(prevKey, 1) === key ? run + 1 : 1;
+      longest = Math.max(longest, run);
+      prevKey = key;
+    }
+    return { current, longest };
+  }
+
+  private async checkStreakMilestones(
+    userId: string,
+    _timezone: string,
+  ): Promise<void> {
+    if (!this.gamification) return;
+    const { current } = await this.getStreak(userId);
+    if (current === 7 || current === 30 || current === 100) {
+      await this.gamification.unlockRitualMilestone(userId, current);
+    }
   }
 
   // Validate one move (throws 400) and map it to its task write.
