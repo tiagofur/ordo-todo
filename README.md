@@ -20,7 +20,7 @@ Ordo-Todo is a next-generation task management application that combines simplic
 | **AI Copilot** | Intelligent assistant that helps without interrupting |
 | **Advanced Pomodoro Timer** | Multiple modes, task switching, continuous completion |
 | **Multi-platform** | Web, Mobile (iOS/Android), and Desktop (Windows/Mac/Linux) |
-| **Sync** | Each platform syncs with the server; see `docs/guides/platform-parity.md` for per-platform status (offline/queue support varies) |
+| **Sync** | Each platform syncs with the server; offline/queue support varies by platform (per-platform matrix lands in ODD 013 T4 as `docs/guides/platform-parity.md`) |
 | **Analytics** | Focus Score, productivity metrics, actionable insights |
 | **Team Collaboration** | Workspaces, assignments, comments, mentions |
 | **Multi-language** | English, Spanish, Portuguese (Brazil) |

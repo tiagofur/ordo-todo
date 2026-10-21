@@ -7,7 +7,7 @@ INSERT INTO "FAQ" (id, question, answer, category, "order", published, "createdA
 VALUES
   (gen_random_uuid()::text, 'What is Ordo Todo?', 'Ordo Todo is an all-in-one productivity platform that combines task management, time tracking, focus tools, and AI-powered scheduling. It helps you organize your work and life in one place.', 'General', 1, true, NOW(), NOW()),
   (gen_random_uuid()::text, 'Is there a free plan?', 'Yes! Ordo Todo offers a generous free plan that includes unlimited tasks, 3 projects, Pomodoro timer, and basic analytics. You can upgrade anytime for more features.', 'General', 2, true, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Can I use Ordo Todo on multiple devices?', 'Absolutely! Ordo Todo is available on Web, Desktop (Windows, Mac, Linux), and Mobile (iOS, Android). Your data syncs automatically across all your devices in real-time.', 'General', 3, true, NOW(), NOW());
+  (gen_random_uuid()::text, 'Can I use Ordo Todo on multiple devices?', 'Absolutely! Ordo Todo is available on Web, Desktop (Windows, Mac, Linux), and Mobile (iOS, Android). Your data syncs with your account on each platform; offline and queue support varies by platform.', 'General', 3, true, NOW(), NOW());
 
 -- Features FAQs
 INSERT INTO "FAQ" (id, question, answer, category, "order", published, "createdAt", "updatedAt")
