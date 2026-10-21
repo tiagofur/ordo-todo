@@ -33,11 +33,7 @@ VALUES
 -- Clear existing Changelog entries
 DELETE FROM "ChangelogEntry";
 
--- Changelog entries
+-- Changelog entries (demo seed: the real history lives in GitHub releases)
 INSERT INTO "ChangelogEntry" (id, version, title, content, type, "publishedAt", "createdAt", "updatedAt")
 VALUES
-  (gen_random_uuid()::text, '2.5.0', 'AI-Powered Task Suggestions', 'Our new AI assistant analyzes your work patterns and suggests optimal times for each task. Get personalized recommendations for when to tackle high-focus work and when to handle routine tasks.', 'NEW', '2024-12-28', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.4.2', 'Enhanced Keyboard Navigation', 'Improved keyboard shortcuts and navigation throughout the app. You can now navigate tasks, projects, and views entirely with your keyboard.', 'IMPROVED', '2024-12-20', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.4.1', 'Fixed Calendar Sync Issues', 'Resolved issues with Google Calendar two-way sync that caused some events to not appear correctly. Calendar integration is now more reliable.', 'FIXED', '2024-12-15', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.4.0', 'Burnout Prevention Alerts', 'New wellbeing feature that monitors your workload and sends gentle reminders when you might need a break. Includes weekly wellness reports.', 'NEW', '2024-12-10', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.3.5', 'Performance Improvements', 'Significant performance improvements across the app. Task lists now load 3x faster and the app uses 40% less memory.', 'IMPROVED', '2024-12-05', NOW(), NOW());
+  (gen_random_uuid()::text, 'unreleased', 'Active development', 'Ordo is under active development. This demo entry ships with fresh installs; the real changelog is published with each GitHub release.', 'NEW', NOW(), NOW(), NOW());

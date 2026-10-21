@@ -5,21 +5,18 @@ INSERT INTO "RoadmapItem" (id, title, description, status, "totalVotes", "create
 VALUES 
   (gen_random_uuid()::text, 'AI-Powered Task Prioritization', 'Let AI analyze your tasks and suggest the best order to tackle them based on deadlines, importance, and your work patterns.', 'IN_PROGRESS', 42, NOW(), NOW()),
   (gen_random_uuid()::text, 'Mobile Offline Mode', 'Work on your tasks even without internet connection. All changes will sync automatically when you''re back online.', 'PLANNED', 38, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Calendar Integration', 'Two-way sync with Google Calendar, Outlook, and Apple Calendar. See your tasks alongside your meetings.', 'PLANNED', 35, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Team Collaboration Features', 'Share workspaces, assign tasks to team members, and track progress together in real-time.', 'IN_PROGRESS', 31, NOW(), NOW()),
+  (gen_random_uuid()::text, 'Calendar Integration', 'Two-way sync with Google Calendar and Outlook. See your tasks alongside your meetings.', 'COMPLETED', 35, NOW(), NOW()),
+  (gen_random_uuid()::text, 'Team Collaboration Features', 'Share workspaces, assign tasks to team members, and track progress together.', 'IN_PROGRESS', 31, NOW(), NOW()),
   (gen_random_uuid()::text, 'Custom Themes & Appearance', 'Create your own color schemes and themes. Personalize the look and feel of your workspace.', 'CONSIDERING', 28, NOW(), NOW()),
   (gen_random_uuid()::text, 'Recurring Task Templates', 'Set up templates for tasks that repeat daily, weekly, or monthly. Spend less time on repetitive setup.', 'COMPLETED', 45, NOW(), NOW()),
   (gen_random_uuid()::text, 'Voice Input for Tasks', 'Add tasks using voice commands. Perfect for when you''re on the go or have your hands full.', 'CONSIDERING', 22, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Zapier & Make Integration', 'Connect Ordo Todo with thousands of other apps through Zapier and Make (formerly Integromat).', 'PLANNED', 19, NOW(), NOW())
+  (gen_random_uuid()::text, 'Zapier & Make Integration', 'Public API and webhooks already exist; one-click Zapier/Make templates are still planned.', 'PLANNED', 19, NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
--- Changelog Entries
+-- Changelog Entries (demo seed: the real history lives in GitHub releases)
 INSERT INTO "ChangelogEntry" (id, version, title, content, type, "publishedAt", "createdAt", "updatedAt")
 VALUES
-  (gen_random_uuid()::text, '2.1.0', 'AI Assistant Improvements', 'Enhanced AI suggestions with context-aware task recommendations. The AI now learns from your habits to suggest better scheduling.', 'NEW', '2024-12-28', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.0.5', 'Performance Optimizations', 'Reduced app load time by 40%. Fixed memory leaks in the timer component. Improved database query efficiency.', 'IMPROVED', '2024-12-20', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.0.4', 'Bug Fixes', 'Fixed issue where tasks would disappear after sync. Resolved calendar view rendering issues on Safari.', 'FIXED', '2024-12-15', NOW(), NOW()),
-  (gen_random_uuid()::text, '2.0.0', 'Ordo Todo 2.0 Launch', 'Complete redesign with new UI, AI assistant, habit tracking, and much more. This is our biggest update ever!', 'NEW', '2024-12-01', NOW(), NOW())
+  (gen_random_uuid()::text, 'unreleased', 'Active development', 'Ordo is under active development. This demo entry ships with fresh installs; the real changelog is published with each GitHub release.', 'NEW', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- FAQs
