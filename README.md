@@ -67,6 +67,8 @@ Visit [http://localhost:3100](http://localhost:3100) (Web) and [http://localhost
 
 ### Create a forked repository (`ordo-todo-creators`)
 
+> **Propuesta, no ejecutado.** No existe ningún repositorio `ordo-todo-creators` ni variante creators del producto a día de hoy. Las instrucciones de abajo son el procedimiento acordado para crearlo si negocio lo decide (ver `docs/vision/product-vision.md`, decisión cerrada 1).
+
 If you need the apps to evolve independently (e.g., enterprise vs. creator audiences or distinct feature sets per market), create a new repository from this code without affecting `ordo-todo`. Use the name `ordo-todo-creators` (or any name you prefer) for the variant with a distinct audience:
 
 > Replace `<SOURCE_REPO_OWNER>` with the current owner (e.g., `tiagofur`) and `<TARGET_REPO_OWNER>` with your GitHub username or organization.
@@ -309,6 +311,8 @@ Ordo-Todo es una aplicacion de gestion de tareas de proxima generacion. Lee la [
 - Soporte multilenguaje
 
 ### Crear repositorio derivado (`ordo-todo-creators`)
+
+> **Propuesta, no ejecutado.** No existe ningún repositorio `ordo-todo-creators` ni variante creators del producto a día de hoy. Las instrucciones de abajo son el procedimiento acordado para crearlo si negocio lo decide (ver `docs/vision/product-vision.md`, decisión cerrada 1).
 
 Si necesitas que las apps evolucionen de forma independiente con audiencias distintas, crea un nuevo repo a partir de este sin afectar a `ordo-todo`:
 

@@ -1,5 +1,7 @@
 # The Content Pipeline
 
+> **VISIÓN — no implementado.** Este documento es una especificación de diseño para una posible variante de Ordo orientada a creadores de contenido. Nada de lo descrito aquí existe en código. Ver el [roadmap](../planning/roadmap.md) para el trabajo real en curso y la [visión de producto](../vision/product-vision.md) (decisión cerrada 1: narrativa única de productividad general).
+
 **ORDO's killer feature: Visual Kanban for content workflow**
 
 ## 📋 Table of Contents
@@ -540,11 +542,13 @@ export default function PipelinePage() {
 
 ## 📚 Related Features
 
-- [Frictionless Capture](./frictionless-capture.md) - Add ideas quickly
-- [Social Previews](./social-previews.md) - Preview posts before publishing
-- [Consistency Score](./consistency-score.md) - Track publishing consistency
-- [Remix Engine](./remix-engine.md) - Atomize published content
-- [AI Copilot](./ai-copilot.md) - AI assistance for each stage
+> Los siguientes documentos están pendientes de redactar (no existen aún como ficheros; no se crean en esta limpieza):
+
+- Frictionless Capture — Add ideas quickly *(pendiente)*
+- Social Previews — Preview posts before publishing *(pendiente)*
+- Consistency Score — Track publishing consistency *(pendiente)*
+- Remix Engine — Atomize published content *(pendiente)*
+- AI Copilot — AI assistance for each stage *(pendiente)*
 
 ---
 
