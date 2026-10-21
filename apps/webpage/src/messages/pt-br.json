@@ -409,7 +409,8 @@
     "shortcuts_title": "Atalhos de Teclado",
     "pro_tip": "Dica Pro",
     "pro_tip_text": "Ative o \"Modo Foco\" nas configurações para ocultar notificações e distrações durante suas sessões. Sua produtividade vai agradecer!",
-    "shortcuts_note": "O timer é controlado pelos botões na tela. Os atalhos de teclado globais estão no guia de tarefas."
+    "shortcuts_note": "O timer é controlado pelos botões na tela. Os atalhos de teclado globais estão no guia de tarefas.",
+    "audio_note": "O app inclui áudio ambiente gerado localmente para acompanhar suas sessões, sem assinaturas externas."
   },
   "GuideProjects": {
     "badge": "Projetos e Quadros",
@@ -1002,7 +1003,7 @@
   "GuideMore": {
     "badge": "Descubra mais",
     "title": "Recursos que talvez você não conheça",
-    "subtitle": "Tudo isso já existe no Ordo hoje. Sem exagero: cada bloco leva a onde usar.",
+    "subtitle": "Tudo isso já existe no Ordo hoje. Cada bloco descreve onde encontrar no app.",
     "meetings": {
       "title": "Reuniões com IA",
       "description": "Cole a transcrição da sua reunião e extraia ações, resumos e tarefas automaticamente. A entrada é manual: o Ordo não grava suas chamadas."
@@ -1021,7 +1022,7 @@
     },
     "search": {
       "title": "Busca inteligente",
-      "description": "Encontre tarefas, projetos e notas na hora, com sugestões e perguntas diretas."
+      "description": "Encontre tarefas, projetos e hábitos na hora, com sugestões e perguntas diretas."
     },
     "gamification": {
       "title": "Gamificação",
@@ -1031,6 +1032,6 @@
       "title": "Áudio para focar",
       "description": "Som ambiente gerado no app para suas sessões de foco. Sem assinaturas externas."
     },
-    "openInApp": "Abrir no app"
+    "openInApp": "Ver guia"
   }
 }

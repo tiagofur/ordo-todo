@@ -409,7 +409,8 @@
     "shortcuts_title": "Atajos de Teclado",
     "pro_tip": "Consejo Pro",
     "pro_tip_text": "Activa el \"Modo Enfoque\" en configuración para ocultar notificaciones y distracciones durante tus sesiones. ¡Tu productividad te lo agradecerá!",
-    "shortcuts_note": "El timer se controla con los botones en pantalla. Los atajos de teclado globales están en la guía de tareas."
+    "shortcuts_note": "El timer se controla con los botones en pantalla. Los atajos de teclado globales están en la guía de tareas.",
+    "audio_note": "La app incluye audio ambiental generado localmente para acompañar tus sesiones, sin suscripciones externas."
   },
   "GuideProjects": {
     "badge": "Proyectos y Tableros",
@@ -1002,7 +1003,7 @@
   "GuideMore": {
     "badge": "Descubre más",
     "title": "Funciones que quizás no conocías",
-    "subtitle": "Todo esto ya existe en Ordo hoy. Sin humo: cada bloque enlaza a dónde usarlo.",
+    "subtitle": "Todo esto ya existe en Ordo hoy. Cada bloque describe dónde encontrarlo en la app.",
     "meetings": {
       "title": "Meetings con IA",
       "description": "Pega la transcripción de tu reunión y extrae acciones, resúmenes y tareas automáticamente. El input es manual: Ordo no graba tus llamadas."
@@ -1017,7 +1018,7 @@
     },
     "search": {
       "title": "Búsqueda inteligente",
-      "description": "Encuentra tareas, proyectos y notas al instante, con sugerencias y preguntas directas."
+      "description": "Encuentra tareas, proyectos y hábitos al instante, con sugerencias y preguntas directas."
     },
     "coach": {
       "title": "Chat coach",
@@ -1031,6 +1032,6 @@
       "title": "Audio para enfocar",
       "description": "Sonido ambiental generado en la app para tus sesiones de foco. Sin suscripciones externas."
     },
-    "openInApp": "Abrir en la app"
+    "openInApp": "Ver guía"
   }
 }

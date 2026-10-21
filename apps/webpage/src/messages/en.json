@@ -409,7 +409,8 @@
     "shortcuts_title": "Keyboard Shortcuts",
     "pro_tip": "Pro Tip",
     "pro_tip_text": "Enable \"Focus Mode\" in settings to hide all notifications and distractions during your focus sessions. Your productivity will thank you!",
-    "shortcuts_note": "The timer is controlled with on-screen buttons. Global keyboard shortcuts are in the tasks guide."
+    "shortcuts_note": "The timer is controlled with on-screen buttons. Global keyboard shortcuts are in the tasks guide.",
+    "audio_note": "The app includes locally generated ambient audio to accompany your sessions, with no external subscriptions."
   },
   "GuideProjects": {
     "badge": "Projects & Boards",
@@ -1002,7 +1003,7 @@
   "GuideMore": {
     "badge": "Discover more",
     "title": "Features you may not know",
-    "subtitle": "All of this already exists in Ordo today. No hype: each block links to where to use it.",
+    "subtitle": "All of this already exists in Ordo today. Each block describes where to find it in the app.",
     "meetings": {
       "title": "AI meetings",
       "description": "Paste your meeting transcript and extract actions, summaries and tasks automatically. Input is manual: Ordo does not record your calls."
@@ -1017,7 +1018,7 @@
     },
     "search": {
       "title": "Smart search",
-      "description": "Find tasks, projects and notes instantly, with suggestions and direct questions."
+      "description": "Find tasks, projects and habits instantly, with suggestions and direct questions."
     },
     "coach": {
       "title": "Chat coach",
@@ -1031,6 +1032,6 @@
       "title": "Focus audio",
       "description": "Ambient sound generated in-app for your focus sessions. No external subscriptions."
     },
-    "openInApp": "Open in the app"
+    "openInApp": "View guide"
   }
 }

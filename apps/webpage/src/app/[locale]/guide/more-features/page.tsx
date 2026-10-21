@@ -14,8 +14,9 @@ import {
 import { Link } from '@/i18n/routing';
 
 // ODD 013 S12: existing features that marketing never sold. Every block
-// below is verified in code (see promises-audit.md §I); each links to a
-// working guide or back to the guide index — no dead links.
+// below is verified in code (see promises-audit.md §I). Only focusAudio
+// links out (the focus guide exists); the rest describe in-app locations
+// in prose — no dead links, no fake "open in app" buttons.
 const BLOCKS = [
   { key: 'meetings', icon: Video, color: '#06B6D4', href: null as string | null },
   { key: 'workload', icon: Users, color: '#EC4899', href: null as string | null },
