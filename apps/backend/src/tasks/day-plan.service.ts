@@ -185,7 +185,8 @@ const asChanges = (value: unknown): PlanChange[] =>
 
 // Midnight starting `today` in the given IANA timezone (proposal `date`
 // aligns with the engine, which plans in the user's timezone — never UTC).
-const startOfTodayIn = (timezone: string): Date => {
+// Exported for the spec (pure, hermetic).
+export const startOfTodayIn = (timezone: string): Date => {
   const todayKey = new Intl.DateTimeFormat('en-CA', {
     timeZone: timezone,
     year: 'numeric',

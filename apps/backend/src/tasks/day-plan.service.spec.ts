@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { DayPlanService } from './day-plan.service';
+import { DayPlanService, startOfTodayIn } from './day-plan.service';
 import { PrismaService } from '../database/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
 
@@ -108,9 +108,19 @@ describe('DayPlanService (ODD 005 S3)', () => {
     const result = await service.getDayPlan('user-1');
 
     expect(scheduling.replanOnDayStart).toHaveBeenCalledWith('user-1');
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'user-1' } }),
+    );
     expect(prisma.dayPlanProposal.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ userId: 'user-1', status: 'PROPOSED' }),
+        data: expect.objectContaining({
+          userId: 'user-1',
+          status: 'PROPOSED',
+          // TZ-aware midnight: with the mocked 'UTC' user timezone this is
+          // today's UTC midnight (a UTC-based impl would coincide here, but
+          // the user.findUnique assertion above pins the TZ-aware path).
+          date: startOfTodayIn('UTC'),
+        }),
       }),
     );
     expect(result.proposalId).toBe('prop-1');
@@ -166,7 +176,10 @@ describe('DayPlanService (ODD 005 S3)', () => {
 
     const result = await service.unfreeze('user-1', 'b');
     expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { frozenTaskIds: ['a'] } }),
+      expect.objectContaining({
+        where: { id: 'prop-1', userId: 'user-1' },
+        data: { frozenTaskIds: ['a'] },
+      }),
     );
     expect(result.frozenTaskIds).toEqual(['a']);
   });
@@ -191,8 +204,30 @@ describe('DayPlanService (ODD 005 S3)', () => {
     );
     // Atomic: N task updates + status flip in ONE transaction.
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
-    const ops = prisma.$transaction.mock.calls[0][0] as unknown[];
+    const ops = prisma.$transaction.mock.calls[0][0] as Array<{
+      where: unknown;
+      data: Record<string, unknown>;
+    }>;
     expect(ops).toHaveLength(3); // 2 blocks + status flip
+    // Payload pinned: doDate = plan day, times from each block.
+    expect(ops[0]).toMatchObject({
+      where: { id: 'a' },
+      data: {
+        doDate: PROPOSAL.date,
+        scheduledTime: '09:00',
+        scheduledEndTime: '10:00',
+        isTimeBlocked: true,
+      },
+    });
+    expect(ops[1]).toMatchObject({
+      where: { id: 'b' },
+      data: {
+        doDate: PROPOSAL.date,
+        scheduledTime: '10:00',
+        scheduledEndTime: '11:00',
+        isTimeBlocked: true,
+      },
+    });
     expect(result.status).toBe('APPLIED');
   });
 
