@@ -14,6 +14,7 @@ import {
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { DayPlanService } from './day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { TagsService } from '../tags/tags.service';
 import { CommentsService } from '../comments/comments.service';
 import { AttachmentsService } from '../attachments/attachments.service';
@@ -24,6 +25,7 @@ describe('TasksController', () => {
   let tasksService: TasksService;
   let prismaService: PrismaService;
   let dayPlanService: DayPlanService;
+  let riskAlertService: RiskAlertService;
 
   const mockPrismaService = {
     project: {
@@ -88,6 +90,10 @@ describe('TasksController', () => {
             apply: jest.fn(),
           },
         },
+        {
+          provide: RiskAlertService,
+          useValue: { assessForUser: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -95,6 +101,7 @@ describe('TasksController', () => {
     tasksService = module.get<TasksService>(TasksService);
     prismaService = module.get<PrismaService>(PrismaService);
     dayPlanService = module.get<DayPlanService>(DayPlanService);
+    riskAlertService = module.get<RiskAlertService>(RiskAlertService);
   });
 
   afterEach(() => {
@@ -492,5 +499,34 @@ describe('TasksController', () => {
       expect(result).toEqual(view);
       expect(dayPlanService.apply).toHaveBeenCalledWith('user-1', 'p1');
     });
+  });
+
+  // ODD 005 S4 (T4b): risks endpoint delegates + defaults daysAhead to 3.
+  describe('day-plan/risks', () => {
+    const user = { id: 'user-1', email: 'test@example.com' } as any;
+
+    it('getDayPlanRisks passes a valid daysAhead through', async () => {
+      const alerts = [{ kind: 'overload', taskIds: ['b'], options: [{}, {}] }];
+      (riskAlertService.assessForUser as jest.Mock).mockResolvedValue(alerts);
+
+      const result = await controller.getDayPlanRisks(user, '7');
+
+      expect(result).toEqual(alerts);
+      expect(riskAlertService.assessForUser).toHaveBeenCalledWith('user-1', 7);
+    });
+
+    it.each([undefined, 'abc', '-2', '0'])(
+      'getDayPlanRisks defaults invalid daysAhead (%s) to 3',
+      async (daysAhead) => {
+        (riskAlertService.assessForUser as jest.Mock).mockResolvedValue([]);
+
+        await controller.getDayPlanRisks(user, daysAhead as any);
+
+        expect(riskAlertService.assessForUser).toHaveBeenCalledWith(
+          'user-1',
+          3,
+        );
+      },
+    );
   });
 });

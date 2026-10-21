@@ -332,12 +332,7 @@ export class TasksController {
    * Must be BEFORE @Get(':id') to avoid route conflicts!
    */
   @Get('day-plan/risks')
-  @Roles(
-    MemberRole.OWNER,
-    MemberRole.ADMIN,
-    MemberRole.MEMBER,
-    MemberRole.VIEWER,
-  )
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @ApiOperation({ summary: "Get risk alerts for today's plan" })
   @ApiQuery({
     name: 'daysAhead',

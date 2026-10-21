@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  Optional,
-  forwardRef,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import type { TaskRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -23,15 +17,16 @@ import { assessRisks, type RiskAlert } from './risk-alerts';
 // DI rule (same as SchedulingService): repositories + Prisma only, plus
 // NotificationsService via @Optional WITHOUT importing NotificationsModule
 // (importing it would cycle: NotificationsModule -> AIModule -> Scheduling).
-// If it does not resolve, the cron persists via Prisma directly (same dedup
-// pattern as smart-notifications.service.ts: findFirst by type+resourceId).
+// NOTE: in production `notifications` is ALWAYS undefined (nothing in
+// SchedulingModule's graph provides it), so the Prisma-direct fallback below
+// is the real path, not the exceptional one. The @Optional branch exists for
+// tests and for a future direct provider.
 @Injectable()
 export class RiskAlertService {
   private readonly logger = new Logger(RiskAlertService.name);
 
   constructor(
     @Optional()
-    @Inject(forwardRef(() => SchedulingService))
     private readonly scheduling?: SchedulingService,
     @Optional()
     @Inject('TaskRepository')
@@ -61,21 +56,26 @@ export class RiskAlertService {
 
     const { plan } = await this.scheduling.replanOnDayStart(userId);
     const tasks = await this.taskRepository.findByOwnerId(userId);
-    return assessRisks({
-      plan,
-      tasks: tasks
-        .filter(
-          (t) => t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
-        )
-        .map((t) => ({
-          taskId: String(t.id),
-          title: t.props.title,
-          dueDateKey: toDateKey(t.props.dueDate, timezone),
-          doDateKey: toDateKey(t.props.doDate, timezone),
-        })),
-      todayKey,
-      daysAhead,
-    });
+    // Deterministic alert order: findByOwnerId has no orderBy, so sort by
+    // due date here (overload always first — assessRisks emits it first).
+    // Undated tasks sink; ties break by taskId.
+    const riskTasks = tasks
+      .filter(
+        (t) => t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
+      )
+      .map((t) => ({
+        taskId: String(t.id),
+        title: t.props.title,
+        dueDateKey: toDateKey(t.props.dueDate, timezone),
+        doDateKey: toDateKey(t.props.doDate, timezone),
+      }))
+      .sort((a, b) => {
+        const ad = a.dueDateKey ?? '9999-99-99';
+        const bd = b.dueDateKey ?? '9999-99-99';
+        if (ad !== bd) return ad < bd ? -1 : 1;
+        return a.taskId < b.taskId ? -1 : a.taskId > b.taskId ? 1 : 0;
+      });
+    return assessRisks({ plan, tasks: riskTasks, todayKey, daysAhead });
   }
 
   // Proactive deadline-risk notifications, days ahead (smart-notifications

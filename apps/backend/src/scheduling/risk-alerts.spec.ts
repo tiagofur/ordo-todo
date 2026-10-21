@@ -39,7 +39,7 @@ describe('assessRisks (ODD 005 S4)', () => {
     expect(overload[0].options.length).toBeGreaterThanOrEqual(2);
     // Honest wording: no absolutes ("never", "guarantee", ...).
     expect(overload[0].message).not.toMatch(
-      /nunca|never|garantiz|siempre|always/i,
+      /nunca|never|garantiz|guarantee|siempre|always/i,
     );
     expect(overload[0].message).toMatch(/b|c|2 tareas/is);
   });
@@ -64,7 +64,7 @@ describe('assessRisks (ODD 005 S4)', () => {
     expect(deadlines[0].taskIds).toEqual(['b']);
     expect(deadlines[0].options.length).toBeGreaterThanOrEqual(2);
     expect(deadlines[0].message).not.toMatch(
-      /nunca|never|garantiz|siempre|always/i,
+      /nunca|never|garantiz|guarantee|siempre|always/i,
     );
     expect(deadlines[0].message).toMatch(/2026-10-22|2 d.as/i);
   });
@@ -139,5 +139,24 @@ describe('assessRisks (ODD 005 S4)', () => {
         (a) => a.kind === 'deadline-at-risk',
       ),
     ).toHaveLength(1);
+  });
+
+  it('doDate null but scheduled in blocks -> no deadline alert (worked today)', () => {
+    // T2 candidates include undated tasks with near dues; if the engine
+    // scheduled one, it IS being worked on today despite the null doDate.
+    const plan: DayPlan = {
+      blocks: [block('a')],
+      unscheduled: [],
+    };
+
+    const alerts = assessRisks({
+      plan,
+      tasks: [
+        { taskId: 'a', title: 'A', dueDateKey: '2026-10-21', doDateKey: null },
+      ],
+      todayKey: TODAY,
+    });
+
+    expect(alerts.filter((a) => a.kind === 'deadline-at-risk')).toHaveLength(0);
   });
 });
