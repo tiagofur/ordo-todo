@@ -245,6 +245,9 @@ export class PrismaTaskRepository implements TaskRepository {
       include: {
         subTasks: true,
         recurrence: true,
+        // ODD 005 S5 (T4a): DurationLearningService matches query.category
+        // against tag names — tags must load here (same include as find*).
+        tags: { include: { tag: true } },
         project: {
           select: {
             id: true,
@@ -278,6 +281,8 @@ export class PrismaTaskRepository implements TaskRepository {
       include: {
         subTasks: true,
         recurrence: true,
+        // Same as findById (symmetry): category matching needs tags.
+        tags: { include: { tag: true } },
         project: {
           select: {
             id: true,

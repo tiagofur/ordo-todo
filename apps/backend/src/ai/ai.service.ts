@@ -39,6 +39,7 @@ import { LLM_PROVIDER } from './llm/llm-provider.interface';
 import type { LlmProvider } from './llm/llm-provider.interface';
 import { CreditsService } from './credits/credits.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
+import { DurationLearningService } from '../scheduling/duration-learning.service';
 import type { DayPlan } from '../scheduling/day-planner';
 import { selectDayPlanCandidates } from '../scheduling/candidate-criteria';
 
@@ -70,6 +71,10 @@ export class AIService {
     @Optional() @Inject(LLM_PROVIDER) private readonly llm?: LlmProvider,
     @Optional() private readonly agentTools?: AgentToolsService,
     @Optional() private readonly credits?: CreditsService,
+    // ODD 005 S5 (T4): @Optional + LAST so existing specs that build
+    // AIService without SchedulingModule extras keep passing (PRESERVE);
+    // TS also forbids required params after an optional one.
+    @Optional() private readonly durationLearning?: DurationLearningService,
   ) {}
 
   // ============ AI CHAT ============
@@ -378,6 +383,54 @@ export class AIService {
     category?: string,
     priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
   ) {
+    // ODD 005 S5 (T4): delegate to DurationLearningService (real timer
+    // history). Contract PRESERVED: estimatedMinutes/confidence/reasoning keep
+    // their shape; sampleSize/source are additive (PredictDurationResponse
+    // consumers ignore unknown fields). The Gemini fallback runs ONLY when the
+    // service reports source 'fallback' (documented criterion: no comparable
+    // history) AND we have a title to prompt with.
+    if (this.durationLearning) {
+      const learned = await this.durationLearning.predict(userId, {
+        category,
+        priority,
+      });
+      if (learned.source === 'history') {
+        return {
+          estimatedMinutes: learned.estimatedMinutes,
+          confidence: learned.confidence,
+          reasoning: learned.reasoning,
+          sampleSize: learned.sampleSize,
+          source: 'history',
+        };
+      }
+      if (taskTitle) {
+        const geminiPrediction = await this.geminiService.estimateTaskDuration(
+          taskTitle,
+          taskDescription,
+          learned.estimatedMinutes,
+        );
+        if (geminiPrediction.confidence !== 'LOW') {
+          return {
+            estimatedMinutes: geminiPrediction.estimatedMinutes,
+            confidence: geminiPrediction.confidence as
+              | 'LOW'
+              | 'MEDIUM'
+              | 'HIGH',
+            reasoning: `🤖 ${geminiPrediction.reasoning}`,
+            sampleSize: 0,
+            source: 'AI',
+          };
+        }
+      }
+      return {
+        estimatedMinutes: learned.estimatedMinutes,
+        confidence: learned.confidence,
+        reasoning: learned.reasoning,
+        sampleSize: learned.sampleSize,
+        source: 'fallback',
+      };
+    }
+
     const useCase = new PredictTaskDurationUseCase(this.aiProfileRepository);
     const localPrediction = await useCase.execute({
       userId,
