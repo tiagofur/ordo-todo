@@ -37,6 +37,7 @@
     "tasks": "Tareas",
     "habits": "Hábitos",
     "calendar": "Calendario",
+    "dayPlan": "Mi plan",
     "projects": "Proyectos",
     "workspaces": "Espacios de Trabajo",
     "workspacesTrash": "Papelera de Workspaces",
@@ -348,6 +349,39 @@
         "schedule": "Solo Importante = Programar"
       }
     }
+  },
+  "Scheduling": {
+    "title": "Mi plan de hoy",
+    "subtitle": "Bloques de tiempo propuestos para tu día",
+    "loading": "Cargando tu plan...",
+    "loadError": "No se pudo cargar tu plan",
+    "retry": "Reintentar",
+    "noPlan": "Aún no hay plan para hoy",
+    "plan": {
+      "empty": "Sin bloques por hoy",
+      "frozen": "Fijo",
+      "freeze": "Fijar",
+      "unfreeze": "Soltar"
+    },
+    "changes": {
+      "title": "Qué cambió",
+      "empty": "Sin cambios pendientes",
+      "accept": "Aceptar plan",
+      "reject": "Rechazar",
+      "moved": "movido",
+      "added": "añadido",
+      "removed": "quitado",
+      "resized": "reajustado"
+    },
+    "risks": {
+      "title": "Riesgos",
+      "empty": "Sin riesgos por hoy"
+    },
+    "applied": "Plan aplicado",
+    "applyError": "No se pudo aplicar el plan",
+    "dismissed": "Plan rechazado",
+    "dismissError": "No se pudo rechazar el plan",
+    "freezeError": "No se pudo actualizar el bloque"
   },
   "Notes": {
     "title": "Notas",

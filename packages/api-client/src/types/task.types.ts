@@ -238,3 +238,48 @@ export interface GetTimeBlocksParams {
   end?: string;
 }
 
+// ODD 005 S6 (T5): "Mi plan de hoy" — mirrors backend DayPlanView
+// (DayPlanService) + T4b risks shape (endpoint lands with T4b).
+
+export interface DayPlanBlock {
+  taskId: string;
+  start: string;
+  end: string;
+  reason: string;
+}
+
+export type DayPlanChangeType = 'moved' | 'added' | 'removed' | 'resized';
+
+export interface DayPlanChange {
+  taskId: string;
+  type: DayPlanChangeType;
+  from?: { start: string; end: string };
+  to?: { start: string; end: string };
+  reason: string;
+}
+
+export type DayPlanStatus = 'PROPOSED' | 'APPLIED' | 'DISMISSED';
+
+export interface DayPlanView {
+  proposalId: string;
+  status: DayPlanStatus;
+  blocks: DayPlanBlock[];
+  frozenTaskIds: string[];
+  changes: DayPlanChange[];
+}
+
+// TODO(ODD 005 T4b rebase): confirm against RiskAlertService wire shape
+// when GET tasks/day-plan/risks lands; graceful-degrades to null until then.
+export interface DayPlanRiskOption {
+  id: string;
+  label: string;
+}
+
+export interface DayPlanRisk {
+  id: string;
+  taskId?: string;
+  title: string;
+  detail: string;
+  options: DayPlanRiskOption[];
+}
+

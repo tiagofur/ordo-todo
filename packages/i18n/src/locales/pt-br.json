@@ -37,6 +37,7 @@
     "tasks": "Tarefas",
     "habits": "Hábitos",
     "calendar": "Calendário",
+    "dayPlan": "Meu plano",
     "projects": "Projetos",
     "workspaces": "Espaços de Trabalho",
     "workspacesTrash": "Lixeira de Workspaces",
@@ -348,6 +349,39 @@
         "schedule": "Apenas Importante = Agendar"
       }
     }
+  },
+  "Scheduling": {
+    "title": "Meu plano de hoje",
+    "subtitle": "Blocos de tempo propostos para o seu dia",
+    "loading": "Carregando seu plano...",
+    "loadError": "Não foi possível carregar seu plano",
+    "retry": "Tentar de novo",
+    "noPlan": "Ainda não há plano para hoje",
+    "plan": {
+      "empty": "Sem blocos para hoje",
+      "frozen": "Fixado",
+      "freeze": "Fixar",
+      "unfreeze": "Soltar"
+    },
+    "changes": {
+      "title": "O que mudou",
+      "empty": "Sem alterações pendentes",
+      "accept": "Aceitar plano",
+      "reject": "Recusar",
+      "moved": "movido",
+      "added": "adicionado",
+      "removed": "removido",
+      "resized": "reajustado"
+    },
+    "risks": {
+      "title": "Riscos",
+      "empty": "Sem riscos para hoje"
+    },
+    "applied": "Plano aplicado",
+    "applyError": "Não foi possível aplicar o plano",
+    "dismissed": "Plano recusado",
+    "dismissError": "Não foi possível recusar o plano",
+    "freezeError": "Não foi possível atualizar o bloco"
   },
   "Projects": {
     "title": "Projetos",
