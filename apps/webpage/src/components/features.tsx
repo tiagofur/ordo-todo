@@ -2,21 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { 
-  Layout, 
-  Clock, 
-  Sparkles, 
-  Smartphone, 
-  BarChart3, 
+import {
+  Layout,
+  Clock,
+  Sparkles,
+  Smartphone,
+  BarChart3,
   Shield,
   Target,
   Calendar,
-  Zap,
-  Repeat,
-  Trash2,
-  Share2,
-  Mic,
-  Clapperboard
+  Zap
 } from 'lucide-react';
 
 const FEATURE_COLORS = {
@@ -31,48 +26,47 @@ const FEATURE_COLORS = {
 export function Features() {
   const t = useTranslations('Features');
 
-  // Overriding translations for now to hardcode the new Creator features
   const features = [
     {
-      icon: Clapperboard,
-      key: 'pipeline',
-      title: 'Content Pipeline',
-      description: 'A dedicated Kanban board for creators. Move from Idea to Scripting, Filming, Editing, and Published.',
+      icon: Layout,
+      key: 'organization',
+      title: t('organization.title'),
+      description: t('organization.description'),
       color: 'cyan'
     },
     {
-      icon: Mic,
-      key: 'capture',
-      title: 'Frictionless Capture',
-      description: 'Record voice notes on the go. Our AI transcribes and converts them into actionable video ideas instantly.',
+      icon: Clock,
+      key: 'time_management',
+      title: t('time_management.title'),
+      description: t('time_management.description'),
       color: 'pink'
     },
     {
-      icon: Repeat,
-      key: 'remix',
-      title: 'The Remix Engine',
-      description: 'Turn one YouTube video into a Twitter Thread, LinkedIn Post, and TikTok Short automatically.',
+      icon: Sparkles,
+      key: 'ai_powered',
+      title: t('ai_powered.title'),
+      description: t('ai_powered.description'),
       color: 'purple'
     },
     {
-      icon: Trash2,
-      key: 'graveyard',
-      title: 'Idea Graveyard',
-      description: 'We auto-archive stale ideas to keep your mind clear. Focus on what is fresh and exciting.',
+      icon: Smartphone,
+      key: 'cross_platform',
+      title: t('cross_platform.title'),
+      description: t('cross_platform.description'),
       color: 'orange'
     },
     {
       icon: BarChart3,
-      key: 'consistency',
-      title: 'Consistency Score',
-      description: 'Gamified metrics that actually matter. Track your publishing streak, not just task completion.',
+      key: 'productivity',
+      title: t('productivity.title'),
+      description: t('productivity.description'),
       color: 'green'
     },
     {
-      icon: Share2,
-      key: 'previews',
-      title: 'Social Previews',
-      description: 'See exactly how your post will look on Twitter or LinkedIn before you hit publish.',
+      icon: Shield,
+      key: 'privacy',
+      title: t('privacy.title'),
+      description: t('privacy.description'),
       color: 'blue'
     },
   ];
@@ -94,13 +88,13 @@ export function Features() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#d946ef] text-white mb-6 shadow-[0_0_10px_rgba(217,70,239,0.4)]">
             <Zap className="h-4 w-4" />
-            <span className="text-sm font-medium">Built for Creators</span>
+            <span className="text-sm font-medium">{t('badge')}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6 text-foreground">
-            More than just a To-Do List.
+            {t('title')}
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-            A complete operating system designed to handle the chaos of content creation.
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -140,11 +134,9 @@ export function Features() {
 
                   {/* Content */}
                   <h3 className="relative text-xl font-semibold mb-3 group-hover:text-foreground transition-colors">
-                    {/* @ts-ignore */}
                     {feature.title}
                   </h3>
                   <p className="relative text-muted-foreground leading-relaxed">
-                    {/* @ts-ignore */}
                     {feature.description}
                   </p>
 
