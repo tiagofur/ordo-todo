@@ -27,6 +27,15 @@ describe("Notification Entity", () => {
       expect(notification.updatedAt).toBeInstanceOf(Date);
     });
 
+    it.each([NotificationType.RITUAL_MORNING, NotificationType.RITUAL_EVENING])(
+      "should accept ritual reminder type %s (ODD 006 S5)",
+      (type) => {
+        const notification = new Notification({ ...validProps, type });
+
+        expect(notification.type).toBe(type);
+      },
+    );
+
     it("should create a notification with provided id", () => {
       const propsWithId = { ...validProps, id: "notif-123" };
       const notification = new Notification(propsWithId);

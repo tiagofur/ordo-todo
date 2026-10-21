@@ -33,6 +33,10 @@ export enum NotificationType {
   WORKSPACE_ADDED = "WORKSPACE_ADDED",
   /** Project status changed */
   PROJECT_UPDATED = "PROJECT_UPDATED",
+  /** Daily ritual morning reminder (ODD 006 S5) */
+  RITUAL_MORNING = "RITUAL_MORNING",
+  /** Daily ritual evening reminder (ODD 006 S5) */
+  RITUAL_EVENING = "RITUAL_EVENING",
 }
 
 /**

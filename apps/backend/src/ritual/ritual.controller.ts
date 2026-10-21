@@ -106,4 +106,11 @@ export class RitualController {
   acceptTimeboxProposal(@CurrentUser() user: RequestUser) {
     return this.ritualService.acceptTimeboxProposal(user.id);
   }
+
+  @Get('streak')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @ApiOperation({ summary: 'Get the current ritual streak' })
+  getStreak(@CurrentUser() user: RequestUser) {
+    return this.ritualService.getStreak(user.id);
+  }
 }

@@ -65,6 +65,29 @@ export class GamificationService implements OnModuleInit {
         icon: 'Timer',
         xpReward: 100,
       },
+      // ODD 006 S4 (T4): ritual streak milestones (kind design: missing a
+      // day never punishes; milestones only celebrate).
+      {
+        code: 'RITUAL_STREAK_7',
+        name: 'Semana Constante',
+        description: 'Completa el ritual 7 días seguidos',
+        icon: 'Flame',
+        xpReward: 150,
+      },
+      {
+        code: 'RITUAL_STREAK_30',
+        name: 'Mes Imparable',
+        description: 'Completa el ritual 30 días seguidos',
+        icon: 'Flame',
+        xpReward: 500,
+      },
+      {
+        code: 'RITUAL_STREAK_100',
+        name: 'Leyenda del Ritual',
+        description: 'Completa el ritual 100 días seguidos',
+        icon: 'Crown',
+        xpReward: 1500,
+      },
     ];
 
     for (const data of achievementsData) {
@@ -129,6 +152,13 @@ export class GamificationService implements OnModuleInit {
   async awardPomodoroCompletion(userId: string) {
     await this.addXp(userId, this.XP_POMODORO_COMPLETED, 'Pomodoro Completion');
     await this.checkAchievements(userId, 'POMODORO');
+  }
+
+  // ODD 006 S4 (T4): ritual streak milestone (7/30/100). Idempotent:
+  // unlockAchievement no-ops when already unlocked, and XP comes from the
+  // achievement's xpReward (no double-grant).
+  async unlockRitualMilestone(userId: string, days: 7 | 30 | 100) {
+    await this.unlockAchievement(userId, `RITUAL_STREAK_${days}`);
   }
 
   private async checkAchievements(userId: string, type: 'TASK' | 'POMODORO') {
