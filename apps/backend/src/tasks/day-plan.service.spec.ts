@@ -5,7 +5,6 @@ import { PrismaService } from '../database/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
 
 // ODD 005 S3 (T3b): day-plan proposal persistence + freeze/apply.
-// TDD RED: this spec pins the DayPlanService API before it exists.
 describe('DayPlanService (ODD 005 S3)', () => {
   let service: DayPlanService;
   let prisma: {
@@ -15,8 +14,9 @@ describe('DayPlanService (ODD 005 S3)', () => {
       update: jest.Mock;
       updateMany: jest.Mock;
     };
-    task: { updateMany: jest.Mock; update: jest.Mock };
+    task: { updateMany: jest.Mock; update: jest.Mock; findMany: jest.Mock };
     user: { findUnique: jest.Mock };
+    $transaction: jest.Mock;
   };
   let scheduling: { replanOnDayStart: jest.Mock };
 
@@ -50,8 +50,13 @@ describe('DayPlanService (ODD 005 S3)', () => {
         update: jest.fn(),
         updateMany: jest.fn(),
       },
-      task: { updateMany: jest.fn(), update: jest.fn() },
+      task: {
+        updateMany: jest.fn(),
+        update: jest.fn(),
+        findMany: jest.fn(),
+      },
       user: { findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }) },
+      $transaction: jest.fn(async (ops: unknown[]) => ops),
     };
     scheduling = { replanOnDayStart: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
@@ -64,13 +69,16 @@ describe('DayPlanService (ODD 005 S3)', () => {
     service = module.get<DayPlanService>(DayPlanService);
   });
 
-  it('getDayPlan returns the latest proposal with blocks + pending changes', async () => {
+  it('getDayPlan returns the latest PROPOSED proposal with blocks + changes', async () => {
     prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
     const result = await service.getDayPlan('user-1');
 
     expect(prisma.dayPlanProposal.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ userId: 'user-1' }),
+        where: expect.objectContaining({
+          userId: 'user-1',
+          status: 'PROPOSED',
+        }),
         orderBy: { createdAt: 'desc' },
       }),
     );
@@ -119,7 +127,7 @@ describe('DayPlanService (ODD 005 S3)', () => {
 
     expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'prop-1' },
+        where: { id: 'prop-1', userId: 'user-1' },
         data: { frozenTaskIds: ['b'] },
       }),
     );
@@ -163,34 +171,39 @@ describe('DayPlanService (ODD 005 S3)', () => {
     expect(result.frozenTaskIds).toEqual(['a']);
   });
 
-  it('apply writes doDate/scheduledTime per block and marks APPLIED', async () => {
+  it('apply writes doDate/scheduledTime per block and marks APPLIED atomically', async () => {
     prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
-    prisma.dayPlanProposal.update.mockResolvedValue({
-      ...PROPOSAL,
-      status: 'APPLIED',
-    });
+    prisma.task.findMany.mockResolvedValue([{ id: 'a' }, { id: 'b' }]);
+    prisma.task.update.mockImplementation((args: unknown) => args);
+    prisma.dayPlanProposal.update.mockImplementation((args: unknown) => args);
+    prisma.$transaction.mockImplementation(async (ops: unknown[]) => [
+      ...ops.slice(0, -1),
+      { ...PROPOSAL, status: 'APPLIED' },
+    ]);
 
     const result = await service.apply('user-1', 'prop-1');
 
-    // One update per block: doDate = plan day, times from the block.
-    expect(prisma.task.update).toHaveBeenCalledTimes(2);
-    expect(prisma.task.update).toHaveBeenCalledWith(
+    // Tenant check: only tasks owned by the caller.
+    expect(prisma.task.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ id: 'a' }),
-        data: expect.objectContaining({
-          scheduledTime: '09:00',
-          scheduledEndTime: '10:00',
-          isTimeBlocked: true,
-        }),
+        where: expect.objectContaining({ ownerId: 'user-1' }),
       }),
     );
-    expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'prop-1' },
-        data: { status: 'APPLIED' },
-      }),
-    );
+    // Atomic: N task updates + status flip in ONE transaction.
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    const ops = prisma.$transaction.mock.calls[0][0] as unknown[];
+    expect(ops).toHaveLength(3); // 2 blocks + status flip
     expect(result.status).toBe('APPLIED');
+  });
+
+  it('apply rejects when a blocked task is gone or foreign (409, no writes)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    prisma.task.findMany.mockResolvedValue([{ id: 'a' }]); // 'b' missing
+
+    await expect(service.apply('user-1', 'prop-1')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('apply rejects an already-APPLIED proposal', async () => {
@@ -201,13 +214,16 @@ describe('DayPlanService (ODD 005 S3)', () => {
     await expect(service.apply('user-1', 'prop-1')).rejects.toThrow(
       ConflictException,
     );
-    expect(prisma.task.update).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it('apply rejects a proposal owned by another user', async () => {
+  it('apply rejects a proposal owned by another user (404, filtered by userId)', async () => {
     prisma.dayPlanProposal.findFirst.mockResolvedValue(null);
     await expect(service.apply('user-1', 'prop-x')).rejects.toThrow(
       NotFoundException,
     );
+    expect(prisma.dayPlanProposal.findFirst).toHaveBeenCalledWith({
+      where: { id: 'prop-x', userId: 'user-1' },
+    });
   });
 });
