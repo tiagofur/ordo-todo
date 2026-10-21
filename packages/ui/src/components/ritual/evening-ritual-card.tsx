@@ -8,7 +8,7 @@ import {
 } from '../ui/card.js';
 import { Button } from '../ui/button.js';
 import { Badge } from '../ui/badge.js';
-import { EveningMovePicker } from './evening-move-picker.js';
+import { PendingMovesList } from './pending-moves-list.js';
 import { TaskTitleList } from './task-title-list.js';
 import type {
   EveningRitualCardLabels,
@@ -90,39 +90,13 @@ export function EveningRitualCard({
             {labels.pendingTitle}
             {pending.length > 0 && <span>{` (${pending.length})`}</span>}
           </p>
-          {pending.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{labels.pendingEmpty}</p>
-          ) : status === 'PENDING' ? (
-            <ul className="mt-1 space-y-2">
-              {pending.map((task) => (
-                <EveningMovePicker
-                  key={task.taskId}
-                  taskId={task.taskId}
-                  title={task.title}
-                  move={moveOf(task.taskId)}
-                  labels={{
-                    destinationTomorrow: labels.destinationTomorrow,
-                    destinationDate: labels.destinationDate,
-                    destinationArchived: labels.destinationArchived,
-                    reasonOverran: labels.reasonOverran,
-                    reasonUrgent: labels.reasonUrgent,
-                    reasonNoEnergy: labels.reasonNoEnergy,
-                    reasonOther: labels.reasonOther,
-                    datePlaceholder: labels.datePlaceholder,
-                  }}
-                  onChange={setMove}
-                />
-              ))}
-            </ul>
-          ) : (
-            <ul className="mt-1 space-y-1">
-              {pending.map((task) => (
-                <li key={task.taskId} className="truncate text-xs font-medium">
-                  {task.title}
-                </li>
-              ))}
-            </ul>
-          )}
+          <PendingMovesList
+            pending={pending}
+            status={status}
+            labels={labels}
+            moveOf={moveOf}
+            onChange={setMove}
+          />
         </section>
         {shutdownComplete && (
           <section aria-label={labels.shutdown}>
