@@ -369,8 +369,9 @@ export class RitualService {
     blocks: TimeboxBlockInput[],
   ): Promise<TimeboxBlock[]> {
     const timezone = await this.userTimezone(userId);
+    const date = startOfTodayIn(timezone);
     const ritual = await this.prisma.ritualDay.findUnique({
-      where: { userId_date: { userId, date: startOfTodayIn(timezone) } },
+      where: { userId_date: { userId, date } },
     });
     if (
       !ritual ||
@@ -380,6 +381,16 @@ export class RitualService {
       throw new BadRequestException(
         'Complete the morning ritual first: time-boxing needs a top-3',
       );
+    }
+    // Duplicate taskIds would last-win silently inside the transaction.
+    const seen = new Set<string>();
+    for (const b of blocks) {
+      if (seen.has(b.taskId)) {
+        throw new BadRequestException(
+          `Duplicate block for task ${b.taskId}: one block per task`,
+        );
+      }
+      seen.add(b.taskId);
     }
     const top3 = new Set(ritual.morningTop3);
     const tasks = await this.taskRepository.findByOwnerId(userId);
@@ -395,7 +406,6 @@ export class RitualService {
     const resolved = blocks.map((b) =>
       this.resolveTimebox(b, top3, ownedIds, estimated),
     );
-    const date = startOfTodayIn(timezone);
     await this.prisma.$transaction(
       resolved.map((r) =>
         this.prisma.task.update({
@@ -413,16 +423,26 @@ export class RitualService {
   }
 
   // Accept the proposal: copy the plan blocks for the top-3 (top-3 ids
-  // missing from the plan are skipped, never invented).
+  // missing from the plan are skipped, never invented). Same DONE guard as
+  // the manual path, BEFORE loading the plan (which can build one lazily) —
+  // accept must 400 like manual does, never succeed silently with [].
   async acceptTimeboxProposal(userId: string): Promise<TimeboxBlock[]> {
-    const plan = await this.dayPlans.getDayPlan(userId);
     const timezone = await this.userTimezone(userId);
     const ritual = await this.prisma.ritualDay.findUnique({
       where: { userId_date: { userId, date: startOfTodayIn(timezone) } },
     });
-    const top3 = ritual?.morningTop3 ?? [];
+    if (
+      !ritual ||
+      ritual.morningStatus !== 'DONE' ||
+      ritual.morningTop3.length === 0
+    ) {
+      throw new BadRequestException(
+        'Complete the morning ritual first: time-boxing needs a top-3',
+      );
+    }
+    const plan = await this.dayPlans.getDayPlan(userId);
     const byId = new Map(plan.blocks.map((b) => [b.taskId, b]));
-    const blocks = top3
+    const blocks = ritual.morningTop3
       .filter((id) => byId.has(id))
       .map((id) => {
         const b = byId.get(id)!;
@@ -464,6 +484,13 @@ export class RitualService {
       }
     } else {
       endMin = startMin + (estimated.get(block.taskId) ?? 30);
+    }
+    // A default end past midnight (23:30 + 60min) would write an invalid
+    // 24:xx time: reject with a clear error instead of clamping silently.
+    if (endMin >= 24 * 60) {
+      throw new BadRequestException(
+        `Block for ${block.taskId} would end past midnight: pass an explicit end or an earlier start`,
+      );
     }
     return {
       taskId: block.taskId,

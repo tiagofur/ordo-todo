@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Task } from '@ordo-todo/core';
 import { RitualService } from './ritual.service';
 import { PrismaService } from '../database/prisma.service';
@@ -65,7 +65,6 @@ describe('RitualService timebox (ODD 006 S3)', () => {
       },
       ritualDay: {
         findUnique: jest.fn().mockResolvedValue(RITUAL_DONE),
-        upsert: jest.fn(),
       },
       task: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -135,9 +134,12 @@ describe('RitualService timebox (ODD 006 S3)', () => {
   });
 
   it('timebox rejects a taskId outside the morning top-3 (400, no writes)', async () => {
+    // Owned, so the top-3 check (not ownership) is what rejects.
+    prisma.task.findMany.mockResolvedValue([{ id: 'zzz' }]);
+
     await expect(
       service.timeboxMorning('user-1', [{ taskId: 'zzz', start: '09:00' }]),
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toThrow(/not in the morning top-3/);
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
@@ -155,16 +157,52 @@ describe('RitualService timebox (ODD 006 S3)', () => {
   });
 
   it('timebox rejects malformed times and end <= start (400, no writes)', async () => {
-    for (const block of [
-      { taskId: 'a', start: '9am' },
-      { taskId: 'a', start: '25:00' },
-      { taskId: 'a', start: '10:00', end: '09:00' },
-      { taskId: 'a', start: '10:00', end: '10:00' },
-    ]) {
+    // Owned + in top-3, so the TIME checks (not top-3/ownership) reject.
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('a')]);
+    prisma.task.findMany.mockResolvedValue([{ id: 'a' }]);
+
+    const cases: Array<{
+      block: { taskId: string; start: string; end?: string };
+      why: RegExp;
+    }> = [
+      { block: { taskId: 'a', start: '9am' }, why: /Invalid start time/ },
+      { block: { taskId: 'a', start: '25:00' }, why: /Invalid start time/ },
+      { block: { taskId: 'a', start: '10:60' }, why: /Invalid start time/ },
+      {
+        block: { taskId: 'a', start: '10:00', end: '09:00' },
+        why: /Invalid end time/,
+      },
+      {
+        block: { taskId: 'a', start: '10:00', end: '10:00' },
+        why: /Invalid end time/,
+      },
+    ];
+    for (const { block, why } of cases) {
       await expect(service.timeboxMorning('user-1', [block])).rejects.toThrow(
-        BadRequestException,
+        why,
       );
     }
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('timebox rejects duplicate taskIds (400, no writes)', async () => {
+    await expect(
+      service.timeboxMorning('user-1', [
+        { taskId: 'a', start: '09:00' },
+        { taskId: 'a', start: '10:00' },
+      ]),
+    ).rejects.toThrow(/Duplicate block/);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('timebox rejects a default end past midnight (400, no writes)', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('a')]);
+    prisma.task.findMany.mockResolvedValue([{ id: 'a' }]);
+
+    // 60min estimated: 23:30 + 60min would write invalid 24:30.
+    await expect(
+      service.timeboxMorning('user-1', [{ taskId: 'a', start: '23:30' }]),
+    ).rejects.toThrow(/past midnight/);
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
@@ -201,5 +239,19 @@ describe('RitualService timebox (ODD 006 S3)', () => {
     const out = await service.acceptTimeboxProposal('user-1');
 
     expect(out).toEqual([{ taskId: 'a', start: '09:00', end: '10:00' }]);
+  });
+
+  it('acceptTimeboxProposal 400s without a DONE ritual (like manual)', async () => {
+    prisma.ritualDay.findUnique.mockResolvedValue({
+      ...RITUAL_DONE,
+      morningStatus: 'PENDING',
+      morningTop3: [],
+    });
+
+    await expect(service.acceptTimeboxProposal('user-1')).rejects.toThrow(
+      /Complete the morning ritual first/,
+    );
+    expect(dayPlan.getDayPlan).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });

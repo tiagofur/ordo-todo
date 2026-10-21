@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
@@ -11,6 +12,7 @@ import { Type } from 'class-transformer';
 // `end` defaults server-side to start + estimated minutes.
 export class TimeboxBlockDto {
   @IsString()
+  @IsNotEmpty()
   taskId: string;
 
   @IsString()
