@@ -43,23 +43,26 @@ git clone https://github.com/tiagofur/ordo-todo.git
 cd ordo-todo
 
 # 2. Install dependencies
-npm install
+npm install --legacy-peer-deps
 
-# 3. Set up PostgreSQL (using Docker)
+# 3. Build workspace packages (external dist bundles are not committed)
+npx turbo run build
+
+# 4. Set up PostgreSQL (using Docker)
 docker run --name ordo-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=ordo_todo \
   -p 5432:5432 \
   -d pgvector/pgvector:0.8.7-pg16
 
-# 4. Configure environment
+# 5. Configure environment
 cp apps/web/.env.example apps/web/.env.local
 cp apps/backend/.env.example apps/backend/.env
 
-# 5. Push database schema
+# 6. Push database schema
 cd apps/web && npx prisma db push && npx prisma generate && cd ../..
 
-# 6. Start development
+# 7. Start development
 npm run dev
 ```
 
