@@ -13,7 +13,7 @@
 | Pomodoro / timer | ✅ (`components/timer`, `components/focus`) | ✅ (`components/timer/pomodoro-timer.tsx`) | ✅ (`ui-mobile` `pomodoro-timer.tsx` + pantalla timer, motor 014) |
 | Ritual diario (mañana/cierre/racha) | ✅ (`app/[locale]/(pages)/ritual`, ODD 006) | ⚠️ diálogo legacy (`daily-ritual-dialog.tsx`), sin vista ritual nueva ([006](../../odd/tasks/006-daily-ritual.md)) | ✅ (pantalla ritual, paridad S6) |
 | Mi plan de hoy (scheduling) | ✅ (`app/[locale]/(pages)/plan`, ODD 005) | ❌ sin vista de plan ([005](../../odd/tasks/005-auto-scheduling.md) web-first) | ❌ sin vista de plan ([005](../../odd/tasks/005-auto-scheduling.md) web-first) |
-| Hábitos | ✅ (`(pages)/habits`) | ✅ (`pages/Habits.tsx`) | ✅ (tab `habits.tsx`) |
+| Hábitos | ✅ (`app/[locale]/(pages)/habits`) | ✅ (`pages/Habits.tsx`) | ✅ (tab `habits.tsx`) |
 | Modo foco / wellbeing | ✅ | ✅ (`pages/FocusMode.tsx`, score) | ✅ (`focus-mode.tsx`) |
 | Offline + cola de sync | ⚠️ `stores/sync-store.ts`, `lib/offline-storage.ts`, `lib/conflict-resolver.ts`; SW/push completos no verificados ([roadmap](../planning/roadmap.md)) | ✅ SQLite + sync engine + last-write-wins + indicador 🟢🟡🔴 | ⚠️ `AsyncStorage` + `NetInfo`, sin cola de sync equivalente ([roadmap](../planning/roadmap.md)) |
 | Push / notificaciones | ⚠️ hook + SW local, sin suscripción server ni backend push/VAPID ([roadmap](../planning/roadmap.md)) | ⚠️ notificaciones nativas vía bridge (locales, sin push remoto) ([roadmap](../planning/roadmap.md)) | ⚠️ socket + notificaciones locales programadas (sin push remoto FCM/APNs) ([roadmap](../planning/roadmap.md)) |
