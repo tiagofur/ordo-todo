@@ -1,12 +1,11 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Optional,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import type { TaskRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
-import { DayPlanService, type DayPlanView } from '../tasks/day-plan.service';
+import {
+  DayPlanService,
+  startOfTodayIn,
+  type DayPlanView,
+} from '../tasks/day-plan.service';
 import { toDateKey } from '../scheduling/candidate-criteria';
 
 // ODD 006 S1 (T1): morning ritual — present the day plan (005) + overdue +
@@ -21,9 +20,8 @@ export class RitualService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly dayPlans: DayPlanService,
-    @Optional()
     @Inject('TaskRepository')
-    private readonly taskRepository?: TaskRepository,
+    private readonly taskRepository: TaskRepository,
   ) {}
 
   async getMorning(userId: string): Promise<MorningView> {
@@ -39,14 +37,12 @@ export class RitualService {
     // Suggested top-3: first 3 blocks in engine order (documented rule).
     const suggestedTop3 = plan.blocks.slice(0, 3).map((b) => b.taskId);
     const overdue = tasks
-      .filter((t) => {
-        const due = toDateKey(t.dueDate, timezone);
-        return due !== null && due < todayKey;
-      })
+      .map((t) => ({ ...t, dueKey: toDateKey(t.dueDate, timezone) }))
+      .filter((t) => t.dueKey !== null && t.dueKey < todayKey)
       .map((t) => ({
         taskId: t.taskId,
         title: t.title,
-        dueDateKey: toDateKey(t.dueDate, timezone) as string,
+        dueDateKey: t.dueKey as string,
       }));
     return {
       plan,
@@ -69,6 +65,9 @@ export class RitualService {
         `Top-3 tasks must be in today's plan (not in plan: ${outside.join(', ')})`,
       );
     }
+    if (new Set(top3).size !== top3.length) {
+      throw new BadRequestException('Top-3 must not contain duplicates');
+    }
     const now = new Date();
     const row = await this.prisma.ritualDay.upsert({
       where: { userId_date: { userId, date: startOfTodayIn(timezone) } },
@@ -78,6 +77,8 @@ export class RitualService {
         morningStatus: 'DONE',
         morningAt: now,
         morningTop3: top3,
+        // Proxy: completion time (DayPlanView exposes no plan-createdAt;
+        // threading it through would be scope creep).
         morningPlannedAt: now,
       },
       update: {
@@ -101,7 +102,13 @@ export class RitualService {
         morningStatus: 'SKIPPED',
         morningAt: now,
       },
-      update: { morningStatus: 'SKIPPED', morningAt: now },
+      // Clear any previous complete() data: SKIPPED must not keep a stale top-3.
+      update: {
+        morningStatus: 'SKIPPED',
+        morningAt: now,
+        morningTop3: [],
+        morningPlannedAt: null,
+      },
     });
     return toView(row);
   }
@@ -117,7 +124,6 @@ export class RitualService {
   private async openTasks(
     userId: string,
   ): Promise<{ taskId: string; title: string; dueDate: Date | null }[]> {
-    if (!this.taskRepository) return [];
     const tasks = await this.taskRepository.findByOwnerId(userId);
     return tasks
       .filter(
@@ -126,7 +132,7 @@ export class RitualService {
       .map((t) => ({
         taskId: String(t.id),
         title: t.props.title,
-        dueDate: (t.props.dueDate ?? null) as Date | null,
+        dueDate: t.props.dueDate ?? null,
       }));
   }
 }
@@ -171,8 +177,7 @@ const toView = (row: RitualRow): RitualDayView => ({
   eveningAt: row.eveningAt,
 });
 
-// "Today" key + midnight in the given IANA timezone (same pattern as the
-// scheduling engine and DayPlanService — never server-local).
+// "Today" key in the given IANA timezone (never server-local).
 const toTodayKey = (timezone: string): string =>
   new Intl.DateTimeFormat('en-CA', {
     timeZone: timezone,
@@ -180,30 +185,3 @@ const toTodayKey = (timezone: string): string =>
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
-
-export const startOfTodayIn = (timezone: string): Date => {
-  const todayKey = toTodayKey(timezone);
-  const [y, mo, d] = todayKey.split('-').map(Number);
-  const guess = new Date(Date.UTC(y, mo - 1, d, 12, 0, 0));
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).formatToParts(guess);
-  const get = (t: string): number =>
-    Number(parts.find((p) => p.type === t)?.value ?? 0);
-  const wallAsUtc = Date.UTC(
-    get('year'),
-    get('month') - 1,
-    get('day'),
-    get('hour') % 24,
-    get('minute'),
-    get('second'),
-  );
-  return new Date(Date.UTC(y, mo - 1, d, 0, 0, 0) - (wallAsUtc - guess.getTime()));
-};

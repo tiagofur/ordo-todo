@@ -67,11 +67,15 @@ describe('RitualService morning (ODD 006 S1)', () => {
     service = module.get<RitualService>(RitualService);
   });
 
-  const openTask = (id: string, dueDate: Date | null) =>
+  const openTask = (
+    id: string,
+    dueDate: Date | null,
+    status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' = 'TODO',
+  ) =>
     new Task({
       id,
       title: id === 'old' ? 'Old thing' : id,
-      status: 'TODO',
+      status,
       priority: 'MEDIUM',
       projectId: 'p1',
       ownerId: 'user-1',
@@ -123,7 +127,14 @@ describe('RitualService morning (ODD 006 S1)', () => {
   });
 
   it('complete rejects a top-3 id outside the plan (400, no writes)', async () => {
-    await expect(service.completeMorning('user-1', ['a', 'zzz'])).rejects.toThrow(
+    await expect(
+      service.completeMorning('user-1', ['a', 'zzz']),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.ritualDay.upsert).not.toHaveBeenCalled();
+  });
+
+  it('complete rejects duplicate ids (400, no writes)', async () => {
+    await expect(service.completeMorning('user-1', ['a', 'a'])).rejects.toThrow(
       BadRequestException,
     );
     expect(prisma.ritualDay.upsert).not.toHaveBeenCalled();
@@ -140,6 +151,11 @@ describe('RitualService morning (ODD 006 S1)', () => {
     expect(prisma.ritualDay.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({ morningStatus: 'SKIPPED' }),
+        update: expect.objectContaining({
+          morningStatus: 'SKIPPED',
+          morningTop3: [],
+          morningPlannedAt: null,
+        }),
       }),
     );
     expect(out).toMatchObject({ morningStatus: 'SKIPPED' });
@@ -153,12 +169,54 @@ describe('RitualService morning (ODD 006 S1)', () => {
     const todayStart = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
-    taskRepo.findByOwnerId.mockResolvedValue([
-      openTask('today', todayStart),
-    ]);
+    taskRepo.findByOwnerId.mockResolvedValue([openTask('today', todayStart)]);
 
     const out = await service.getMorning('user-1');
 
     expect(out.overdue).toHaveLength(0);
+  });
+
+  it('overdue includes IN_PROGRESS but excludes COMPLETED', async () => {
+    prisma.ritualDay.findUnique.mockResolvedValue(RITUAL_ROW);
+    const old = new Date('2026-10-01T00:00:00Z');
+    taskRepo.findByOwnerId.mockResolvedValue([
+      openTask('wip', old, 'IN_PROGRESS'),
+      openTask('done', old, 'COMPLETED'),
+    ]);
+
+    const out = await service.getMorning('user-1');
+
+    expect(out.overdue.map((t) => t.taskId)).toEqual(['wip']);
+  });
+
+  it('overdue uses the user timezone, not the server one', async () => {
+    // User in Kiritimati (UTC+14): an instant that is "today" in UTC can
+    // already be "tomorrow" there — or still "yesterday" behind. Build a
+    // dueDate that is yesterday in Kiritimati but today in UTC: it MUST
+    // count as overdue for this user.
+    prisma.user.findUnique.mockResolvedValue({
+      timezone: 'Pacific/Kiritimati',
+    });
+    prisma.ritualDay.findUnique.mockResolvedValue(RITUAL_ROW);
+    const now = new Date();
+    const kiritimatiToday = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Pacific/Kiritimati',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(now);
+    const [y, mo, d] = kiritimatiToday.split('-').map(Number);
+    // Yesterday 12:00 in Kiritimati (fixed UTC+14, no DST):
+    // Date.UTC normalizes the hour underflow across the month boundary.
+    const yesterdayKiritimati = new Date(
+      Date.UTC(y, mo - 1, d - 1, 12 - 14, 0, 0),
+    );
+    taskRepo.findByOwnerId.mockResolvedValue([
+      openTask('late', yesterdayKiritimati),
+    ]);
+
+    const out = await service.getMorning('user-1');
+
+    expect(out.overdue.map((t) => t.taskId)).toEqual(['late']);
   });
 });
