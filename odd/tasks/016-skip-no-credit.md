@@ -52,10 +52,13 @@ Fuera de alcance: cambiar `stop(false)` (ya manda false); gamificación (respeta
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| C1 | S1 | Umbral core + hook acredita-por-progreso + 6 tests | inline | pending | — |
-| C2 | S2+S3 | Diálogo dinámico + confirm dashboard + móvil + tests UI + i18n | inline | pending | — |
-| C3 | S4 | Gates + PR + CI + merge + limpieza + memoria | inline | pending | — |
+| C1 | S1 | Umbral core + hook acredita-por-progreso + 6 tests | inline | done | `3834312d` — SKIP_CREDIT_THRESHOLD, timeLeftRef hoisted, suite 39/39 |
+| C2 | S2+S3 | Diálogo dinámico + confirm dashboard + móvil + tests UI + i18n | inline | done | `3834312d` — copy no-credit, dashboard confirm, móvil Alert, ES/EN/PT, 16 UI |
+| C3 | S4 | Gates + PR + CI + merge + limpieza + memoria | inline | in_progress | gates verdes, PR pendiente |
 
 ## Log
 
 L1. "si cambio de pomodoro a descanso en los chips que ahora son botones, cuenta 1 pomodoro como completado... incluso el skip debia de no contar como 1 pomodoro" + "proceda" (usuario 2026-10-20). Umbral 80% aprobado (consistente con diálogo #303).
+L2. C1 done 2026-10-20: `SKIP_CREDIT_THRESHOLD=80` en core; `computeEarnsCredit()` con `timeLeftRef` hoisted; `skipToNext` acredita solo si earned (stop+optimistic+notify gateados); `goToPhase` WORK-exit siempre interrumpido (detenido ⇒ 0% — simplificado tras descubrir que stop resetea). Tests viejos de farm reescritos a I13/I14. Suite hooks 39/39.
+L3. C2 done 2026-10-20: diálogo skip muestra copy no-credit (único caso que aparece); UI importa el umbral de core (móvil mirror documentado); dashboard skip confirma igual; wrappers dashboard pasan 4 labels nuevas; i18n ES/EN/PT (`skipConfirm.descriptionNoCredit`, `skipConfirmTitle`, `Timer.cancel`). Tests UI 16/16 (+mock threshold en vitest.setup). Commit único `3834312d` (18 files, +353/−41).
+L4. Gates 2026-10-20: build 16/16, check-types 15/15, hooks 39/39 (suite 163), engine 22/22, backend suite verde, tsc/eslint 0 en superficies. Incidente conocido: `tsbuildinfo` api-client corrupto → `rm -rf dist tsbuildinfo` + rebuild (código ajeno ODD 004, dists NO commiteados).
