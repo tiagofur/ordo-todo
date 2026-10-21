@@ -67,7 +67,7 @@ Visit [http://localhost:3100](http://localhost:3100) (Web) and [http://localhost
 
 ### Create a forked repository (`ordo-todo-creators`)
 
-> **Propuesta, no ejecutado.** No existe ningún repositorio `ordo-todo-creators` ni variante creators del producto a día de hoy. Las instrucciones de abajo son el procedimiento acordado para crearlo si negocio lo decide (ver `docs/vision/product-vision.md`, decisión cerrada 1).
+> **Proposal, not executed.** No `ordo-todo-creators` repository or creators variant of the product exists today. The instructions below are the agreed procedure to create one if the business decides so (see `docs/vision/product-vision.md`, closed decision 1).
 
 If you need the apps to evolve independently (e.g., enterprise vs. creator audiences or distinct feature sets per market), create a new repository from this code without affecting `ordo-todo`. Use the name `ordo-todo-creators` (or any name you prefer) for the variant with a distinct audience:
 
@@ -350,6 +350,8 @@ Ordo-Todo e um aplicativo de gerenciamento de tarefas de proxima geracao. Leia o
 - Suporte multilinguagem
 
 ### Criar repositório derivado (`ordo-todo-creators`)
+
+> **Proposta, não executado.** Não existe nenhum repositório `ordo-todo-creators` nem variante creators do produto hoje. As instruções abaixo são o procedimento acordado para criá-lo se o negócio decidir (ver `docs/vision/product-vision.md`, decisão fechada 1).
 
 Se você precisa que os apps evoluam de forma independente com públicos diferentes, crie um novo repo a partir deste sem impactar `ordo-todo`:
 
