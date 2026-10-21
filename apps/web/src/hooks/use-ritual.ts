@@ -49,6 +49,8 @@ function useInvalidateRitual() {
   return () => {
     queryClient.invalidateQueries({ queryKey: ritualKeys.all });
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    // Time-boxing writes scheduledDate/Time: refresh a mounted calendar too.
+    queryClient.invalidateQueries({ queryKey: ["time-blocks"] });
   };
 }
 

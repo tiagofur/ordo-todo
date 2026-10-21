@@ -44,6 +44,11 @@ describe('MorningRitualCard (ODD 006 S1/T5)', () => {
     expect(screen.getByText('09:00 – 10:00')).toBeDefined();
     expect(screen.getByText('Vieja pendiente')).toBeDefined();
     expect(screen.getByText('2026-10-18')).toBeDefined();
+    // Suggested top-3 preselected: 'a' checked, 'b' unchecked.
+    expect(screen.getByRole('checkbox', { name: 'Escribir informe' })).toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'Llamar cliente' }),
+    ).not.toBeChecked();
   });
 
   it('lets the user toggle the top-3 and completes with the selection', () => {

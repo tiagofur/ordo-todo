@@ -51,7 +51,11 @@ export function EveningMovePicker({
   return (
     <li className="rounded-lg border border-border/60 px-3 py-2">
       <p className="truncate text-sm font-medium">{title}</p>
-      <div className="mt-1 flex flex-wrap gap-1" role="group" aria-label={title}>
+      <div
+        className="mt-1 flex flex-wrap gap-1"
+        role="group"
+        aria-label={`${title} — ${labels.destinationTomorrow} / ${labels.destinationDate} / ${labels.destinationArchived}`}
+      >
         {destinations.map((d) => (
           <Button
             key={d.value}
@@ -73,7 +77,11 @@ export function EveningMovePicker({
           />
         )}
       </div>
-      <div className="mt-1 flex flex-wrap gap-1" role="group" aria-label={title}>
+      <div
+        className="mt-1 flex flex-wrap gap-1"
+        role="group"
+        aria-label={`${title} — ${labels.reasonOverran} / ${labels.reasonUrgent} / ${labels.reasonNoEnergy} / ${labels.reasonOther}`}
+      >
         {reasons.map((r) => (
           <Button
             key={r.value}

@@ -430,7 +430,8 @@
       "shutdown": "Desligamento completo",
       "done": "Noite pronta",
       "completeError": "Não foi possível encerrar o dia",
-      "skippedToast": "Encerramento pulado"
+      "skippedToast": "Encerramento pulado",
+      "unmoved": "Sem destino (ainda pendentes)"
     },
     "timebox": {
       "title": "Blocos de tempo",

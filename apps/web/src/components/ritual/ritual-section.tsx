@@ -65,6 +65,7 @@ interface RitualSectionLabels {
   eveningDone: string;
   eveningError: string;
   eveningSkippedToast: string;
+  eveningUnmoved: string;
   eveningDatePlaceholder: string;
   timeboxTitle: string;
   timeboxEmpty: string;
@@ -89,7 +90,12 @@ interface RitualSectionLabels {
  */
 export function RitualSection({ labels }: { labels: RitualSectionLabels }) {
   const { data: morning, isLoading, isError, refetch } = useMorningRitual();
-  const { data: evening } = useEveningRitual();
+  const {
+    data: evening,
+    isLoading: eveningLoading,
+    isError: eveningError,
+    refetch: refetchEvening,
+  } = useEveningRitual();
   const { data: streak } = useStreak();
   const { data: tasks } = useTasks();
   const completeMorning = useCompleteMorning();
@@ -143,6 +149,13 @@ export function RitualSection({ labels }: { labels: RitualSectionLabels }) {
       onSuccess: (result) => {
         setShutdownSuggestion(result.suggestion);
         toast.success(labels.eveningDone);
+        // Partial closes are allowed: surface unmoved pendings explicitly
+        // instead of silently dropping them (backend reports them).
+        if (result.unmoved.length > 0) {
+          toast.warning(
+            `${labels.eveningUnmoved}: ${result.unmoved.map(titleOf).join(', ')}`,
+          );
+        }
       },
       onError: () => toast.error(labels.eveningError),
     });
@@ -231,15 +244,29 @@ export function RitualSection({ labels }: { labels: RitualSectionLabels }) {
             endLabel: labels.timeboxEnd,
             save: labels.timeboxSave,
             acceptProposal: labels.timeboxAccept,
-            saved: labels.timeboxSaved,
-            saveError: labels.timeboxError,
           }}
           onSave={handleSaveTimebox}
           onAcceptProposal={handleAcceptTimebox}
         />
       </div>
       <div className="space-y-6">
-        <EveningRitualCard
+        {eveningLoading || !evening ? (
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <p className="text-sm text-muted-foreground">
+              {eveningError ? labels.loadError : labels.loading}
+            </p>
+            {eveningError && (
+              <button
+                type="button"
+                onClick={() => refetchEvening()}
+                className="mt-3 rounded-xl bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-600 cursor-pointer"
+              >
+                {labels.retry}
+              </button>
+            )}
+          </div>
+        ) : (
+          <EveningRitualCard
           summary={eveningSummary(evening?.summary)}
           completed={(evening?.completed ?? []).map((t) => ({
             taskId: t.taskId,
@@ -277,6 +304,7 @@ export function RitualSection({ labels }: { labels: RitualSectionLabels }) {
           onComplete={handleCompleteEvening}
           onSkip={handleSkipEvening}
         />
+        )}
         {streak && (
           <StreakCard
             current={streak.current}

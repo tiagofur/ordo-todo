@@ -67,6 +67,7 @@ export default function RitualPage() {
             eveningDone: t("evening.done"),
             eveningError: t("evening.completeError"),
             eveningSkippedToast: t("evening.skippedToast"),
+            eveningUnmoved: t("evening.unmoved"),
             eveningDatePlaceholder: t("evening.datePlaceholder"),
             timeboxTitle: t("timebox.title"),
             timeboxEmpty: t("timebox.empty"),

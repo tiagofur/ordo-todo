@@ -430,7 +430,8 @@
       "shutdown": "Shutdown complete",
       "done": "Evening ready",
       "completeError": "Couldn't close the day",
-      "skippedToast": "Shutdown skipped"
+      "skippedToast": "Shutdown skipped",
+      "unmoved": "With no destination (still pending)"
     },
     "timebox": {
       "title": "Time blocks",

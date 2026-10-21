@@ -64,6 +64,7 @@ const LABELS = {
   eveningDone: 'Noche lista',
   eveningError: 'No se pudo cerrar',
   eveningSkippedToast: 'Cierre omitido',
+  eveningUnmoved: 'Sin destino',
   eveningDatePlaceholder: 'YYYY-MM-DD',
   timeboxTitle: 'Bloques',
   timeboxEmpty: 'Sin top-3',
@@ -113,6 +114,8 @@ async function mockRitualState(state: {
   morningLoading?: boolean;
   morningError?: boolean;
   evening?: unknown;
+  eveningLoading?: boolean;
+  eveningError?: boolean;
   streak?: unknown;
 }) {
   const hooks = await import('@/hooks/use-ritual');
@@ -124,6 +127,9 @@ async function mockRitualState(state: {
   } as never);
   vi.mocked(hooks.useEveningRitual).mockReturnValue({
     data: (state.evening ?? null) as never,
+    isLoading: state.eveningLoading ?? false,
+    isError: state.eveningError ?? false,
+    refetch: vi.fn(),
   } as never);
   vi.mocked(hooks.useStreak).mockReturnValue({
     data: (state.streak ?? null) as never,
@@ -250,5 +256,19 @@ describe('RitualSection (ODD 006 T5)', () => {
     renderSection();
     expect(screen.getByText('Error al cargar')).toBeDefined();
     expect(screen.getByRole('button', { name: /reintentar/i })).toBeDefined();
+  });
+
+  it('gates evening actions until evening loads (B1: no phantom close)', async () => {
+    await mockRitualState({ morning: MORNING, eveningLoading: true });
+    const { unmount } = renderSection();
+
+    // Loading placeholder instead of the close card: no actions available.
+    expect(screen.queryByText('Ritual de cierre')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Cerrar el día' })).toBeNull();
+    unmount();
+
+    await mockRitualState({ morning: MORNING, eveningError: true });
+    renderSection();
+    expect(screen.queryByText('Ritual de cierre')).toBeNull();
   });
 });

@@ -430,7 +430,8 @@
       "shutdown": "Apagado completo",
       "done": "Noche lista",
       "completeError": "No se pudo cerrar el día",
-      "skippedToast": "Cierre omitido"
+      "skippedToast": "Cierre omitido",
+      "unmoved": "Sin destino (siguen pendientes)"
     },
     "timebox": {
       "title": "Bloques de tiempo",

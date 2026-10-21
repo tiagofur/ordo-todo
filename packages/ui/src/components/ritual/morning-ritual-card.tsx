@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sunrise, Check, SkipForward } from 'lucide-react';
 import {
   Card,
@@ -67,6 +67,18 @@ export function MorningRitualCard({
   const [selected, setSelected] = useState<string[]>(() =>
     suggestedTop3.filter((id) => planBlocks.some((b) => b.taskId === id)).slice(0, 3),
   );
+
+  // Resync when fresh props arrive (e.g. refetch after a plan rebuild);
+  // the user selection otherwise sticks for the session.
+  const suggestedKey = [...suggestedTop3].sort().join(',');
+  useEffect(() => {
+    setSelected(
+      suggestedTop3
+        .filter((id) => planBlocks.some((b) => b.taskId === id))
+        .slice(0, 3),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedKey]);
 
   const toggle = (taskId: string) => {
     setSelected((prev) =>

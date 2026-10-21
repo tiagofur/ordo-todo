@@ -58,7 +58,13 @@ export function EveningRitualCard({
     moves[taskId] ?? { taskId, destination: 'tomorrow', reason: 'overran' };
 
   const setMove = (taskId: string, patch: Partial<RitualEveningMove>) =>
-    setMoves((prev) => ({ ...prev, [taskId]: { ...moveOf(taskId), ...patch } }));
+    setMoves((prev) => {
+      const next = { ...moveOf(taskId), ...patch };
+      // Drop a stale date when leaving the date destination (backend would
+      // ignore it, but the payload stays clean).
+      if (next.destination !== 'date') delete next.date;
+      return { ...prev, [taskId]: next };
+    });
 
   return (
     <Card>
@@ -86,30 +92,36 @@ export function EveningRitualCard({
           </p>
           {pending.length === 0 ? (
             <p className="text-xs text-muted-foreground">{labels.pendingEmpty}</p>
+          ) : status === 'PENDING' ? (
+            <ul className="mt-1 space-y-2">
+              {pending.map((task) => (
+                <EveningMovePicker
+                  key={task.taskId}
+                  taskId={task.taskId}
+                  title={task.title}
+                  move={moveOf(task.taskId)}
+                  labels={{
+                    destinationTomorrow: labels.destinationTomorrow,
+                    destinationDate: labels.destinationDate,
+                    destinationArchived: labels.destinationArchived,
+                    reasonOverran: labels.reasonOverran,
+                    reasonUrgent: labels.reasonUrgent,
+                    reasonNoEnergy: labels.reasonNoEnergy,
+                    reasonOther: labels.reasonOther,
+                    datePlaceholder: labels.datePlaceholder,
+                  }}
+                  onChange={setMove}
+                />
+              ))}
+            </ul>
           ) : (
-            status === 'PENDING' && (
-              <ul className="mt-1 space-y-2">
-                {pending.map((task) => (
-                  <EveningMovePicker
-                    key={task.taskId}
-                    taskId={task.taskId}
-                    title={task.title}
-                    move={moveOf(task.taskId)}
-                    labels={{
-                      destinationTomorrow: labels.destinationTomorrow,
-                      destinationDate: labels.destinationDate,
-                      destinationArchived: labels.destinationArchived,
-                      reasonOverran: labels.reasonOverran,
-                      reasonUrgent: labels.reasonUrgent,
-                      reasonNoEnergy: labels.reasonNoEnergy,
-                      reasonOther: labels.reasonOther,
-                      datePlaceholder: labels.datePlaceholder,
-                    }}
-                    onChange={setMove}
-                  />
-                ))}
-              </ul>
-            )
+            <ul className="mt-1 space-y-1">
+              {pending.map((task) => (
+                <li key={task.taskId} className="truncate text-xs font-medium">
+                  {task.title}
+                </li>
+              ))}
+            </ul>
           )}
         </section>
         {shutdownComplete && (

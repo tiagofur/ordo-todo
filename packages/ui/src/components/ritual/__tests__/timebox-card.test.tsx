@@ -12,8 +12,6 @@ const labels = {
   endLabel: 'Fin',
   save: 'Guardar bloques',
   acceptProposal: 'Aceptar propuesta',
-  saved: 'Bloques guardados',
-  saveError: 'No se pudieron guardar los bloques',
 };
 
 const top3 = [
