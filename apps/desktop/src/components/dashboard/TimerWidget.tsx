@@ -111,6 +111,10 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
         pauseCount: (count: number) => t("Timer.pauses", `${count} pausa${count !== 1 ? "s" : ""}`, { count }),
         goToPhase: (phase: string) => t("Timer.goToPhase", `Ir a ${phase}`, { phase }),
         stopToSwitchPhase: t("Timer.stopToSwitchPhase", "Detén el temporizador para cambiar de fase"),
+        skipConfirmTitle: t("Timer.skipConfirmTitle", "¿Saltar la fase actual?"),
+        skipConfirmDescriptionNoCredit: t("Timer.skipConfirm.descriptionNoCredit", "Saltar ahora no contará como fase completada."),
+        skipConfirmOk: t("Timer.skip", "Saltar"),
+        cancel: t("Timer.cancel", "Cancelar"),
       }}
     />
   );

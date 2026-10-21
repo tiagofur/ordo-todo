@@ -115,6 +115,10 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
         pauseCount: (count: number) => pt.has("pauses") ? pt("pauses", { count }) : `${count} pausa${count !== 1 ? "s" : ""}`,
         goToPhase: (phase: string) => t.has("goToPhase") ? t("goToPhase", { phase }) : `Ir a ${phase}`,
         stopToSwitchPhase: t.has("stopToSwitchPhase") ? t("stopToSwitchPhase") : "Detén el temporizador para cambiar de fase",
+        skipConfirmTitle: t.has("skipConfirmTitle") ? t("skipConfirmTitle") : "¿Saltar la fase actual?",
+        skipConfirmDescriptionNoCredit: t.has("skipConfirm.descriptionNoCredit") ? t("skipConfirm.descriptionNoCredit") : "Saltar ahora no contará como fase completada.",
+        skipConfirmOk: t("skip"),
+        cancel: t.has("cancel") ? t("cancel") : "Cancelar",
       }}
     />
   );

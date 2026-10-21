@@ -11,6 +11,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   DEFAULT_ENGINE_CONFIG,
+  SKIP_CREDIT_THRESHOLD,
   completePhase,
   durationForMode,
   nextMode,
@@ -189,6 +190,10 @@ export function useTimerBackend({
   isPausedRef.current = isPaused;
   const typeRef = useRef(type);
   typeRef.current = type;
+  // Tick-owned source of truth (see countdown effect below): updated on every
+  // tick AND every render, so actions always read a fresh value.
+  const timeLeftRef = useRef(timeLeft);
+  timeLeftRef.current = timeLeft;
 
   const { activeSession } = api;
 
@@ -197,6 +202,20 @@ export function useTimerBackend({
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+  }, []);
+
+  /**
+   * Whether abandoning the current phase right now earns credit (ODD 016,
+   * I13/I14): progress at/above SKIP_CREDIT_THRESHOLD. Uses timeLeftRef so
+   * actions never read a stale render value.
+   */
+  const computeEarnsCredit = useCallback(() => {
+    const current = modeRef.current;
+    if (current === 'CONTINUOUS') return false;
+    const total = durationOf(current, configRef.current);
+    if (total <= 0) return false;
+    const progress = ((total - timeLeftRef.current) / total) * 100;
+    return progress >= SKIP_CREDIT_THRESHOLD;
   }, []);
 
   // Sync with the backend active session.
@@ -447,15 +466,18 @@ export function useTimerBackend({
         completedPomodorosRef.current,
         configRef.current,
       );
-      // Optimistic increment only when a WORK phase completes (the engine
-      // only bumps the counter for WORK). The server value absorbs it once
-      // the stats query refetches after stop.
-      if (currentMode === 'WORK') {
+      // ODD 016: a manual skip only credits the abandoned phase at/above
+      // SKIP_CREDIT_THRESHOLD. Below it the session closes as interrupted:
+      // no counter, no XP, no metrics — the farm is dead.
+      const earned = computeEarnsCredit();
+      if (currentMode === 'WORK' && earned) {
         setOptimisticExtra((extra) => extra + 1);
       }
 
-      await api.stop({ wasCompleted: true });
-      notify.sessionComplete(currentMode);
+      await api.stop({ wasCompleted: earned });
+      if (earned) {
+        notify.sessionComplete(currentMode);
+      }
 
       // Land on the next phase BEFORE refetching: the sync effect will see
       // activeSession === null and must respect this local intent.
@@ -486,7 +508,7 @@ export function useTimerBackend({
     } finally {
       isTransitioningRef.current = false;
     }
-  }, [api, clearLocalInterval, notify, taskId, type]);
+  }, [api, clearLocalInterval, computeEarnsCredit, notify, taskId, type]);
 
   const skipToNextRef = useRef(skipToNext);
   skipToNextRef.current = skipToNext;
@@ -496,8 +518,9 @@ export function useTimerBackend({
   /**
    * Jump to an explicit phase while stopped (phase-chip navigation).
    * No-op unless POMODORO, fully stopped, and targeting another phase.
-   * Leaving WORK counts the pomodoro (same as skip); leaving a BREAK only
-   * switches mode + full duration, counter untouched. Never auto-starts.
+   * Leaving WORK closes it as INTERRUPTED (stopped ⇒ 0% progress ⇒ I13):
+   * the phase is never credited — to earn it, resume and skip past 80%.
+   * Leaving a BREAK only switches mode + full duration. Never auto-starts.
    */
   const goToPhase = useCallback(
     async (target: EngineMode) => {
@@ -512,9 +535,9 @@ export function useTimerBackend({
 
       try {
         if (current === 'WORK') {
-          setOptimisticExtra((extra) => extra + 1);
-          await api.stop({ wasCompleted: true });
-          notify.sessionComplete('WORK');
+          // Stopped WORK is always 0% progress (stop/P1/midnight all land on
+          // full durations), so I13 always applies: interrupted, no credit.
+          await api.stop({ wasCompleted: false });
         }
         pendingModeRef.current = target;
         setMode(target);
@@ -557,9 +580,7 @@ export function useTimerBackend({
   // per-tick drift can never desync the clock: the first tick after a gap
   // lands on the correct value, or fires the transition if the phase
   // expired while suspended. Expiry fires synchronously in the tick — no
-  // nested setTimeout.
-  const timeLeftRef = useRef(timeLeft);
-  timeLeftRef.current = timeLeft;
+  // nested setTimeout. (timeLeftRef is declared with the other refs above.)
   // Deadline for POMODORO phases (ms epoch), or anchor for CONTINUOUS
   // count-up (Date.now() - elapsedSeconds * 1000 at (re)start).
   const deadlineRef = useRef<number | null>(null);

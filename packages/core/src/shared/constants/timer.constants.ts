@@ -64,6 +64,14 @@ export const TIMER_LIMITS = {
 } as const;
 
 /**
+ * Progress % at/above which abandoning a phase (skip/chip) still credits it
+ * (ODD 016, I13/I14). Below it, the phase closes as interrupted: no counter,
+ * no XP, no metrics. Shared by the hook (credit decision) and the UI
+ * (confirm dialog + dynamic copy) so both always agree.
+ */
+export const SKIP_CREDIT_THRESHOLD = 80;
+
+/**
  * Get timer mode configuration
  */
 export function getTimerModeConfig(mode: TimerMode) {

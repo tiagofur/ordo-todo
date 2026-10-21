@@ -192,7 +192,7 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.completedPomodoros).toBe(2);
   });
 
-  it('manual skip mid-WORK moves to SHORT_BREAK stopped with counter=1', async () => {
+  it('I13: early WORK skip moves on WITHOUT credit (interrupted)', async () => {
     const hook = setupHook({ config: { ...config, workDuration: 25 } });
     await act(async () => {
       await hook.result.current.start();
@@ -207,9 +207,56 @@ describe('useTimerBackend (unified)', () => {
 
     expect(hook.result.current.mode).toBe('SHORT_BREAK');
     expect(hook.result.current.timeLeft).toBe(5 * 60);
-    expect(hook.result.current.completedPomodoros).toBe(1);
+    expect(hook.result.current.completedPomodoros).toBe(0);
     expect(hook.result.current.isRunning).toBe(false);
+    expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: false });
+    expect(hook.notify.calls.session).toEqual([]);
+  });
+
+  it('I14: late WORK skip (≥80%) still credits the pomodoro', async () => {
+    const hook = setupHook({ config: { ...config, workDuration: 10 } });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    // 8.5 of 10 minutes = 85% progress.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(510 * 1000);
+    });
+
+    await act(async () => {
+      await hook.result.current.skipToNext();
+    });
+
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.completedPomodoros).toBe(1);
     expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: true });
+    expect(hook.notify.calls.session).toEqual(['WORK']);
+  });
+
+  it('I13: early BREAK skip closes as interrupted (no celebration)', async () => {
+    const hook = setupHook({
+      completedToday: 1,
+      lastClosedSession: {
+        type: 'WORK',
+        endedAt: new Date(Date.now() - 30 * 60 * 1000),
+        wasCompleted: true,
+      },
+    });
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10 * 1000);
+    });
+
+    await act(async () => {
+      await hook.result.current.skipToNext();
+    });
+
+    expect(hook.result.current.mode).toBe('WORK');
+    expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: false });
+    expect(hook.notify.calls.session).toEqual([]);
   });
 
   it('I4: stop during a break stays in the break with full break duration', async () => {
@@ -665,7 +712,7 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.timeLeft).toBeGreaterThan(0);
   });
 
-  it('goToPhase: WORK → forced LONG_BREAK counts the pomodoro, stays stopped', async () => {
+  it('I13: goToPhase WORK → BREAK stopped early moves WITHOUT credit', async () => {
     const hook = setupHook({ completedToday: 0 });
     expect(hook.result.current.mode).toBe('WORK');
 
@@ -676,8 +723,35 @@ describe('useTimerBackend (unified)', () => {
     expect(hook.result.current.mode).toBe('LONG_BREAK');
     expect(hook.result.current.timeLeft).toBe(15 * 60);
     expect(hook.result.current.isRunning).toBe(false);
-    expect(hook.result.current.completedPomodoros).toBe(1);
-    expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: true });
+    expect(hook.result.current.completedPomodoros).toBe(0);
+    expect(hook.api.stop).toHaveBeenCalledWith({ wasCompleted: false });
+    expect(hook.notify.calls.session).toEqual([]);
+  });
+
+  it('I13: goToPhase after stop-then-move never credits (stop resets to 0%)', async () => {
+    const hook = setupHook({
+      config: { ...config, workDuration: 10 },
+      completedToday: 0,
+    });
+    await act(async () => {
+      await hook.result.current.start();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(510 * 1000);
+    });
+    // Stop at 85%: I4 resets to full duration, abandoning the progress.
+    await act(async () => {
+      await hook.result.current.stop(false);
+    });
+    expect(hook.result.current.timeLeft).toBe(10 * 60);
+
+    await act(async () => {
+      await hook.result.current.goToPhase('SHORT_BREAK');
+    });
+
+    expect(hook.result.current.mode).toBe('SHORT_BREAK');
+    expect(hook.result.current.completedPomodoros).toBe(0);
+    expect(hook.api.stop).toHaveBeenLastCalledWith({ wasCompleted: false });
   });
 
   it('goToPhase: BREAK → WORK switches without touching the counter', async () => {

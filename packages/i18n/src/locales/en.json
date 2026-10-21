@@ -1429,10 +1429,12 @@
     "skipConfirm": {
       "title": "Skip to {phase}?",
       "description": "The current phase will close as completed.",
-      "ok": "Skip"
+      "ok": "Skip",
+      "descriptionNoCredit": "Skipping now will not count as a completed pomodoro."
     },
     "cancel": "Cancel",
-    "skipButton": "Skip to next block"
+    "skipButton": "Skip to next block",
+    "skipConfirmTitle": "Skip the current phase?"
   },
   "SessionHistory": {
     "error": "Error loading session history",
@@ -2156,12 +2158,14 @@
     "skipConfirm": {
       "title": "Skip to {phase}?",
       "description": "The current phase will close as completed.",
-      "ok": "Skip"
+      "ok": "Skip",
+      "descriptionNoCredit": "Skipping now will not count as a completed pomodoro."
     },
     "cancel": "Cancel",
     "skipButton": "Skip to next block",
     "goToPhase": "Go to {phase}",
-    "stopToSwitchPhase": "Stop the timer to switch phases"
+    "stopToSwitchPhase": "Stop the timer to switch phases",
+    "skipConfirmTitle": "Skip the current phase?"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Weekly Report",

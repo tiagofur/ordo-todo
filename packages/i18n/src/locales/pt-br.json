@@ -1350,10 +1350,12 @@
     "skipConfirm": {
       "title": "Pular para {phase}?",
       "description": "A fase atual será encerrada como concluída.",
-      "ok": "Pular"
+      "ok": "Pular",
+      "descriptionNoCredit": "Pular agora não contará como pomodoro concluído."
     },
     "cancel": "Cancelar",
-    "skipButton": "Pular para o próximo bloco"
+    "skipButton": "Pular para o próximo bloco",
+    "skipConfirmTitle": "Pular a fase atual?"
   },
   "SessionHistory": {
     "error": "Erro ao carregar histórico de sessões",
@@ -2164,12 +2166,14 @@
     "skipConfirm": {
       "title": "Pular para {phase}?",
       "description": "A fase atual será encerrada como concluída.",
-      "ok": "Pular"
+      "ok": "Pular",
+      "descriptionNoCredit": "Pular agora não contará como pomodoro concluído."
     },
     "cancel": "Cancelar",
     "skipButton": "Pular para o próximo bloco",
     "goToPhase": "Ir para {phase}",
-    "stopToSwitchPhase": "Pare o temporizador para trocar de fase"
+    "stopToSwitchPhase": "Pare o temporizador para trocar de fase",
+    "skipConfirmTitle": "Pular a fase atual?"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Relatório Semanal",

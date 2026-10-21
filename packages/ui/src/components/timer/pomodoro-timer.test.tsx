@@ -43,6 +43,8 @@ describe('PomodoroTimer skip confirmation', () => {
     fireEvent.click(screen.getByTitle('Saltar al siguiente bloque'));
 
     expect(screen.getByText('¿Saltar a Descanso Corto?')).toBeInTheDocument();
+    // ODD 016: the dialog only shows when the skip earns NO credit.
+    expect(screen.getByText('Saltar ahora no contará como pomodoro completado.')).toBeInTheDocument();
     expect(actions.skipToNext).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('Saltar'));

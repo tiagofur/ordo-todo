@@ -81,3 +81,54 @@ describe('DashboardTimerWidget phase chips', () => {
     expect(screen.getByText('5m')).toBeInTheDocument();
   });
 });
+
+describe('DashboardTimerWidget skip confirmation', () => {
+  function setupSkip(props = {}) {
+    const onSkip = vi.fn();
+    render(
+      <DashboardTimerWidget
+        {...baseProps}
+        mode="WORK"
+        isRunning={true}
+        isPaused={false}
+        progress={20}
+        onSkip={onSkip}
+        {...props}
+      />
+    );
+    return onSkip;
+  }
+
+  it('confirms early WORK skip with no-credit copy, skips on confirm', () => {
+    const onSkip = setupSkip();
+
+    fireEvent.click(screen.getByTitle('Saltar'));
+
+    expect(screen.getByText('¿Saltar la fase actual?')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saltar ahora no contará como fase completada.')
+    ).toBeInTheDocument();
+    expect(onSkip).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('Saltar', { selector: 'button' }));
+    expect(onSkip).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelling does not skip', () => {
+    const onSkip = setupSkip();
+
+    fireEvent.click(screen.getByTitle('Saltar'));
+    fireEvent.click(screen.getByText('Cancelar'));
+
+    expect(onSkip).not.toHaveBeenCalled();
+  });
+
+  it('skips straight through at ≥80% progress', () => {
+    const onSkip = setupSkip({ progress: 85 });
+
+    fireEvent.click(screen.getByTitle('Saltar'));
+
+    expect(screen.queryByText('¿Saltar la fase actual?')).toBeNull();
+    expect(onSkip).toHaveBeenCalledTimes(1);
+  });
+});
