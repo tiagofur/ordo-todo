@@ -13,12 +13,14 @@ import {
   HttpStatus,
   Inject,
   forwardRef,
+  Optional,
   Logger,
   BadRequestException,
   NotFoundException,
   ForbiddenException,
   Res,
   UnauthorizedException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { generateIcsFeed } from './utils/ical-generator.util';
@@ -43,6 +45,7 @@ import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
 import { DayPlanService } from './day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { TagsService } from '../tags/tags.service';
 import { CommentsService } from '../comments/comments.service';
 import { AttachmentsService } from '../attachments/attachments.service';
@@ -66,6 +69,10 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
+    // ODD 005 S4 (T4): @Optional so the untouched PRESERVE spec
+    // (tasks.controller.spec.ts, no SchedulingModule) keeps compiling green.
+    // In production TasksModule imports SchedulingModule, so it resolves.
+    @Optional() private readonly riskAlerts?: RiskAlertService,
   ) {}
 
   @Post()
@@ -318,6 +325,41 @@ export class TasksController {
   @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
   getDeleted(@Query('projectId') projectId: string) {
     return this.tasksService.getDeleted(projectId);
+  }
+
+  /**
+   * Get risk alerts for the current day plan (ODD 005 S4).
+   * Must be BEFORE @Get(':id') to avoid route conflicts!
+   */
+  @Get('day-plan/risks')
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
+  @ApiOperation({ summary: "Get risk alerts for today's plan" })
+  @ApiQuery({
+    name: 'daysAhead',
+    required: false,
+    description: 'Deadline look-ahead window in days (default 3)',
+  })
+  @ApiResponseDecorator({ status: 200, description: 'Risk alerts retrieved' })
+  @ApiResponseDecorator({ status: 503, description: 'Scheduling unavailable' })
+  getDayPlanRisks(
+    @CurrentUser() user: RequestUser,
+    @Query('daysAhead') daysAhead?: string,
+  ) {
+    if (!this.riskAlerts) {
+      throw new ServiceUnavailableException(
+        'Risk alerts unavailable: SchedulingModule not wired.',
+      );
+    }
+    const parsed = daysAhead ? parseInt(daysAhead, 10) : NaN;
+    return this.riskAlerts.assessForUser(
+      user.id,
+      Number.isFinite(parsed) && parsed > 0 ? parsed : 3,
+    );
   }
 
   /**
