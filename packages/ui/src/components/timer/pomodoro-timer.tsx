@@ -11,6 +11,7 @@ import {
 import { Button } from '../ui/button.js';
 import type { TimerMode } from './timer-widget.js';
 import { cn } from '../../utils/index.js';
+import { SKIP_CREDIT_THRESHOLD } from '@ordo-todo/core';
 
 export interface TimerState {
   isLoaded: boolean;
@@ -63,6 +64,8 @@ export interface PomodoroTimerProps {
     /** 'Skip to {phase}?' dialog title. {phase} = skipTargetLabel. */
     skipConfirmTitle?: (phase: string) => string;
     skipConfirmDescription?: string;
+    /** Shown when the skip will NOT credit the phase (progress < 80%). */
+    skipConfirmDescriptionNoCredit?: string;
     skipConfirmOk?: string;
     cancel?: string;
     /** Pre-computed next-phase label, e.g. 'Descanso corto (5:00)'. */
@@ -151,6 +154,7 @@ export function PomodoroTimer({
     circularView = 'Vista Circular',
     skipConfirmTitle = (phase: string) => `¿Saltar a ${phase}?`,
     skipConfirmDescription = 'La fase actual se cerrará como completada.',
+    skipConfirmDescriptionNoCredit = 'Saltar ahora no contará como pomodoro completado.',
     skipConfirmOk = 'Saltar',
     cancel = 'Cancelar',
     skipTargetLabel,
@@ -160,10 +164,11 @@ export function PomodoroTimer({
   const [showSkipDialog, setShowSkipDialog] = useState(false);
 
   // Confirm only when there is focus time at stake: an early WORK skip.
-  // Breaks and nearly-finished WORK skip straight through.
-  const SKIP_CONFIRM_PROGRESS = 80;
+  // Breaks and nearly-finished WORK skip straight through. The dialog only
+  // ever shows when the skip will NOT earn credit (ODD 016, I13) — same
+  // threshold the hook uses, imported so both can never diverge.
   const needsSkipConfirm =
-    mode === 'WORK' && progress < SKIP_CONFIRM_PROGRESS;
+    mode === 'WORK' && progress < SKIP_CREDIT_THRESHOLD;
 
   const handleSkip = () => {
     if (needsSkipConfirm) {
@@ -374,7 +379,7 @@ export function PomodoroTimer({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{skipConfirmTitle(skipTargetLabel ?? shortBreak)}</DialogTitle>
-              <DialogDescription>{skipConfirmDescription}</DialogDescription>
+              <DialogDescription>{skipConfirmDescriptionNoCredit}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowSkipDialog(false)}>
@@ -535,7 +540,7 @@ export function PomodoroTimer({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{skipConfirmTitle(skipTargetLabel ?? shortBreak)}</DialogTitle>
-            <DialogDescription>{skipConfirmDescription}</DialogDescription>
+            <DialogDescription>{skipConfirmDescriptionNoCredit}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSkipDialog(false)}>

@@ -70,6 +70,8 @@ interface PomodoroTimerProps {
     /** 'Skip to {phase}?' dialog title. {phase} = skipTargetLabel. */
     skipConfirmTitle?: (phase: string) => string;
     skipConfirmDescription?: string;
+    /** Shown when the skip will NOT credit the phase (progress < 80%). */
+    skipConfirmDescriptionNoCredit?: string;
     skipConfirmOk?: string;
     cancel?: string;
     /** Pre-computed next-phase label, e.g. 'Short break (5:00)'. */
@@ -130,6 +132,7 @@ export function PomodoroTimer({
     pauseCount: pauseCountLabel = (count: number) => `${count} pause${count !== 1 ? 's' : ''}`,
     skipConfirmTitle = (phase: string) => `Skip to ${phase}?`,
     skipConfirmDescription = 'The current phase will close as completed.',
+    skipConfirmDescriptionNoCredit = 'Skipping now will not count as a completed pomodoro.',
     skipConfirmOk = 'Skip',
     cancel = 'Cancel',
     skipTargetLabel,
@@ -156,13 +159,16 @@ export function PomodoroTimer({
   };
 
   // Confirm only when there is focus time at stake: an early WORK skip.
-  // Breaks and nearly-finished WORK skip straight through.
+  // Breaks and nearly-finished WORK skip straight through. The dialog only
+  // ever shows when the skip will NOT earn credit (ODD 016, I13).
+  // NOTE: mirrors SKIP_CREDIT_THRESHOLD in @ordo-todo/core by value
+  // (ui-mobile has no core dependency; keep in sync).
   const SKIP_CONFIRM_PROGRESS = 80;
   const handleSkip = () => {
     if (mode === 'WORK' && progress < SKIP_CONFIRM_PROGRESS) {
       Alert.alert(
         skipConfirmTitle(skipTargetLabel ?? shortBreak),
-        skipConfirmDescription,
+        skipConfirmDescriptionNoCredit,
         [
           { text: cancel, style: 'cancel' },
           { text: skipConfirmOk, style: 'default', onPress: skipToNext },

@@ -22,6 +22,7 @@ vi.mock('@ordo-todo/core', () => ({
     safeParse: vi.fn(() => ({ success: true, data: {} })),
   },
   generateSlug: vi.fn((name: string) => name.toLowerCase().replace(/\s+/g, '-')),
+  SKIP_CREDIT_THRESHOLD: 80,
 }));
 
 // Mock navigator.clipboard

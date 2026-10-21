@@ -1429,10 +1429,12 @@
     "skipConfirm": {
       "title": "¿Saltar a {phase}?",
       "description": "La fase actual se cerrará como completada.",
-      "ok": "Saltar"
+      "ok": "Saltar",
+      "descriptionNoCredit": "Saltar ahora no contará como pomodoro completado."
     },
     "cancel": "Cancelar",
-    "skipButton": "Saltar al siguiente bloque"
+    "skipButton": "Saltar al siguiente bloque",
+    "skipConfirmTitle": "¿Saltar la fase actual?"
   },
   "SessionHistory": {
     "error": "Error al cargar el historial de sesiones",
@@ -2156,12 +2158,14 @@
     "skipConfirm": {
       "title": "¿Saltar a {phase}?",
       "description": "La fase actual se cerrará como completada.",
-      "ok": "Saltar"
+      "ok": "Saltar",
+      "descriptionNoCredit": "Saltar ahora no contará como pomodoro completado."
     },
     "cancel": "Cancelar",
     "skipButton": "Saltar al siguiente bloque",
     "goToPhase": "Ir a {phase}",
-    "stopToSwitchPhase": "Detén el temporizador para cambiar de fase"
+    "stopToSwitchPhase": "Detén el temporizador para cambiar de fase",
+    "skipConfirmTitle": "¿Saltar la fase actual?"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Reporte Semanal",

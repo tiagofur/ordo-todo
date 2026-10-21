@@ -1,8 +1,18 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Play, Pause, Square, SkipForward, Target, Maximize2, ChevronsUpDown, Coffee, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 import { TomatoIcon } from '../ui/custom-icons.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog.js';
+import { Button } from '../ui/button.js';
+import { SKIP_CREDIT_THRESHOLD } from '@ordo-todo/core';
 
 export interface DashboardTimerWidgetProps {
   mode: string;
@@ -49,6 +59,10 @@ export interface DashboardTimerWidgetProps {
     freeFlow?: string;
     goToPhase?: (phase: string) => string;
     stopToSwitchPhase?: string;
+    skipConfirmTitle?: string;
+    skipConfirmDescriptionNoCredit?: string;
+    skipConfirmOk?: string;
+    cancel?: string;
   };
 }
 
@@ -136,6 +150,10 @@ const DEFAULT_LABELS = {
   pauseCount: (count: number) => `${count} pausa${count !== 1 ? 's' : ''}`,
   goToPhase: (phase: string) => `Ir a ${phase}`,
   stopToSwitchPhase: 'Detén el temporizador para cambiar de fase',
+  skipConfirmTitle: '¿Saltar la fase actual?',
+  skipConfirmDescriptionNoCredit: 'Saltar ahora no contará como fase completada.',
+  skipConfirmOk: 'Saltar',
+  cancel: 'Cancelar',
 };
 
 export function DashboardTimerWidget({
@@ -169,6 +187,23 @@ export function DashboardTimerWidget({
     mode === 'SHORT_BREAK' || mode === 'LONG_BREAK' || isContinuous;
 
   const clampedProgress = Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0;
+
+  // Same rule as the full timer (ODD 016, I13): confirm only an early WORK
+  // skip, which will NOT earn credit. Everything else skips straight through.
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
+  const needsSkipConfirm =
+    mode === 'WORK' && clampedProgress < SKIP_CREDIT_THRESHOLD;
+  const handleSkip = () => {
+    if (needsSkipConfirm) {
+      setShowSkipDialog(true);
+    } else {
+      onSkip();
+    }
+  };
+  const confirmSkip = () => {
+    setShowSkipDialog(false);
+    onSkip();
+  };
 
   const getModeLabel = () => {
     if (mode === 'CONTINUOUS' || mode === 'STOPWATCH') return t.continuous;
@@ -344,7 +379,7 @@ export function DashboardTimerWidget({
               {(mode === 'WORK' || mode === 'POMODORO') && (
                 <button
                   type="button"
-                  onClick={onSkip}
+                  onClick={handleSkip}
                   className="flex h-8 w-8 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-2xs"
                   title={t.skip}
                   aria-label={t.skip}
@@ -423,6 +458,26 @@ export function DashboardTimerWidget({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Skip Confirmation Dialog */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t.skipConfirmTitle}</DialogTitle>
+              <DialogDescription>{t.skipConfirmDescriptionNoCredit}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSkipDialog(false)}>
+                {t.cancel}
+              </Button>
+              <Button onClick={confirmSkip} autoFocus>
+                {t.skip}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </motion.div>
   );

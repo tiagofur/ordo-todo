@@ -93,6 +93,10 @@ export function PomodoroTimer() {
       "Timer.skipConfirm.description",
       "La fase actual se cerrará como completada."
     ),
+    skipConfirmDescriptionNoCredit: t(
+      "Timer.skipConfirm.descriptionNoCredit",
+      "Saltar ahora no contará como pomodoro completado."
+    ),
     skipConfirmOk: t("Timer.skipConfirm.ok", "Saltar"),
     cancel: t("Timer.cancel", "Cancelar"),
     skipTargetLabel,
