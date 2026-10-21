@@ -356,7 +356,6 @@
     "loading": "Loading your plan...",
     "loadError": "Couldn't load your plan",
     "retry": "Retry",
-    "noPlan": "No plan yet for today",
     "plan": {
       "empty": "No blocks for today",
       "frozen": "Frozen",

@@ -356,7 +356,6 @@
     "loading": "Carregando seu plano...",
     "loadError": "Não foi possível carregar seu plano",
     "retry": "Tentar de novo",
-    "noPlan": "Ainda não há plano para hoje",
     "plan": {
       "empty": "Sem blocos para hoje",
       "frozen": "Fixado",

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -99,6 +99,10 @@ function renderSection() {
 }
 
 describe('DayPlanSection (ODD 005 S6)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders plan blocks with resolved titles + changes', async () => {
     await mockPlanState({});
     renderSection();

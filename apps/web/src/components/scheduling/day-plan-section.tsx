@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { toast } from "sonner";
 import {
   DayPlanCard,
@@ -60,8 +61,9 @@ export function DayPlanSection({ labels }: { labels: DayPlanSectionLabels }) {
   const dismissPlan = useDismissDayPlan();
   const toggleFreeze = useToggleFreezeDayPlan();
 
-  const titles = new Map(
-    (tasks ?? []).map((task) => [task.id, task.title] as const),
+  const titles = useMemo(
+    () => new Map((tasks ?? []).map((task) => [task.id, task.title] as const)),
+    [tasks],
   );
   const titleOf = (taskId: string): string =>
     titles.get(taskId) ?? taskId;
