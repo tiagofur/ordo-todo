@@ -97,6 +97,9 @@ model User {
   // Day-plan proposals (ODD 005 T3)
   dayPlanProposals DayPlanProposal[]
 
+  // Daily ritual days (ODD 006)
+  ritualDays RitualDay[]
+
   // Slack integration (ODD 011)
   slackWorkspaceMaps SlackWorkspaceMap[]
 
@@ -460,6 +463,42 @@ enum DayPlanProposalStatus {
   PROPOSED
   APPLIED
   DISMISSED
+}
+
+// Daily ritual state (ODD 006 S1/S2/S4, T1): one row per user+day.
+// Morning (T1): plan presented, top-3 chosen, skippable. Evening (T2):
+// moves with reasons. streakDay (T4): counts toward kind streaks.
+model RitualDay {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  date DateTime @db.Date // calendar day in the user's timezone
+
+  morningStatus   RitualStatus @default(PENDING)
+  morningAt       DateTime?
+  morningTop3     String[]     @default([])
+  morningPlannedAt DateTime? // when the presented plan was generated
+
+  eveningStatus RitualStatus @default(PENDING)
+  eveningAt     DateTime?
+  eveningMoves  Json         @default("[]") // [{ taskId, destination, reason }]
+
+  streakDay Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId, morningStatus])
+  @@index([userId, eveningStatus])
+}
+
+enum RitualStatus {
+  PENDING
+  DONE
+  SKIPPED
 }
 
 model CalendarEventMapping {
