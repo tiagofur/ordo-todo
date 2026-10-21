@@ -17,6 +17,7 @@ import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { TasksService } from '../tasks/tasks.service';
 import { DayPlanService } from '../tasks/day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
@@ -75,6 +76,9 @@ export class McpCatalogService implements OnModuleInit {
     private readonly v1Comments: V1CommentsService,
     private readonly tasksService: TasksService,
     private readonly dayPlanService: DayPlanService,
+    // ODD 005 S6+T4b: risks ride along with the plan. No cycle: Scheduling
+    // flows to McpModule via TasksModule (Tasks never imports Mcp).
+    private readonly riskAlerts: RiskAlertService,
     private readonly searchService: SemanticSearchService,
     private readonly habitsService: HabitsService,
     private readonly objectivesService: ObjectivesService,
@@ -419,21 +423,23 @@ export class McpCatalogService implements OnModuleInit {
   }
 
   // ODD 005 S6 (T5): day-plan tools for remote agents (ODD 001).
-  // TODO(T4b rebase): include risks in ordo_day_plan once
-  // GET tasks/day-plan/risks + RiskAlertService land (not in this base).
   private registerDayPlanTools(server: McpServer): void {
     server.registerTool(
       'ordo_day_plan',
       {
         title: "Today's plan",
         description:
-          'Get my day plan: proposed time blocks, frozen tasks and pending changes.',
+          'Get my day plan: proposed time blocks, frozen tasks, pending changes and risk alerts.',
         inputSchema: z.object({}).shape,
       },
       async () =>
-        this.guarded('ordo_day_plan', (userId) =>
-          this.dayPlanService.getDayPlan(userId),
-        ),
+        this.guarded('ordo_day_plan', async (userId) => {
+          const [plan, risks] = await Promise.all([
+            this.dayPlanService.getDayPlan(userId),
+            this.riskAlerts.assessForUser(userId),
+          ]);
+          return { ...plan, risks };
+        }),
     );
 
     server.registerTool(

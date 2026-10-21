@@ -6,6 +6,7 @@ import { McpCatalogService } from './mcp-catalog.service';
 import { V1TasksService } from '../v1/v1-tasks.service';
 import { TasksService } from '../tasks/tasks.service';
 import { DayPlanService } from '../tasks/day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
@@ -64,6 +65,16 @@ describe('McpCatalogService (against official SDK client)', () => {
       changes: [],
     }),
   };
+  const mockRisks = {
+    assessForUser: jest.fn().mockResolvedValue([
+      {
+        kind: 'overload',
+        taskIds: ['b'],
+        message: 'Tight day',
+        options: [{ label: 'Move', action: 'reschedule' }],
+      },
+    ]),
+  };
   const mockV1Projects = {
     list: jest.fn().mockResolvedValue([{ id: 'proj-1' }]),
     get: jest.fn().mockResolvedValue({ id: 'proj-1' }),
@@ -102,6 +113,7 @@ describe('McpCatalogService (against official SDK client)', () => {
           useValue: mockTasksService,
         },
         { provide: DayPlanService, useValue: mockDayPlan },
+        { provide: RiskAlertService, useValue: mockRisks },
       ],
     }).compile();
 
@@ -186,8 +198,10 @@ describe('McpCatalogService (against official SDK client)', () => {
     );
 
     expect(mockDayPlan.getDayPlan).toHaveBeenCalledWith('user-123');
+    expect(mockRisks.assessForUser).toHaveBeenCalledWith('user-123');
     expect(result.isError).toBeFalsy();
     expect(JSON.stringify(result.content)).toContain('prop-1');
+    expect(JSON.stringify(result.content)).toContain('Tight day');
   });
 
   it('should call ordo_day_plan_apply with proposalId', async () => {
