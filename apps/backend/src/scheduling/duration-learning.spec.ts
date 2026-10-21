@@ -130,7 +130,10 @@ describe('DurationLearningService (ODD 005 S5)', () => {
       Promise.resolve(
         task(id, {
           tags: [
-            { name: id === 't1' || id === 't2' ? 'dev' : 'other', color: '#000' },
+            {
+              name: id === 't1' || id === 't2' ? 'dev' : 'other',
+              color: '#000',
+            },
           ],
         }),
       ),
