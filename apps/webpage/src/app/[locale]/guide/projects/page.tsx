@@ -115,9 +115,7 @@ export default function ProjectsGuide() {
       {/* Tip Box */}
       <div className="not-prose p-6 rounded-xl bg-[#EC4899]/10 border border-[#EC4899]/20 mt-8">
         <p className="text-sm text-muted-foreground">
-          <strong className="text-foreground">{t('pro_tip')}:</strong> {t('pro_tip_text')}
-          <kbd className="mx-2 px-2 py-1 rounded bg-muted text-xs font-mono">{t('pro_tip_shortcut')}</kbd> 
-          {t('pro_tip_end')}
+          <strong className="text-foreground">{t('pro_tip')}:</strong> {t('pro_tip_end')}
         </p>
       </div>
     </div>

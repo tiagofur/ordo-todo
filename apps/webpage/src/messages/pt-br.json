@@ -401,13 +401,9 @@
       "4": "Faça sua pausa, depois repita!"
     },
     "shortcuts_title": "Atalhos de Teclado",
-    "shortcuts": {
-      "space": "Iniciar/Pausar timer",
-      "r": "Reiniciar timer",
-      "s": "Pular para pausa"
-    },
     "pro_tip": "Dica Pro",
-    "pro_tip_text": "Ative o \"Modo Foco\" nas configurações para ocultar notificações e distrações durante suas sessões. Sua produtividade vai agradecer!"
+    "pro_tip_text": "Ative o \"Modo Foco\" nas configurações para ocultar notificações e distrações durante suas sessões. Sua produtividade vai agradecer!",
+    "shortcuts_note": "O timer é controlado pelos botões na tela. Os atalhos de teclado globais estão no guia de tarefas."
   },
   "GuideProjects": {
     "badge": "Projetos e Quadros",
@@ -446,9 +442,8 @@
       }
     },
     "pro_tip": "Dica Pro",
-    "pro_tip_text": "Use o atalho de teclado",
-    "pro_tip_shortcut": "V",
-    "pro_tip_end": "para alternar rapidamente entre visualizações Kanban e Lista!"
+    "pro_tip_text": "Dica:",
+    "pro_tip_end": "Use os botões de visualização acima do projeto para alternar rapidamente entre Kanban e Lista."
   },
   "GuideTasks": {
     "badge": "Gestão de Tarefas",
