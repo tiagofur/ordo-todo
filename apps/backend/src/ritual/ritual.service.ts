@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import type { TaskRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { AIService } from '../ai/ai.service';
@@ -28,6 +33,8 @@ import {
 // TasksModule imports AIModule but only exports TasksService/DayPlanService.
 @Injectable()
 export class RitualService {
+  private readonly logger = new Logger(RitualService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly dayPlans: DayPlanService,
@@ -154,9 +161,19 @@ export class RitualService {
     const todayKey = toTodayKey(timezone);
     // The PM summary degrades to null: generateDailyReport charges AI credits
     // (402 without balance) and can 503 on open circuit — a GET must never
-    // block the ritual nor drain credits per view. Plan/tasks/state always load.
+    // fail the ritual for that. Plan/tasks/state always load. NOTE: a
+    // successful view still generates a fresh report (ODD 004 design: daily
+    // reports always generate fresh + charge) — reading the last saved
+    // DAILY_PM instead is an ODD 004 follow-up. Also note the report window
+    // uses server-local midnight while the ritual uses the user TZ (cosmetic
+    // edge for extreme TZs, same follow-up).
     const [summary, plan, tasks, ritual] = await Promise.all([
-      this.ai.generateDailyReport(userId, 'PM').catch(() => null),
+      this.ai.generateDailyReport(userId, 'PM').catch((error: unknown) => {
+        this.logger.debug(
+          `Evening summary degraded to null for ${userId}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        return null;
+      }),
       this.dayPlans.getDayPlan(userId),
       this.taskRepository.findByOwnerId(userId),
       this.prisma.ritualDay.findUnique({
