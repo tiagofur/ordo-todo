@@ -202,7 +202,8 @@
       "calendar": "Calendar Sync",
       "speed": "Load Speed",
       "uptime": "Uptime"
-    }
+    },
+    "discover_more": "Discover 7 more features that already exist"
   },
   "ProductShowcase": {
     "badge": "Product Tour",
@@ -310,7 +311,8 @@
       "need_help": "Need more help?",
       "community_text": "Join our community for tips and support.",
       "community_link": "Join Community",
-      "connect": "Connect your assistant"
+      "connect": "Connect your assistant",
+      "more_features": "Discover more"
     },
     "main": {
       "badge": "Quick Start Guide",
@@ -366,6 +368,10 @@
       "connect": {
         "title": "Connect your assistant",
         "description": "Use Ordo from ChatGPT, Claude, Hermes or OpenClaw"
+      },
+      "more_features": {
+        "title": "Discover more",
+        "description": "AI meetings, workload, wellbeing, search, coach, gamification and audio."
       }
     }
   },
@@ -403,7 +409,8 @@
     "shortcuts_title": "Keyboard Shortcuts",
     "pro_tip": "Pro Tip",
     "pro_tip_text": "Enable \"Focus Mode\" in settings to hide all notifications and distractions during your focus sessions. Your productivity will thank you!",
-    "shortcuts_note": "The timer is controlled with on-screen buttons. Global keyboard shortcuts are in the tasks guide."
+    "shortcuts_note": "The timer is controlled with on-screen buttons. Global keyboard shortcuts are in the tasks guide.",
+    "audio_note": "The app includes locally generated ambient audio to accompany your sessions, with no external subscriptions."
   },
   "GuideProjects": {
     "badge": "Projects & Boards",
@@ -992,5 +999,39 @@
     "example_code": "Trigger: Gmail › New important email\nAction: Ordo › Create task\n  Title: {{email subject}}\n  Project: Inbox",
     "listing_title": "Native integration on the way",
     "listing_text": "We are preparing the official Ordo app on Zapier. Meanwhile, the documented bridge above covers both directions."
+  },
+  "GuideMore": {
+    "badge": "Discover more",
+    "title": "Features you may not know",
+    "subtitle": "All of this already exists in Ordo today. Each block describes where to find it in the app.",
+    "meetings": {
+      "title": "AI meetings",
+      "description": "Paste your meeting transcript and extract actions, summaries and tasks automatically. Input is manual: Ordo does not record your calls."
+    },
+    "workload": {
+      "title": "Team workload",
+      "description": "See who carries what in your workspace: per-member load, balancing suggestions and personal view."
+    },
+    "wellbeing": {
+      "title": "Wellbeing and burnout",
+      "description": "Gentle alerts when your load spikes, weekly wellbeing summary and a dedicated page."
+    },
+    "search": {
+      "title": "Smart search",
+      "description": "Find tasks, projects and habits instantly, with suggestions and direct questions."
+    },
+    "coach": {
+      "title": "Chat coach",
+      "description": "AI conversations about your productivity, with insights based on your data."
+    },
+    "gamification": {
+      "title": "Gamification",
+      "description": "XP, levels and achievements for completing tasks and streaks. Your progress, celebrated."
+    },
+    "focusAudio": {
+      "title": "Focus audio",
+      "description": "Ambient sound generated in-app for your focus sessions. No external subscriptions."
+    },
+    "openInApp": "View guide"
   }
 }

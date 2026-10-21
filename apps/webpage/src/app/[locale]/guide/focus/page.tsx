@@ -94,6 +94,7 @@ export default function FocusGuide() {
 
       <h2>{t('shortcuts_title')}</h2>
       <p className="text-muted-foreground">{t('shortcuts_note')}</p>
+      <p className="text-muted-foreground">{t('audio_note')}</p>
 
       {/* Tip */}
       <div className="not-prose p-6 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 mt-8">

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { Link } from '@/i18n/routing';
 import {
   Layout,
   Clock,
@@ -174,6 +175,22 @@ export function Features() {
               <p className="text-sm text-muted-foreground">{t(`stats.${stat.key}`)}</p>
             </div>
           ))}
+        </motion.div>
+
+        {/* Discover more (ODD 013 S12): existing features the landing never sold */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-12 text-center"
+        >
+          <Link
+            href="/guide/more-features"
+            className="inline-flex items-center gap-2 text-[#06B6D4] hover:text-[#0891B2] font-medium transition-colors"
+          >
+            {t('discover_more')} →
+          </Link>
         </motion.div>
       </div>
     </section>
