@@ -50,6 +50,7 @@ import { McpModule } from './mcp/mcp.module';
 import { CalendarSyncModule } from './calendar-sync/calendar-sync.module';
 import { SlackModule } from './slack/slack.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
+import { RitualModule } from './ritual/ritual.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -118,6 +119,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     CalendarSyncModule,
     SlackModule,
     SchedulingModule,
+    RitualModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
