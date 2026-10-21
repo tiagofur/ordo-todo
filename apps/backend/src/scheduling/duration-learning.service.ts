@@ -85,7 +85,7 @@ export class DurationLearningService {
     const sessions = await this.readHistory(userId);
     if (sessions.length === 0) return this.fallback('sin historial de timers');
 
-    // Cross each session with its task (category/tags/priority/estimate).
+    // Cross each session with its task (category/tags/priority).
     const comparable = await this.comparableDurations(sessions, query);
     if (comparable.sampleSize < MIN_COMPARABLE_SESSIONS) {
       return this.fallback(

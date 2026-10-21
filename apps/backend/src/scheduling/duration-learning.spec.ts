@@ -105,7 +105,7 @@ describe('DurationLearningService (ODD 005 S5)', () => {
   it('with no history, returns an honest fallback (never invents precision)', async () => {
     timerRepo.findByUserIdAndDateRange.mockResolvedValue([]);
 
-    const out = await service.predict('user-1', { title: 'Anything' });
+    const out = await service.predict('user-1', {});
 
     expect(out.source).toBe('fallback');
     expect(out.confidence).toBe('LOW');
@@ -201,5 +201,19 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     expect((await run(5)).confidence).toBe('MEDIUM');
     expect((await run(14)).confidence).toBe('MEDIUM');
     expect((await run(15)).confidence).toBe('HIGH');
+  });
+
+  it('treats a blank-only category as no filter (all history counts)', async () => {
+    timerRepo.findByUserIdAndDateRange.mockResolvedValue(
+      [44, 45, 46, 47, 48].map((d, i) => session(`s${i}`, `t${i}`, d)),
+    );
+    taskRepo.findById.mockImplementation((id: string) =>
+      Promise.resolve(task(id)),
+    );
+
+    const out = await service.predict('user-1', { category: '   ' });
+
+    expect(out.source).toBe('history');
+    expect(out.sampleSize).toBe(5);
   });
 });
