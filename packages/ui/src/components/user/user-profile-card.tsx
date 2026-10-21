@@ -517,7 +517,7 @@ export function UserProfileCard({
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
             <code className="text-sm">
-              ordo-todo.com/{username || 'username'}/workspace-name
+              {username || 'username'}/workspace-name
             </code>
           </div>
         </div>

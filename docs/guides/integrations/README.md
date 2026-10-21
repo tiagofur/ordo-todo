@@ -9,9 +9,10 @@ mismos flujos, con endpoints, scopes y comandos exactos para
 desarrolladores. La fuente de verdad del protocolo es
 `docs/reference/mcp-server.md` + `docs/reference/api-reference.md`.
 
-> **Dominio pendiente**: las guías usan `https://ordotodo.app` (el que
-> usa `apps/webpage`). El dominio canónico de producción está pendiente
-> de decisión de negocio; al decidirlo, find/replace en
+> **Dominio pendiente**: las guías usan `https://TU-DOMINIO-ORDO` como
+> placeholder explícito (antes `https://ordotodo.app`, que sirve un sitio
+> ajeno — verificado ODD 013 S10). El dominio canónico de producción está
+> pendiente de decisión de negocio; al decidirlo, find/replace en
 > `apps/webpage/src/messages/*.json`.
 
 ## 📋 Índice rápido

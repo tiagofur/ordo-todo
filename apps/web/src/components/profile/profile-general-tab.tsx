@@ -186,8 +186,10 @@ export function ProfileGeneralTab({
 
   const handleCopyProfileUrl = () => {
     const handle = profile?.username || "user";
-    const url = `https://ordotodo.app/@${handle}`;
-    navigator.clipboard?.writeText(url);
+    // No verified production domain yet (ODD 013 S10): copy the local
+    // handle instead of a fake URL. When business provides the domain,
+    // restore `https://${domain}/@${handle}` here and below.
+    navigator.clipboard?.writeText(`@${handle}`);
     setHasCopiedUrl(true);
     setTimeout(() => setHasCopiedUrl(false), 2000);
   };
@@ -297,7 +299,7 @@ export function ProfileGeneralTab({
               <span className="text-sm font-semibold text-foreground">Change Public Username</span>
             </div>
             <span className="text-xs text-muted-foreground font-mono">
-              ordotodo.app/@{username || "username"}
+              @{username || "username"}
             </span>
           </div>
 

@@ -167,7 +167,7 @@
       "ai": "AI Scheduling",
       "cross": "Cross-Platform"
     },
-    "social_proof": "productive users"
+    "social_proof": "early users"
   },
   "Features": {
     "title": "Everything you need to be productive",
@@ -254,33 +254,21 @@
     }
   },
   "Testimonials": {
-    "badge": "Loved by thousands",
-    "title": "What our users say",
-    "subtitle": "Join thousands of professionals who use Ordo Todo to master their time.",
+    "badge": "Early users",
+    "title": "Real stories, coming soon",
+    "subtitle": "We are collecting testimonials from real users. Yours could be the first.",
     "items": {
       "user1": {
-        "name": "Maria Garcia",
-        "role": "Product Manager",
-        "company": "TechCorp",
-        "content": "Ordo Todo transformed my productivity. The AI assistant helps me prioritize what really matters."
-      },
-      "user2": {
-        "name": "Carlos Ruiz",
-        "role": "Software Developer",
-        "company": "StartupXYZ",
-        "content": "The built-in Pomodoro timer is amazing. I've never been this productive in my life."
-      },
-      "user3": {
-        "name": "Ana Martinez",
-        "role": "Freelance Designer",
-        "company": "Self-employed",
-        "content": "Syncing across devices is flawless. I use Ordo Todo on my Mac, iPhone, and iPad."
+        "name": "[Your name here]",
+        "role": "[Your role]",
+        "company": "[Your company]",
+        "content": "[Placeholder for a verified real testimonial. Nothing you see here is a real user yet.]"
       }
     }
   },
   "CTA": {
     "title": "Ready to get organized?",
-    "description": "Join thousands of users who are mastering their time with Ordo Todo. Start your free trial today.",
+    "description": "Get started with Ordo Todo today and master your time. Free to start.",
     "button_primary": "Get Started for Free",
     "button_secondary": "Log In",
     "badge": "Free Forever Plan Available",
@@ -651,7 +639,7 @@
     "mission": {
       "title": "Our Mission",
       "text1": "At Ordo Todo, we believe that productivity shouldn't be complicated. We built this platform to help individuals and teams organize their work, focus on what matters, and achieve their goals without the stress.",
-      "text2": "Our journey began with a simple idea: create a tool that adapts to you, not the other way around. Today, we're proud to support thousands of users in their daily workflows."
+      "text2": "Our journey began with a simple idea: create a tool that adapts to you, not the other way around."
     },
     "values": {
       "title": "Our Core Values",
@@ -787,7 +775,7 @@
     "manual_title": "Manual setup (Codex and terminal)",
     "manual_text": "If you use Codex or prefer to set it up by hand, add this block to your ~/.codex/config.toml file:",
     "config_title": "Configuration block",
-    "config_code": "[mcp_servers.ordo]\nurl = \"https://ordotodo.app/mcp\"\n# On first use, Codex will open the browser so you approve with your Ordo account.",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://TU-DOMINIO-ORDO/mcp\"\n# On first use, Codex will open the browser so you approve with your Ordo account.",
     "verify_text": "Save the file, restart Codex and ask: list my Ordo projects. If it answers with your real projects, it is connected.",
     "verify_code": "Codex › which tasks are due this week?",
     "trouble_title": "If something fails",
@@ -835,7 +823,7 @@
     "manual_title": "Manual setup (Claude Code and terminal)",
     "manual_text": "If you use the terminal, connect Ordo with a single command:",
     "config_title": "Connection command",
-    "config_code": "claude mcp add --transport http ordo https://ordotodo.app/mcp\n# Then run /mcp inside Claude Code and approve in the browser.",
+    "config_code": "claude mcp add --transport http ordo https://TU-DOMINIO-ORDO/mcp\n# Then run /mcp inside Claude Code and approve in the browser.",
     "verify_text": "Ask: show me this quarter's objectives. If Claude answers with your real objectives, it is connected.",
     "verify_code": "Claude Code › /mcp  (must show ordo as connected)",
     "trouble_title": "If something fails",
@@ -883,7 +871,7 @@
     "manual_title": "Manual setup (YAML file)",
     "manual_text": "If you run Hermes from the terminal, add this to your ~/.hermes/config.yaml file:",
     "config_title": "Configuration block",
-    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://ordotodo.app/mcp\n      auth: oauth  # Hermes will open the browser on first use",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://TU-DOMINIO-ORDO/mcp\n      auth: oauth  # Hermes will open the browser on first use",
     "verify_text": "Restart Hermes and ask about today's tasks. If it answers with real data, it is connected.",
     "verify_code": "Hermes › which habits are left today?",
     "trouble_title": "If something fails",
@@ -929,7 +917,7 @@
     "manual_title": "Manual setup (terminal)",
     "manual_text": "If you manage OpenClaw from the terminal, add the remote server with this command:",
     "config_title": "Connection command",
-    "config_code": "openclaw mcp add ordo https://ordotodo.app/mcp --auth oauth\n# Then approve in the browser when OpenClaw asks you to.",
+    "config_code": "openclaw mcp add ordo https://TU-DOMINIO-ORDO/mcp --auth oauth\n# Then approve in the browser when OpenClaw asks you to.",
     "verify_text": "Ask your assistant for the day summary. If it includes your real Ordo tasks, it is connected.",
     "verify_code": "You › organize my day with Ordo",
     "trouble_title": "If something fails",

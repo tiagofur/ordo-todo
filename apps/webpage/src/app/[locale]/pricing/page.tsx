@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Check, Sparkles, Crown, Building2, Zap } from 'lucide-react';
 import { Button } from '@ordo-todo/ui';
 import { Link } from '@/i18n/routing';
+import { appLink } from '@/lib/app-url';
 
 export default function PricingPage() {
   const t = useTranslations('Pricing');
@@ -165,7 +166,7 @@ export default function PricingPage() {
                   </Link>
                 ) : (
                   <a 
-                    href="https://ordotodo.app/register"
+                    href={appLink("/register")}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full"

@@ -134,15 +134,13 @@ export function GuideSidebar() {
           <p className="text-xs text-muted-foreground mb-3">
             {t('sidebar.community_text')}
           </p>
-          <a 
-            href="https://ordotodo.app/community" 
-            target="_blank" 
-            rel="noreferrer"
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-1 text-xs font-medium text-[#06B6D4] hover:text-[#0891B2] transition-colors"
           >
             {t('sidebar.community_link')}
             <ChevronRight className="h-3 w-3" />
-          </a>
+          </Link>
         </motion.div>
       </div>
     </aside>

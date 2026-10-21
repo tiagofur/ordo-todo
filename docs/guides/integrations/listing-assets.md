@@ -5,7 +5,10 @@
 
 Ready-to-submit copy for the four directory listings. Canonical URLs
 point at `https://ordotodo.app` (provisional canonical domain — see
-ODD 002 L2; find/replace when business decides).
+ODD 002 L2; find/replace when business decides). Verification 2026-10-21
+(ODD 013 S10): the domain resolves but currently serves an unrelated site;
+`ordo-todo.com` does not resolve (NXDOMAIN). Do NOT submit until business
+provides the real domain + support email.
 
 ## Shared facts (all listings)
 
@@ -19,8 +22,8 @@ ODD 002 L2; find/replace when business decides).
 | Scopes | `read`, `tasks:write`, `projects:write`, `admin:webhooks` |
 | Tools exposed | 18 (`ordo_ping`, `ordo_search`, `ordo_task_*` ×5, `ordo_project_*` ×4, `ordo_comment_add`, `ordo_habit_*` ×2, `ordo_objective_progress`, `ordo_me`, `ordo_day_plan`, `ordo_day_plan_apply`) |
 | Privacy | Agent sees only what the token owner can; no training on user data; revoke = immediate 401 |
-| Docs | `https://ordotodo.app/guide/connect` (+ per-client guides) |
-| Support | support@ordo-todo.com (verify before publishing) |
+| Docs | `https://ordotodo.app/guide/connect` (+ per-client guides) — provisional, see note above |
+| Support | `support@[business-domain]` — NOT VERIFIED, `ordo-todo.com` does not resolve (ODD 013 S10, 2026-10-21); business must provide the real address before publishing |
 
 ## 1. ChatGPT Directory (T1) — `blocked`
 

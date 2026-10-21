@@ -167,7 +167,7 @@
       "ai": "Agenda com IA",
       "cross": "Multiplataforma"
     },
-    "social_proof": "usuários produtivos"
+    "social_proof": "primeiros usuários"
   },
   "Features": {
     "title": "Tudo o que você precisa para ser produtivo",
@@ -254,33 +254,21 @@
     }
   },
   "Testimonials": {
-    "badge": "Amado por milhares",
-    "title": "O que nossos usuários dizem",
-    "subtitle": "Junte-se a milhares de profissionais que usam Ordo Todo para dominar seu tempo.",
+    "badge": "Primeiros usuários",
+    "title": "Histórias reais, em breve",
+    "subtitle": "Estamos coletando depoimentos de usuários reais. O seu pode ser o primeiro.",
     "items": {
       "user1": {
-        "name": "Maria Garcia",
-        "role": "Gerente de Produto",
-        "company": "TechCorp",
-        "content": "Ordo Todo transformou minha produtividade. O assistente de IA me ajuda a priorizar o que realmente importa."
-      },
-      "user2": {
-        "name": "Carlos Ruiz",
-        "role": "Desenvolvedor de Software",
-        "company": "StartupXYZ",
-        "content": "O timer Pomodoro integrado é incrível. Nunca fui tão produtivo na minha vida."
-      },
-      "user3": {
-        "name": "Ana Martinez",
-        "role": "Designer Freelancer",
-        "company": "Autônoma",
-        "content": "A sincronização entre dispositivos é perfeita. Uso Ordo Todo no meu Mac, iPhone e iPad."
+        "name": "[Seu nome aqui]",
+        "role": "[Seu cargo]",
+        "company": "[Sua empresa]",
+        "content": "[Espaço reservado para um depoimento real verificado. Nada do que você vê aqui é um usuário real ainda.]"
       }
     }
   },
   "CTA": {
     "title": "Pronto para se organizar?",
-    "description": "Junte-se a milhares de usuários que estão dominando seu tempo com Ordo Todo. Comece seu teste gratuito hoje.",
+    "description": "Comece hoje com Ordo Todo e domine seu tempo. Grátis para começar.",
     "button_primary": "Comece Grátis",
     "button_secondary": "Entrar",
     "badge": "Plano Grátis para Sempre",
@@ -651,7 +639,7 @@
     "mission": {
       "title": "Nossa Missão",
       "text1": "No Ordo Todo, acreditamos que a produtividade não deve ser complicada. Construímos esta plataforma para ajudar indivíduos e equipes a organizar seu trabalho, focar no que importa e alcançar seus objetivos sem estresse.",
-      "text2": "Nossa jornada começou com uma ideia simples: criar uma ferramenta que se adapte a você, não o contrário. Hoje, temos orgulho de apoiar milhares de usuários em seus fluxos de trabalho diários."
+      "text2": "Nossa jornada começou com uma ideia simples: criar uma ferramenta que se adapte a você, não o contrário."
     },
     "values": {
       "title": "Nossos Valores",
@@ -787,7 +775,7 @@
     "manual_title": "Configuração manual (Codex e terminal)",
     "manual_text": "Se você usa o Codex ou prefere configurar à mão, adicione este bloco ao seu arquivo ~/.codex/config.toml:",
     "config_title": "Bloco de configuração",
-    "config_code": "[mcp_servers.ordo]\nurl = \"https://ordotodo.app/mcp\"\n# No primeiro uso, o Codex vai abrir o navegador para você aprovar com sua conta Ordo.",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://TU-DOMINIO-ORDO/mcp\"\n# No primeiro uso, o Codex vai abrir o navegador para você aprovar com sua conta Ordo.",
     "verify_text": "Salve o arquivo, reinicie o Codex e peça: liste meus projetos do Ordo. Se responder com seus projetos reais, está conectado.",
     "verify_code": "Codex › quais tarefas vencem esta semana?",
     "trouble_title": "Se algo falhar",
@@ -835,7 +823,7 @@
     "manual_title": "Configuração manual (Claude Code e terminal)",
     "manual_text": "Se você usa o terminal, conecte o Ordo com um único comando:",
     "config_title": "Comando de conexão",
-    "config_code": "claude mcp add --transport http ordo https://ordotodo.app/mcp\n# Depois execute /mcp dentro do Claude Code e aprove no navegador.",
+    "config_code": "claude mcp add --transport http ordo https://TU-DOMINIO-ORDO/mcp\n# Depois execute /mcp dentro do Claude Code e aprove no navegador.",
     "verify_text": "Peça: mostre meus objetivos do trimestre. Se o Claude responder com seus objetivos reais, está conectado.",
     "verify_code": "Claude Code › /mcp  (deve mostrar ordo como conectado)",
     "trouble_title": "Se algo falhar",
@@ -883,7 +871,7 @@
     "manual_title": "Configuração manual (arquivo YAML)",
     "manual_text": "Se você executa o Hermes pelo terminal, adicione isto ao seu arquivo ~/.hermes/config.yaml:",
     "config_title": "Bloco de configuração",
-    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://ordotodo.app/mcp\n      auth: oauth  # O Hermes vai abrir o navegador no primeiro uso",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://TU-DOMINIO-ORDO/mcp\n      auth: oauth  # O Hermes vai abrir o navegador no primeiro uso",
     "verify_text": "Reinicie o Hermes e pergunte sobre as tarefas de hoje. Se responder com dados reais, está conectado.",
     "verify_code": "Hermes › quais hábitos faltam hoje?",
     "trouble_title": "Se algo falhar",
@@ -929,7 +917,7 @@
     "manual_title": "Configuração manual (terminal)",
     "manual_text": "Se você gerencia o OpenClaw pelo terminal, adicione o servidor remoto com este comando:",
     "config_title": "Comando de conexão",
-    "config_code": "openclaw mcp add ordo https://ordotodo.app/mcp --auth oauth\n# Depois aprove no navegador quando o OpenClaw pedir.",
+    "config_code": "openclaw mcp add ordo https://TU-DOMINIO-ORDO/mcp --auth oauth\n# Depois aprove no navegador quando o OpenClaw pedir.",
     "verify_text": "Peça ao seu assistente o resumo do dia. Se incluir suas tarefas reais do Ordo, está conectado.",
     "verify_code": "Você › organize meu dia com o Ordo",
     "trouble_title": "Se algo falhar",

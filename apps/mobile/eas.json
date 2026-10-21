@@ -22,13 +22,13 @@
       },
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.ordotodo.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.example.com/api/v1"
       }
     },
     "production": {
       "extends": "base",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.ordotodo.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.example.com/api/v1"
       }
     }
   },

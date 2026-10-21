@@ -273,8 +273,8 @@ await queryClient.invalidateQueries({ queryKey: ['tasks'] });
 | Development (iOS) | `http://localhost:3001/api/v1` |
 | Development (Android) | `http://10.0.2.2:3001/api/v1` |
 | Development (Physical) | `http://<YOUR_IP>:3001/api/v1` |
-| Staging | `https://staging-api.ordo-todo.com/api/v1` |
-| Production | `https://api.ordo-todo.com/api/v1` |
+| Staging | `https://staging-api.example.com/api/v1` (replace with your host) |
+| Production | `https://api.example.com/api/v1` (replace with your host) |
 
 ## Useful Commands
 
