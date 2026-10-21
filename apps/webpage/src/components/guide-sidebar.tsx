@@ -49,11 +49,17 @@ export function GuideSidebar() {
       icon: BarChart3,
       color: '#A855F7',
     },
-    { 
-      key: 'connect', 
-      href: '/guide/connect', 
+    {
+      key: 'connect',
+      href: '/guide/connect',
       icon: Plug,
       color: '#06B6D4',
+    },
+    {
+      key: 'more_features',
+      href: '/guide/more-features',
+      icon: Sparkles,
+      color: '#F59E0B',
     },
   ];
 

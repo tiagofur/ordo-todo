@@ -202,7 +202,8 @@
       "calendar": "Sincro Calendario",
       "speed": "Velocidad",
       "uptime": "Disponibilidad"
-    }
+    },
+    "discover_more": "Descubre 7 funciones más que ya existen"
   },
   "ProductShowcase": {
     "badge": "Tour del Producto",
@@ -310,7 +311,8 @@
       "need_help": "¿Necesitas más ayuda?",
       "community_text": "Únete a nuestra comunidad para consejos y soporte.",
       "community_link": "Unirse a la Comunidad",
-      "connect": "Conectar tu asistente"
+      "connect": "Conectar tu asistente",
+      "more_features": "Descubre más"
     },
     "main": {
       "badge": "Guía de Inicio Rápido",
@@ -366,6 +368,10 @@
       "connect": {
         "title": "Conectar tu asistente",
         "description": "Usa Ordo desde ChatGPT, Claude, Hermes u OpenClaw"
+      },
+      "more_features": {
+        "title": "Descubre más",
+        "description": "Meetings con IA, workload, bienestar, búsqueda, coach, gamificación y audio."
       }
     }
   },
@@ -992,5 +998,39 @@
     "example_code": "Disparador: Gmail › Nuevo email importante\nAcción: Ordo › Crear tarea\n  Título: {{asunto del email}}\n  Proyecto: Bandeja de entrada",
     "listing_title": "Integración propia en camino",
     "listing_text": "Estamos preparando la app oficial de Ordo en Zapier. Mientras tanto, el puente documentado arriba cubre ambos sentidos."
+  },
+  "GuideMore": {
+    "badge": "Descubre más",
+    "title": "Funciones que quizás no conocías",
+    "subtitle": "Todo esto ya existe en Ordo hoy. Sin humo: cada bloque enlaza a dónde usarlo.",
+    "meetings": {
+      "title": "Meetings con IA",
+      "description": "Pega la transcripción de tu reunión y extrae acciones, resúmenes y tareas automáticamente. El input es manual: Ordo no graba tus llamadas."
+    },
+    "workload": {
+      "title": "Carga de equipo",
+      "description": "Ve quién lleva qué en tu espacio de trabajo: carga por miembro, sugerencias de reparto y vista personal."
+    },
+    "wellbeing": {
+      "title": "Bienestar y burnout",
+      "description": "Alertas suaves cuando tu carga se dispara, resumen semanal de bienestar y página dedicada."
+    },
+    "search": {
+      "title": "Búsqueda inteligente",
+      "description": "Encuentra tareas, proyectos y notas al instante, con sugerencias y preguntas directas."
+    },
+    "coach": {
+      "title": "Chat coach",
+      "description": "Conversaciones con IA sobre tu productividad, con insights basados en tus datos."
+    },
+    "gamification": {
+      "title": "Gamificación",
+      "description": "XP, niveles y logros por completar tareas y rachas. Tu progreso, celebrado."
+    },
+    "focusAudio": {
+      "title": "Audio para enfocar",
+      "description": "Sonido ambiental generado en la app para tus sesiones de foco. Sin suscripciones externas."
+    },
+    "openInApp": "Abrir en la app"
   }
 }
