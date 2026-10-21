@@ -12,8 +12,6 @@ describe('DurationLearningService (ODD 005 S5)', () => {
   let timerRepo: { findByUserIdAndDateRange: jest.Mock };
   let taskRepo: { findById: jest.Mock };
 
-  const TZ = 'America/Mexico_City';
-
   const session = (
     id: string,
     taskId: string | undefined,
@@ -64,8 +62,10 @@ describe('DurationLearningService (ODD 005 S5)', () => {
   });
 
   it('with enough same-category history, predicts the median (outliers trimmed)', async () => {
-    // 6 completed dev sessions: 40,42,45,48,50 + a 300min outlier.
-    const durations = [40, 42, 45, 48, 50, 300];
+    // 6 completed dev sessions: 38,40,42,44,46 + a 300min outlier.
+    // With trim: median of 5 = 42 -> 40. Without trim: median of 6 = 43 -> 45.
+    // The exact assertion pins the trim (a broken/missing IQR fails).
+    const durations = [38, 40, 42, 44, 46, 300];
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       durations.map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
@@ -76,13 +76,10 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     const out = await service.predict('user-1', { category: 'dev' });
 
     expect(out.source).toBe('history');
-    // Median of [40,42,45,48,50,300] with trimming must be ~45-48, never
-    // dragged to ~90 by the outlier.
-    expect(out.estimatedMinutes).toBeGreaterThanOrEqual(40);
-    expect(out.estimatedMinutes).toBeLessThanOrEqual(55);
+    expect(out.estimatedMinutes).toBe(40);
     expect(out.sampleSize).toBe(6);
     expect(out.confidence).not.toBe('LOW');
-    expect(out.reasoning).toMatch(/6/i);
+    expect(out.reasoning).toMatch(/atípicas/i);
   });
 
   it('mean error vs baseline improves with real history (ODD S5 check)', async () => {
@@ -118,16 +115,23 @@ describe('DurationLearningService (ODD 005 S5)', () => {
   });
 
   it('with too few comparable sessions, falls back honestly', async () => {
-    // Only 2 dev sessions (< MIN_COMPARABLE=5), plus noise from other tags.
+    // 2 dev sessions (< MIN_COMPARABLE=5) + 4 noise sessions from other tags:
+    // 6 total, so a matching that ignores the filter would return history.
+    // Correct behavior returns fallback (only 2 comparable).
     timerRepo.findByUserIdAndDateRange.mockResolvedValue([
       session('s1', 't1', 60),
       session('s2', 't2', 65),
       session('s3', 't3', 20),
+      session('s4', 't4', 25),
+      session('s5', 't5', 30),
+      session('s6', 't6', 35),
     ]);
     taskRepo.findById.mockImplementation((id: string) =>
       Promise.resolve(
         task(id, {
-          tags: [{ name: id === 't3' ? 'other' : 'dev', color: '#000' }],
+          tags: [
+            { name: id === 't1' || id === 't2' ? 'dev' : 'other', color: '#000' },
+          ],
         }),
       ),
     );
@@ -189,8 +193,10 @@ describe('DurationLearningService (ODD 005 S5)', () => {
       return service.predict('user-1', {});
     };
 
+    expect((await run(4)).confidence).toBe('LOW');
+    expect((await run(4)).source).toBe('fallback');
     expect((await run(5)).confidence).toBe('MEDIUM');
+    expect((await run(14)).confidence).toBe('MEDIUM');
     expect((await run(15)).confidence).toBe('HIGH');
-    void TZ;
   });
 });

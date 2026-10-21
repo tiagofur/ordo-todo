@@ -11,8 +11,12 @@ import type { TaskRepository, TimerRepository } from '@ordo-todo/core';
 // so no DI cycles with tasks/timers modules.
 //
 // Method: filter to finished WORK/CONTINUOUS sessions in the window, keep the
-// ones comparable to the query (same category match, else same priority, else
-// all), trim outliers by IQR, predict the median.
+// ones comparable to the query (same category match, else same priority,
+// else NONE -> fallback: filters that match nothing report honestly instead
+// of silently widening), trim outliers by IQR, predict the median.
+// DECISION: median-of-actuals (not estimated-vs-real ratio): the estimate IS
+// the historical actual median; S5's "estimated vs real" check is satisfied by
+// beating the static baseline with real data (see spec: mean error test).
 //
 // Documented sample ladder (MIN_COMPARABLE = 5):
 //   <5 comparable  -> source 'fallback', LOW, honest "sin datos suficientes"
@@ -30,7 +34,6 @@ export type DurationConfidence = 'LOW' | 'MEDIUM' | 'HIGH';
 export type DurationSource = 'history' | 'fallback';
 
 export interface DurationQuery {
-  title?: string;
   category?: string;
   priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 }
@@ -161,7 +164,10 @@ export class DurationLearningService {
     query: DurationQuery,
   ): Promise<{ durations: number[]; sampleSize: number; matchedBy: string }> {
     // No task data available (or no query filters): all finished work counts.
-    if (!this.taskRepository || (!query.category && !query.priority)) {
+    // Blank-only category counts as no filter (trimmed, never matches).
+    const taskRepository = this.taskRepository;
+    const hasCategory = query.category?.trim() ? true : false;
+    if (!taskRepository || (!hasCategory && !query.priority)) {
       return {
         durations: sessions.map((s) => s.duration),
         sampleSize: sessions.length,
@@ -178,7 +184,7 @@ export class DurationLearningService {
     const withTask = await Promise.all(
       [...byTask.entries()].map(async ([taskId, sess]) => ({
         sess,
-        task: await this.taskRepository!.findById(taskId),
+        task: await taskRepository.findById(taskId),
       })),
     );
 
@@ -220,12 +226,8 @@ export class DurationLearningService {
     }
     // Query filters matched nothing: report honestly instead of silently
     // widening — the caller decides whether a generic history estimate helps.
-    // If the caller passed NO filters we already returned above; here the
-    // filters exist but match nothing, so comparable = 0 -> fallback.
-    if (want || query.priority) {
-      return { durations: [], sampleSize: 0, matchedBy: 'none' };
-    }
-    const durations = sessions.map((s) => s.duration);
-    return { durations, sampleSize: durations.length, matchedBy: 'all' };
+    // (Reaching here with no effective filters is impossible: the early return
+    // above handles that case.)
+    return { durations: [], sampleSize: 0, matchedBy: 'none' };
   }
 }

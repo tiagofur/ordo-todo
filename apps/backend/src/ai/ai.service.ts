@@ -391,7 +391,6 @@ export class AIService {
     // history) AND we have a title to prompt with.
     if (this.durationLearning) {
       const learned = await this.durationLearning.predict(userId, {
-        title: taskTitle,
         category,
         priority,
       });
