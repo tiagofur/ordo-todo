@@ -15,9 +15,11 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { RitualService } from './ritual.service';
 import { CompleteMorningDto } from './dto/complete-morning.dto';
+import { CompleteEveningDto } from './dto/complete-evening.dto';
 
 // ODD 006 S1 (T1): morning ritual endpoints. Skippable with one touch;
 // the ritual never blocks the app (no guards beyond auth).
+// ODD 006 S2 (T2): evening ritual endpoints (same guards/roles).
 @Controller('ritual')
 @UseGuards(JwtAuthGuard)
 export class RitualController {
@@ -50,5 +52,36 @@ export class RitualController {
   @ApiOperation({ summary: 'Skip the morning ritual (one touch)' })
   skipMorning(@CurrentUser() user: RequestUser) {
     return this.ritualService.skipMorning(user.id);
+  }
+
+  @Get('evening')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @ApiOperation({
+    summary: 'Get the evening ritual (summary + completed + pending)',
+  })
+  getEvening(@CurrentUser() user: RequestUser) {
+    return this.ritualService.getEvening(user.id);
+  }
+
+  @Post('evening/complete')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Complete the evening ritual with moves for pending tasks',
+  })
+  @ApiBodyDecorator({ type: CompleteEveningDto })
+  completeEvening(
+    @Body() dto: CompleteEveningDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.ritualService.completeEvening(user.id, dto.moves);
+  }
+
+  @Post('evening/skip')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Skip the evening ritual (one touch)' })
+  skipEvening(@CurrentUser() user: RequestUser) {
+    return this.ritualService.skipEvening(user.id);
   }
 }

@@ -4,6 +4,7 @@ import { Task } from '@ordo-todo/core';
 import { RitualService } from './ritual.service';
 import { PrismaService } from '../database/prisma.service';
 import { DayPlanService } from '../tasks/day-plan.service';
+import { AIService } from '../ai/ai.service';
 
 // ODD 006 S1 (T1): morning ritual — plan + overdue + suggested top-3,
 // complete/skip persisted per day.
@@ -62,6 +63,8 @@ describe('RitualService morning (ODD 006 S1)', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: DayPlanService, useValue: dayPlan },
         { provide: 'TaskRepository', useValue: taskRepo },
+        // ODD 006 S2 (T2): evening needs AIService; morning ignores it.
+        { provide: AIService, useValue: {} },
       ],
     }).compile();
     service = module.get<RitualService>(RitualService);
