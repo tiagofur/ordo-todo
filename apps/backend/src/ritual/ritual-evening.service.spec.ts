@@ -191,6 +191,108 @@ describe('RitualService evening (ODD 006 S2)', () => {
     expect(typeof out.suggestion).toBe('string');
   });
 
+  it('complete with destination date stores that day midnight (user TZ)', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+    // A future key relative to "now" (hermetic: +30d from the UTC today key).
+    const now = new Date();
+    const future = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 30,
+      ),
+    );
+    const futureKey = future.toISOString().slice(0, 10);
+
+    await service.completeEvening('user-1', [
+      { taskId: 'b', destination: 'date', date: futureKey, reason: 'urgent' },
+    ]);
+
+    expect(prisma.task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'b', ownerId: 'user-1' },
+        data: expect.objectContaining({ doDate: expect.any(Date) }),
+      }),
+    );
+    const doDate: Date = prisma.task.update.mock.calls[0][0].data.doDate;
+    expect(
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'UTC',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(doDate),
+    ).toBe(futureKey);
+  });
+
+  it('complete stores the requested key even behind UTC (Mexico City)', async () => {
+    // Regression: storing UTC-midnight for a date move lands on the
+    // PREVIOUS day for users behind UTC (e.g. America/Mexico_City).
+    prisma.user.findUnique.mockResolvedValue({
+      timezone: 'America/Mexico_City',
+    });
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+    const now = new Date();
+    const future = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 30,
+      ),
+    );
+    const futureKey = future.toISOString().slice(0, 10);
+
+    await service.completeEvening('user-1', [
+      { taskId: 'b', destination: 'date', date: futureKey, reason: 'urgent' },
+    ]);
+
+    const doDate: Date = prisma.task.update.mock.calls[0][0].data.doDate;
+    expect(
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Mexico_City',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(doDate),
+    ).toBe(futureKey);
+  });
+
+  it('complete persists the validated moves in eveningMoves', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([
+      coreTask('b', 'TODO'),
+      coreTask('c', 'TODO'),
+    ]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+
+    await service.completeEvening('user-1', [
+      { taskId: 'b', destination: 'tomorrow', reason: 'overran' },
+      { taskId: 'c', destination: 'archived', reason: 'no-energy' },
+    ]);
+
+    expect(prisma.ritualDay.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({
+          eveningStatus: 'DONE',
+          eveningMoves: [
+            { taskId: 'b', destination: 'tomorrow', reason: 'overran' },
+            { taskId: 'c', destination: 'archived', reason: 'no-energy' },
+          ],
+        }),
+      }),
+    );
+  });
+
   it('complete rejects a taskId outside today pendings (400, no writes)', async () => {
     taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
 

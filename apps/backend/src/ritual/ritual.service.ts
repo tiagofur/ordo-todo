@@ -173,8 +173,7 @@ export class RitualService {
     const openIds = new Map(
       tasks
         .filter(
-          (t) =>
-            t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
+          (t) => t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
         )
         .map((t) => [String(t.id), t.props.title]),
     );
@@ -205,15 +204,12 @@ export class RitualService {
     const openIds = new Set(
       tasks
         .filter(
-          (t) =>
-            t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
+          (t) => t.props.status === 'TODO' || t.props.status === 'IN_PROGRESS',
         )
         .map((t) => String(t.id)),
     );
     const inPlan = new Set(plan.blocks.map((b) => b.taskId));
-    const pendingIds = new Set(
-      [...inPlan].filter((id) => openIds.has(id)),
-    );
+    const pendingIds = new Set([...inPlan].filter((id) => openIds.has(id)));
     const validated = moves.map((m) =>
       this.toTaskWrite(m, timezone, todayKey, pendingIds),
     );
@@ -278,7 +274,7 @@ export class RitualService {
           `Move for ${move.taskId} needs a date when destination is 'date'`,
         );
       }
-      const parsed = parseDateKey(move.date);
+      const parsed = parseDateKeyIn(move.date, timezone);
       if (!parsed || move.date < todayKey) {
         throw new BadRequestException(
           `Move for ${move.taskId} has an invalid or past date (want YYYY-MM-DD, today or later)`,
@@ -400,10 +396,7 @@ export const startOfTomorrowIn = (timezone: string): Date => {
 // Parse a YYYY-MM-DD key into the midnight instant of that day in the
 // given IANA timezone. Returns null for malformed/non-existent dates
 // (wrong shape, month 13, Feb 30, …). Exported for the spec.
-export const parseDateKeyIn = (
-  key: string,
-  timezone: string,
-): Date | null => {
+export const parseDateKeyIn = (key: string, timezone: string): Date | null => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
   const [y, mo, d] = key.split('-').map(Number);
   const probe = new Date(Date.UTC(y, mo - 1, d));
@@ -415,27 +408,6 @@ export const parseDateKeyIn = (
     return null;
   }
   return midnightForKeyIn(key, timezone);
-};
-
-// Strict YYYY-MM-DD validation WITHOUT timezone (shape + real calendar
-// day); the service layer rejects past keys by string comparison against
-// the user-TZ today key. Exported for the spec.
-export const parseDateKey = (key: string): Date | null => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
-  const [y, mo, d] = key.split('-').map(Number);
-  const probe = new Date(Date.UTC(y, mo - 1, d));
-  if (
-    probe.getUTCFullYear() !== y ||
-    probe.getUTCMonth() !== mo - 1 ||
-    probe.getUTCDate() !== d
-  ) {
-    return null;
-  }
-  // Store as the midnight instant of that calendar day in UTC. doDate is
-  // compared by calendar key in the user TZ; a UTC-midnight instant keeps
-  // YYYY-MM-DD stable for timezones behind UTC (Americas) and the ritual
-  // never promises sub-day precision for moved tasks.
-  return probe;
 };
 
 const addDaysToKey = (key: string, days: number): string => {
