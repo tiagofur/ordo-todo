@@ -41,3 +41,4 @@ export * from './shared/index.js';
 export * from './dashboard/index.js';
 export * from './note/index.js';
 export * from './habit/index.js';
+export * from './scheduling/index.js';

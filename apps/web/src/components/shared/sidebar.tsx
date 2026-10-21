@@ -7,6 +7,7 @@ import {
   BarChart3,
   Briefcase,
   Calendar,
+  CalendarDays,
   Download,
   Sparkles,
   Target,
@@ -56,6 +57,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
         { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
         { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+        { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
       ],
     },
     {

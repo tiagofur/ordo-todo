@@ -37,6 +37,7 @@
     "tasks": "Tasks",
     "habits": "Habits",
     "calendar": "Calendar",
+    "dayPlan": "My plan",
     "projects": "Projects",
     "workspaces": "Workspaces",
     "workspacesTrash": "Workspaces Trash",
@@ -348,6 +349,40 @@
         "schedule": "Important only = Schedule"
       }
     }
+  },
+  "Scheduling": {
+    "title": "My plan for today",
+    "subtitle": "Time blocks proposed for your day",
+    "loading": "Loading your plan...",
+    "loadError": "Couldn't load your plan",
+    "retry": "Retry",
+    "plan": {
+      "empty": "No blocks for today",
+      "frozen": "Frozen",
+      "freeze": "Freeze",
+      "unfreeze": "Unfreeze"
+    },
+    "changes": {
+      "title": "What changed",
+      "empty": "No pending changes",
+      "accept": "Accept plan",
+      "reject": "Dismiss",
+      "moved": "moved",
+      "added": "added",
+      "removed": "removed",
+      "resized": "resized"
+    },
+    "risks": {
+      "title": "Risks",
+      "empty": "No risks for today",
+      "overload": "Overloaded day",
+      "deadlineAtRisk": "Deadline at risk"
+    },
+    "applied": "Plan applied",
+    "applyError": "Couldn't apply the plan",
+    "dismissed": "Plan dismissed",
+    "dismissError": "Couldn't dismiss the plan",
+    "freezeError": "Couldn't update the block"
   },
   "Notes": {
     "title": "Notes",
