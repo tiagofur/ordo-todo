@@ -97,7 +97,7 @@ Available scopes: `read`, `tasks:write`, `projects:write`,
 
 ## Tool catalog
 
-16 tools. Reads need `read`; mutations need the write scope shown.
+18 tools. Reads need `read`; mutations need the write scope shown.
 All tools scope operations to the token owner (see Permissions).
 
 | Tool | Scope | Arguments | Does |
@@ -118,6 +118,8 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_habit_complete` | `tasks:write` | `id`*, `note?` | Complete a habit for today |
 | `ordo_objective_progress` | `read` | — | Current OKR period summary |
 | `ordo_me` | `read` | — | Token owner identity |
+| `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes, risk alerts |
+| `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):
 
@@ -153,7 +155,7 @@ failures return `isError: true` with `{error, ...}` JSON in the text.
 - **Audit**: every successful mutating tool call
   (`ordo_task_create|update|complete`,
   `ordo_project_create|update`, `ordo_comment_add`,
-  `ordo_habit_complete`) emits an `MCP_TOOL_CALL` audit event with
+  `ordo_habit_complete`, `ordo_day_plan_apply`) emits an `MCP_TOOL_CALL` audit event with
   `{tool}` metadata + user id. Reads are not logged (signal over
   noise).
 

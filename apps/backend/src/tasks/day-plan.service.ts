@@ -123,6 +123,29 @@ export class DayPlanService {
     return this.toView(updated);
   }
 
+  // ODD 005 S6 (T5): reject a proposal (PROPOSED → DISMISSED). No task
+  // writes — the plan simply stops being the current proposal, so the
+  // next getDayPlan builds a fresh one. Reuses the apply lookup +
+  // conflict rules (404 foreign/missing, 409 unless PROPOSED).
+  async dismiss(userId: string, proposalId: string): Promise<DayPlanView> {
+    const proposal = await this.prisma.dayPlanProposal.findFirst({
+      where: { id: proposalId, userId },
+    });
+    if (!proposal) {
+      throw new NotFoundException('Day-plan proposal not found');
+    }
+    if (proposal.status !== 'PROPOSED') {
+      throw new ConflictException(
+        `Proposal ${proposalId} is already ${proposal.status}`,
+      );
+    }
+    const updated = await this.prisma.dayPlanProposal.update({
+      where: { id: proposal.id, userId },
+      data: { status: 'DISMISSED' },
+    });
+    return this.toView(updated);
+  }
+
   private latestProposed(userId: string) {
     return this.prisma.dayPlanProposal.findFirst({
       where: { userId, status: 'PROPOSED' },

@@ -261,4 +261,60 @@ describe('DayPlanService (ODD 005 S3)', () => {
       where: { id: 'prop-x', userId: 'user-1' },
     });
   });
+
+  // ODD 005 S6 (T5): dismiss flips PROPOSED → DISMISSED (reject UX).
+  it('dismiss marks the addressed PROPOSED proposal DISMISSED', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
+    prisma.dayPlanProposal.update.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'DISMISSED',
+    });
+
+    const result = await service.dismiss('user-1', 'prop-1');
+
+    expect(prisma.dayPlanProposal.findFirst).toHaveBeenCalledWith({
+      where: { id: 'prop-1', userId: 'user-1' },
+    });
+    expect(prisma.dayPlanProposal.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'prop-1', userId: 'user-1' },
+        data: { status: 'DISMISSED' },
+      }),
+    );
+    expect(result.status).toBe('DISMISSED');
+    expect(result.proposalId).toBe('prop-1');
+  });
+
+  it('dismiss rejects a proposal owned by another user (404)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue(null);
+
+    await expect(service.dismiss('user-1', 'prop-x')).rejects.toThrow(
+      NotFoundException,
+    );
+    expect(prisma.dayPlanProposal.update).not.toHaveBeenCalled();
+  });
+
+  it('dismiss rejects an already-APPLIED proposal (409, no writes)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'APPLIED',
+    });
+
+    await expect(service.dismiss('user-1', 'prop-1')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(prisma.dayPlanProposal.update).not.toHaveBeenCalled();
+  });
+
+  it('dismiss rejects an already-DISMISSED proposal (409, no writes)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'DISMISSED',
+    });
+
+    await expect(service.dismiss('user-1', 'prop-1')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(prisma.dayPlanProposal.update).not.toHaveBeenCalled();
+  });
 });

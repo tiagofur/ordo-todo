@@ -31,7 +31,7 @@ Discovery: Slackbot puede descubrir autorización vía
 
 ## Permisos
 
-Ordo expone las 16 tools `ordo_*`; los scopes OAuth del grant
+Ordo expone las 18 tools `ordo_*`; los scopes OAuth del grant
 (`read`, `tasks:write`, `projects:write`) limitan qué puede hacer, y
 la herencia de permisos (S4 de ODD 001) limita sobre qué: el agente
 solo ve/opera lo del usuario que aprobó. Sin sesión → 401; sin

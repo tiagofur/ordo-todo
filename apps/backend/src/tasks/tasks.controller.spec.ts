@@ -88,6 +88,7 @@ describe('TasksController', () => {
             freeze: jest.fn(),
             unfreeze: jest.fn(),
             apply: jest.fn(),
+            dismiss: jest.fn(),
           },
         },
         {
@@ -498,6 +499,20 @@ describe('TasksController', () => {
 
       expect(result).toEqual(view);
       expect(dayPlanService.apply).toHaveBeenCalledWith('user-1', 'p1');
+    });
+
+    // ODD 005 S6 (T5): dismiss (reject) a proposed day plan.
+    it('dismissDayPlan dismisses the proposal', async () => {
+      const view = { proposalId: 'p1', status: 'DISMISSED' };
+      (dayPlanService.dismiss as jest.Mock).mockResolvedValue(view);
+
+      const result = await controller.dismissDayPlan(
+        { proposalId: 'p1' },
+        user,
+      );
+
+      expect(result).toEqual(view);
+      expect(dayPlanService.dismiss).toHaveBeenCalledWith('user-1', 'p1');
     });
   });
 

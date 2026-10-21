@@ -54,6 +54,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
 import { FreezeTaskDto } from './dto/freeze-task.dto';
 import { ApplyDayPlanDto } from './dto/apply-day-plan.dto';
+import { DismissDayPlanDto } from './dto/dismiss-day-plan.dto';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -247,6 +248,20 @@ export class TasksController {
   @ApiBodyDecorator({ type: ApplyDayPlanDto })
   applyDayPlan(@Body() dto: ApplyDayPlanDto, @CurrentUser() user: RequestUser) {
     return this.dayPlanService.apply(user.id, dto.proposalId);
+  }
+
+  @Post('day-plan/dismiss')
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Dismiss a proposed day plan (reject; no task writes)',
+  })
+  @ApiBodyDecorator({ type: DismissDayPlanDto })
+  dismissDayPlan(
+    @Body() dto: DismissDayPlanDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.dayPlanService.dismiss(user.id, dto.proposalId);
   }
 
   /**

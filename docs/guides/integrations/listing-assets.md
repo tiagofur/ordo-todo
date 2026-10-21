@@ -17,7 +17,7 @@ ODD 002 L2; find/replace when business decides).
 | Resource metadata | `https://ordotodo.app/.well-known/oauth-protected-resource` (RFC 9728) |
 | AS metadata | `https://ordotodo.app/api/v1/oauth/.well-known/oauth-authorization-server` (RFC 8414) |
 | Scopes | `read`, `tasks:write`, `projects:write`, `admin:webhooks` |
-| Tools exposed | 16 (`ordo_ping`, `ordo_search`, `ordo_task_*` ×5, `ordo_project_*` ×4, `ordo_comment_add`, `ordo_habit_*` ×2, `ordo_objective_progress`, `ordo_me`) |
+| Tools exposed | 18 (`ordo_ping`, `ordo_search`, `ordo_task_*` ×5, `ordo_project_*` ×4, `ordo_comment_add`, `ordo_habit_*` ×2, `ordo_objective_progress`, `ordo_me`, `ordo_day_plan`, `ordo_day_plan_apply`) |
 | Privacy | Agent sees only what the token owner can; no training on user data; revoke = immediate 401 |
 | Docs | `https://ordotodo.app/guide/connect` (+ per-client guides) |
 | Support | support@ordo-todo.com (verify before publishing) |
@@ -26,7 +26,7 @@ ODD 002 L2; find/replace when business decides).
 
 - **Name**: Ordo
 - **Tagline**: Your tasks, projects and habits — organized by chat.
-- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 16 tools over a remote MCP server with OAuth: search, tasks, projects, comments, habits, objectives and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Revoke anytime from Ordo settings.
+- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 18 tools over a remote MCP server with OAuth: search, tasks, projects, comments, habits, objectives, day planning and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Revoke anytime from Ordo settings.
 - **Category**: Productivity
 - **Scopes requested**: `read`, `tasks:write`, `projects:write` (+ why: read your work / create-update tasks / manage projects).
 - **Privacy URL**: `https://ordotodo.app/privacy` (verify exists)

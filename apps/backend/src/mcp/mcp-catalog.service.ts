@@ -16,6 +16,8 @@ import { V1TasksService } from '../v1/v1-tasks.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { TasksService } from '../tasks/tasks.service';
+import { DayPlanService } from '../tasks/day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
@@ -64,6 +66,7 @@ export class McpCatalogService implements OnModuleInit {
     'ordo_project_update',
     'ordo_comment_add',
     'ordo_habit_complete',
+    'ordo_day_plan_apply',
   ]);
 
   constructor(
@@ -72,6 +75,10 @@ export class McpCatalogService implements OnModuleInit {
     private readonly v1Projects: V1ProjectsService,
     private readonly v1Comments: V1CommentsService,
     private readonly tasksService: TasksService,
+    private readonly dayPlanService: DayPlanService,
+    // ODD 005 S6+T4b: risks ride along with the plan. McpModule imports
+    // SchedulingModule directly; no cycle (Scheduling never imports Mcp).
+    private readonly riskAlerts: RiskAlertService,
     private readonly searchService: SemanticSearchService,
     private readonly habitsService: HabitsService,
     private readonly objectivesService: ObjectivesService,
@@ -90,7 +97,8 @@ export class McpCatalogService implements OnModuleInit {
     this.registerHabitTools(server);
     this.registerObjectiveTools(server);
     this.registerUserTools(server);
-    this.logger.log('MCP catalog registered (15 domain tools)');
+    this.registerDayPlanTools(server);
+    this.logger.log('MCP catalog registered (17 domain tools)');
   }
 
   private requireScope(tool: string, scopes: string[]): void {
@@ -411,6 +419,43 @@ export class McpCatalogService implements OnModuleInit {
           }
           return user;
         }),
+    );
+  }
+
+  // ODD 005 S6 (T5): day-plan tools for remote agents (ODD 001).
+  private registerDayPlanTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_day_plan',
+      {
+        title: "Today's plan",
+        description:
+          'Get my day plan: proposed time blocks, frozen tasks, pending changes and risk alerts.',
+        inputSchema: z.object({}).shape,
+      },
+      async () =>
+        this.guarded('ordo_day_plan', async (userId) => {
+          const [plan, risks] = await Promise.all([
+            this.dayPlanService.getDayPlan(userId),
+            this.riskAlerts.assessForUser(userId),
+          ]);
+          return { ...plan, risks };
+        }),
+    );
+
+    server.registerTool(
+      'ordo_day_plan_apply',
+      {
+        title: 'Apply day plan',
+        description:
+          'Apply a proposed day plan onto my tasks (doDate + time blocks).',
+        inputSchema: z.object({
+          proposalId: z.string().min(1),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_day_plan_apply', (userId) =>
+          this.dayPlanService.apply(userId, args.proposalId),
+        ),
     );
   }
 }

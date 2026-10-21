@@ -8,6 +8,8 @@ import { V1TasksService } from '../v1/v1-tasks.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { TasksService } from '../tasks/tasks.service';
+import { DayPlanService } from '../tasks/day-plan.service';
+import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
@@ -39,6 +41,9 @@ describe('MCP permission conformance (S4/S5)', () => {
     update: jest.fn(),
   };
   const mockAudit = { logEvent: jest.fn() };
+  const mockDayPlan = {
+    apply: jest.fn().mockResolvedValue({ status: 'APPLIED' }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,6 +54,8 @@ describe('MCP permission conformance (S4/S5)', () => {
         { provide: V1ProjectsService, useValue: {} },
         { provide: V1CommentsService, useValue: {} },
         { provide: TasksService, useValue: {} },
+        { provide: DayPlanService, useValue: mockDayPlan },
+        { provide: RiskAlertService, useValue: {} },
         { provide: SemanticSearchService, useValue: {} },
         { provide: HabitsService, useValue: {} },
         { provide: ObjectivesService, useValue: {} },
@@ -143,5 +150,25 @@ describe('MCP permission conformance (S4/S5)', () => {
 
     expect(result.isError).toBeFalsy();
     expect(mockAudit.logEvent).not.toHaveBeenCalled();
+  });
+
+  it('should audit-log ordo_day_plan_apply (MUTATING_TOOLS membership)', async () => {
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['read', 'tasks:write'] },
+      () =>
+        client.callTool({
+          name: 'ordo_day_plan_apply',
+          arguments: { proposalId: 'prop-1' },
+        }),
+    );
+
+    expect(result.isError).toBeFalsy();
+    expect(mockAudit.logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: AuthEventType.MCP_TOOL_CALL,
+        userId: 'user-123',
+        metadata: expect.objectContaining({ tool: 'ordo_day_plan_apply' }),
+      }),
+    );
   });
 });

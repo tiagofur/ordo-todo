@@ -3,6 +3,7 @@ import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { OAuthModule } from '../oauth/oauth.module';
 import { V1Module } from '../v1/v1.module';
 import { TasksModule } from '../tasks/tasks.module';
+import { SchedulingModule } from '../scheduling/scheduling.module';
 import { SearchModule } from '../search/search.module';
 import { HabitsModule } from '../habits/habits.module';
 import { ObjectivesModule } from '../objectives/objectives.module';
@@ -20,6 +21,9 @@ import { McpAuthGuard } from './mcp-auth.guard';
     OAuthModule,
     V1Module,
     TasksModule,
+    // ODD 005 S6 (T5): RiskAlertService for ordo_day_plan risks.
+    // No cycle: SchedulingModule imports RepositoriesModule only.
+    SchedulingModule,
     SearchModule,
     HabitsModule,
     ObjectivesModule,
