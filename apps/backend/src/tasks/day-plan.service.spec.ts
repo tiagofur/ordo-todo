@@ -263,7 +263,7 @@ describe('DayPlanService (ODD 005 S3)', () => {
   });
 
   // ODD 005 S6 (T5): dismiss flips PROPOSED → DISMISSED (reject UX).
-  it('dismiss marks the latest PROPOSED proposal DISMISSED', async () => {
+  it('dismiss marks the addressed PROPOSED proposal DISMISSED', async () => {
     prisma.dayPlanProposal.findFirst.mockResolvedValue(PROPOSAL);
     prisma.dayPlanProposal.update.mockResolvedValue({
       ...PROPOSAL,
@@ -298,6 +298,18 @@ describe('DayPlanService (ODD 005 S3)', () => {
     prisma.dayPlanProposal.findFirst.mockResolvedValue({
       ...PROPOSAL,
       status: 'APPLIED',
+    });
+
+    await expect(service.dismiss('user-1', 'prop-1')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(prisma.dayPlanProposal.update).not.toHaveBeenCalled();
+  });
+
+  it('dismiss rejects an already-DISMISSED proposal (409, no writes)', async () => {
+    prisma.dayPlanProposal.findFirst.mockResolvedValue({
+      ...PROPOSAL,
+      status: 'DISMISSED',
     });
 
     await expect(service.dismiss('user-1', 'prop-1')).rejects.toThrow(

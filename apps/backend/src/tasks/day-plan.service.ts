@@ -126,7 +126,7 @@ export class DayPlanService {
   // ODD 005 S6 (T5): reject a proposal (PROPOSED → DISMISSED). No task
   // writes — the plan simply stops being the current proposal, so the
   // next getDayPlan builds a fresh one. Reuses the apply lookup +
-  // conflict rules (404 foreign/missing, 409 already APPLIED).
+  // conflict rules (404 foreign/missing, 409 unless PROPOSED).
   async dismiss(userId: string, proposalId: string): Promise<DayPlanView> {
     const proposal = await this.prisma.dayPlanProposal.findFirst({
       where: { id: proposalId, userId },

@@ -118,7 +118,7 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_habit_complete` | `tasks:write` | `id`*, `note?` | Complete a habit for today |
 | `ordo_objective_progress` | `read` | — | Current OKR period summary |
 | `ordo_me` | `read` | — | Token owner identity |
-| `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes |
+| `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes, risk alerts |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):

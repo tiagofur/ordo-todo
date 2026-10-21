@@ -76,8 +76,8 @@ export class McpCatalogService implements OnModuleInit {
     private readonly v1Comments: V1CommentsService,
     private readonly tasksService: TasksService,
     private readonly dayPlanService: DayPlanService,
-    // ODD 005 S6+T4b: risks ride along with the plan. No cycle: Scheduling
-    // flows to McpModule via TasksModule (Tasks never imports Mcp).
+    // ODD 005 S6+T4b: risks ride along with the plan. McpModule imports
+    // SchedulingModule directly; no cycle (Scheduling never imports Mcp).
     private readonly riskAlerts: RiskAlertService,
     private readonly searchService: SemanticSearchService,
     private readonly habitsService: HabitsService,
