@@ -152,8 +152,11 @@ export class RitualService {
   async getEvening(userId: string): Promise<EveningView> {
     const timezone = await this.userTimezone(userId);
     const todayKey = toTodayKey(timezone);
+    // The PM summary degrades to null: generateDailyReport charges AI credits
+    // (402 without balance) and can 503 on open circuit — a GET must never
+    // block the ritual nor drain credits per view. Plan/tasks/state always load.
     const [summary, plan, tasks, ritual] = await Promise.all([
-      this.ai.generateDailyReport(userId, 'PM'),
+      this.ai.generateDailyReport(userId, 'PM').catch(() => null),
       this.dayPlans.getDayPlan(userId),
       this.taskRepository.findByOwnerId(userId),
       this.prisma.ritualDay.findUnique({
@@ -210,6 +213,17 @@ export class RitualService {
     );
     const inPlan = new Set(plan.blocks.map((b) => b.taskId));
     const pendingIds = new Set([...inPlan].filter((id) => openIds.has(id)));
+    // Duplicate taskIds in one close would last-win silently inside the
+    // transaction: reject like the morning top-3 does.
+    const seen = new Set<string>();
+    for (const m of moves) {
+      if (seen.has(m.taskId)) {
+        throw new BadRequestException(
+          `Duplicate move for task ${m.taskId}: one destination per task`,
+        );
+      }
+      seen.add(m.taskId);
+    }
     const validated = moves.map((m) =>
       this.toTaskWrite(m, timezone, todayKey, pendingIds),
     );
@@ -217,7 +231,11 @@ export class RitualService {
     const stored = moves.map((m) => ({
       taskId: m.taskId,
       destination: m.destination,
-      ...(m.date ? { date: m.date } : {}),
+      // Persist `date` only for date-destination moves (a stray client date
+      // on tomorrow/archived moves is ignored, not stored).
+      ...(m.destination === EveningMoveDestination.DATE && m.date
+        ? { date: m.date }
+        : {}),
       reason: m.reason,
     }));
     // All validation happens above (400s throw BEFORE any write). Task
@@ -246,7 +264,16 @@ export class RitualService {
         },
       }),
     ]);
-    return { shutdownComplete: true, suggestion: shutdownSuggestion(timezone) };
+    // Explicit product decision (S2 "cada una con destino"): partial closes
+    // are allowed (a subset of pendings), and the response reports the rest
+    // as `unmoved` so the UI can show them instead of silently dropping them.
+    const movedIds = new Set(moves.map((m) => m.taskId));
+    const unmoved = [...pendingIds].filter((id) => !movedIds.has(id));
+    return {
+      shutdownComplete: true,
+      suggestion: shutdownSuggestion(timezone),
+      unmoved,
+    };
   }
 
   // Validate one move (throws 400) and map it to its task write.
@@ -345,7 +372,7 @@ export interface EveningTask {
 }
 
 export interface EveningView {
-  summary: Record<string, unknown>;
+  summary: Record<string, unknown> | null;
   completed: EveningTask[];
   pending: EveningTask[];
   ritual: RitualDayView | null;
@@ -354,6 +381,7 @@ export interface EveningView {
 export interface EveningCompleteView {
   shutdownComplete: boolean;
   suggestion: string;
+  unmoved: string[];
 }
 
 type RitualRow = {

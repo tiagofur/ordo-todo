@@ -61,7 +61,7 @@ describe('CompleteEveningDto', () => {
     expect((await validate(badDate)).length).toBeGreaterThan(0);
   });
 
-  it('rejects an empty moves array', async () => {
-    expect((await validate(valid([]))).length).toBeGreaterThan(0);
+  it('accepts an empty moves array (perfect day closes DONE)', async () => {
+    expect(await validate(valid([]))).toHaveLength(0);
   });
 });

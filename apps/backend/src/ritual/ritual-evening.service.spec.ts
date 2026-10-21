@@ -123,6 +123,23 @@ describe('RitualService evening (ODD 006 S2)', () => {
     expect(out.ritual).toMatchObject({ eveningStatus: 'PENDING' });
   });
 
+  it('getEvening degrades the summary to null without blocking (B1)', async () => {
+    prisma.ritualDay.findUnique.mockResolvedValue(RITUAL_ROW);
+    taskRepo.findByOwnerId.mockResolvedValue([
+      coreTask('a', 'COMPLETED', { completedAt: todayNoonUtc() }),
+      coreTask('b', 'TODO'),
+    ]);
+    // No credits (402) or open circuit (503): the PM report throws.
+    ai.generateDailyReport.mockRejectedValueOnce(new Error('402'));
+
+    const out = await service.getEvening('user-1');
+
+    expect(out.summary).toBeNull();
+    expect(out.pending.map((t) => t.taskId)).toEqual(['b']);
+    expect(out.completed.map((t) => t.taskId)).toEqual(['a']);
+    expect(out.ritual).toMatchObject({ eveningStatus: 'PENDING' });
+  });
+
   it('completed only counts tasks finished today in the user timezone', async () => {
     prisma.ritualDay.findUnique.mockResolvedValue(RITUAL_ROW);
     taskRepo.findByOwnerId.mockResolvedValue([
@@ -300,7 +317,12 @@ describe('RitualService evening (ODD 006 S2)', () => {
   it('complete rejects an invalid or past date (400, no writes)', async () => {
     taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
 
-    for (const date of ['not-a-date', '2026-13-99', '2020-01-01']) {
+    for (const date of [
+      'not-a-date',
+      '2026-13-99',
+      '2026-02-30',
+      '2020-01-01',
+    ]) {
       await expect(
         service.completeEvening('user-1', [
           { taskId: 'b', destination: 'date', date, reason: 'other' },
@@ -309,6 +331,77 @@ describe('RitualService evening (ODD 006 S2)', () => {
     }
     expect(prisma.$transaction).not.toHaveBeenCalled();
     expect(prisma.ritualDay.upsert).not.toHaveBeenCalled();
+  });
+
+  it('complete rejects duplicate taskIds (400, no writes)', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
+
+    await expect(
+      service.completeEvening('user-1', [
+        { taskId: 'b', destination: 'tomorrow', reason: 'overran' },
+        { taskId: 'b', destination: 'archived', reason: 'other' },
+      ]),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.ritualDay.upsert).not.toHaveBeenCalled();
+  });
+
+  it('complete with empty moves closes DONE (perfect day)', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+
+    const out = await service.completeEvening('user-1', []);
+
+    expect(out.shutdownComplete).toBe(true);
+    expect(out.unmoved).toEqual([]);
+  });
+
+  it('complete reports unmoved pendings explicitly', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([
+      coreTask('b', 'TODO'),
+      coreTask('c', 'TODO'),
+    ]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+
+    const out = await service.completeEvening('user-1', [
+      { taskId: 'b', destination: 'tomorrow', reason: 'overran' },
+    ]);
+
+    expect(out.shutdownComplete).toBe(true);
+    expect(out.unmoved).toEqual(['c']);
+  });
+
+  it('stored moves drop stray dates on non-date destinations', async () => {
+    taskRepo.findByOwnerId.mockResolvedValue([coreTask('b', 'TODO')]);
+    prisma.ritualDay.upsert.mockResolvedValue({
+      ...RITUAL_ROW,
+      eveningStatus: 'DONE',
+    });
+
+    await service.completeEvening('user-1', [
+      {
+        taskId: 'b',
+        destination: 'tomorrow',
+        date: '2026-12-25',
+        reason: 'overran',
+      } as never,
+    ]);
+
+    expect(prisma.ritualDay.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({
+          eveningMoves: [
+            { taskId: 'b', destination: 'tomorrow', reason: 'overran' },
+          ],
+        }),
+      }),
+    );
   });
 
   it('complete archives with status CANCELLED (not soft-delete)', async () => {
