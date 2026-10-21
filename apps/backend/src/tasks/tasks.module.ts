@@ -14,7 +14,6 @@ import { ActivitiesModule } from '../activities/activities.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GamificationModule } from '../gamification/gamification.module';
 import { AIModule } from '../ai/ai.module';
-import { SchedulingModule } from '../scheduling/scheduling.module';
 
 @Module({
   imports: [

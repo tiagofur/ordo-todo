@@ -16,9 +16,9 @@ import { assessRisks, type RiskAlert } from './risk-alerts';
 // ODD 005 S4: Nest wrapper around the pure assessRisks (T4).
 //
 // Reads the current plan via SchedulingService.replanOnDayStart (in-memory,
-// no persistence).
-// TODO(ODD 005 T3b rebase): when the persisted proposal lands on main,
-// read that proposal here instead of recomputing the plan in memory.
+// no persistence). The persisted proposal (T3b) stores blocks only, without
+// the unscheduled list assessRisks needs for the overload signal — so the
+// endpoint assesses a fresh in-memory plan. T5/ritual unifies both views.
 //
 // DI rule (same as SchedulingService): repositories + Prisma only, plus
 // NotificationsService via @Optional WITHOUT importing NotificationsModule
