@@ -38,6 +38,8 @@ interface DayPlanSectionLabels {
   changeResized: string;
   risksTitle: string;
   risksEmpty: string;
+  risksOverload: string;
+  risksDeadlineAtRisk: string;
   applied: string;
   applyError: string;
   dismissed: string;
@@ -48,8 +50,7 @@ interface DayPlanSectionLabels {
 /**
  * "Mi plan de hoy" container (ODD 005 S6). Fetches the day plan,
  * resolves task titles, wires the presentational scheduling cards.
- * Risks degrade gracefully (no card) until T4b lands. Labels injected
- * for testability (page passes next-intl strings).
+ * Labels injected for testability (page passes next-intl strings).
  */
 export function DayPlanSection({ labels }: { labels: DayPlanSectionLabels }) {
   const { data: plan, isLoading, isError, refetch } = useDayPlan();
@@ -154,12 +155,14 @@ export function DayPlanSection({ labels }: { labels: DayPlanSectionLabels }) {
           onAccept={handleAccept}
           onReject={handleReject}
         />
-        {risks && risks.length > 0 && (
+        {(risks ?? []).length > 0 && (
           <RiskAlertsCard
-            risks={risks}
+            risks={risks ?? []}
             labels={{
               title: labels.risksTitle,
               empty: labels.risksEmpty,
+              overload: labels.risksOverload,
+              deadlineAtRisk: labels.risksDeadlineAtRisk,
             }}
             // TODO(ODD 005 follow-up / 006 ritual): wire risk options to real
             // actions (reschedule/split/delegate/...). T5 surfaces them

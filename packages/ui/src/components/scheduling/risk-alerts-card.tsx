@@ -2,41 +2,54 @@ import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card.js';
 import { Button } from '../ui/button.js';
 
+export type RiskAlertKind = 'overload' | 'deadline-at-risk';
+
+export type RiskAlertAction =
+  | 'reschedule'
+  | 'split-task'
+  | 'delegate'
+  | 'renegotiate'
+  | 'freeze-less'
+  | 'extend-day';
+
 export interface RiskAlertOption {
-  id: string;
   label: string;
+  action: RiskAlertAction;
 }
 
 export interface RiskAlertsCardRisk {
-  id: string;
-  taskId?: string;
-  title: string;
-  detail: string;
+  kind: RiskAlertKind;
+  taskIds: string[];
+  message: string;
   options: RiskAlertOption[];
 }
 
 export interface RiskAlertsCardLabels {
   title: string;
   empty: string;
+  overload: string;
+  deadlineAtRisk: string;
 }
 
 interface RiskAlertsCardProps {
   risks: RiskAlertsCardRisk[];
   labels: RiskAlertsCardLabels;
-  onSelectOption: (riskId: string, optionId: string) => void;
+  onSelectOption: (taskIds: string[], action: RiskAlertAction) => void;
 }
 
 /**
  * Presentational risk-alerts card (<150 lines). No fetching: the container
- * passes risks + labels + callback. Data arrives with T4b
- * (GET tasks/day-plan/risks); until then the web container hides this
- * card (graceful degradation) — see useDayPlanRisks.
+ * passes risks (GET tasks/day-plan/risks, T4b shape) + labels + callback.
+ * Options are read-only until the ritual (006) wires real actions.
  */
 export function RiskAlertsCard({
   risks,
   labels,
   onSelectOption,
 }: RiskAlertsCardProps) {
+  const kindLabel = (kind: RiskAlertKind): string =>
+    kind === 'overload' ? labels.overload : labels.deadlineAtRisk;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -50,22 +63,24 @@ export function RiskAlertsCard({
           <p className="text-xs text-muted-foreground">{labels.empty}</p>
         ) : (
           <ul className="space-y-2">
-            {risks.map((risk) => (
+            {risks.map((risk, i) => (
               <li
-                key={risk.id}
+                key={`${risk.kind}-${risk.taskIds.join(',')}-${i}`}
                 className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2"
               >
-                <p className="text-sm font-medium">{risk.title}</p>
+                <p className="text-sm font-medium">
+                  {kindLabel(risk.kind)}
+                </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {risk.detail}
+                  {risk.message}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {risk.options.map((option) => (
                     <Button
-                      key={option.id}
+                      key={option.action}
                       size="sm"
                       variant="outline"
-                      onClick={() => onSelectOption(risk.id, option.id)}
+                      onClick={() => onSelectOption(risk.taskIds, option.action)}
                     >
                       {option.label}
                     </Button>

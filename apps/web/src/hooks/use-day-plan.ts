@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { apiClient } from "@/lib/api-client";
 import type { DayPlanRisk, DayPlanView } from "@ordo-todo/api-client";
 
@@ -18,23 +17,12 @@ export function useDayPlan() {
 }
 
 /**
- * Day-plan risks (ODD 005 S4/T4b). Graceful degradation: the endpoint
- * does not exist yet (404) — surface `null` data instead of an error
- * so the page renders the plan without the risks card.
+ * Day-plan risks (ODD 005 S4/T4b, GET tasks/day-plan/risks).
  */
 export function useDayPlanRisks() {
-  return useQuery<DayPlanRisk[] | null>({
+  return useQuery<DayPlanRisk[]>({
     queryKey: planKeys.risks,
-    queryFn: async () => {
-      try {
-        return await apiClient.getDayPlanRisks();
-      } catch (error) {
-        if (error instanceof AxiosError && error.response?.status === 404) {
-          return null;
-        }
-        throw error;
-      }
-    },
+    queryFn: () => apiClient.getDayPlanRisks(),
     staleTime: 60_000,
     retry: false,
   });

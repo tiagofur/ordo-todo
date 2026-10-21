@@ -268,18 +268,27 @@ export interface DayPlanView {
   changes: DayPlanChange[];
 }
 
-// TODO(ODD 005 T4b rebase): confirm against RiskAlertService wire shape
-// when GET tasks/day-plan/risks lands; graceful-degrades to null until then.
+// Mirrors backend RiskAlert (risk-alerts.ts, T4b): the wire shape of
+// GET tasks/day-plan/risks.
+export type DayPlanRiskKind = 'overload' | 'deadline-at-risk';
+
+export type DayPlanRiskAction =
+  | 'reschedule'
+  | 'split-task'
+  | 'delegate'
+  | 'renegotiate'
+  | 'freeze-less'
+  | 'extend-day';
+
 export interface DayPlanRiskOption {
-  id: string;
   label: string;
+  action: DayPlanRiskAction;
 }
 
 export interface DayPlanRisk {
-  id: string;
-  taskId?: string;
-  title: string;
-  detail: string;
+  kind: DayPlanRiskKind;
+  taskIds: string[];
+  message: string;
   options: DayPlanRiskOption[];
 }
 

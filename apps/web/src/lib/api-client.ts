@@ -997,8 +997,6 @@ export const apiClient = {
     axiosInstance
       .post("/tasks/day-plan/unfreeze", { taskId })
       .then((res) => res.data),
-  // TODO(ODD 005 T4b rebase): endpoint lands with T4b; until then callers
-  // treat 404 as "no risks data" (graceful degradation, never an error).
   getDayPlanRisks: (): Promise<DayPlanRisk[]> =>
     axiosInstance.get("/tasks/day-plan/risks").then((res) => res.data),
 

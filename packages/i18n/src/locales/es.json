@@ -375,7 +375,9 @@
     },
     "risks": {
       "title": "Riesgos",
-      "empty": "Sin riesgos por hoy"
+      "empty": "Sin riesgos por hoy",
+      "overload": "Día sobrecargado",
+      "deadlineAtRisk": "Vencimiento en riesgo"
     },
     "applied": "Plan aplicado",
     "applyError": "No se pudo aplicar el plan",

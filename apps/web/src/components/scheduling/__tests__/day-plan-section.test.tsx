@@ -41,6 +41,8 @@ const LABELS = {
   changeResized: 'reajustado',
   risksTitle: 'Riesgos',
   risksEmpty: 'Sin riesgos',
+  risksOverload: 'Día sobrecargado',
+  risksDeadlineAtRisk: 'Vencimiento en riesgo',
   applied: 'Aplicado',
   applyError: 'Error aplicar',
   dismissed: 'Rechazado',
@@ -155,8 +157,8 @@ describe('DayPlanSection (ODD 005 S6)', () => {
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeDefined();
   });
 
-  it('hides risks card when risks are null (pre-T4b degradation)', async () => {
-    await mockPlanState({ risks: null });
+  it('hides risks card when there are no risks', async () => {
+    await mockPlanState({ risks: [] });
     renderSection();
 
     expect(screen.queryByText('Riesgos')).toBeNull();
@@ -166,16 +168,17 @@ describe('DayPlanSection (ODD 005 S6)', () => {
     await mockPlanState({
       risks: [
         {
-          id: 'r1',
-          title: 'El informe puede no caber hoy',
-          detail: 'Falta tiempo.',
-          options: [{ id: 'move', label: 'Mover a mañana' }],
+          kind: 'overload',
+          taskIds: ['a'],
+          message: 'El informe puede no caber hoy.',
+          options: [{ label: 'Mover a mañana', action: 'reschedule' }],
         },
       ],
     });
     renderSection();
 
     expect(screen.getByText('Riesgos')).toBeDefined();
+    expect(screen.getByText('Día sobrecargado')).toBeDefined();
     expect(
       screen.getByRole('button', { name: 'Mover a mañana' }),
     ).toBeDefined();

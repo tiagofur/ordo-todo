@@ -46,6 +46,8 @@ export default function DayPlanPage() {
             changeResized: t("changes.resized"),
             risksTitle: t("risks.title"),
             risksEmpty: t("risks.empty"),
+            risksOverload: t("risks.overload"),
+            risksDeadlineAtRisk: t("risks.deadlineAtRisk"),
             applied: t("applied"),
             applyError: t("applyError"),
             dismissed: t("dismissed"),

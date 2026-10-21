@@ -8,17 +8,19 @@ import { RiskAlertsCard } from '../risk-alerts-card';
 const labels = {
   title: 'Riesgos',
   empty: 'Sin riesgos por hoy',
+  overload: 'Día sobrecargado',
+  deadlineAtRisk: 'Vencimiento en riesgo',
 };
 
+// T4b wire shape: { kind, taskIds, message, options: [{ label, action }] }.
 const risks = [
   {
-    id: 'r1',
-    taskId: 'a',
-    title: 'El informe puede no caber hoy',
-    detail: 'Faltan 2 h y solo queda 1 h libre.',
+    kind: 'overload' as const,
+    taskIds: ['a', 'b'],
+    message: 'El plan de hoy va justo: 2 tareas no caben.',
     options: [
-      { id: 'move', label: 'Mover a mañana' },
-      { id: 'split', label: 'Partir en dos' },
+      { label: 'Mover a mañana', action: 'reschedule' as const },
+      { label: 'Partir en dos', action: 'split-task' as const },
     ],
   },
 ];
@@ -29,19 +31,21 @@ describe('RiskAlertsCard', () => {
       <RiskAlertsCard risks={risks} labels={labels} onSelectOption={vi.fn()} />,
     );
     expect(screen.getByText('Riesgos')).toBeDefined();
-    expect(screen.getByText('El informe puede no caber hoy')).toBeDefined();
-    expect(screen.getByText('Faltan 2 h y solo queda 1 h libre.')).toBeDefined();
+    expect(screen.getByText('Día sobrecargado')).toBeDefined();
+    expect(
+      screen.getByText('El plan de hoy va justo: 2 tareas no caben.'),
+    ).toBeDefined();
     expect(screen.getByRole('button', { name: 'Mover a mañana' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'Partir en dos' })).toBeDefined();
   });
 
-  it('calls onSelectOption with risk + option ids', () => {
+  it('calls onSelectOption with task ids + action', () => {
     const onSelectOption = vi.fn();
     render(
       <RiskAlertsCard risks={risks} labels={labels} onSelectOption={onSelectOption} />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Partir en dos' }));
-    expect(onSelectOption).toHaveBeenCalledWith('r1', 'split');
+    expect(onSelectOption).toHaveBeenCalledWith(['a', 'b'], 'split-task');
   });
 
   it('shows empty state without risks', () => {

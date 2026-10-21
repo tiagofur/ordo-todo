@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import type { DayPlanView } from '@ordo-todo/api-client';
+import type { DayPlanRisk, DayPlanView } from '@ordo-todo/api-client';
 import {
   useApplyDayPlan,
   useDayPlan,
@@ -59,27 +59,27 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
     expect(result.current.data).toEqual(PLAN);
   });
 
-  it('useDayPlanRisks returns null on 404 (graceful degradation pre-T4b)', async () => {
+  it('useDayPlanRisks returns the risks list', async () => {
     const { apiClient } = await import('@/lib/api-client');
-    const { AxiosError, AxiosHeaders } = await import('axios');
-    const notFound = new AxiosError(
-      'Not Found', '404', undefined, undefined,
+    const risks: DayPlanRisk[] = [
       {
-        status: 404, statusText: 'Not Found', headers: {},
-        config: { headers: new AxiosHeaders() }, data: {},
+        kind: 'overload',
+        taskIds: ['b'],
+        message: 'Tight day',
+        options: [{ label: 'Move', action: 'reschedule' }],
       },
-    );
-    vi.mocked(apiClient.getDayPlanRisks).mockRejectedValue(notFound);
+    ];
+    vi.mocked(apiClient.getDayPlanRisks).mockResolvedValue(risks);
 
     const { result } = renderHook(() => useDayPlanRisks(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toEqual(risks);
   });
 
-  it('useDayPlanRisks rethrows non-404 errors', async () => {
+  it('useDayPlanRisks surfaces errors', async () => {
     const { apiClient } = await import('@/lib/api-client');
     vi.mocked(apiClient.getDayPlanRisks).mockRejectedValue(new Error('boom'));
 

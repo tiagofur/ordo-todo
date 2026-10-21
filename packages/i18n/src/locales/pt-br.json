@@ -375,7 +375,9 @@
     },
     "risks": {
       "title": "Riscos",
-      "empty": "Sem riscos para hoje"
+      "empty": "Sem riscos para hoje",
+      "overload": "Dia sobrecarregado",
+      "deadlineAtRisk": "Prazo em risco"
     },
     "applied": "Plano aplicado",
     "applyError": "Não foi possível aplicar o plano",
