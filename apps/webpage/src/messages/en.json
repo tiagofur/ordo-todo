@@ -13,7 +13,7 @@
     },
     "privacy": {
       "title": "Privacy-First",
-      "description": "Your data stays yours. End-to-end encryption and no data selling. Ever."
+      "description": "Your data stays yours. Sign in with your account (Google/GitHub OAuth or password), encryption in transit (TLS), and workspace-scoped access controls. No data selling. Ever."
     },
     "ai_helps": {
       "title": "AI That Helps, Not Takes Over",
@@ -122,7 +122,7 @@
       "description": "AI predicts how long tasks will take based on similar tasks you've completed before.",
       "benefit": "Better planning"
     },
-    "ai_statement": "AI that respects your privacy. All processing happens securely."
+    "ai_statement": "AI analyzes your tasks through an external provider (Google Gemini). You can turn AI features on or off in settings."
   },
   "BlogPreview": {
     "badge": "From Our Blog",
@@ -598,12 +598,12 @@
   "Pricing": {
     "badge": "Simple Pricing",
     "title": "Choose Your Plan",
-    "subtitle": "Start free, upgrade when you need more. No hidden fees, cancel anytime.",
+    "subtitle": "Start free. Paid plans are in beta and subject to change: billing is not live yet.",
     "most_popular": "Most Popular",
     "questions": "Have questions about our plans?",
     "view_faq": "View FAQ →",
-    "guarantee_title": "30-Day Money-Back Guarantee",
-    "guarantee_text": "Try any paid plan risk-free. If you're not satisfied, we'll refund your payment within 30 days.",
+    "guarantee_title": "Beta pricing",
+    "guarantee_text": "These plans are subject to change: billing is not live yet and no limits are enforced. What you see here is intent, not a contract.",
     "plans": {
       "free": {
         "name": "Free",

@@ -13,7 +13,7 @@
     },
     "privacy": {
       "title": "Privacidade em Primeiro Lugar",
-      "description": "Seus dados são seus. Criptografia de ponta a ponta e nunca vendemos dados. Jamais."
+      "description": "Seus dados são seus. Acesso com sua conta (OAuth de Google/GitHub ou senha), criptografia em trânsito (TLS) e controles de acesso por espaço de trabalho. Nunca vendemos dados. Jamais."
     },
     "ai_helps": {
       "title": "IA Que Ajuda, Não Controla",
@@ -122,7 +122,7 @@
       "description": "A IA prevê quanto tempo as tarefas levarão com base em tarefas similares que você concluiu antes.",
       "benefit": "Melhor planejamento"
     },
-    "ai_statement": "IA que respeita sua privacidade. Todo o processamento acontece de forma segura."
+    "ai_statement": "A IA analisa suas tarefas por meio de um provedor externo (Google Gemini). Você pode ativar ou desativar os recursos de IA nas configurações."
   },
   "BlogPreview": {
     "badge": "Do Nosso Blog",
@@ -598,12 +598,12 @@
   "Pricing": {
     "badge": "Preços Simples",
     "title": "Escolha Seu Plano",
-    "subtitle": "Comece grátis, atualize quando precisar de mais. Sem taxas ocultas, cancele quando quiser.",
+    "subtitle": "Comece grátis. Os planos pagos estão em beta e sujeitos a mudanças: a cobrança ainda não está ativa.",
     "most_popular": "Mais Popular",
     "questions": "Tem perguntas sobre nossos planos?",
     "view_faq": "Ver FAQ →",
-    "guarantee_title": "Garantia de 30 Dias",
-    "guarantee_text": "Experimente qualquer plano pago sem risco. Se não estiver satisfeito, reembolsamos em 30 dias.",
+    "guarantee_title": "Preços em beta",
+    "guarantee_text": "Estes planos estão sujeitos a mudanças: a cobrança ainda não está ativa e nenhum limite é aplicado. O que você vê aqui é intenção, não contrato.",
     "plans": {
       "free": {
         "name": "Grátis",

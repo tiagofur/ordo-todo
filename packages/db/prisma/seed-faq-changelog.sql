@@ -19,16 +19,16 @@ VALUES
 -- Billing FAQs
 INSERT INTO "FAQ" (id, question, answer, category, "order", published, "createdAt", "updatedAt")
 VALUES
-  (gen_random_uuid()::text, 'What payment methods do you accept?', 'We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers for annual plans. Enterprise customers can also pay by invoice.', 'Billing', 1, true, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Can I cancel my subscription anytime?', 'Yes, you can cancel your subscription at any time. Your access will continue until the end of your current billing period. We don''t offer refunds for partial months.', 'Billing', 2, true, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Is there a money-back guarantee?', 'Yes! We offer a 30-day money-back guarantee. If you''re not satisfied with Ordo Todo, contact us within 30 days for a full refund.', 'Billing', 3, true, NOW(), NOW());
+  (gen_random_uuid()::text, 'What payment methods do you accept?', 'Billing is not live yet: all features are currently free while paid plans are in beta. We will announce supported payment methods before charging anything.', 'Billing', 1, true, NOW(), NOW()),
+  (gen_random_uuid()::text, 'Can I cancel my subscription anytime?', 'There is nothing to cancel yet: billing is not live and every account is currently free. Paid plans are in beta and subject to change.', 'Billing', 2, true, NOW(), NOW()),
+  (gen_random_uuid()::text, 'Is there a money-back guarantee?', 'There is nothing to refund yet: billing is not live. When paid plans launch, the refund policy will be published here first.', 'Billing', 3, true, NOW(), NOW());
 
 -- Privacy & Security FAQs
 INSERT INTO "FAQ" (id, question, answer, category, "order", published, "createdAt", "updatedAt")
 VALUES
-  (gen_random_uuid()::text, 'How is my data protected?', 'We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Your data is stored in secure, SOC 2 compliant data centers.', 'Privacy & Security', 1, true, NOW(), NOW()),
+  (gen_random_uuid()::text, 'How is my data protected?', 'Your account is protected with secure sign-in (Google/GitHub OAuth or password), encrypted connections (TLS), and workspace-scoped access controls. A full data policy ships with our enterprise release.', 'Privacy & Security', 1, true, NOW(), NOW()),
   (gen_random_uuid()::text, 'Do you sell my data?', 'Never. Your data is yours. We don''t sell, share, or monetize your personal information. Our business model is based on subscriptions, not advertising.', 'Privacy & Security', 2, true, NOW(), NOW()),
-  (gen_random_uuid()::text, 'Can I export my data?', 'Yes! You can export all your data at any time in JSON or CSV format. We believe in data portability and never lock you in.', 'Privacy & Security', 3, true, NOW(), NOW());
+  (gen_random_uuid()::text, 'Can I export my data?', 'Yes! You can export all your data at any time in JSON format from your settings. We believe in data portability and never lock you in.', 'Privacy & Security', 3, true, NOW(), NOW());
 
 -- Clear existing Changelog entries
 DELETE FROM "ChangelogEntry";
