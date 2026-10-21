@@ -6,6 +6,7 @@ import { Button } from '@ordo-todo/ui';
 import { Link } from '@/i18n/routing';
 import { ArrowRight, Play, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
+import { appLink } from '@/lib/app-url';
 
 export function Hero() {
   const t = useTranslations('Hero');
@@ -128,7 +129,7 @@ export function Hero() {
               transition={{ delay: 0.6 }}
               className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <a href="https://ordotodo.app/register" target="_blank" rel="noreferrer">
+              <a href={appLink("/register")} target="_blank" rel="noreferrer">
                 <Button 
                   size="lg" 
                   className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-[#d946ef] hover:bg-[#c026d3] text-white border-0 shadow-[0_0_20px_rgba(217,70,239,0.4)] transition-all duration-300 group"
@@ -174,7 +175,7 @@ export function Hero() {
                 ))}
               </div>
               <div className="text-sm text-muted-foreground">
-                <span className="font-bold text-foreground">2,500+</span> {t('social_proof')}
+                {t('social_proof')}
               </div>
             </motion.div>
           </motion.div>

@@ -8,9 +8,7 @@ export function Testimonials() {
   const t = useTranslations('Testimonials');
 
   const testimonials = [
-    { id: 'user1', avatar: 'MG', rating: 5, color: '#06B6D4' },
-    { id: 'user2', avatar: 'CR', rating: 5, color: '#EC4899' },
-    { id: 'user3', avatar: 'AM', rating: 5, color: '#F97316' },
+    { id: 'user1', avatar: '?', rating: 5, color: '#06B6D4' },
   ];
 
   return (

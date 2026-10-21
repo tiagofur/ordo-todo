@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Button } from '@ordo-todo/ui';
 import { ArrowRight, Sparkles, Check } from 'lucide-react';
+import { appLink } from '@/lib/app-url';
 
 export function CallToAction() {
   const t = useTranslations('CTA');
@@ -62,7 +63,7 @@ export function CallToAction() {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://ordotodo.app/register" target="_blank" rel="noreferrer">
+            <a href={appLink("/register")} target="_blank" rel="noreferrer">
               <Button 
                 size="lg" 
                 className="w-full sm:w-auto h-14 px-10 text-lg font-semibold bg-white text-[#EC4899] hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 group"
@@ -71,7 +72,7 @@ export function CallToAction() {
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </a>
-            <a href="https://ordotodo.app/login" target="_blank" rel="noreferrer">
+            <a href={appLink("/login")} target="_blank" rel="noreferrer">
               <Button 
                 size="lg" 
                 variant="outline"

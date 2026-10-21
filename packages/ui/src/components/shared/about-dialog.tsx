@@ -61,10 +61,10 @@ export function AboutDialog({
   labels = {},
 }: AboutDialogProps) {
   const t = { ...DEFAULT_LABELS, ...labels };
+  // No verified production domain yet (ODD 013 S10): only GitHub is
+  // defaulted; website/docs render only when the caller provides them.
   const defaultLinks = {
-    website: 'https://ordo-todo.com',
     github: 'https://github.com/tiagofur/ordo-todo',
-    docs: 'https://ordo-todo.com/docs',
     ...links,
   };
 

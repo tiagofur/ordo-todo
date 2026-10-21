@@ -6,6 +6,7 @@ import { Button } from '@ordo-todo/ui';
 import { motion } from 'framer-motion';
 import { Menu, X, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { appLink } from '@/lib/app-url';
 
 export function Navigation() {
   const t = useTranslations('Navigation');
@@ -79,12 +80,12 @@ export function Navigation() {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="https://ordotodo.app/login" target="_blank" rel="noreferrer">
+          <a href={appLink("/login")} target="_blank" rel="noreferrer">
             <Button variant="ghost" size="sm" className="text-sm font-medium hover:text-[#06B6D4]">
               {t('login')}
             </Button>
           </a>
-          <a href="https://ordotodo.app/register" target="_blank" rel="noreferrer">
+          <a href={appLink("/register")} target="_blank" rel="noreferrer">
             <Button 
               size="sm" 
               className="bg-[#06B6D4] hover:bg-[#0891B2] text-white border-0 shadow-lg shadow-[#06B6D4]/25"
@@ -155,10 +156,10 @@ export function Navigation() {
               {t('roadmap')}
             </Link>
             <div className="flex flex-col gap-3 pt-4 border-t">
-              <a href="https://ordotodo.app/login" target="_blank" rel="noreferrer">
+              <a href={appLink("/login")} target="_blank" rel="noreferrer">
                 <Button variant="outline" className="w-full">{t('login')}</Button>
               </a>
-              <a href="https://ordotodo.app/register" target="_blank" rel="noreferrer">
+              <a href={appLink("/register")} target="_blank" rel="noreferrer">
                 <Button className="w-full bg-[#06B6D4] hover:bg-[#0891B2] text-white border-0">
                   {t('register')}
                 </Button>

@@ -408,8 +408,10 @@ export function ProfileTabs({
 
   const handleCopyProfileUrl = () => {
     const handle = profile?.username || "user";
-    const url = `https://ordotodo.app/@${handle}`;
-    navigator.clipboard?.writeText(url);
+    // No verified production domain yet (ODD 013 S10): copy the local
+    // handle instead of a fake URL. When business provides the domain,
+    // restore `https://${domain}/@${handle}` here and below.
+    navigator.clipboard?.writeText(`@${handle}`);
     setHasCopiedUrl(true);
     setTimeout(() => setHasCopiedUrl(false), 2000);
   };
@@ -590,9 +592,9 @@ export function ProfileTabs({
                   <AtSign className="h-4 w-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">Change Public Username</span>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">
-                  ordotodo.app/@{username || "username"}
-                </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              @{username || "username"}
+            </span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">

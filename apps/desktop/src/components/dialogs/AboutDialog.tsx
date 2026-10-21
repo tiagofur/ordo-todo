@@ -35,9 +35,9 @@ export function AboutDialog() {
         </div>
       )}
       links={{
-        website: "https://ordo-todo.com",
+        // No verified production domain yet (ODD 013 S10): website/docs
+        // omitted until business provides one. GitHub is the canonical link.
         github: "https://github.com/tiagofur/ordo-todo",
-        docs: "https://ordo-todo.com/docs",
       }}
       labels={{
         title: "Ordo-Todo",

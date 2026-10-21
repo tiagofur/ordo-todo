@@ -218,7 +218,6 @@ Las notas de cada versión están disponibles en:
 
 - **GitHub Issues**: [Reportar un bug](https://github.com/tiagofur/ordo-todo/issues)
 - **Documentación**: [Wiki del proyecto](https://github.com/tiagofur/ordo-todo/wiki)
-- **Email**: support@ordo-todo.com
 
 ---
 

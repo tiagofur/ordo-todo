@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { APP_URL } from '@/lib/app-url';
 
 interface User {
   id: string;
@@ -20,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://ordotodo.app';
+// APP_URL comes from @/lib/app-url (env or '' — no foreign-domain fallback).
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

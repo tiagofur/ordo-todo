@@ -464,11 +464,11 @@ Use different URLs per environment:
 # .env.development
 EXPO_PUBLIC_API_URL=http://localhost:3001/api/v1
 
-# .env.staging
-EXPO_PUBLIC_API_URL=https://staging-api.ordo-todo.com/api/v1
+# .env.staging (replace with your real staging host)
+EXPO_PUBLIC_API_URL=https://staging-api.example.com/api/v1
 
-# .env.production
-EXPO_PUBLIC_API_URL=https://api.ordo-todo.com/api/v1
+# .env.production (replace with your real production host)
+EXPO_PUBLIC_API_URL=https://api.example.com/api/v1
 ```
 
 ### Error Tracking

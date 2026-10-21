@@ -198,9 +198,7 @@ Features:
 Complete guide to master Ordo-Todo:
 
 - **[User Guide (docs/USER_GUIDE.md)](./docs/USER_GUIDE.md)** - Full documentation
-- **[Online Guide (EN)](https://ordo-todo.com/en/guide)** - Interactive web version
-- **[Guia (ES)](https://ordo-todo.com/es/guide)** - Version en espanol
-- **[Guia (PT-BR)](https://ordo-todo.com/pt-br/guide)** - Versao em portugues
+- Online interactive guide: coming with the verified production domain (see ODD 013 S10)
 
 ### Technical Documentation
 
