@@ -10,6 +10,7 @@ import {
   CalendarDays,
   Download,
   Sparkles,
+  Sunrise,
   Target,
   Users,
 } from "lucide-react";
@@ -58,6 +59,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
         { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
         { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
+        { name: t("ritual"), href: "/ritual", icon: Sunrise, color: "orange" },
       ],
     },
     {
