@@ -93,24 +93,7 @@ export default function FocusGuide() {
       </div>
 
       <h2>{t('shortcuts_title')}</h2>
-      <div className="not-prose overflow-hidden rounded-xl border">
-        <table className="w-full text-sm">
-          <tbody className="divide-y">
-            <tr className="bg-card">
-              <td className="px-4 py-3"><kbd className="px-2 py-1 rounded bg-muted text-xs font-mono">Space</kbd></td>
-              <td className="px-4 py-3 text-muted-foreground">{t('shortcuts.space')}</td>
-            </tr>
-            <tr className="bg-card">
-              <td className="px-4 py-3"><kbd className="px-2 py-1 rounded bg-muted text-xs font-mono">R</kbd></td>
-              <td className="px-4 py-3 text-muted-foreground">{t('shortcuts.r')}</td>
-            </tr>
-            <tr className="bg-card">
-              <td className="px-4 py-3"><kbd className="px-2 py-1 rounded bg-muted text-xs font-mono">S</kbd></td>
-              <td className="px-4 py-3 text-muted-foreground">{t('shortcuts.s')}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p className="text-muted-foreground">{t('shortcuts_note')}</p>
 
       {/* Tip */}
       <div className="not-prose p-6 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 mt-8">

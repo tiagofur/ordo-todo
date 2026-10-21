@@ -401,13 +401,9 @@
       "4": "Take your break, then repeat!"
     },
     "shortcuts_title": "Keyboard Shortcuts",
-    "shortcuts": {
-      "space": "Start/Pause timer",
-      "r": "Reset timer",
-      "s": "Skip to break"
-    },
     "pro_tip": "Pro Tip",
-    "pro_tip_text": "Enable \"Focus Mode\" in settings to hide all notifications and distractions during your focus sessions. Your productivity will thank you!"
+    "pro_tip_text": "Enable \"Focus Mode\" in settings to hide all notifications and distractions during your focus sessions. Your productivity will thank you!",
+    "shortcuts_note": "The timer is controlled with on-screen buttons. Global keyboard shortcuts are in the tasks guide."
   },
   "GuideProjects": {
     "badge": "Projects & Boards",
@@ -446,9 +442,8 @@
       }
     },
     "pro_tip": "Pro Tip",
-    "pro_tip_text": "Use keyboard shortcut",
-    "pro_tip_shortcut": "V",
-    "pro_tip_end": "to quickly toggle between Kanban and List views!"
+    "pro_tip_text": "Tip:",
+    "pro_tip_end": "Use the view buttons above the project to quickly switch between Kanban and List."
   },
   "GuideTasks": {
     "badge": "Task Management",
@@ -459,7 +454,7 @@
     "creating_title": "Creating a Task",
     "quick_add": "Quick Add",
     "quick_add_text": "Press",
-    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_shortcut": "N (outside text fields) or Cmd/Ctrl + N",
     "quick_add_end": "anywhere to create a new task",
     "or_click": "Or click the \"+\" button in any project to add a task directly to that project.",
     "features_title": "Task Features",

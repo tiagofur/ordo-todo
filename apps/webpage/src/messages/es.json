@@ -401,13 +401,9 @@
       "4": "Toma tu descanso, ¡luego repite!"
     },
     "shortcuts_title": "Atajos de Teclado",
-    "shortcuts": {
-      "space": "Iniciar/Pausar timer",
-      "r": "Reiniciar timer",
-      "s": "Saltar a descanso"
-    },
     "pro_tip": "Consejo Pro",
-    "pro_tip_text": "Activa el \"Modo Enfoque\" en configuración para ocultar notificaciones y distracciones durante tus sesiones. ¡Tu productividad te lo agradecerá!"
+    "pro_tip_text": "Activa el \"Modo Enfoque\" en configuración para ocultar notificaciones y distracciones durante tus sesiones. ¡Tu productividad te lo agradecerá!",
+    "shortcuts_note": "El timer se controla con los botones en pantalla. Los atajos de teclado globales están en la guía de tareas."
   },
   "GuideProjects": {
     "badge": "Proyectos y Tableros",
@@ -446,9 +442,8 @@
       }
     },
     "pro_tip": "Consejo Pro",
-    "pro_tip_text": "Usa el atajo de teclado",
-    "pro_tip_shortcut": "V",
-    "pro_tip_end": "para alternar rápidamente entre vistas Kanban y Lista!"
+    "pro_tip_text": "Consejo:",
+    "pro_tip_end": "Usa los botones de vista encima del proyecto para alternar rápidamente entre Kanban y Lista."
   },
   "GuideTasks": {
     "badge": "Gestión de Tareas",
@@ -459,7 +454,7 @@
     "creating_title": "Crear una Tarea",
     "quick_add": "Añadir Rápido",
     "quick_add_text": "Presiona",
-    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_shortcut": "N (fuera de campos de texto) o Cmd/Ctrl + N",
     "quick_add_end": "en cualquier lugar para crear una nueva tarea",
     "or_click": "O haz clic en el botón \"+\" en cualquier proyecto para añadir una tarea directamente.",
     "features_title": "Funciones de Tareas",
