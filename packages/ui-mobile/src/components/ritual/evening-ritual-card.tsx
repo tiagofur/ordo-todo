@@ -56,7 +56,11 @@ export function EveningRitualCard({
     moves[taskId] ?? { taskId, destination: 'tomorrow', reason: 'overran' };
 
   const setMove = (taskId: string, patch: Partial<MobileEveningMove>) =>
-    setMoves((prev) => ({ ...prev, [taskId]: { ...moveOf(taskId), ...patch } }));
+    setMoves((prev) => {
+      const next = { ...moveOf(taskId), ...patch };
+      if (next.destination !== 'date') delete next.date;
+      return { ...prev, [taskId]: next };
+    });
 
   return (
     <Card style={styles.card}>
@@ -85,8 +89,7 @@ export function EveningRitualCard({
       </Text>
       {pending.length === 0 ? (
         <Text style={styles.muted}>{labels.pendingEmpty}</Text>
-      ) : (
-        status === 'PENDING' &&
+      ) : status === 'PENDING' ? (
         pending.map((task) => (
           <EveningMovePicker
             key={task.taskId}
@@ -105,6 +108,10 @@ export function EveningRitualCard({
             }}
             onChange={setMove}
           />
+        ))
+      ) : (
+        pending.map((task) => (
+          <Text key={task.taskId} style={styles.rowTitle}>{task.title}</Text>
         ))
       )}
       {shutdownComplete && (

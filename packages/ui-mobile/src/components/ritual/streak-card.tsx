@@ -26,8 +26,9 @@ interface StreakCardProps {
 }
 
 export function StreakCard({ current, longest, milestones, labels }: StreakCardProps) {
-  const reached = [...milestones].filter((m) => current >= m).pop();
-  const next = [...milestones].sort((a, b) => a - b).find((m) => m > current);
+  const sorted = [...milestones].sort((a, b) => a - b);
+  const reached = sorted.filter((m) => current >= m).pop();
+  const next = sorted.find((m) => m > current);
 
   return (
     <Card style={styles.card}>

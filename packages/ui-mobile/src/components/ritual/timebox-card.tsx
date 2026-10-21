@@ -31,8 +31,6 @@ export interface TimeboxCardLabels {
   endLabel: string;
   save: string;
   acceptProposal: string;
-  saved: string;
-  saveError: string;
 }
 
 interface TimeboxCardProps {

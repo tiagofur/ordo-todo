@@ -16,12 +16,18 @@ const mockMutateCompleteMorning = jest.fn();
 const mockMutateSkipMorning = jest.fn();
 const mockMutateCompleteEvening = jest.fn();
 const mockMutateAcceptTimebox = jest.fn();
+// Overridable evening state for the loading-gate test (B1 parity).
+let mockEveningState: { data: unknown; isLoading: boolean; isError: boolean } = {
+  data: null,
+  isLoading: false,
+  isError: false,
+};
 
 jest.mock('@/app/lib/ritual-hooks', () => ({
   useMorningRitual: () => ({ data: mockMorning, isLoading: false, isError: false, refetch: jest.fn() }),
   useCompleteMorning: () => ({ mutate: mockMutateCompleteMorning }),
   useSkipMorning: () => ({ mutate: mockMutateSkipMorning }),
-  useEveningRitual: () => ({ data: mockEvening }),
+  useEveningRitual: () => ({ ...mockEveningState, refetch: jest.fn() }),
   useCompleteEvening: () => ({ mutate: mockMutateCompleteEvening }),
   useSkipEvening: () => ({ mutate: jest.fn() }),
   useStreak: () => ({ data: { current: 5, longest: 9 } }),
@@ -66,6 +72,7 @@ jest.mock('react-i18next', () => ({
 describe('RitualScreen (ODD 006 S6)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockEveningState = { data: mockEvening, isLoading: false, isError: false };
     (useThemeColors as jest.Mock).mockReturnValue({
       card: '#FFF',
       background: '#F5F5F5',
@@ -117,5 +124,19 @@ describe('RitualScreen (ODD 006 S6)', () => {
     const { queryByText } = render(<RitualScreen />);
     // Morning ritual is PENDING in the mock, so the accept button must not show.
     expect(queryByText('Ritual.timebox.acceptProposal')).toBeNull();
+  });
+
+  it('gates evening actions until evening loads (B1 parity: no phantom close)', () => {
+    mockEveningState = { data: null, isLoading: true, isError: false };
+    const { queryByText, unmount } = render(<RitualScreen />);
+
+    expect(queryByText('Ritual.evening.title')).toBeNull();
+    expect(queryByText('Ritual.evening.complete')).toBeNull();
+    unmount();
+
+    mockEveningState = { data: null, isLoading: false, isError: true };
+    const retry = render(<RitualScreen />);
+    expect(retry.queryByText('Ritual.evening.title')).toBeNull();
+    expect(retry.queryByText('Ritual.retry')).toBeTruthy();
   });
 });

@@ -6,7 +6,7 @@
  * callbacks, no fetching. Hours/date-keys render raw (strings).
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../ui/text';
 import { Button } from '../ui/button';
@@ -63,6 +63,19 @@ export function MorningRitualCard({
     suggestedTop3.filter((id) => planBlocks.some((b) => b.taskId === id)).slice(0, 3),
   );
 
+  // Resync when fresh props arrive (suggestion or plan changed); the user
+  // selection otherwise sticks for the session.
+  const suggestedKey = [...suggestedTop3].sort().join(',');
+  const planKey = planBlocks.map((b) => b.taskId).join(',');
+  useEffect(() => {
+    setSelected(
+      suggestedTop3
+        .filter((id) => planBlocks.some((b) => b.taskId === id))
+        .slice(0, 3),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedKey, planKey]);
+
   const toggle = (taskId: string) => {
     setSelected((prev) =>
       prev.includes(taskId)
@@ -91,6 +104,9 @@ export function MorningRitualCard({
             style={[styles.row, selected.includes(block.taskId) && styles.rowSelected]}
             onPress={() => status === 'PENDING' && toggle(block.taskId)}
             disabled={status !== 'PENDING'}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: selected.includes(block.taskId) }}
+            accessibilityLabel={block.title}
           >
             <Text style={styles.rowTitle}>{block.title}</Text>
             <Text style={styles.muted}>{`${block.start} – ${block.end}`}</Text>

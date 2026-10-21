@@ -56,7 +56,11 @@ export function EveningMovePicker({
   return (
     <View style={styles.pendingBox}>
       <Text style={styles.rowTitle}>{title}</Text>
-      <View style={styles.chips}>
+      <View
+        style={styles.chips}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={`${title} — destino`}
+      >
         {destinations.map((d) => (
           <TouchableOpacity
             key={d.value}
@@ -76,7 +80,11 @@ export function EveningMovePicker({
           onChangeText={(date) => onChange(taskId, { date })}
         />
       )}
-      <View style={styles.chips}>
+      <View
+        style={styles.chips}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={`${title} — razón`}
+      >
         {reasons.map((r) => (
           <TouchableOpacity
             key={r.value}

@@ -28,7 +28,7 @@ const planBlocks = [
 
 describe('MorningRitualCard (mobile)', () => {
   it('renders plan blocks, overdue and suggested top-3', () => {
-    const { getByText } = render(
+    const { getByText, UNSAFE_getByProps } = render(
       <MorningRitualCard
         planBlocks={planBlocks}
         overdue={[{ taskId: 'z', title: 'Vieja pendiente', dueDateKey: '2026-10-18' }]}
@@ -43,6 +43,11 @@ describe('MorningRitualCard (mobile)', () => {
     expect(getByText('Escribir informe')).toBeTruthy();
     expect(getByText('09:00 – 10:00')).toBeTruthy();
     expect(getByText('Vieja pendiente')).toBeTruthy();
+    // Suggested top-3 preselected: 'a' checked, 'b' unchecked.
+    const boxA = UNSAFE_getByProps({ accessibilityLabel: 'Escribir informe' });
+    const boxB = UNSAFE_getByProps({ accessibilityLabel: 'Llamar cliente' });
+    expect(boxA.props.accessibilityState).toEqual({ checked: true });
+    expect(boxB.props.accessibilityState).toEqual({ checked: false });
   });
 
   it('toggles the top-3 and completes with the selection', () => {

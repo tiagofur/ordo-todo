@@ -8,6 +8,7 @@
  */
 import React, { useMemo, useState } from 'react';
 import {
+  Alert,
   View,
   Text,
   StyleSheet,
@@ -44,7 +45,12 @@ export default function RitualScreen() {
   const colors = useThemeColors();
   const { t } = useTranslation();
   const { data: morning, isLoading, isError, refetch } = useMorningRitual();
-  const { data: evening } = useEveningRitual();
+  const {
+    data: evening,
+    isLoading: eveningLoading,
+    isError: eveningError,
+    refetch: refetchEvening,
+  } = useEveningRitual();
   const { data: streak } = useStreak();
   const { data: tasks } = useTasks();
   const completeMorning = useCompleteMorning();
@@ -144,12 +150,29 @@ export default function RitualScreen() {
           endLabel: t('Ritual.timebox.end'),
           save: t('Ritual.timebox.save'),
           acceptProposal: t('Ritual.timebox.acceptProposal'),
-          saved: t('Ritual.timebox.saved'),
-          saveError: t('Ritual.timebox.saveError'),
         }}
         onSave={(blocks: MobileTimeboxBlock[]) => saveTimebox.mutate(blocks)}
         onAcceptProposal={() => acceptTimebox.mutate()}
       />
+      {eveningLoading || !evening ? (
+        <View style={[styles.center, { backgroundColor: colors.background }]}>
+          {eveningLoading && !eveningError ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <>
+              <Text style={{ color: colors.textMuted }}>
+                {t('Ritual.loadError')}
+              </Text>
+              <TouchableOpacity
+                style={[styles.retry, { backgroundColor: colors.primary }]}
+                onPress={() => refetchEvening()}
+              >
+                <Text style={styles.retryText}>{t('Ritual.retry')}</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      ) : (
       <EveningRitualCard
         summary={eveningSummary(evening?.summary)}
         completed={(evening?.completed ?? []).map((item) => ({
@@ -187,11 +210,20 @@ export default function RitualScreen() {
         }}
         onComplete={(moves: MobileEveningMove[]) =>
           completeEvening.mutate(moves as RitualEveningMove[], {
-            onSuccess: (result) => setShutdownSuggestion(result.suggestion),
+            onSuccess: (result) => {
+              setShutdownSuggestion(result.suggestion);
+              if (result.unmoved.length > 0) {
+                Alert.alert(
+                  t('Ritual.evening.unmoved'),
+                  result.unmoved.map(titleOf).join(', '),
+                );
+              }
+            },
           })
         }
         onSkip={() => skipEvening.mutate()}
       />
+      )}
       {streak ? (
         <StreakCard
           current={streak.current}
