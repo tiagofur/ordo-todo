@@ -459,7 +459,7 @@
     "creating_title": "Crear una Tarea",
     "quick_add": "Añadir Rápido",
     "quick_add_text": "Presiona",
-    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_shortcut": "N (fuera de campos de texto) o Cmd/Ctrl + N",
     "quick_add_end": "en cualquier lugar para crear una nueva tarea",
     "or_click": "O haz clic en el botón \"+\" en cualquier proyecto para añadir una tarea directamente.",
     "features_title": "Funciones de Tareas",

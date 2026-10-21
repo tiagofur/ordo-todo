@@ -98,7 +98,7 @@ ordo-todo/
 │   ├── backend/          # NestJS - REST API
 │   ├── mobile/           # React Native + Expo
 │   ├── desktop/          # Electron + React
-│   └── webpage/          # Astro 5 - Promotional site (3 languages)
+│   └── webpage/          # Next.js - Promotional site (3 languages)
 │
 ├── packages/
 │   ├── core/             # Domain logic (entities, use cases, validation)
@@ -115,7 +115,7 @@ ordo-todo/
 │   ├── design/           # PRD, Architecture, Wireframes
 │   └── ROADMAP.md        # Development roadmap
 │
-└── webpage/              # Promotional website (Astro)
+└── webpage/              # Promotional website (Next.js)
     └── src/pages/        # /en, /es, /pt-br
 ```
 
@@ -175,7 +175,7 @@ Features:
 - Native notifications
 - Auto-updates
 
-### Promotional Website (Astro 5)
+### Promotional Website (Next.js)
 
 ```bash
 cd webpage
@@ -197,7 +197,7 @@ Features:
 
 Complete guide to master Ordo-Todo:
 
-- **[User Guide (docs/USER_GUIDE.md)](./docs/USER_GUIDE.md)** - Full documentation
+- **[User Guide (apps/desktop/USER_GUIDE.md)](./apps/desktop/USER_GUIDE.md)** - Full documentation (desktop user guide; web/mobile guides live in-app)
 - Online interactive guide: coming with the verified production domain (see ODD 013 S10)
 
 ### Technical Documentation
@@ -205,10 +205,10 @@ Complete guide to master Ordo-Todo:
 | Document | Description |
 |----------|-------------|
 | [PRD.md](./docs/design/PRD.md) | Product Requirements Document |
-| [ARCHITECTURE.md](./docs/design/ARCHITECTURE.md) | DDD + Clean Architecture |
-| [ROADMAP.md](./docs/ROADMAP.md) | Development roadmap |
-| [COMPONENT_GUIDELINES.md](./docs/COMPONENT_GUIDELINES.md) | UI component patterns |
-| [PROJECT_ORGANIZATION.md](./docs/PROJECT_ORGANIZATION.md) | File organization rules |
+| [Architecture](./docs/guides/architecture/overview.md) | DDD + Clean Architecture |
+| [Roadmap](./docs/planning/roadmap.md) | Development roadmap |
+| [DESIGN_GUIDELINES.md](./docs/design/DESIGN_GUIDELINES.md) | UI component patterns |
+| [monorepo.md](./docs/guides/architecture/monorepo.md) | File organization rules |
 | [CLAUDE.md](./CLAUDE.md) | AI assistant context |
 
 ### API Reference
@@ -296,7 +296,7 @@ Built with passion by the Ordo-Todo Team
 
 ## Espanol
 
-Ordo-Todo es una aplicacion de gestion de tareas de proxima generacion. Lee la [Guia de Usuario](./docs/USER_GUIDE.md) para comenzar.
+Ordo-Todo es una aplicacion de gestion de tareas de proxima generacion. Lee la [Guia de Usuario](./apps/desktop/USER_GUIDE.md) para comenzar.
 
 ### Caracteristicas Principales
 
@@ -335,7 +335,7 @@ git push -u origin main
 
 ## Portugues
 
-Ordo-Todo e um aplicativo de gerenciamento de tarefas de proxima geracao. Leia o [Guia do Usuario](./docs/USER_GUIDE.md) para comecar.
+Ordo-Todo e um aplicativo de gerenciamento de tarefas de proxima geracao. Leia o [Guia do Usuario](./apps/desktop/USER_GUIDE.md) para comecar.
 
 ### Recursos Principais
 

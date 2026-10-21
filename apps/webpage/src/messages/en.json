@@ -459,7 +459,7 @@
     "creating_title": "Creating a Task",
     "quick_add": "Quick Add",
     "quick_add_text": "Press",
-    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_shortcut": "N (outside text fields) or Cmd/Ctrl + N",
     "quick_add_end": "anywhere to create a new task",
     "or_click": "Or click the \"+\" button in any project to add a task directly to that project.",
     "features_title": "Task Features",
