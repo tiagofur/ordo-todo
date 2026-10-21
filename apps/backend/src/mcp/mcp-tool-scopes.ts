@@ -23,4 +23,6 @@ export const MCP_TOOL_SCOPES: Record<string, string> = {
   ordo_objective_progress: 'read',
   ordo_me: 'read',
   ordo_ping: 'read',
+  ordo_day_plan: 'read',
+  ordo_day_plan_apply: 'tasks:write',
 };

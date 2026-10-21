@@ -5,6 +5,7 @@ import { McpProtocolService } from './mcp-protocol.service';
 import { McpCatalogService } from './mcp-catalog.service';
 import { V1TasksService } from '../v1/v1-tasks.service';
 import { TasksService } from '../tasks/tasks.service';
+import { DayPlanService } from '../tasks/day-plan.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
@@ -30,6 +31,8 @@ const EXPECTED_TOOLS = [
   'ordo_objective_progress',
   'ordo_me',
   'ordo_ping',
+  'ordo_day_plan',
+  'ordo_day_plan_apply',
 ];
 
 describe('McpCatalogService (against official SDK client)', () => {
@@ -44,6 +47,22 @@ describe('McpCatalogService (against official SDK client)', () => {
   };
   const mockTasksService = {
     complete: jest.fn().mockResolvedValue({ id: 'task-1' }),
+  };
+  const mockDayPlan = {
+    getDayPlan: jest.fn().mockResolvedValue({
+      proposalId: 'prop-1',
+      status: 'PROPOSED',
+      blocks: [],
+      frozenTaskIds: [],
+      changes: [],
+    }),
+    apply: jest.fn().mockResolvedValue({
+      proposalId: 'prop-1',
+      status: 'APPLIED',
+      blocks: [],
+      frozenTaskIds: [],
+      changes: [],
+    }),
   };
   const mockV1Projects = {
     list: jest.fn().mockResolvedValue([{ id: 'proj-1' }]),
@@ -82,6 +101,7 @@ describe('McpCatalogService (against official SDK client)', () => {
           provide: TasksService,
           useValue: mockTasksService,
         },
+        { provide: DayPlanService, useValue: mockDayPlan },
       ],
     }).compile();
 
@@ -156,5 +176,47 @@ describe('McpCatalogService (against official SDK client)', () => {
     expect(result.isError).toBe(true);
     expect(JSON.stringify(result.content)).toContain('tasks:write');
     expect(mockV1Tasks.create).not.toHaveBeenCalled();
+  });
+
+  // ODD 005 S6 (T5): day-plan tools for remote agents (ODD 001).
+  it('should call ordo_day_plan scoped to the context user', async () => {
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['read'] },
+      () => client.callTool({ name: 'ordo_day_plan', arguments: {} }),
+    );
+
+    expect(mockDayPlan.getDayPlan).toHaveBeenCalledWith('user-123');
+    expect(result.isError).toBeFalsy();
+    expect(JSON.stringify(result.content)).toContain('prop-1');
+  });
+
+  it('should call ordo_day_plan_apply with proposalId', async () => {
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['read', 'tasks:write'] },
+      () =>
+        client.callTool({
+          name: 'ordo_day_plan_apply',
+          arguments: { proposalId: 'prop-1' },
+        }),
+    );
+
+    expect(mockDayPlan.apply).toHaveBeenCalledWith('user-123', 'prop-1');
+    expect(result.isError).toBeFalsy();
+    expect(JSON.stringify(result.content)).toContain('APPLIED');
+  });
+
+  it('should reject ordo_day_plan_apply missing tasks:write (no mutation)', async () => {
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['read'] },
+      () =>
+        client.callTool({
+          name: 'ordo_day_plan_apply',
+          arguments: { proposalId: 'prop-1' },
+        }),
+    );
+
+    expect(result.isError).toBe(true);
+    expect(JSON.stringify(result.content)).toContain('tasks:write');
+    expect(mockDayPlan.apply).not.toHaveBeenCalled();
   });
 });

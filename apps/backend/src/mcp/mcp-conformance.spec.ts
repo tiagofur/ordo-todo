@@ -8,6 +8,7 @@ import { V1TasksService } from '../v1/v1-tasks.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
 import { TasksService } from '../tasks/tasks.service';
+import { DayPlanService } from '../tasks/day-plan.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
@@ -49,6 +50,7 @@ describe('MCP permission conformance (S4/S5)', () => {
         { provide: V1ProjectsService, useValue: {} },
         { provide: V1CommentsService, useValue: {} },
         { provide: TasksService, useValue: {} },
+        { provide: DayPlanService, useValue: {} },
         { provide: SemanticSearchService, useValue: {} },
         { provide: HabitsService, useValue: {} },
         { provide: ObjectivesService, useValue: {} },
