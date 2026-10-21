@@ -208,6 +208,39 @@ describe('RitualSection (ODD 006 T5)', () => {
     expect(mutateAcceptTimebox).toHaveBeenCalledTimes(1);
   });
 
+  it('skipping the evening ritual calls skip', async () => {
+    await mockRitualState({ morning: MORNING, evening: EVENING });
+    renderSection();
+    const skips = screen.getAllByRole('button', { name: /^omitir$/i });
+    fireEvent.click(skips[skips.length - 1]);
+    expect(mutateSkipEvening).toHaveBeenCalledTimes(1);
+  });
+
+  it('saving manual timebox blocks posts the edited times', async () => {
+    await mockRitualState({
+      morning: {
+        ...MORNING,
+        ritual: {
+          morningStatus: 'DONE',
+          morningAt: '2026-10-20T12:00:00Z',
+          morningTop3: ['a'],
+          morningPlannedAt: '2026-10-20T12:00:00Z',
+          eveningStatus: 'PENDING',
+          eveningAt: null,
+        },
+      },
+      evening: EVENING,
+    });
+    renderSection();
+    const starts = screen.getAllByLabelText(/inicio/i);
+    fireEvent.change(starts[0], { target: { value: '08:30' } });
+    fireEvent.click(screen.getByRole('button', { name: /guardar bloques/i }));
+    expect(mutateSaveTimebox).toHaveBeenCalledWith(
+      [{ taskId: 'a', start: '08:30', end: '10:00' }],
+      expect.anything(),
+    );
+  });
+
   it('shows loading and error states with retry', async () => {
     await mockRitualState({ morningLoading: true });
     const { unmount } = renderSection();

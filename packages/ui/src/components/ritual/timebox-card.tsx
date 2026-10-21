@@ -51,15 +51,13 @@ export function TimeboxCard({ top3, labels, onSave, onAcceptProposal }: TimeboxC
     times[task.taskId] ?? { start: task.start, end: task.end };
 
   const setTime = (taskId: string, patch: { start?: string; end?: string }) =>
-    setTimes((prev) => ({
-      ...prev,
-      [taskId]: {
+    setTimes((prev) => {
+      const base = prev[taskId] ?? {
         start: top3.find((t) => t.taskId === taskId)?.start ?? '',
         end: top3.find((t) => t.taskId === taskId)?.end ?? '',
-        ...prev[taskId],
-        ...patch,
-      },
-    }));
+      };
+      return { ...prev, [taskId]: { ...base, ...patch } };
+    });
 
   return (
     <Card>
