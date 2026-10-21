@@ -148,6 +148,15 @@ import type {
   SuggestionsResponse,
   AIAnswerResponse,
   QuickSearchResponse,
+  // Ritual (ODD 006)
+  RitualDayState,
+  RitualEveningComplete,
+  RitualEveningMove,
+  RitualEveningView,
+  RitualMorningView,
+  RitualStreak,
+  RitualTimeboxBlock,
+  RitualTimeboxBlockInput,
 } from "./types";
 
 
@@ -2864,6 +2873,108 @@ export class OrdoApiClient {
    */
   async deleteNote(id: string): Promise<void> {
     await this.axios.delete(`/notes/${id}`);
+  }
+
+  // ============ RITUAL ENDPOINTS (ODD 006, T1-T4 backend) ============
+
+  /**
+   * Get the morning ritual (plan + overdue + suggested top-3)
+   * GET /ritual/morning
+   */
+  async getMorningRitual(): Promise<RitualMorningView> {
+    const response = await this.axios.get<RitualMorningView>("/ritual/morning");
+    return response.data;
+  }
+
+  /**
+   * Complete the morning ritual with a top-3
+   * POST /ritual/morning/complete
+   */
+  async completeMorningRitual(top3: string[]): Promise<RitualDayState> {
+    const response = await this.axios.post<RitualDayState>(
+      "/ritual/morning/complete",
+      { top3 },
+    );
+    return response.data;
+  }
+
+  /**
+   * Skip the morning ritual (one touch)
+   * POST /ritual/morning/skip
+   */
+  async skipMorningRitual(): Promise<RitualDayState> {
+    const response = await this.axios.post<RitualDayState>(
+      "/ritual/morning/skip",
+    );
+    return response.data;
+  }
+
+  /**
+   * Get the evening ritual (summary + completed + pending)
+   * GET /ritual/evening
+   */
+  async getEveningRitual(): Promise<RitualEveningView> {
+    const response = await this.axios.get<RitualEveningView>("/ritual/evening");
+    return response.data;
+  }
+
+  /**
+   * Complete the evening ritual with moves for pending tasks
+   * POST /ritual/evening/complete
+   */
+  async completeEveningRitual(
+    moves: RitualEveningMove[],
+  ): Promise<RitualEveningComplete> {
+    const response = await this.axios.post<RitualEveningComplete>(
+      "/ritual/evening/complete",
+      { moves },
+    );
+    return response.data;
+  }
+
+  /**
+   * Skip the evening ritual (one touch)
+   * POST /ritual/evening/skip
+   */
+  async skipEveningRitual(): Promise<RitualDayState> {
+    const response = await this.axios.post<RitualDayState>(
+      "/ritual/evening/skip",
+    );
+    return response.data;
+  }
+
+  /**
+   * Time-box morning top-3 tasks (manual blocks)
+   * POST /ritual/morning/timebox
+   */
+  async saveTimebox(
+    blocks: RitualTimeboxBlockInput[],
+  ): Promise<RitualTimeboxBlock[]> {
+    const response = await this.axios.post<RitualTimeboxBlock[]>(
+      "/ritual/morning/timebox",
+      { blocks },
+    );
+    return response.data;
+  }
+
+  /**
+   * Accept the proposed time blocks for the top-3
+   * POST /ritual/morning/timebox/accept
+   */
+  async acceptTimeboxProposal(): Promise<RitualTimeboxBlock[]> {
+    const response = await this.axios.post<RitualTimeboxBlock[]>(
+      "/ritual/morning/timebox/accept",
+    );
+    return response.data;
+  }
+
+  /**
+   * Get the current ritual streak
+   * GET /ritual/streak
+   */
+  async getRitualStreak(): Promise<RitualStreak> {
+    const response = await this.axios.get<RitualStreak>("/ritual/streak");
+    return response.data;
   }
 }
 

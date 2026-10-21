@@ -25,3 +25,6 @@ export * from './note.types';
 
 // Search types
 export * from './search.types';
+
+// Ritual types (ODD 006)
+export * from './ritual.types';
