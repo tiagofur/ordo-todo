@@ -7,6 +7,7 @@ import {
   BarChart3,
   Briefcase,
   Calendar,
+  CalendarDays,
   Download,
   Sparkles,
   Target,
@@ -63,6 +64,7 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
         { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
         { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
         { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+        { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
       ],
     },
     {

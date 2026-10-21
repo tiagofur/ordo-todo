@@ -110,6 +110,9 @@ import type {
   Note,
   CreateNoteDto,
   UpdateNoteDto,
+  // Scheduling (ODD 005 S6)
+  DayPlanView,
+  DayPlanRisk,
 } from "@ordo-todo/api-client";
 
 export type { UserIntegration } from "@ordo-todo/api-client";
@@ -974,6 +977,30 @@ export const apiClient = {
       .get("/tasks/time-blocks", { params })
       .then((res) => res.data);
   },
+
+  // Day Plan (ODD 005 S6 — "Mi plan de hoy")
+  getDayPlan: (): Promise<DayPlanView> =>
+    axiosInstance.get("/tasks/day-plan").then((res) => res.data),
+  applyDayPlan: (proposalId: string): Promise<DayPlanView> =>
+    axiosInstance
+      .post("/tasks/day-plan/apply", { proposalId })
+      .then((res) => res.data),
+  dismissDayPlan: (proposalId: string): Promise<DayPlanView> =>
+    axiosInstance
+      .post("/tasks/day-plan/dismiss", { proposalId })
+      .then((res) => res.data),
+  freezeDayPlanBlock: (taskId: string): Promise<DayPlanView> =>
+    axiosInstance
+      .post("/tasks/day-plan/freeze", { taskId })
+      .then((res) => res.data),
+  unfreezeDayPlanBlock: (taskId: string): Promise<DayPlanView> =>
+    axiosInstance
+      .post("/tasks/day-plan/unfreeze", { taskId })
+      .then((res) => res.data),
+  // TODO(ODD 005 T4b rebase): endpoint lands with T4b; until then callers
+  // treat 404 as "no risks data" (graceful degradation, never an error).
+  getDayPlanRisks: (): Promise<DayPlanRisk[]> =>
+    axiosInstance.get("/tasks/day-plan/risks").then((res) => res.data),
 
   // Habits
   getHabits: (includeArchived?: boolean): Promise<Habit[]> =>
