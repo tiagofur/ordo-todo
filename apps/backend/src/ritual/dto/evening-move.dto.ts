@@ -1,9 +1,4 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsString,
-  ValidateIf,
-} from 'class-validator';
+import { IsDateString, IsEnum, IsString, ValidateIf } from 'class-validator';
 
 // ODD 006 S2 (T2): one pending task's destination in the evening ritual.
 // `date` is required only when the destination is a specific date.

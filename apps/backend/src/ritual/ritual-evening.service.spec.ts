@@ -200,11 +200,7 @@ describe('RitualService evening (ODD 006 S2)', () => {
     // A future key relative to "now" (hermetic: +30d from the UTC today key).
     const now = new Date();
     const future = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate() + 30,
-      ),
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 30),
     );
     const futureKey = future.toISOString().slice(0, 10);
 
@@ -242,11 +238,7 @@ describe('RitualService evening (ODD 006 S2)', () => {
     });
     const now = new Date();
     const future = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate() + 30,
-      ),
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 30),
     );
     const futureKey = future.toISOString().slice(0, 10);
 
