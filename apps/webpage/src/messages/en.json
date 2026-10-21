@@ -594,6 +594,26 @@
     "view_faq": "View FAQ →",
     "guarantee_title": "Beta pricing",
     "guarantee_text": "These plans are subject to change: billing is not live yet and no limits are enforced. What you see here is intent, not a contract.",
+    "custom_price": "Custom",
+    "period_forever": "forever",
+    "period_month": "month",
+    "period_user_month": "user/month",
+    "everything_in": "Everything in {plan}",
+    "limits": {
+      "unlimited": "Unlimited",
+      "tasks_unlimited": "Unlimited tasks",
+      "projects": "{value} projects",
+      "projects_unlimited": "Unlimited projects",
+      "workspaces": "{value} workspaces",
+      "workspaces_unlimited": "Unlimited workspaces",
+      "storage": "Storage: {value}",
+      "storage_unlimited": "Unlimited storage",
+      "min_seats": "Minimum {value} seats"
+    },
+    "trial_title": "{days}-day Pro trial, no card required",
+    "trial_text": "Try everything in Pro for {days} days. When it ends, add a card to stay on Pro or keep using Free.",
+    "grace_title": "Grace period if a payment fails",
+    "grace_text": "Everything keeps working for {days} days while we retry the payment. Reading and exporting your data are never blocked.",
     "plans": {
       "free": {
         "name": "Free",

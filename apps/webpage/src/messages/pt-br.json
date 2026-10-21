@@ -594,6 +594,26 @@
     "view_faq": "Ver FAQ →",
     "guarantee_title": "Preços em beta",
     "guarantee_text": "Estes planos estão sujeitos a mudanças: a cobrança ainda não está ativa e nenhum limite é aplicado. O que você vê aqui é intenção, não contrato.",
+    "custom_price": "Personalizado",
+    "period_forever": "para sempre",
+    "period_month": "mês",
+    "period_user_month": "usuário/mês",
+    "everything_in": "Tudo incluído no {plan}",
+    "limits": {
+      "unlimited": "Ilimitado",
+      "tasks_unlimited": "Tarefas ilimitadas",
+      "projects": "{value} projetos",
+      "projects_unlimited": "Projetos ilimitados",
+      "workspaces": "{value} espaços de trabalho",
+      "workspaces_unlimited": "Espaços de trabalho ilimitados",
+      "storage": "Armazenamento: {value}",
+      "storage_unlimited": "Armazenamento ilimitado",
+      "min_seats": "Mínimo de {value} assentos"
+    },
+    "trial_title": "Teste Pro de {days} dias, sem cartão",
+    "trial_text": "Teste tudo do Pro por {days} dias. Ao terminar, adicione um cartão para continuar no Pro ou siga usando o plano gratuito.",
+    "grace_title": "Período de carência se um pagamento falhar",
+    "grace_text": "Tudo continua funcionando por {days} dias enquanto tentamos a cobrança novamente. Ler e exportar seus dados nunca é bloqueado.",
     "plans": {
       "free": {
         "name": "Grátis",
