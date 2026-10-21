@@ -4,9 +4,12 @@
  * evening close with moves, timebox accept, streak visible.
  */
 import React from 'react';
+import { Alert } from 'react-native';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import RitualScreen from '../ritual';
 import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
+
+jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
 jest.mock('@/app/data/hooks/use-theme-colors.hook', () => ({
   useThemeColors: jest.fn(),
@@ -120,7 +123,7 @@ describe('RitualScreen (ODD 006 S6)', () => {
     );
   });
 
-  it('accepts the timebox proposal once morning is done', () => {
+  it('hides timebox proposal until morning is done', () => {
     const { queryByText } = render(<RitualScreen />);
     // Morning ritual is PENDING in the mock, so the accept button must not show.
     expect(queryByText('Ritual.timebox.acceptProposal')).toBeNull();
@@ -138,5 +141,26 @@ describe('RitualScreen (ODD 006 S6)', () => {
     const retry = render(<RitualScreen />);
     expect(retry.queryByText('Ritual.evening.title')).toBeNull();
     expect(retry.queryByText('Ritual.retry')).toBeTruthy();
+  });
+
+  it('alerts unmoved pendings after close (N2)', async () => {
+    mockMutateCompleteEvening.mockImplementationOnce(
+      (_moves: unknown, opts: { onSuccess?: (r: unknown) => void }) => {
+        opts.onSuccess?.({
+          shutdownComplete: true,
+          suggestion: 'Descansa',
+          unmoved: ['b'],
+        });
+      },
+    );
+    const { getByText } = render(<RitualScreen />);
+    fireEvent.press(getByText('Ritual.evening.complete'));
+
+    await waitFor(() =>
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Ritual.evening.unmoved',
+        'Pendiente',
+      ),
+    );
   });
 });

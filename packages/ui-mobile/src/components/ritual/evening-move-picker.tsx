@@ -75,7 +75,7 @@ export function EveningMovePicker({
         <TextInput
           style={styles.input}
           placeholder={labels.datePlaceholder}
-          aria-label={labels.datePlaceholder}
+          accessibilityLabel={labels.datePlaceholder}
           value={move.date ?? ''}
           onChangeText={(date) => onChange(taskId, { date })}
         />

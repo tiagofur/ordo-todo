@@ -6,11 +6,12 @@
  * callbacks, no fetching. Hours/date-keys render raw (strings).
  */
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../ui/text';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { usePreselectedTop3 } from './use-preselected-top3';
 
 export interface MobileMorningPlanBlock {
   taskId: string;
@@ -59,32 +60,7 @@ export function MorningRitualCard({
   onComplete,
   onSkip,
 }: MorningRitualCardProps) {
-  const [selected, setSelected] = useState<string[]>(() =>
-    suggestedTop3.filter((id) => planBlocks.some((b) => b.taskId === id)).slice(0, 3),
-  );
-
-  // Resync when fresh props arrive (suggestion or plan changed); the user
-  // selection otherwise sticks for the session.
-  const suggestedKey = [...suggestedTop3].sort().join(',');
-  const planKey = planBlocks.map((b) => b.taskId).join(',');
-  useEffect(() => {
-    setSelected(
-      suggestedTop3
-        .filter((id) => planBlocks.some((b) => b.taskId === id))
-        .slice(0, 3),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestedKey, planKey]);
-
-  const toggle = (taskId: string) => {
-    setSelected((prev) =>
-      prev.includes(taskId)
-        ? prev.filter((id) => id !== taskId)
-        : prev.length >= 3
-          ? prev
-          : [...prev, taskId],
-    );
-  };
+  const [selected, toggle] = usePreselectedTop3(suggestedTop3, planBlocks);
 
   return (
     <Card style={styles.card}>

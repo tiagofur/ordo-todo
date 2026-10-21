@@ -3,6 +3,8 @@
  *
  * Mirrors apps/web use-ritual.ts against the shared OrdoApiClient
  * (ritual methods land with T5a). Mutations invalidate ritual + tasks.
+ * Local (not @ordo-todo/hooks) like web, for 1:1 parity of keys,
+ * staleTime and invalidation with the web hooks.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './api-client';
@@ -55,6 +57,8 @@ function useInvalidateRitual() {
   return () => {
     queryClient.invalidateQueries({ queryKey: ritualKeys.all });
     queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    // Time-boxing writes scheduledDate/Time: refresh a mounted calendar too.
+    queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
   };
 }
 
