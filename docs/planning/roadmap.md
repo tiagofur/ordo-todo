@@ -93,7 +93,7 @@ Notas:
 | `odd/tasks/013-marketing-docs-cleanup.md` | #241 | M0 Higiene | [TASK] Limpieza marketing/docs: cero promesas falsas |
 | `odd/tasks/014-pomodoro-engine.md` | #282 | M0 Higiene | [FIX] Motor Pomodoro unificado (un solo motor, contador y reloj) |
 | `odd/tasks/015-phase-persistence.md` | #300 | M0 Higiene | [FIX] Persistencia de fase Pomodoro (el turno sobrevive al restart) |
-| `odd/tasks/016-skip-no-credit.md` | (crear) | M0 Higiene | [FIX] Skip sin crédito antifraude (abandonar <80% no acredita) |
+| `odd/tasks/016-skip-no-credit.md` | #306 | M0 Higiene | [FIX] Skip sin crédito antifraude (abandonar <80% no acredita) |
 
 ## Reglas de ejecución
 
