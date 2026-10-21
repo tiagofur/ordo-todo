@@ -113,6 +113,15 @@ import type {
   // Scheduling (ODD 005 S6)
   DayPlanView,
   DayPlanRisk,
+  // Ritual (ODD 006 T5)
+  RitualDayState,
+  RitualEveningComplete,
+  RitualEveningMove,
+  RitualEveningView,
+  RitualMorningView,
+  RitualStreak,
+  RitualTimeboxBlock,
+  RitualTimeboxBlockInput,
 } from "@ordo-todo/api-client";
 
 export type { UserIntegration } from "@ordo-todo/api-client";
@@ -999,6 +1008,36 @@ export const apiClient = {
       .then((res) => res.data),
   getDayPlanRisks: (): Promise<DayPlanRisk[]> =>
     axiosInstance.get("/tasks/day-plan/risks").then((res) => res.data),
+
+  // Ritual (ODD 006 T5 — morning + evening + timebox + streak)
+  getMorningRitual: (): Promise<RitualMorningView> =>
+    axiosInstance.get("/ritual/morning").then((res) => res.data),
+  completeMorningRitual: (top3: string[]): Promise<RitualDayState> =>
+    axiosInstance
+      .post("/ritual/morning/complete", { top3 })
+      .then((res) => res.data),
+  skipMorningRitual: (): Promise<RitualDayState> =>
+    axiosInstance.post("/ritual/morning/skip").then((res) => res.data),
+  getEveningRitual: (): Promise<RitualEveningView> =>
+    axiosInstance.get("/ritual/evening").then((res) => res.data),
+  completeEveningRitual: (
+    moves: RitualEveningMove[],
+  ): Promise<RitualEveningComplete> =>
+    axiosInstance
+      .post("/ritual/evening/complete", { moves })
+      .then((res) => res.data),
+  skipEveningRitual: (): Promise<RitualDayState> =>
+    axiosInstance.post("/ritual/evening/skip").then((res) => res.data),
+  saveTimebox: (
+    blocks: RitualTimeboxBlockInput[],
+  ): Promise<RitualTimeboxBlock[]> =>
+    axiosInstance
+      .post("/ritual/morning/timebox", { blocks })
+      .then((res) => res.data),
+  acceptTimeboxProposal: (): Promise<RitualTimeboxBlock[]> =>
+    axiosInstance.post("/ritual/morning/timebox/accept").then((res) => res.data),
+  getRitualStreak: (): Promise<RitualStreak> =>
+    axiosInstance.get("/ritual/streak").then((res) => res.data),
 
   // Habits
   getHabits: (includeArchived?: boolean): Promise<Habit[]> =>

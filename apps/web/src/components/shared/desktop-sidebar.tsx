@@ -10,6 +10,7 @@ import {
   CalendarDays,
   Download,
   Sparkles,
+  Sunrise,
   Target,
   Users,
   Bot,
@@ -65,6 +66,7 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
         { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
         { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
         { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
+        { name: t("ritual"), href: "/ritual", icon: Sunrise, color: "orange" },
       ],
     },
     {
