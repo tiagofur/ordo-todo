@@ -293,9 +293,15 @@ export async function getHealth(): Promise<HealthCheck | null> {
         const res = await fetch(`${API_URL}/health`);
         if (!res.ok) return null;
         const data = await res.json();
-        // Current shape: { status: 'healthy'|'degraded'|'unhealthy', checks: {...} }.
+        // Rich shape: { status: 'healthy'|'degraded'|'unhealthy', checks: {...} }.
         if (data && typeof data === 'object' && data.checks) return data as HealthCheck;
-        // Legacy shape (older deployments): { status: 'ok', ... }.
+        // Minimal shape: { status: 'ok', ... }. Served by the CURRENT backend:
+        // AppController.getHealth (@Get('health')) registers before the rich
+        // HealthController and eclipses it, so the rich branch above is
+        // currently unreachable against real backends. Treat 'ok' as healthy;
+        // per-component rows then exceed the payload evidence (transitionally
+        // acceptable). Backend follow-up (out of scope): delete
+        // AppController.getHealth so the genuine HealthCheckResult is served.
         if (data && data.status === 'ok') {
             return {
                 status: 'healthy',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, HelpCircle, Loader2, Database, Zap, Cpu } from 'lucide-react';
@@ -21,10 +21,7 @@ export default function StatusPage() {
   const [state, setState] = useState<DisplayState>('loading');
   const [health, setHealth] = useState<HealthCheck | null>(null);
 
-  const loadHealth = async (isCancelled?: () => boolean) => {
-    setState('loading');
-    const data = await getHealth();
-    if (isCancelled?.()) return;
+  const applyHealth = useCallback((data: HealthCheck | null) => {
     if (!data) {
       setState('unknown');
       return;
@@ -33,16 +30,22 @@ export default function StatusPage() {
     if (data.status === 'healthy') setState('operational');
     else if (data.status === 'degraded') setState('degraded');
     else setState('down');
-  };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    loadHealth(() => cancelled);
+    getHealth().then((data) => {
+      if (!cancelled) applyHealth(data);
+    });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [applyHealth]);
+
+  const onRetry = () => {
+    setState('loading');
+    getHealth().then(applyHealth);
+  };
 
   const components = health
     ? [
@@ -100,7 +103,7 @@ export default function StatusPage() {
                 </p>
               )}
               <button
-                onClick={() => loadHealth()}
+                onClick={onRetry}
                 className="mt-6 inline-flex items-center gap-2 px-6 py-2 rounded-full border-2 border-border bg-card text-sm font-medium text-foreground hover:border-[#06B6D4] transition-colors"
               >
                 {t('retry')}
