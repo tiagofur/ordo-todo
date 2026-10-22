@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkspacesService } from './workspaces.service';
 import { PrismaService } from '../database/prisma.service';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { MemberRole } from '@ordo-todo/core';
@@ -36,8 +40,13 @@ describe('WorkspacesService', () => {
     findByUsername: jest.fn(),
   };
 
+  const mockWorkspaceMemberRepository = {
+    updateRole: jest.fn().mockResolvedValue({} as any),
+  };
+
   const mockInvitationRepository = {
     findByWorkspaceId: jest.fn(),
+    findById: jest.fn(),
     findByToken: jest.fn(),
     findPendingInvitations: jest.fn(),
     create: jest.fn(),
@@ -104,6 +113,10 @@ describe('WorkspacesService', () => {
         {
           provide: 'WorkflowRepository',
           useValue: mockWorkflowRepository,
+        },
+        {
+          provide: 'WorkspaceMemberRepository',
+          useValue: mockWorkspaceMemberRepository,
         },
         {
           provide: 'HashService',
@@ -1644,6 +1657,40 @@ describe('WorkspacesService', () => {
       expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
     });
 
+    it('should reject replaying an already-accepted token (T4)', async () => {
+      const token = 'used-token';
+      const userId = 'invitee@example.com';
+
+      const mockInvitation = {
+        id: 'inv-123',
+        props: {
+          id: 'inv-123',
+          workspaceId: 'ws-123',
+          email: 'invitee@example.com',
+          tokenHash: 'deterministic-hash',
+          role: 'MEMBER',
+          invitedById: 'user-inviter',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'ACCEPTED',
+        },
+        isExpired: jest.fn().mockReturnValue(false),
+        accept: jest.fn().mockReturnThis(),
+      };
+
+      mockHashService.hash.mockResolvedValueOnce('deterministic-hash');
+      mockInvitationRepository.findByToken.mockResolvedValueOnce(
+        mockInvitation as any,
+      );
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'invitee@example.com',
+      } as any);
+
+      await expect(service.acceptInvitation(token, userId)).rejects.toThrow(
+        'Invitation is not pending',
+      );
+      expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
+    });
+
     it('should accept when the emails match case-insensitively (W4)', async () => {
       const token = 'valid-token';
       const userId = 'user-accepter';
@@ -1703,6 +1750,7 @@ describe('WorkspacesService', () => {
         props: {
           tokenHash: 'hash2',
           email: 'invitee@example.com',
+          status: 'PENDING',
           workspaceId: workspaceId,
           role: 'MEMBER',
           invitedById: 'inviter',
@@ -2165,6 +2213,156 @@ describe('WorkspacesService', () => {
       ).rejects.toThrow(
         'El workspace debe ser eliminado temporalmente primero',
       );
+    });
+  });
+
+
+  describe('Member lifecycle (ODD 018 S3 / W5-W6)', () => {
+    const workspace = { id: 'ws-1', props: { id: 'ws-1', ownerId: 'owner-1' } };
+    const targetMember = {
+      id: 'member-2',
+      props: { id: 'member-2', workspaceId: 'ws-1', userId: 'user-2', role: 'MEMBER' },
+    };
+
+    beforeEach(() => {
+      // clearAllMocks keeps implementations from earlier tests; reset the
+      // ones this describe relies on and re-seed them explicitly
+      mockWorkspaceRepository.findById.mockReset();
+      mockWorkspaceRepository.findById.mockResolvedValue(workspace as any);
+      mockWorkspaceRepository.findMember.mockReset();
+      mockWorkspaceRepository.removeMember.mockReset();
+      mockWorkspaceRepository.removeMember.mockResolvedValue(undefined);
+      mockWorkspaceMemberRepository.updateRole.mockReset();
+      mockWorkspaceMemberRepository.updateRole.mockResolvedValue({} as any);
+      mockInvitationRepository.findById.mockReset();
+      mockInvitationRepository.update.mockReset();
+      mockInvitationRepository.update.mockResolvedValue(undefined);
+      mockAuditLogRepository.create.mockReset();
+      mockAuditLogRepository.create.mockResolvedValue({} as any);
+    });
+
+    describe('changeMemberRole (W5)', () => {
+      it('changes the role and logs the audit event', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue(targetMember as any);
+
+        const result = await service.changeMemberRole('ws-1', 'owner-1', 'user-2', 'VIEWER');
+
+        expect(result.success).toBe(true);
+        expect(mockWorkspaceMemberRepository.updateRole).toHaveBeenCalledWith('member-2', 'VIEWER');
+        expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            props: expect.objectContaining({ action: 'MEMBER_ROLE_CHANGED' }),
+          }),
+        );
+      });
+
+      it('rejects assigning the OWNER role (400)', async () => {
+        await expect(
+          service.changeMemberRole('ws-1', 'owner-1', 'user-2', 'OWNER' as 'ADMIN'),
+        ).rejects.toThrow(BadRequestException);
+        expect(mockWorkspaceMemberRepository.updateRole).not.toHaveBeenCalled();
+      });
+
+      it('rejects changing the owner role (400)', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue({
+          id: 'm-owner',
+          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+        } as any);
+
+        await expect(
+          service.changeMemberRole('ws-1', 'user-2', 'owner-1', 'MEMBER'),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('rejects changing your own role (400)', async () => {
+        await expect(
+          service.changeMemberRole('ws-1', 'user-2', 'user-2', 'VIEWER'),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('returns 404 when the target is not a member', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue(null);
+
+        await expect(
+          service.changeMemberRole('ws-1', 'owner-1', 'ghost', 'VIEWER'),
+        ).rejects.toThrow(NotFoundException);
+      });
+    });
+
+    describe('cancelInvitation (W5)', () => {
+      it('cancels a pending invitation and logs the audit event', async () => {
+        const invitation = {
+          props: { id: 'inv-1', workspaceId: 'ws-1', status: 'PENDING' },
+          cancel: jest.fn().mockReturnThis(),
+        };
+        mockInvitationRepository.findById.mockResolvedValue(invitation as any);
+
+        const result = await service.cancelInvitation('ws-1', 'owner-1', 'inv-1');
+
+        expect(result.success).toBe(true);
+        expect(invitation.cancel).toHaveBeenCalled();
+        expect(mockInvitationRepository.update).toHaveBeenCalledWith(invitation);
+        expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            props: expect.objectContaining({ action: 'INVITATION_CANCELLED' }),
+          }),
+        );
+      });
+
+      it('returns 404 for an unknown invitation', async () => {
+        mockInvitationRepository.findById.mockResolvedValue(null);
+
+        await expect(
+          service.cancelInvitation('ws-1', 'owner-1', 'missing'),
+        ).rejects.toThrow(NotFoundException);
+      });
+
+      it('returns 400 when the invitation is not pending', async () => {
+        mockInvitationRepository.findById.mockResolvedValue({
+          props: { id: 'inv-2', workspaceId: 'ws-1', status: 'ACCEPTED' },
+          cancel: jest.fn(),
+        } as any);
+
+        await expect(
+          service.cancelInvitation('ws-1', 'owner-1', 'inv-2'),
+        ).rejects.toThrow(BadRequestException);
+      });
+    });
+
+    describe('leaveWorkspace (W6)', () => {
+      it('removes the member and logs the audit event', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue(targetMember as any);
+
+        const result = await service.leaveWorkspace('ws-1', 'user-2');
+
+        expect(result.success).toBe(true);
+        expect(mockWorkspaceRepository.removeMember).toHaveBeenCalledWith('ws-1', 'user-2');
+        expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            props: expect.objectContaining({ action: 'MEMBER_LEFT' }),
+          }),
+        );
+      });
+
+      it('blocks the owner from leaving (400)', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue({
+          id: 'm-owner',
+          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+        } as any);
+
+        await expect(service.leaveWorkspace('ws-1', 'owner-1')).rejects.toThrow(
+          BadRequestException,
+        );
+        expect(mockWorkspaceRepository.removeMember).not.toHaveBeenCalled();
+      });
+
+      it('returns 404 when the user is not a member', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue(null);
+
+        await expect(service.leaveWorkspace('ws-1', 'ghost')).rejects.toThrow(
+          NotFoundException,
+        );
+      });
     });
   });
 });

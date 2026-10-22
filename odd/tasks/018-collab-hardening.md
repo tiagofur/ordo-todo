@@ -101,7 +101,7 @@ Fuera de alcance: límites de seats/tier TEAM (012-S4), transferencia de propied
 | T1b | Hallazgos de T1 (autorizados por el usuario antes de T2) | `npm run test` raíz operativo + suites con drift arregladas + subtask fijada al proyecto del padre | inline | done | commits de esta PR — raíz `turbo run test` 22/22 exit 0 (ver L4) |
 | T2 | S2 | Menciones: IDs + matching exacto + re-parse edit + fix autor + tipos api-client + migración reset + tests + e2e | delegada | done | PR A (backend, feat(018) T2a) + PR B (frontend, feat(018) T2b) — spec comments 15/15, core test/comments 5/5, e2e collaboration 15/15, web 3 UI nuevos (234 total), check-types 0 |
 | T3 | S4 | Invitación segura (validación email al aceptar) + tests + e2e | inline | done | commit feat(018) T3 — spec workspaces 64/64 (2 nuevos), e2e workspaces-security 11/11 (1 nuevo: impostor 403 + invitado 200 case-insensitive), collaboration 15/15, backend completo verde |
-| T4 | S3 | Roles: PATCH role + DELETE invitation + POST leave + usecases + audit + UI web/desktop + tests | delegada | pending | — |
+| T4 | S3 | Roles: PATCH role + DELETE invitation + POST leave + usecases + audit + UI web/desktop + tests | delegada | in_progress | PR A backend mergeada — 3 endpoints + 3 usecases core + W5/W6 + replay fix + spec 77/77 + e2e 32/32; UI web (PR B) y desktop (PR C) en curso |
 | T5 | S5 | Menciones visibles: chip render + navegación notificación + desktop autocomplete + mobile iconos + Slack `MENTIONED` | delegada | pending | — |
 | T6 | S6 | Cierre: gates, prueba humana, promises-audit §B, roadmap, memoria | inline | pending | — |
 
