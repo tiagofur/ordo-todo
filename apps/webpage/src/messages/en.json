@@ -547,6 +547,8 @@
       "projects": "Projects & Boards",
       "tasks": "Task Management",
       "focus": "Focus Timer",
+      "habits": "Habits",
+      "pomodoro": "Pomodoro",
       "analytics": "Analytics",
       "need_help": "Need more help?",
       "community_text": "Join our community for tips and support.",
@@ -586,34 +588,121 @@
       "pro_tip_shortcut": "Cmd/Ctrl + N",
       "pro_tip_end": "to quickly create new tasks from anywhere in the app!",
       "explore_title": "Explore More",
-      "explore_text": "Dive deeper into specific features with these detailed guides:"
+      "explore_text": "Dive deeper into specific features with these detailed guides, ordered from first steps to power use:"
+    },
+    "levels": {
+      "level1": {
+        "title": "Level 1 — First steps",
+        "description": "Set up and capture your first tasks."
+      },
+      "level2": {
+        "title": "Level 2 — Daily system",
+        "description": "Focus, habits, calendar and ritual."
+      },
+      "level3": {
+        "title": "Level 3 — Power use",
+        "description": "AI, agents, integrations and analytics."
+      }
     },
     "cards": {
       "projects": {
         "title": "Projects & Boards",
-        "description": "Learn how to organize work with Kanban boards"
+        "description": "Learn how to organize work with Kanban boards",
+        "time": "5 min"
       },
       "tasks": {
         "title": "Task Management",
-        "description": "Master subtasks, dependencies, and priorities"
+        "description": "Master subtasks, dependencies, and priorities",
+        "time": "6 min"
       },
       "focus": {
         "title": "Focus Timer",
-        "description": "Boost productivity with Pomodoro technique"
+        "description": "Boost productivity with Pomodoro technique",
+        "time": "4 min"
       },
       "analytics": {
         "title": "Analytics",
-        "description": "Track and improve your productivity"
+        "description": "Track and improve your productivity",
+        "time": "4 min"
       },
       "connect": {
         "title": "Connect your assistant",
-        "description": "Use Ordo from ChatGPT, Claude, Hermes or OpenClaw"
+        "description": "Use Ordo from ChatGPT, Claude, Hermes or OpenClaw",
+        "time": "5 min"
       },
       "more_features": {
         "title": "Discover more",
-        "description": "AI meetings, workload, wellbeing, search, coach, gamification and audio."
+        "description": "AI meetings, workload, wellbeing, search, coach, gamification and audio.",
+        "time": "6 min"
+      },
+      "habits": {
+        "title": "Habits & Streaks",
+        "description": "Build consistency with daily habits",
+        "time": "4 min"
+      },
+      "pomodoro": {
+        "title": "Pomodoro Deep Dive",
+        "description": "Modes, task switching and history",
+        "time": "4 min"
       }
     }
+  },
+  "GuideHabits": {
+    "badge": "Habits",
+    "title": "Habits & Streaks",
+    "subtitle": "Small daily actions, compounded. Track habits and keep the streak alive.",
+    "create_title": "Create a habit",
+    "steps": {
+      "1": "Open Habits and create a new habit with a name and frequency",
+      "2": "Complete it each day from the habits view",
+      "3": "Watch your streak grow in stats"
+    },
+    "concepts_title": "How habits work",
+    "concepts": {
+      "streaks": {
+        "title": "Streaks",
+        "description": "Consecutive days completed. A missed day resets the count."
+      },
+      "pause": {
+        "title": "Pause",
+        "description": "Pause a habit for vacations or rest without losing history."
+      },
+      "stats": {
+        "title": "Stats",
+        "description": "Completion rate and history per habit."
+      }
+    },
+    "complete_title": "Completing for today",
+    "complete_text": "Mark each habit done once per day. Completions count toward XP and achievements.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Start with one habit. A 7-day streak earns bonus XP."
+  },
+  "GuidePomodoro": {
+    "badge": "Pomodoro",
+    "title": "Pomodoro Deep Dive",
+    "subtitle": "One timer engine on web, desktop and mobile: modes, task switching and history.",
+    "modes_title": "Pomodoro and continuous modes",
+    "modes_text": "Use Pomodoro cycles (25 focus, 5 rest, longer rest every 4) or a continuous timer for open-ended work. Both share the same history and stats.",
+    "controls": {
+      "start": {
+        "title": "Start",
+        "description": "Pick a task and start the timer from any platform."
+      },
+      "pause": {
+        "title": "Pause & resume",
+        "description": "Pause for interruptions and resume the same session."
+      },
+      "history": {
+        "title": "History",
+        "description": "Every session is recorded with task, duration and focus score."
+      }
+    },
+    "task_title": "Switching tasks mid-session",
+    "task_text": "Switch the active task without stopping the timer: the session keeps its data and attributes the new segment to the new task.",
+    "platforms_title": "Same engine everywhere",
+    "platforms_text": "Web, desktop (with floating timer) and mobile share one engine, so a session started on one platform keeps its state and history everywhere.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Attach the timer to a task to see focus time per task in analytics."
   },
   "GuideFocus": {
     "badge": "Focus Timer",

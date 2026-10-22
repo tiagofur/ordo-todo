@@ -11,7 +11,9 @@ import {
   BarChart3,
   Plug,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Repeat,
+  Hourglass
 } from 'lucide-react';
 
 export function GuideSidebar() {
@@ -42,6 +44,18 @@ export function GuideSidebar() {
       href: '/guide/focus', 
       icon: Timer,
       color: '#10B981',
+    },
+    { 
+      key: 'habits', 
+      href: '/guide/habits', 
+      icon: Repeat,
+      color: '#F97316',
+    },
+    { 
+      key: 'pomodoro', 
+      href: '/guide/pomodoro', 
+      icon: Hourglass,
+      color: '#EF4444',
     },
     { 
       key: 'analytics', 

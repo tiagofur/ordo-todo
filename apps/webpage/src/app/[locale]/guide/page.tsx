@@ -2,37 +2,60 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Rocket, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Rocket, CheckCircle2, ArrowRight, Clock } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import Image from 'next/image';
+
+const LEVELS: { key: string; cards: { key: string; color: string; href: string }[] }[] = [
+  {
+    key: 'level1',
+    cards: [
+      { key: 'projects', color: '#EC4899', href: '/guide/projects' },
+      { key: 'tasks', color: '#F97316', href: '/guide/tasks' },
+      { key: 'capture', color: '#3B82F6', href: '/guide/capture' },
+    ],
+  },
+  {
+    key: 'level2',
+    cards: [
+      { key: 'focus', color: '#10B981', href: '/guide/focus' },
+      { key: 'habits', color: '#F97316', href: '/guide/habits' },
+      { key: 'pomodoro', color: '#EF4444', href: '/guide/pomodoro' },
+      { key: 'calendar', color: '#06B6D4', href: '/guide/calendar' },
+      { key: 'ritual', color: '#A855F7', href: '/guide/ritual' },
+    ],
+  },
+  {
+    key: 'level3',
+    cards: [
+      { key: 'scheduling', color: '#06B6D4', href: '/guide/scheduling' },
+      { key: 'agent', color: '#3B82F6', href: '/guide/agent' },
+      { key: 'connect', color: '#06B6D4', href: '/guide/connect' },
+      { key: 'slack', color: '#4A154B', href: '/guide/slack' },
+      { key: 'analytics', color: '#A855F7', href: '/guide/analytics' },
+      { key: 'more_features', color: '#F59E0B', href: '/guide/more-features' },
+    ],
+  },
+];
 
 export default function GuidePage() {
   const t = useTranslations('Guide');
 
   const stepColors = ['#06B6D4', '#EC4899', '#F97316', '#10B981', '#A855F7'];
 
-  const cardColors = [
-    { color: '#EC4899', href: '/guide/projects' },
-    { color: '#F97316', href: '/guide/tasks' },
-    { color: '#10B981', href: '/guide/focus' },
-    { color: '#A855F7', href: '/guide/analytics' },
-    { color: '#06B6D4', href: '/guide/connect' },
-    { color: '#F59E0B', href: '/guide/more-features' },
-  ];
-
   return (
     <div>
       {/* Hero Image */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         className="relative mb-12 rounded-2xl overflow-hidden"
       >
         <div className="absolute inset-0 bg-[#06B6D4]/10 rounded-2xl" />
-        <Image 
-          src="/images/guide/dashboard.png" 
-          alt="Ordo Todo Dashboard" 
+        <Image
+          src="/images/guide/dashboard.png"
+          alt="Ordo Todo Dashboard"
           width={1200}
           height={675}
           className="w-full rounded-2xl border shadow-2xl"
@@ -65,7 +88,7 @@ export default function GuidePage() {
             transition={{ delay: index * 0.1 }}
             className="flex gap-4 p-4 rounded-xl border bg-card hover:shadow-lg transition-all duration-300"
           >
-            <div 
+            <div
               className="h-10 w-10 rounded-full flex items-center justify-center shrink-0 text-white font-bold"
               style={{ backgroundColor: stepColors[index] }}
             >
@@ -94,33 +117,43 @@ export default function GuidePage() {
         </div>
       </div>
 
-      {/* Explore More */}
+      {/* Explore by level */}
       <h2>{t('main.explore_title')}</h2>
       <p>{t('main.explore_text')}</p>
-      <div className="not-prose grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {['projects', 'tasks', 'focus', 'analytics', 'connect', 'more_features'].map((card, index) => (
-          <motion.div
-            key={card}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + index * 0.05 }}
-          >
-            <Link
-              href={cardColors[index].href}
-              className="group block p-5 rounded-xl border bg-card hover:shadow-xl transition-all duration-300"
-            >
-              <h3 className="font-semibold text-foreground mb-1 flex items-center justify-between">
-                {t(`cards.${card}.title`)}
-                <ArrowRight 
-                  className="h-4 w-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" 
-                  style={{ color: cardColors[index].color }}
-                />
-              </h3>
-              <p className="text-sm text-muted-foreground">{t(`cards.${card}.description`)}</p>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+      {LEVELS.map((level) => (
+        <div key={level.key} className="mb-10">
+          <h3 className="!mt-8 !mb-2">{t(`levels.${level.key}.title`)}</h3>
+          <p className="text-sm text-muted-foreground !mb-4">{t(`levels.${level.key}.description`)}</p>
+          <div className="not-prose grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {level.cards.map((card, index) => (
+              <motion.div
+                key={card.key}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
+              >
+                <Link
+                  href={card.href}
+                  className="group block p-5 rounded-xl border bg-card hover:shadow-xl transition-all duration-300"
+                >
+                  <h3 className="font-semibold text-foreground mb-1 flex items-center justify-between">
+                    {t(`cards.${card.key}.title`)}
+                    <ArrowRight
+                      className="h-4 w-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
+                      style={{ color: card.color }}
+                    />
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{t(`cards.${card.key}.description`)}</p>
+                  <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    {t(`cards.${card.key}.time`)}
+                  </p>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

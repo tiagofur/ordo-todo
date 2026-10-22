@@ -547,6 +547,8 @@
       "projects": "Projetos e Quadros",
       "tasks": "Gestão de Tarefas",
       "focus": "Timer de Foco",
+      "habits": "Hábitos",
+      "pomodoro": "Pomodoro",
       "analytics": "Análises",
       "need_help": "Precisa de mais ajuda?",
       "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
@@ -586,34 +588,121 @@
       "pro_tip_shortcut": "Cmd/Ctrl + N",
       "pro_tip_end": "para criar tarefas rapidamente de qualquer lugar do app!",
       "explore_title": "Explore Mais",
-      "explore_text": "Aprofunde-se em recursos específicos com estes guias detalhados:"
+      "explore_text": "Aprofunde-se em recursos específicos com estes guias detalhados, ordenados dos primeiros passos ao uso avançado:"
+    },
+    "levels": {
+      "level1": {
+        "title": "Nível 1 — Primeiros passos",
+        "description": "Configure e capture suas primeiras tarefas."
+      },
+      "level2": {
+        "title": "Nível 2 — Sistema diário",
+        "description": "Foco, hábitos, agenda e ritual."
+      },
+      "level3": {
+        "title": "Nível 3 — Uso avançado",
+        "description": "IA, agentes, integrações e análises."
+      }
     },
     "cards": {
       "projects": {
         "title": "Projetos e Quadros",
-        "description": "Aprenda a organizar trabalho com quadros Kanban"
+        "description": "Aprenda a organizar trabalho com quadros Kanban",
+        "time": "5 min"
       },
       "tasks": {
         "title": "Gestão de Tarefas",
-        "description": "Domine subtarefas, dependências e prioridades"
+        "description": "Domine subtarefas, dependências e prioridades",
+        "time": "6 min"
       },
       "focus": {
         "title": "Timer de Foco",
-        "description": "Aumente produtividade com técnica Pomodoro"
+        "description": "Aumente produtividade com técnica Pomodoro",
+        "time": "4 min"
       },
       "analytics": {
         "title": "Análises",
-        "description": "Acompanhe e melhore sua produtividade"
+        "description": "Acompanhe e melhore sua produtividade",
+        "time": "4 min"
       },
       "connect": {
         "title": "Conectar seu assistente",
-        "description": "Use o Ordo no ChatGPT, Claude, Hermes ou OpenClaw"
+        "description": "Use o Ordo no ChatGPT, Claude, Hermes ou OpenClaw",
+        "time": "5 min"
       },
       "more_features": {
         "title": "Descubra mais",
-        "description": "Reuniões com IA, carga, bem-estar, busca, coach, gamificação e áudio."
+        "description": "Reuniões com IA, carga, bem-estar, busca, coach, gamificação e áudio.",
+        "time": "6 min"
+      },
+      "habits": {
+        "title": "Hábitos e Sequências",
+        "description": "Crie constância com hábitos diários",
+        "time": "4 min"
+      },
+      "pomodoro": {
+        "title": "Pomodoro a Fundo",
+        "description": "Modos, troca de tarefa e histórico",
+        "time": "4 min"
       }
     }
+  },
+  "GuideHabits": {
+    "badge": "Hábitos",
+    "title": "Hábitos e Sequências",
+    "subtitle": "Pequenas ações diárias, acumuladas. Acompanhe hábitos e mantenha viva a sequência.",
+    "create_title": "Criar um hábito",
+    "steps": {
+      "1": "Abra Hábitos e crie um novo com nome e frequência",
+      "2": "Conclua-o cada dia pela visão de hábitos",
+      "3": "Veja sua sequência crescer nas estatísticas"
+    },
+    "concepts_title": "Como os hábitos funcionam",
+    "concepts": {
+      "streaks": {
+        "title": "Sequências",
+        "description": "Dias consecutivos concluídos. Um dia perdido reinicia a contagem."
+      },
+      "pause": {
+        "title": "Pausa",
+        "description": "Pause um hábito nas férias ou descanso sem perder o histórico."
+      },
+      "stats": {
+        "title": "Estatísticas",
+        "description": "Taxa de conclusão e histórico por hábito."
+      }
+    },
+    "complete_title": "Concluir o dia",
+    "complete_text": "Marque cada hábito uma vez ao dia. Os concluídos contam para XP e conquistas.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Comece com um hábito. Uma sequência de 7 dias dá XP extra."
+  },
+  "GuidePomodoro": {
+    "badge": "Pomodoro",
+    "title": "Pomodoro a Fundo",
+    "subtitle": "Um só motor de timer na web, desktop e móvel: modos, troca de tarefa e histórico.",
+    "modes_title": "Modos Pomodoro e contínuo",
+    "modes_text": "Use ciclos Pomodoro (25 foco, 5 descanso, descanso longo a cada 4) ou um timer contínuo para trabalho aberto. Ambos compartilham histórico e estatísticas.",
+    "controls": {
+      "start": {
+        "title": "Iniciar",
+        "description": "Escolha uma tarefa e inicie o timer de qualquer plataforma."
+      },
+      "pause": {
+        "title": "Pausar e retomar",
+        "description": "Pause nas interrupções e retome a mesma sessão."
+      },
+      "history": {
+        "title": "Histórico",
+        "description": "Cada sessão é registrada com tarefa, duração e pontuação de foco."
+      }
+    },
+    "task_title": "Trocar de tarefa no meio da sessão",
+    "task_text": "Troque a tarefa ativa sem parar o timer: a sessão conserva seus dados e atribui o novo segmento à nova tarefa.",
+    "platforms_title": "Mesmo motor em todo lugar",
+    "platforms_text": "Web, desktop (com timer flutuante) e móvel compartilham um motor, então uma sessão iniciada em uma plataforma mantém seu estado e histórico em todas.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Vincule o timer a uma tarefa para ver o tempo de foco por tarefa nas análises."
   },
   "GuideFocus": {
     "badge": "Timer de Foco",
