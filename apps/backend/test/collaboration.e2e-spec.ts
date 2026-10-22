@@ -316,14 +316,16 @@ describe('Collaboration API (e2e)', () => {
         .send({ name: 'C Project', workspaceId: cWorkspaceId });
       const cProjectId = projRes.body.id;
 
-      await request(app.getHttpServer())
-        .post(`/tasks/${taskId}/subtasks`)
-        .set('Authorization', `Bearer ${userAToken}`)
-        .send({ title: 'Smuggled subtask', projectId: cProjectId })
-        .expect(400);
-
-      await prisma.project.deleteMany({ where: { id: cProjectId } });
-      await prisma.workspace.deleteMany({ where: { id: cWorkspaceId } });
+      try {
+        await request(app.getHttpServer())
+          .post(`/tasks/${taskId}/subtasks`)
+          .set('Authorization', `Bearer ${userAToken}`)
+          .send({ title: 'Smuggled subtask', projectId: cProjectId })
+          .expect(400);
+      } finally {
+        await prisma.project.deleteMany({ where: { id: cProjectId } });
+        await prisma.workspace.deleteMany({ where: { id: cWorkspaceId } });
+      }
     });
 
     it('User A can unassign the task with null', async () => {

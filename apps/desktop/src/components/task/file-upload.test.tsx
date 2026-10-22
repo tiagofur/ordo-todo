@@ -306,7 +306,9 @@ describe('FileUpload', () => {
       });
     }
 
-    resolveUpload({ id: 'file-123', name: 'test-file.pdf' });
+    act(() => {
+      resolveUpload({ id: 'file-123', name: 'test-file.pdf' });
+    });
   });
 
   it('should handle upload errors', async () => {
