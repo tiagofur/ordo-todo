@@ -38,6 +38,7 @@ describe('WorkspacesService', () => {
 
   const mockInvitationRepository = {
     findByWorkspaceId: jest.fn(),
+    findByToken: jest.fn(),
     findPendingInvitations: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -116,7 +117,9 @@ describe('WorkspacesService', () => {
           provide: EmailService,
           useValue: {
             sendEmail: jest.fn().mockResolvedValue({ success: true }),
-            sendWorkspaceInvitation: jest.fn().mockResolvedValue({ success: true }),
+            sendWorkspaceInvitation: jest
+              .fn()
+              .mockResolvedValue({ success: true }),
           },
         },
       ],
@@ -1439,6 +1442,9 @@ describe('WorkspacesService', () => {
         mockInvitation as any,
       ]);
       mockHashService.compare.mockResolvedValue(true);
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'invitee@example.com',
+      } as any);
       mockWorkspaceRepository.findMember.mockResolvedValue(null);
       mockWorkspaceRepository.addMember.mockResolvedValue(mockMember as any);
       mockInvitationRepository.update.mockResolvedValue(mockInvitation as any);
@@ -1545,6 +1551,9 @@ describe('WorkspacesService', () => {
         mockInvitation as any,
       ]);
       mockHashService.compare.mockResolvedValue(true);
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'invitee@example.com',
+      } as any);
       mockWorkspaceRepository.findMember.mockResolvedValue(
         existingMember as any,
       );
@@ -1558,6 +1567,119 @@ describe('WorkspacesService', () => {
       expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
       // But should still mark invitation as accepted
       expect(mockInvitationRepository.update).toHaveBeenCalled();
+    });
+
+    it('should reject when the authenticated user is not the invited email (W4, ODD 018 S4)', async () => {
+      const token = 'valid-token';
+      const userId = 'user-impostor';
+
+      const mockInvitation = {
+        id: 'inv-123',
+        props: {
+          id: 'inv-123',
+          workspaceId: 'ws-123',
+          email: 'invitee@example.com',
+          tokenHash: 'hashed-token',
+          role: 'MEMBER',
+          invitedById: 'user-inviter',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'PENDING',
+        },
+        isExpired: jest.fn().mockReturnValue(false),
+        accept: jest.fn().mockReturnThis(),
+      };
+
+      mockInvitationRepository.findPendingInvitations.mockResolvedValue([
+        mockInvitation as any,
+      ]);
+      mockHashService.compare.mockResolvedValue(true);
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'someone-else@example.com',
+      } as any);
+
+      await expect(service.acceptInvitation(token, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.acceptInvitation(token, userId)).rejects.toThrow(
+        'This invitation was sent to a different email address',
+      );
+      expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
+      expect(mockInvitationRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject an impostor on the fast (hashed-token) path too (W4)', async () => {
+      const token = 'valid-token';
+      const userId = 'user-impostor';
+
+      const mockInvitation = {
+        id: 'inv-123',
+        props: {
+          id: 'inv-123',
+          workspaceId: 'ws-123',
+          email: 'invitee@example.com',
+          tokenHash: 'deterministic-hash',
+          role: 'MEMBER',
+          invitedById: 'user-inviter',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'PENDING',
+        },
+        isExpired: jest.fn().mockReturnValue(false),
+        accept: jest.fn().mockReturnThis(),
+      };
+
+      mockHashService.hash.mockResolvedValueOnce('deterministic-hash');
+      mockInvitationRepository.findByToken.mockResolvedValueOnce(
+        mockInvitation as any,
+      );
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'someone-else@example.com',
+      } as any);
+
+      await expect(service.acceptInvitation(token, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(
+        mockInvitationRepository.findPendingInvitations,
+      ).not.toHaveBeenCalled();
+      expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
+    });
+
+    it('should accept when the emails match case-insensitively (W4)', async () => {
+      const token = 'valid-token';
+      const userId = 'user-accepter';
+
+      const mockInvitation = {
+        id: 'inv-123',
+        props: {
+          id: 'inv-123',
+          workspaceId: 'ws-123',
+          email: 'Invitee@Example.COM',
+          tokenHash: 'hashed-token',
+          role: 'MEMBER',
+          invitedById: 'user-inviter',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'PENDING',
+        },
+        isExpired: jest.fn().mockReturnValue(false),
+        accept: jest.fn().mockReturnThis(),
+      };
+
+      mockInvitationRepository.findPendingInvitations.mockResolvedValue([
+        mockInvitation as any,
+      ]);
+      mockHashService.compare.mockResolvedValue(true);
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'invitee@example.com',
+      } as any);
+      mockWorkspaceRepository.findMember.mockResolvedValue(null);
+      mockWorkspaceRepository.addMember.mockResolvedValue({} as any);
+      mockInvitationRepository.update.mockResolvedValue(mockInvitation as any);
+      mockAuditLogRepository.create.mockResolvedValue({} as any);
+
+      const result = await service.acceptInvitation(token, userId);
+
+      expect(result.success).toBe(true);
+      expect(mockWorkspaceRepository.addMember).toHaveBeenCalled();
     });
 
     it('should compare token hash against all pending invitations', async () => {
@@ -1580,6 +1702,7 @@ describe('WorkspacesService', () => {
         id: 'inv-123',
         props: {
           tokenHash: 'hash2',
+          email: 'invitee@example.com',
           workspaceId: workspaceId,
           role: 'MEMBER',
           invitedById: 'inviter',
@@ -1596,6 +1719,9 @@ describe('WorkspacesService', () => {
       mockHashService.compare
         .mockResolvedValueOnce(false)
         .mockResolvedValueOnce(true);
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'invitee@example.com',
+      } as any);
       mockWorkspaceRepository.findMember.mockResolvedValue(null);
       mockWorkspaceRepository.addMember.mockResolvedValue({} as any);
       mockInvitationRepository.update.mockResolvedValue({} as any);

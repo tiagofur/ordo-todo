@@ -90,6 +90,53 @@ describe('Workspaces Security (e2e)', () => {
     await app.close();
   });
 
+  describe('Invitation acceptance (ODD 018 S4 / W4)', () => {
+    it('only the invited email can redeem the token', async () => {
+      // user1 invites user2 with a mixed-case email (must match case-insensitively)
+      const inviteRes = await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/invitations`)
+        .set(authHeaders(user1Token))
+        .send({ email: 'User2@Example.com', role: 'MEMBER' })
+        .expect(201);
+      const token = inviteRes.body.devToken;
+      expect(token).toBeDefined();
+
+      // A third, authenticated account tries to use the link
+      const user3 = await createTestUser(prisma, {
+        email: 'user3@example.com',
+        name: 'User Three',
+      });
+      const auth3 = await generateAuthToken(prisma, jwtService, user3.id);
+
+      const impostorRes = await request(app.getHttpServer())
+        .post('/workspaces/invitations/accept')
+        .set(authHeaders(auth3.token))
+        .send({ token })
+        .expect(403);
+      expect(impostorRes.body.message).toContain(
+        'This invitation was sent to a different email address',
+      );
+
+      // The invited account succeeds
+      await request(app.getHttpServer())
+        .post('/workspaces/invitations/accept')
+        .set(authHeaders(user2Token))
+        .send({ token })
+        .expect(200);
+
+      const members = await request(app.getHttpServer())
+        .get(`/workspaces/${user1Workspace.id}/members`)
+        .set(authHeaders(user1Token))
+        .expect(200);
+      expect(
+        members.body.map(
+          (m: { user?: { email?: string } | null; userId?: string }) =>
+            m.user?.email ?? m.userId,
+        ),
+      ).toContain('user2@example.com');
+    });
+  });
+
   describe('findBySlug Security', () => {
     it('should allow user1 to access their own workspace by slug', async () => {
       const response = await request(app.getHttpServer())
