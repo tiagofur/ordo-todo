@@ -60,6 +60,14 @@ export function WorkspaceMembersSettings({ workspaceId, owner }: WorkspaceMember
   );
   // W6: any member except the owner may leave
   const canLeave = currentUserIsMember && !isCurrentUserOwner;
+  // W5 parity with web: only OWNER/ADMIN manage members
+  const canManageMembers = (() => {
+    if (isCurrentUserOwner) return true;
+    const mine = members.find(
+      (m: { userId?: string }) => m.userId === currentUser?.id,
+    );
+    return mine?.role === "ADMIN" || mine?.role === "OWNER";
+  })();
   
   const locale = i18n.language === 'es' ? es : i18n.language === 'pt-BR' ? ptBR : enUS;
 
@@ -177,7 +185,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner }: WorkspaceMember
                     {format(new Date(member.joinedAt), "PP", { locale })}
                   </TableCell>
                   <TableCell>
-                    {member.role !== "OWNER" && (
+                    {member.role !== "OWNER" && canManageMembers && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -276,7 +284,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner }: WorkspaceMember
                       {format(new Date(invitation.createdAt), "PP", { locale })}
                     </TableCell>
                     <TableCell>
-                      {invitation.status === "PENDING" && (
+                      {invitation.status === "PENDING" && canManageMembers && (
                         <Button
                           variant="ghost"
                           size="icon"
