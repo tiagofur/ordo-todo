@@ -291,6 +291,7 @@
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
+    "security": "Security",
     "rights": "All rights reserved",
     "made_with": "Made with",
     "for_productivity": "for productivity"
@@ -654,7 +655,8 @@
     "subject_placeholder": "How can we help?",
     "message_placeholder": "Tell us more...",
     "sending": "Sending...",
-    "submit": "Send Message"
+    "submit": "Send Message",
+    "error_message": "We could not send your message. Please check your connection and try again."
   },
   "About": {
     "badge": "Our Story",
@@ -691,6 +693,7 @@
     "title": "Privacy Policy",
     "last_updated": "Last Updated",
     "intro": "At Ordo Todo, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information.",
+    "contact_link": "contact us",
     "sections": {
       "collection": {
         "title": "Information Collection",
@@ -700,9 +703,17 @@
         "title": "How we use information",
         "content": "We use your information to provide, maintain, and improve our services, and to communicate with you about products, services, and events."
       },
+      "ai_data": {
+        "title": "Your data and AI",
+        "content": "AI features today run on Google Gemini: the content needed to answer (tasks, notes, context you include) is sent to Google's API under their API terms. We do not sell your data. We will publish retention and data-processing details for paid plans before billing goes live."
+      },
+      "billing": {
+        "title": "Billing data",
+        "content": "Billing is not live yet: we do not collect payment details today. When it launches, payments will be processed by Stripe and card details will never touch our servers. Plan limits shown on the pricing page are intent until enforcement ships."
+      },
       "protection": {
         "title": "Data Protection",
-        "content": "We implement appropriate technical and organizational measures to protect your personal data against unauthorized access or disclosure."
+        "content": "We implement appropriate technical and organizational measures to protect your personal data against unauthorized access or disclosure. Details of what exists today are listed on the security page."
       },
       "sharing": {
         "title": "Information Sharing",
@@ -716,10 +727,19 @@
     "title": "Terms of Service",
     "last_updated": "Last Updated",
     "intro": "By accessing or using Ordo Todo, you agree to be bound by these Terms. If you disagree with any part of the terms, you may not access the service.",
+    "contact_link": "contact us",
     "sections": {
       "acceptance": {
         "title": "Acceptance of Terms",
         "content": "By creating an account or using our services, you agree to these terms and our Privacy Policy."
+      },
+      "billing": {
+        "title": "Plans and billing",
+        "content": "Paid plans are in beta: the prices and limits on the pricing page are our stated intent, not a contract, until billing goes live. When it launches, subscriptions will be processed by Stripe, with a 14-day Pro trial without a card and a 14-day grace period if a payment fails. Reading and exporting your data are never blocked for non-payment."
+      },
+      "dpa": {
+        "title": "Data processing (DPA)",
+        "content": "A standard data-processing agreement is planned for organizations on paid plans, including Enterprise. It will be published before billing goes live. Until then, the Privacy Policy and the security page describe how we handle your data."
       },
       "usage": {
         "title": "Acceptable Use",
@@ -736,6 +756,37 @@
     },
     "contact_title": "Contact Us",
     "contact_text": "If you have any questions about these Terms, please"
+  },
+  "Security": {
+    "title": "Security",
+    "subtitle": "What protects your data today, what runs through third parties, and what is still planned. Nothing on this page is aspirational.",
+    "note_title": "Read this first",
+    "note_text": "We do not claim end-to-end encryption, SOC 2 certification, or AES-256 encryption at rest: none of them are evidenced today. What follows is what verifiably exists in the product.",
+    "sections": {
+      "auth": {
+        "title": "Accounts and sign-in",
+        "content": "Sign in with email and password (passwords stored hashed with bcrypt) or with Google or GitHub OAuth. Sessions use JWT access tokens with rotating refresh tokens, revocation on logout, protection against cross-site request forgery, and rate limiting on authentication endpoints. Two-factor authentication is not available yet."
+      },
+      "data": {
+        "title": "Your data",
+        "content": "Your tasks, projects and notes live in our database and are scoped to your workspaces: you only see what you are a member of, and connected agents see exactly the same. You can export your data as JSON at any time and delete your account, which removes your data. We do not sell personal information. Encryption at rest beyond what our database provides, and certified compliance programs, are not evidenced today."
+      },
+      "ai": {
+        "title": "AI and third parties",
+        "content": "AI features today run on Google Gemini: the content needed to answer your request is sent to Google's API under their API data terms. Nothing is sent anywhere else for AI processing. Integrations you connect (for example Google Calendar or Slack) exchange only the data needed for the feature you enabled."
+      },
+      "billing": {
+        "title": "Payments",
+        "content": "Billing is not live yet, so we collect no payment details. When it launches, payments will be processed by Stripe and your card details will never touch our servers."
+      },
+      "planned": {
+        "title": "Planned, not available",
+        "content": "On the roadmap: single sign-on (SSO/SAML) for organizations, a published data-processing agreement (DPA), and a path toward SOC 2. They are listed on the pricing page as planned and will be announced in the changelog when they ship."
+      }
+    },
+    "contact_title": "Report a security issue",
+    "contact_text": "Found something? Please",
+    "contact_link": "contact us"
   },
   "GuideConnect": {
     "badge": "Connect your assistant",

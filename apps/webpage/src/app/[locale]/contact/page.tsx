@@ -5,21 +5,33 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Button } from '@ordo-todo/ui';
 import { Mail, Send, CheckCircle } from 'lucide-react';
+import { submitContactForm } from '@/lib/api';
 
 export default function ContactPage() {
   const t = useTranslations('Contact');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const form = new FormData(e.currentTarget);
+    const ok = await submitContactForm({
+      name: String(form.get('name') || ''),
+      email: String(form.get('email') || ''),
+      subject: String(form.get('subject') || ''),
+      message: String(form.get('message') || ''),
+    });
     
     setIsLoading(false);
-    setIsSubmitted(true);
+    if (ok) {
+      setIsSubmitted(true);
+    } else {
+      setError(t('error_message'));
+    }
   };
 
   return (
@@ -124,6 +136,16 @@ export default function ContactPage() {
                     placeholder={t('message_placeholder')}
                   />
                 </div>
+
+                {/* Error */}
+                {error && (
+                  <p
+                    role="alert"
+                    className="rounded-xl border-2 border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400"
+                  >
+                    {error}
+                  </p>
+                )}
 
                 {/* Submit */}
                 <Button
