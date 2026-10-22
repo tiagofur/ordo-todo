@@ -467,8 +467,10 @@
     "components": {
       "api": "API",
       "database": "Database",
-      "redis": "Cache"
+      "redis": "Cache",
+      "memory": "Memory"
     },
+    "retry": "Check again",
     "up": "Up",
     "down": "Down",
     "note": "This page polls the public health endpoint; it shows this moment, not history or uptime percentages.",

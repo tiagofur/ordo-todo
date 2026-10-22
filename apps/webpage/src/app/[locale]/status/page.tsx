@@ -21,9 +21,10 @@ export default function StatusPage() {
   const [state, setState] = useState<DisplayState>('loading');
   const [health, setHealth] = useState<HealthCheck | null>(null);
 
-  const loadHealth = async () => {
+  const loadHealth = async (isCancelled?: () => boolean) => {
     setState('loading');
     const data = await getHealth();
+    if (isCancelled?.()) return;
     if (!data) {
       setState('unknown');
       return;
@@ -35,15 +36,20 @@ export default function StatusPage() {
   };
 
   useEffect(() => {
-    loadHealth();
+    let cancelled = false;
+    loadHealth(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const components = health
     ? [
-        { key: 'api', up: state !== 'down' && state !== 'unknown' },
+        { key: 'api', up: true },
         { key: 'database', up: health.checks.database.status === 'up' },
         { key: 'redis', up: health.checks.redis.status === 'up' },
+        { key: 'memory', up: health.checks.memory.status === 'up' },
       ]
     : [];
 
@@ -93,6 +99,12 @@ export default function StatusPage() {
                   {t('checked_at')}: {new Date(health.timestamp).toLocaleString()}
                 </p>
               )}
+              <button
+                onClick={() => loadHealth()}
+                className="mt-6 inline-flex items-center gap-2 px-6 py-2 rounded-full border-2 border-border bg-card text-sm font-medium text-foreground hover:border-[#06B6D4] transition-colors"
+              >
+                {t('retry')}
+              </button>
             </motion.div>
           )}
 
@@ -106,6 +118,7 @@ export default function StatusPage() {
                       {c.key === 'api' && <Activity className="h-4 w-4 text-muted-foreground" />}
                       {c.key === 'database' && <Database className="h-4 w-4 text-muted-foreground" />}
                       {c.key === 'redis' && <Zap className="h-4 w-4 text-muted-foreground" />}
+                      {c.key === 'memory' && <Cpu className="h-4 w-4 text-muted-foreground" />}
                       {t(`components.${c.key}`)}
                     </span>
                     <span

@@ -467,8 +467,10 @@
     "components": {
       "api": "API",
       "database": "Base de datos",
-      "redis": "Caché"
+      "redis": "Caché",
+      "memory": "Memoria"
     },
+    "retry": "Comprobar de nuevo",
     "up": "Activo",
     "down": "Caído",
     "note": "Esta página consulta el endpoint público de salud; muestra este momento, no historial ni porcentajes.",

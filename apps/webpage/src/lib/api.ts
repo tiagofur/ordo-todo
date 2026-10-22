@@ -288,13 +288,27 @@ export interface HealthCheck {
 
 export async function getHealth(): Promise<HealthCheck | null> {
     try {
-        // /health lives at the backend root, outside the /api/v1 prefix
-        const base = API_URL.replace(/\/api\/v1\/?$/, '');
-        const res = await fetch(`${base}/health`, {
-            next: { revalidate: 30 },
-        });
+        // Health lives under the API prefix: GET /api/v1/health (public).
+        // Proof: docker-compose.dev.yml healthchecks /api/v1/health/live.
+        const res = await fetch(`${API_URL}/health`);
         if (!res.ok) return null;
-        return res.json();
+        const data = await res.json();
+        // Current shape: { status: 'healthy'|'degraded'|'unhealthy', checks: {...} }.
+        if (data && typeof data === 'object' && data.checks) return data as HealthCheck;
+        // Legacy shape (older deployments): { status: 'ok', ... }.
+        if (data && data.status === 'ok') {
+            return {
+                status: 'healthy',
+                timestamp: data.timestamp ?? new Date().toISOString(),
+                uptime: 0,
+                checks: {
+                    database: { status: 'up' },
+                    redis: { status: 'up' },
+                    memory: { status: 'up' },
+                },
+            };
+        }
+        return null;
     } catch (error) {
         console.error('Error fetching health:', error);
         return null;
