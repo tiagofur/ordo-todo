@@ -1444,7 +1444,17 @@
     "errorRemoving": "Error removing member",
     "noMembers": "No members",
     "removeSuccess": "Member removed successfully",
-    "removeError": "Error removing member"
+    "removeError": "Error removing member",
+    "roleChangeSuccess": "Role updated",
+    "roleChangeError": "Failed to update role",
+    "cancelInvitation": "Cancel invitation",
+    "cancelInvitationConfirm": "Cancel this invitation? The link will stop working.",
+    "cancelSuccess": "Invitation cancelled",
+    "cancelError": "Failed to cancel invitation",
+    "leave": "Leave workspace",
+    "confirmLeave": "Are you sure you want to leave this workspace?",
+    "leaveSuccess": "You left the workspace",
+    "leaveError": "Failed to leave workspace"
   },
   "AcceptInvitationPage": {
     "title": "Accept Invitation",

@@ -1140,6 +1140,48 @@ export class OrdoApiClient {
     await this.axios.delete(`/workspaces/${workspaceId}/members/${userId}`);
   }
 
+  /**
+   * Change a member's role (ODD 018 S3 / W5)
+   * PATCH /workspaces/:id/members/:userId/role
+   * OWNER cannot be assigned nor targeted; the backend enforces it.
+   */
+  async changeWorkspaceMemberRole(
+    workspaceId: string,
+    userId: string,
+    role: "ADMIN" | "MEMBER" | "VIEWER",
+  ): Promise<{ success: boolean }> {
+    const response = await this.axios.patch<{ success: boolean }>(
+      `/workspaces/${workspaceId}/members/${userId}/role`,
+      { role },
+    );
+    return response.data;
+  }
+
+  /**
+   * Cancel a pending invitation (ODD 018 S3 / W5)
+   * DELETE /workspaces/:id/invitations/:invitationId
+   */
+  async cancelWorkspaceInvitation(
+    workspaceId: string,
+    invitationId: string,
+  ): Promise<{ success: boolean }> {
+    const response = await this.axios.delete<{ success: boolean }>(
+      `/workspaces/${workspaceId}/invitations/${invitationId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Leave a workspace (ODD 018 S3 / W6). The owner cannot leave.
+   * POST /workspaces/:id/leave
+   */
+  async leaveWorkspace(workspaceId: string): Promise<{ success: boolean }> {
+    const response = await this.axios.post<{ success: boolean }>(
+      `/workspaces/${workspaceId}/leave`,
+    );
+    return response.data;
+  }
+
   // ============ WORKFLOW ENDPOINTS (4) ============
 
   /**

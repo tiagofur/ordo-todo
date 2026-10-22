@@ -311,6 +311,51 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  function useChangeWorkspaceMemberRole() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({
+        workspaceId,
+        userId,
+        role,
+      }: {
+        workspaceId: string;
+        userId: string;
+        role: "ADMIN" | "MEMBER" | "VIEWER";
+      }) => apiClient.changeWorkspaceMemberRole(workspaceId, userId, role),
+      onSuccess: (_, { workspaceId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaceMembers(workspaceId) });
+      },
+    });
+  }
+
+  function useCancelWorkspaceInvitation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ workspaceId, invitationId }: { workspaceId: string; invitationId: string }) =>
+        apiClient.cancelWorkspaceInvitation(workspaceId, invitationId),
+      onSuccess: (_, { workspaceId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaceInvitations(workspaceId) });
+      },
+    });
+  }
+
+  function useLeaveWorkspace() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ workspaceId }: { workspaceId: string }) =>
+        apiClient.leaveWorkspace(workspaceId),
+      onSuccess: () => {
+        // ['workspaces'] is a prefix of every workspace query key (detail,
+        // members, invitations) — invalidates all of them in one call
+        queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      },
+    });
+  }
+
   function useWorkspaceMembers(workspaceId: string) {
     return useQuery({
       queryKey: queryKeys.workspaceMembers(workspaceId),
@@ -1559,6 +1604,9 @@ export function createHooks(config: CreateHooksConfig) {
     useArchiveWorkspace,
     useAddWorkspaceMember,
     useRemoveWorkspaceMember,
+    useChangeWorkspaceMemberRole,
+    useCancelWorkspaceInvitation,
+    useLeaveWorkspace,
     useWorkspaceMembers,
     useWorkspaceInvitations,
     useInviteMember,

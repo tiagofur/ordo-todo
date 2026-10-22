@@ -1365,7 +1365,17 @@
     "errorRemoving": "Erro ao remover membro",
     "noMembers": "Nenhum membro",
     "removeSuccess": "Membro removido com sucesso",
-    "removeError": "Erro ao remover membro"
+    "removeError": "Erro ao remover membro",
+    "roleChangeSuccess": "Papel atualizado",
+    "roleChangeError": "Erro ao alterar o papel",
+    "cancelInvitation": "Cancelar convite",
+    "cancelInvitationConfirm": "Cancelar este convite? O link deixará de funcionar.",
+    "cancelSuccess": "Convite cancelado",
+    "cancelError": "Erro ao cancelar o convite",
+    "leave": "Sair do workspace",
+    "confirmLeave": "Tem certeza de que deseja sair deste workspace?",
+    "leaveSuccess": "Você saiu do workspace",
+    "leaveError": "Erro ao sair do workspace"
   },
   "AcceptInvitationPage": {
     "title": "Aceitar Convite",
