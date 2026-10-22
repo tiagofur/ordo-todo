@@ -38,6 +38,7 @@ describe('WorkspacesService', () => {
 
   const mockInvitationRepository = {
     findByWorkspaceId: jest.fn(),
+    findByToken: jest.fn(),
     findPendingInvitations: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -1604,6 +1605,43 @@ describe('WorkspacesService', () => {
       );
       expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
       expect(mockInvitationRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject an impostor on the fast (hashed-token) path too (W4)', async () => {
+      const token = 'valid-token';
+      const userId = 'user-impostor';
+
+      const mockInvitation = {
+        id: 'inv-123',
+        props: {
+          id: 'inv-123',
+          workspaceId: 'ws-123',
+          email: 'invitee@example.com',
+          tokenHash: 'deterministic-hash',
+          role: 'MEMBER',
+          invitedById: 'user-inviter',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'PENDING',
+        },
+        isExpired: jest.fn().mockReturnValue(false),
+        accept: jest.fn().mockReturnThis(),
+      };
+
+      mockHashService.hash.mockResolvedValueOnce('deterministic-hash');
+      mockInvitationRepository.findByToken.mockResolvedValueOnce(
+        mockInvitation as any,
+      );
+      mockUserRepository.findById.mockResolvedValue({
+        email: 'someone-else@example.com',
+      } as any);
+
+      await expect(service.acceptInvitation(token, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(
+        mockInvitationRepository.findPendingInvitations,
+      ).not.toHaveBeenCalled();
+      expect(mockWorkspaceRepository.addMember).not.toHaveBeenCalled();
     });
 
     it('should accept when the emails match case-insensitively (W4)', async () => {

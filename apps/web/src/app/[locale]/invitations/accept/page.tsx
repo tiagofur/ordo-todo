@@ -37,7 +37,13 @@ export default function AcceptInvitationPage() {
       }, 2000);
     } catch (error: unknown) {
       setStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : t("error"));
+      // The api client rejects with the raw AxiosError; the actionable text
+      // (e.g. "sent to a different email address") lives in response.data
+      const apiMessage = (
+        error as { response?: { data?: { message?: string | string[] } } }
+      )?.response?.data?.message;
+      const message = Array.isArray(apiMessage) ? apiMessage.join(", ") : apiMessage;
+      setErrorMessage(message || (error instanceof Error ? error.message : t("error")));
     }
   };
 
