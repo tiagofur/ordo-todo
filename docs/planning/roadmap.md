@@ -1,6 +1,6 @@
 # Roadmap ejecutable: Ordo, la mejor app del mundo
 
-> **Última actualización**: 2026-10-18
+> **Última actualización**: 2026-10-21
 > **Autor/Mantenedor**: equipo Ordo
 > **Estado**: 🚧 En desarrollo
 
@@ -95,6 +95,7 @@ Notas:
 | `odd/tasks/015-phase-persistence.md` | #300 | M0 Higiene | [FIX] Persistencia de fase Pomodoro (el turno sobrevive al restart) |
 | `odd/tasks/016-skip-no-credit.md` | #306 | M0 Higiene | [FIX] Skip sin crédito antifraude (abandonar <80% no acredita) |
 | `odd/tasks/017-public-site-support.md` | #328 | M4 Confianza + ingresos | [TASK] Sitio público + soporte completos (desbloquea #240-T1) |
+| `odd/tasks/018-collab-hardening.md` | #333 | M4 Confianza + ingresos | [TASK] Collab hardening multiusuario (asignación, menciones, roles) — prerrequisito de #240 |
 
 ## Reglas de ejecución
 
