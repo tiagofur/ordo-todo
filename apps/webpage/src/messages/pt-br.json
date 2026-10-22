@@ -738,7 +738,7 @@
     "morning_title": "Manhã",
     "morning_text": "Revise o dia, aceite ou ajuste os blocos propostos e comece com intenção.",
     "evening_title": "Tarde",
-    "evening_text": "Encerre o dia: concluído, arrastado e movimentos para amanhã.",
+    "evening_text": "Encerre o dia: concluído, arrastado e movimentos para o pendente.",
     "flow_title": "O fluxo",
     "steps": {
       "1": "O ritual da manhã propõe seu plano diário",

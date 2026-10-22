@@ -738,7 +738,7 @@
     "morning_title": "Morning",
     "morning_text": "Review today, accept or adjust the proposed timeboxes, and start with intent.",
     "evening_title": "Evening",
-    "evening_text": "Close the day: completed, carried over, and moves for tomorrow.",
+    "evening_text": "Close the day: completed, carried over, and moves for what's left.",
     "flow_title": "The flow",
     "steps": {
       "1": "Morning ritual proposes your day plan",
