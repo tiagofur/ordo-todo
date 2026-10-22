@@ -307,6 +307,47 @@
     "directory_note": "Los listados en directorios están en curso: cada guía incluye pasos manuales que funcionan hoy.",
     "cta": "Conecta tu asistente"
   },
+  "AppsPage": {
+    "badge": "Apps",
+    "title": "Ordo en cada pantalla",
+    "subtitle": "Web, escritorio y móvil comparten una cuenta y un motor. Abajo, lo que cada app ofrece hoy — con honestidad.",
+    "platforms": {
+      "web": {
+        "title": "App web",
+        "description": "El producto completo: todas las funciones, incluidos Mi plan de hoy y el ritual completo.",
+        "access": "Ábrela en tu navegador"
+      },
+      "desktop": {
+        "title": "Escritorio (Windows, Mac, Linux)",
+        "description": "App nativa con sincronización offline-first y temporizador flotante. La vista de plan diario y la nueva vista de ritual aún no están.",
+        "access": "Compílala desde el código hasta la primera release"
+      },
+      "mobile": {
+        "title": "Móvil (iOS, Android)",
+        "description": "App nativa con tareas, hábitos, ritual y temporizador. La vista de plan diario y la paleta de comandos aún no están.",
+        "access": "Compílala desde el código hasta la primera release"
+      }
+    },
+    "parity_title": "Qué funciona dónde",
+    "parity_subtitle": "La matriz completa con detalles vive en la documentación. Resumen:",
+    "parity_feature": "Función",
+    "parity_web": "Web",
+    "parity_desktop": "Escritorio",
+    "parity_mobile": "Móvil",
+    "parity": {
+      "tasks": "Tareas y proyectos",
+      "capture": "Captura rápida",
+      "calendar": "Calendario",
+      "pomodoro": "Pomodoro",
+      "ritual": "Ritual diario",
+      "plan": "Mi plan de hoy",
+      "habits": "Hábitos",
+      "focus": "Modo foco",
+      "offline": "Offline y sync"
+    },
+    "cta_text": "¿Nuevo aquí? Empieza con la guía",
+    "cta_link": "Abrir la guía →"
+  },
   "ProductShowcase": {
     "badge": "Tour del Producto",
     "title": "Todo lo que necesitas para",
@@ -389,6 +430,7 @@
     "pricing": "Precios",
     "features": "Funciones",
     "agents": "Asistentes IA",
+    "apps": "Apps",
     "company": "Compañía",
     "about": "Nosotros",
     "contact": "Contacto",

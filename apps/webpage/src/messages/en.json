@@ -307,6 +307,47 @@
     "directory_note": "Directory listings are in progress: each guide includes manual setup steps that work today.",
     "cta": "Connect your assistant"
   },
+  "AppsPage": {
+    "badge": "Apps",
+    "title": "Ordo on every screen",
+    "subtitle": "Web, desktop and mobile share one account and one engine. Below is what each app offers today — honestly.",
+    "platforms": {
+      "web": {
+        "title": "Web app",
+        "description": "The full product: every feature, including My plan for today and the complete ritual.",
+        "access": "Open in your browser"
+      },
+      "desktop": {
+        "title": "Desktop (Windows, Mac, Linux)",
+        "description": "Native app with offline-first sync and floating timer. Day-plan view and new ritual view are not there yet.",
+        "access": "Build from source until the first release"
+      },
+      "mobile": {
+        "title": "Mobile (iOS, Android)",
+        "description": "Native app with tasks, habits, ritual and timer. Day-plan view and command palette are not there yet.",
+        "access": "Build from source until the first release"
+      }
+    },
+    "parity_title": "What works where",
+    "parity_subtitle": "Full matrix with details lives in the docs. Summary:",
+    "parity_feature": "Feature",
+    "parity_web": "Web",
+    "parity_desktop": "Desktop",
+    "parity_mobile": "Mobile",
+    "parity": {
+      "tasks": "Tasks & projects",
+      "capture": "Quick capture",
+      "calendar": "Calendar",
+      "pomodoro": "Pomodoro",
+      "ritual": "Daily ritual",
+      "plan": "My plan for today",
+      "habits": "Habits",
+      "focus": "Focus mode",
+      "offline": "Offline & sync"
+    },
+    "cta_text": "New here? Start with the guide",
+    "cta_link": "Open the guide →"
+  },
   "ProductShowcase": {
     "badge": "Product Tour",
     "title": "Everything you need to",
@@ -389,6 +430,7 @@
     "pricing": "Pricing",
     "features": "Features",
     "agents": "AI Assistants",
+    "apps": "Apps",
     "company": "Company",
     "about": "About Us",
     "contact": "Contact",

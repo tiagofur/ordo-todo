@@ -307,6 +307,47 @@
     "directory_note": "As listagens em diretórios estão em andamento: cada guia inclui passos manuais que funcionam hoje.",
     "cta": "Conecte seu assistente"
   },
+  "AppsPage": {
+    "badge": "Apps",
+    "title": "Ordo em cada tela",
+    "subtitle": "Web, desktop e móvel compartilham uma conta e um motor. Abaixo, o que cada app oferece hoje — com honestidade.",
+    "platforms": {
+      "web": {
+        "title": "App web",
+        "description": "O produto completo: todos os recursos, incluindo Meu plano de hoje e o ritual completo.",
+        "access": "Abra no seu navegador"
+      },
+      "desktop": {
+        "title": "Desktop (Windows, Mac, Linux)",
+        "description": "App nativo com sincronização offline-first e timer flutuante. A visão de plano diário e a nova visão de ritual ainda não estão lá.",
+        "access": "Compile do código até o primeiro release"
+      },
+      "mobile": {
+        "title": "Móvel (iOS, Android)",
+        "description": "App nativo com tarefas, hábitos, ritual e timer. A visão de plano diário e a paleta de comandos ainda não estão lá.",
+        "access": "Compile do código até o primeiro release"
+      }
+    },
+    "parity_title": "O que funciona onde",
+    "parity_subtitle": "A matriz completa com detalhes vive na documentação. Resumo:",
+    "parity_feature": "Recurso",
+    "parity_web": "Web",
+    "parity_desktop": "Desktop",
+    "parity_mobile": "Móvel",
+    "parity": {
+      "tasks": "Tarefas e projetos",
+      "capture": "Captura rápida",
+      "calendar": "Agenda",
+      "pomodoro": "Pomodoro",
+      "ritual": "Ritual diário",
+      "plan": "Meu plano de hoje",
+      "habits": "Hábitos",
+      "focus": "Modo foco",
+      "offline": "Offline e sync"
+    },
+    "cta_text": "Novo aqui? Comece pelo guia",
+    "cta_link": "Abrir o guia →"
+  },
   "ProductShowcase": {
     "badge": "Tour do Produto",
     "title": "Tudo o que você precisa para",
@@ -389,6 +430,7 @@
     "pricing": "Preços",
     "features": "Recursos",
     "agents": "Assistentes IA",
+    "apps": "Apps",
     "company": "Empresa",
     "about": "Sobre",
     "contact": "Contato",
