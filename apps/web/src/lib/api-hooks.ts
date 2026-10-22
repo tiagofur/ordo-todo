@@ -55,6 +55,9 @@ export function useUpdateWorkspace() { return getHooks().useUpdateWorkspace(); }
 export function useDeleteWorkspace() { return getHooks().useDeleteWorkspace(); }
 export function useAddWorkspaceMember() { return getHooks().useAddWorkspaceMember(); }
 export function useRemoveWorkspaceMember() { return getHooks().useRemoveWorkspaceMember(); }
+export function useChangeWorkspaceMemberRole() { return getHooks().useChangeWorkspaceMemberRole(); }
+export function useCancelWorkspaceInvitation() { return getHooks().useCancelWorkspaceInvitation(); }
+export function useLeaveWorkspace() { return getHooks().useLeaveWorkspace(); }
 export function useWorkspaceMembers(workspaceId: string) { return getHooks().useWorkspaceMembers(workspaceId); }
 export function useWorkspaceInvitations(workspaceId: string) { return getHooks().useWorkspaceInvitations(workspaceId); }
 export function useInviteMember() { return getHooks().useInviteMember(); }

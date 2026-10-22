@@ -1444,7 +1444,17 @@
       "viewer": "Observador"
     },
     "removeSuccess": "Miembro eliminado exitosamente",
-    "removeError": "Error al eliminar miembro"
+    "removeError": "Error al eliminar miembro",
+    "roleChangeSuccess": "Rol actualizado",
+    "roleChangeError": "Error al cambiar el rol",
+    "cancelInvitation": "Cancelar invitación",
+    "cancelInvitationConfirm": "¿Cancelar esta invitación? El enlace dejará de funcionar.",
+    "cancelSuccess": "Invitación cancelada",
+    "cancelError": "Error al cancelar la invitación",
+    "leave": "Salir del workspace",
+    "confirmLeave": "¿Seguro que quieres salir de este workspace?",
+    "leaveSuccess": "Has salido del workspace",
+    "leaveError": "Error al salir del workspace"
   },
   "AcceptInvitationPage": {
     "title": "Aceptar Invitación",

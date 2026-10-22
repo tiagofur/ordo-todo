@@ -1,13 +1,22 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
+import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuSeparator, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
-import { Plus, Mail, User, Shield, Trash2, MoreHorizontal, Crown } from "lucide-react";
+import { Plus, Mail, User, Shield, Trash2, MoreHorizontal, Crown, LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember, useWorkspace } from "@/lib/api-hooks";
+import {
+  useWorkspaceMembers,
+  useWorkspaceInvitations,
+  useRemoveWorkspaceMember,
+  useChangeWorkspaceMemberRole,
+  useCancelWorkspaceInvitation,
+  useLeaveWorkspace,
+  useCurrentUser,
+  useWorkspace,
+} from "@/lib/api-hooks";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
@@ -36,7 +45,20 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
   const { data: members, isLoading: isLoadingMembers } = useWorkspaceMembers(workspaceId);
   const { data: invitations, isLoading: isLoadingInvitations } = useWorkspaceInvitations(workspaceId);
   const removeMemberMutation = useRemoveWorkspaceMember();
+  const changeRoleMutation = useChangeWorkspaceMemberRole();
+  const cancelInvitationMutation = useCancelWorkspaceInvitation();
+  const leaveMutation = useLeaveWorkspace();
+  const { data: currentUser } = useCurrentUser();
   const permissions = useWorkspacePermissions(workspace);
+
+  const ownerId = workspace?.owner?.id ?? owner?.id;
+  const isCurrentUserOwner = !!currentUser && currentUser.id === ownerId;
+  const currentUserIsMember = !!(members || []).some(
+    (m: WorkspaceMember) => m.userId === currentUser?.id,
+  );
+  // W6: any member except the owner may leave
+  const canLeave =
+    currentUserIsMember && !isCurrentUserOwner;
 
   // Combine owner with members list
   const allMembers = useMemo(() => {
@@ -86,6 +108,51 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
   const getRoleLabel = (role: string): string => {
     const key = role.toLowerCase() as "owner" | "admin" | "member" | "viewer";
     return t(`roles.${key}`);
+  };
+
+  const handleChangeRole = async (
+    userId: string,
+    role: "ADMIN" | "MEMBER" | "VIEWER",
+  ) => {
+    try {
+      await changeRoleMutation.mutateAsync({ workspaceId, userId, role });
+      toast.success(t("roleChangeSuccess"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("roleChangeError")));
+    }
+  };
+
+  const handleCancelInvitation = async (invitationId: string) => {
+    const ok = await confirm({
+      title: t("cancelInvitation"),
+      description: t("cancelInvitationConfirm"),
+      variant: "destructive",
+    });
+    if (!ok) return;
+    try {
+      await cancelInvitationMutation.mutateAsync({ workspaceId, invitationId });
+      toast.success(t("cancelSuccess"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("cancelError")));
+    }
+  };
+
+  const handleLeave = async () => {
+    const ok = await confirm({
+      title: t("leave"),
+      description: t("confirmLeave"),
+      variant: "destructive",
+    });
+    if (!ok) return;
+    try {
+      await leaveMutation.mutateAsync({ workspaceId });
+      toast.success(t("leaveSuccess"));
+      // Full reload: the workspace switcher re-selects a workspace the user
+      // still belongs to
+      window.location.assign("/");
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("leaveError")));
+    }
   };
 
   const handleRemoveMember = async (userId: string) => {
@@ -171,6 +238,18 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {(["ADMIN", "MEMBER", "VIEWER"] as const).map((role) => (
+                          <DropdownMenuItem
+                            key={role}
+                            disabled={member.role === role}
+                            onClick={() => handleChangeRole(member.userId, role)}
+                          >
+                            <Shield className="mr-2 h-4 w-4" />
+                            {getRoleLabel(role)}
+                            {member.role === role && " ✓"}
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-red-600 focus:text-red-600"
                           onClick={() => handleRemoveMember(member.userId)}
@@ -187,6 +266,22 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
           </TableBody>
         </Table>
       </div>
+
+      {/* Leave workspace (W6): any member except the owner */}
+      {canLeave && (
+        <div className="flex justify-end border-t pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={handleLeave}
+            disabled={leaveMutation.isPending}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            {t("leave")}
+          </Button>
+        </div>
+      )}
 
       {/* Invitations List */}
       {invitations && invitations.length > 0 && (
@@ -234,9 +329,16 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                       {format(new Date(invitation.createdAt), "MMM d, yyyy")}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                      {invitation.status === "PENDING" && permissions.canManageMembers && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleCancelInvitation(invitation.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
