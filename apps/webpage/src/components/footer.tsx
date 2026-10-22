@@ -21,6 +21,7 @@ export function Footer() {
     company: [
       { label: t('about'), href: '/about' },
       { label: t('contact'), href: '/contact' },
+      { label: t('support'), href: '/support' },
     ],
     legal: [
       { label: t('privacy'), href: '/privacy' },
