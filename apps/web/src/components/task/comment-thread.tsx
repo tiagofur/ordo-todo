@@ -31,7 +31,10 @@ interface CommentThreadProps {
   comments?: Comment[];
   currentUserId?: string;
   users?: MentionUser[];
-  onCreate?: (content: string) => Promise<void> | void;
+  onCreate?: (
+    content: string,
+    mentionedUserIds?: string[],
+  ) => Promise<void> | void;
   onUpdate?: (commentId: string, content: string) => Promise<void> | void;
   onDelete?: (commentId: string) => Promise<void> | void;
   locale?: string;
@@ -91,6 +94,23 @@ export function CommentThread({
   };
 
   const [newComment, setNewComment] = useState('');
+  const [mentionedIds, setMentionedIds] = useState<string[]>([]);
+
+  // Keep the picked IDs in sync with the text: the backend skips its
+  // name fallback when the array is present, so a stale ID (member picked,
+  // then the text edited) would notify someone the text no longer mentions.
+  const handleChangeDraft = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNewComment(value);
+    setMentionedIds((prev) =>
+      prev.filter((id) => {
+        const user = users.find((u) => u.id === id);
+        return (
+          !!user && value.toLowerCase().includes(`@${user.name.toLowerCase()}`)
+        );
+      }),
+    );
+  };
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [editContent, setEditContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,8 +130,9 @@ export function CommentThread({
   const handleCreateComment = () => {
     if (!newComment.trim() || !onCreate) return;
     handleAction(async () => {
-      await onCreate(newComment);
+      await onCreate(newComment, mentionedIds.length > 0 ? mentionedIds : undefined);
       setNewComment('');
+      setMentionedIds([]);
     });
   };
 
@@ -176,7 +197,7 @@ export function CommentThread({
       <div className="space-y-4">
         {comments.map((comment) => {
           const isEditing = editingId === comment.id;
-          const author = comment.user || { id: 'unknown', name: 'Unknown User', image: null };
+          const author = comment.author || { id: 'unknown', name: 'Unknown User', image: null };
           const isOwner = currentUserId && author.id === currentUserId;
 
           return (
@@ -277,10 +298,15 @@ export function CommentThread({
       <div className="space-y-2">
         <MentionTextarea
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
+          onChange={handleChangeDraft}
           placeholder={t.placeholder}
           className="min-h-[100px] resize-none"
           users={users}
+          onMention={(userId) =>
+            setMentionedIds((prev) =>
+              prev.includes(userId) ? prev : [...prev, userId],
+            )
+          }
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
               handleCreateComment();
