@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { TaskCustomFieldsEditor } from './task-custom-fields-editor';
 import { RecurrenceSelector, type RecurrenceValue } from './recurrence-selector';
+import { AssigneeSelector } from './assignee-selector';
 import { PresenceAvatars } from '@/components/collaboration/presence-avatars';
 import { useCollaborationSocket } from '@/hooks/use-collaboration-socket';
 import { apiClient } from '@/lib/api-client';
@@ -250,17 +251,32 @@ export function TaskDetailPanel({
     },
   });
 
+  // Members that can receive an assignment or a mention
+  const assignableMembers = workspaceMembers.filter(
+    (member: WorkspaceMember) => !!member.user,
+  );
+
   // Transform workspace members to MentionUser format
-  const mentionUsers = workspaceMembers
-    .filter((member: WorkspaceMember) => !!member.user)
-    .map((member: WorkspaceMember) => {
-      const user = member.user!;
-      return {
-        id: user.id,
-        name: user.name || 'Unknown',
-        image: user.image || undefined,
-      };
-    });
+  const mentionUsers = assignableMembers.map((member: WorkspaceMember) => {
+    const user = member.user!;
+    return {
+      id: user.id,
+      name: user.name || 'Unknown',
+      image: user.image || undefined,
+    };
+  });
+
+  // AssigneeSelector expects non-null name/image; fall back to email
+  const selectorMembers = assignableMembers.map((member: WorkspaceMember) => ({
+    id: member.id,
+    role: member.role,
+    user: {
+      id: member.user!.id,
+      name: member.user!.name || member.user!.email,
+      email: member.user!.email,
+      image: member.user!.image || undefined,
+    },
+  }));
 
   const handleCreateComment = async (content: string) => {
     if (!taskId) return;
@@ -831,7 +847,21 @@ export function TaskDetailPanel({
 
                            <Separator className="my-3" />
                            
-                           {renderAssigneeSelector && taskId && renderAssigneeSelector(taskId, task?.assignee)}
+                           {taskId && renderAssigneeSelector
+                             ? renderAssigneeSelector(taskId, task?.assignee)
+                             : null}
+
+                           {taskId && !renderAssigneeSelector && assignableMembers.length > 1 && (
+                             <AssigneeSelector
+                               taskId={taskId}
+                               variant="full"
+                               currentAssignee={task?.assignee ?? null}
+                               members={selectorMembers}
+                               onAssign={(userId) =>
+                                 onUpdate?.(taskId, { assigneeId: userId })
+                               }
+                             />
+                           )}
                         </div>
                       </div>
                     </div>

@@ -102,6 +102,11 @@ export class TasksService {
    * @see {@link ../../packages/core/src/tasks/task.entity.ts | Task Entity}
    */
   async create(createTaskDto: CreateTaskDto, userId: string) {
+    await this.assertAssigneeIsWorkspaceMember(
+      createTaskDto.assigneeId,
+      createTaskDto.projectId,
+    );
+
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const task = await createTaskUseCase.execute({
       ...createTaskDto,
@@ -468,10 +473,7 @@ export class TasksService {
       where: {
         ownerId: userId,
         isDeleted: false,
-        OR: [
-          { dueDate: { not: null } },
-          { scheduledDate: { not: null } },
-        ],
+        OR: [{ dueDate: { not: null } }, { scheduledDate: { not: null } }],
       },
       include: {
         project: {
@@ -696,6 +698,13 @@ export class TasksService {
         throw new NotFoundException('Task not found');
       }
 
+      if (updateTaskDto.assigneeId !== undefined) {
+        await this.assertAssigneeIsWorkspaceMember(
+          updateTaskDto.assigneeId,
+          task.props.projectId,
+        );
+      }
+
       const oldTask = task.props;
 
       // Remove undefined fields from updateTaskDto to avoid overwriting with undefined
@@ -842,6 +851,43 @@ export class TasksService {
     } catch (error) {
       this.logger.error(`Failed to update task ${id}`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Rejects assignees from outside the workspace that owns the task's project.
+   * `null`/`undefined` always pass (unassigned task). The workspace owner is
+   * accepted even without a membership row: legacy workspaces predate the
+   * member table and are only repaired lazily by WorkspaceGuard.
+   */
+  private async assertAssigneeIsWorkspaceMember(
+    assigneeId: string | null | undefined,
+    projectId: string,
+  ): Promise<void> {
+    if (!assigneeId) return;
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { workspaceId: true, workspace: { select: { ownerId: true } } },
+    });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    if (project.workspace.ownerId === assigneeId) return;
+
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: project.workspaceId,
+          userId: assigneeId,
+        },
+      },
+      select: { id: true },
+    });
+    if (!membership) {
+      throw new BadRequestException(
+        'Assignee must be a member of the task workspace',
+      );
     }
   }
 
@@ -994,10 +1040,16 @@ export class TasksService {
       throw new NotFoundException('Parent task not found');
     }
 
+    const projectId = createSubtaskDto.projectId || parentTask.props.projectId;
+    await this.assertAssigneeIsWorkspaceMember(
+      createSubtaskDto.assigneeId,
+      projectId,
+    );
+
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const subtask = await createTaskUseCase.execute({
       ...createSubtaskDto,
-      projectId: createSubtaskDto.projectId || parentTask.props.projectId,
+      projectId,
       ownerId: userId,
       // Auto-assign to creator if no assignee specified
       assigneeId: createSubtaskDto.assigneeId ?? userId,

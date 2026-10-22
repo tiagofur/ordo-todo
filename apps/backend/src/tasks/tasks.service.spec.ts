@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
@@ -51,6 +55,15 @@ describe('TasksService', () => {
     user: {
       findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
     },
+    project: {
+      findUnique: jest.fn().mockResolvedValue({
+        workspaceId: 'workspace-1',
+        workspace: { ownerId: 'owner-1' },
+      }),
+    },
+    workspaceMember: {
+      findUnique: jest.fn().mockResolvedValue({ id: 'member-1' }),
+    },
   };
 
   const mockActivitiesService = {
@@ -62,6 +75,7 @@ describe('TasksService', () => {
     logPriorityChanged: jest.fn(),
     logDueDateChanged: jest.fn(),
     logSubtaskAdded: jest.fn(),
+    logAssigneeChanged: jest.fn(),
   };
 
   const mockNotificationsService = {
@@ -120,7 +134,9 @@ describe('TasksService', () => {
           provide: JwtService,
           useValue: {
             sign: jest.fn().mockReturnValue('mock-jwt-token'),
-            verify: jest.fn().mockReturnValue({ sub: 'user-1', type: 'calendar_feed' }),
+            verify: jest
+              .fn()
+              .mockReturnValue({ sub: 'user-1', type: 'calendar_feed' }),
           },
         },
       ],
@@ -765,6 +781,254 @@ describe('TasksService', () => {
     });
   });
 
+  describe('assignee workspace membership (ODD 018 S1 / W1)', () => {
+    const projectId = 'project-123';
+
+    // Overrides inside each test use mockResolvedValue (not Once): the owner
+    // path returns before the membership lookup, and a stranded Once value
+    // would leak into later tests (mockClear keeps queued implementations).
+    const setMembershipDefaults = () => {
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'workspace-1',
+        workspace: { ownerId: 'owner-1' },
+      });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        id: 'member-1',
+      });
+    };
+
+    beforeEach(setMembershipDefaults);
+    afterEach(setMembershipDefaults);
+
+    const buildUpdatableTask = (userId: string, assigneeId: string | null) => {
+      const props = {
+        id: 'task-123',
+        title: 'Task',
+        ownerId: userId,
+        status: 'TODO',
+        projectId,
+        assigneeId,
+      };
+      return {
+        id: 'task-123',
+        props: { ...props },
+        update: jest.fn().mockReturnValue({
+          id: 'task-123',
+          props: { ...props },
+        }),
+      };
+    };
+
+    it('create: rejects an assignee from outside the workspace', async () => {
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue(null);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+
+      await expect(
+        service.create(
+          { title: 'New Task', projectId, assigneeId: 'user-456' } as any,
+          'user-123',
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Assignee must be a member of the task workspace',
+        ),
+      );
+
+      expect(executeSpy).not.toHaveBeenCalled();
+    });
+
+    it('create: accepts a workspace member', async () => {
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: 'user-123',
+          assigneeId: 'user-456',
+          projectId,
+        },
+      };
+      const executeSpy = jest
+        .spyOn(CreateTaskUseCase.prototype, 'execute')
+        .mockResolvedValue(mockTask as any);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      await service.create(
+        { title: 'New Task', projectId, assigneeId: 'user-456' } as any,
+        'user-123',
+      );
+
+      expect(mockPrismaService.workspaceMember.findUnique).toHaveBeenCalledWith(
+        {
+          where: {
+            workspaceId_userId: {
+              workspaceId: 'workspace-1',
+              userId: 'user-456',
+            },
+          },
+          select: { id: true },
+        },
+      );
+      expect(executeSpy).toHaveBeenCalled();
+    });
+
+    it('create: accepts the workspace owner without a membership row (legacy owner)', async () => {
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'workspace-1',
+        workspace: { ownerId: 'user-456' },
+      });
+      mockPrismaService.workspaceMember.findUnique.mockClear();
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: 'user-123',
+          assigneeId: 'user-456',
+          projectId,
+        },
+      };
+      const executeSpy = jest
+        .spyOn(CreateTaskUseCase.prototype, 'execute')
+        .mockResolvedValue(mockTask as any);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      await service.create(
+        { title: 'New Task', projectId, assigneeId: 'user-456' } as any,
+        'user-123',
+      );
+
+      expect(
+        mockPrismaService.workspaceMember.findUnique,
+      ).not.toHaveBeenCalled();
+      expect(executeSpy).toHaveBeenCalled();
+    });
+
+    it('create: skips validation when no assignee provided (auto-assign creator)', async () => {
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: 'user-123',
+          assigneeId: 'user-123',
+          projectId,
+        },
+      };
+      const executeSpy = jest
+        .spyOn(CreateTaskUseCase.prototype, 'execute')
+        .mockResolvedValue(mockTask as any);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      await service.create({ title: 'New Task', projectId } as any, 'user-123');
+
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+      expect(executeSpy).toHaveBeenCalled();
+    });
+
+    it('update: rejects reassigning to a user outside the workspace', async () => {
+      const mockTask = buildUpdatableTask('user-123', 'user-123');
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.update(
+          'task-123',
+          { assigneeId: 'user-456' } as any,
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('update: accepts a workspace member and notifies TASK_ASSIGNED', async () => {
+      const mockTask = buildUpdatableTask('user-123', 'user-123');
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
+
+      await service.update(
+        'task-123',
+        { assigneeId: 'user-456' } as any,
+        'user-123',
+      );
+
+      expect(mockPrismaService.workspaceMember.findUnique).toHaveBeenCalledWith(
+        {
+          where: {
+            workspaceId_userId: {
+              workspaceId: 'workspace-1',
+              userId: 'user-456',
+            },
+          },
+          select: { id: true },
+        },
+      );
+      expect(mockNotificationsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-456',
+          type: 'TASK_ASSIGNED',
+        }),
+      );
+    });
+
+    it('update: allows unassigning with null without membership lookup', async () => {
+      const mockTask = buildUpdatableTask('user-123', 'user-456');
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
+
+      await service.update('task-123', { assigneeId: null } as any, 'user-123');
+
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+      expect(mockTask.update).toHaveBeenCalledWith(
+        expect.objectContaining({ assigneeId: null }),
+      );
+      expect(mockNotificationsService.create).not.toHaveBeenCalled();
+    });
+
+    it('update: skips validation when assigneeId not in payload', async () => {
+      const mockTask = buildUpdatableTask('user-123', 'user-456');
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
+
+      await service.update('task-123', { title: 'Renamed' } as any, 'user-123');
+
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('createSubtask: rejects an assignee from outside the workspace', async () => {
+      const parentTask = {
+        id: 'parent-123',
+        props: { id: 'parent-123', projectId, title: 'Parent' },
+      };
+      mockTaskRepository.findById.mockResolvedValue(parentTask as any);
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+
+      await expect(
+        service.createSubtask(
+          'parent-123',
+          { title: 'Sub', assigneeId: 'user-456' } as any,
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(executeSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe('complete', () => {
     it('should successfully complete a task', async () => {
       const userId = 'user-123';
@@ -1261,7 +1525,9 @@ describe('TasksService', () => {
         },
       });
 
-      mockPrismaService.task.create = jest.fn().mockResolvedValue({ id: 'spawned-task-id' });
+      mockPrismaService.task.create = jest
+        .fn()
+        .mockResolvedValue({ id: 'spawned-task-id' });
       mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
 
       await service.complete(taskId, userId);
@@ -1295,7 +1561,7 @@ describe('TasksService', () => {
 
   describe('Calendar Export & Token', () => {
     it('should generate a calendar feed token', async () => {
-      const res = await service.getCalendarToken('user-1');
+      const res = service.getCalendarToken('user-1');
       expect(res).toHaveProperty('token');
       expect(res).toHaveProperty('feedUrl');
       expect(res).toHaveProperty('webcalUrl');
@@ -1304,7 +1570,7 @@ describe('TasksService', () => {
     });
 
     it('should verify calendar token and return userId', async () => {
-      const userId = await service.verifyCalendarToken('valid-token');
+      const userId = service.verifyCalendarToken('valid-token');
       expect(userId).toBe('user-1');
     });
 
@@ -1331,4 +1597,3 @@ describe('TasksService', () => {
     });
   });
 });
-
