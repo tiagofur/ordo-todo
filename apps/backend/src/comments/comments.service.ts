@@ -139,8 +139,12 @@ export class CommentsService {
       );
     }
 
-    // Detect mentions from content
-    const mentions = this.detectMentions(createCommentDto.content);
+    // Resolve mentions: explicit member IDs first, exact-name fallback second
+    const mentions = await this.resolveMentionedUserIds(
+      createCommentDto.content,
+      createCommentDto.mentionedUserIds,
+      task.project.workspaceId,
+    );
 
     // Execute use case to create comment
     const createCommentUseCase = new CreateCommentUseCase(
@@ -206,6 +210,20 @@ export class CommentsService {
   ): Promise<CommentWithAuthor> {
     this.logger.debug(`Updating comment ${id} by user ${userId}`);
 
+    const existingComment = await this.commentRepository.findById(id);
+    if (!existingComment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    const taskDetails = await this.getTaskDetails(existingComment.taskId);
+    const newMentions = taskDetails
+      ? await this.resolveMentionedUserIds(
+          updateCommentDto.content,
+          updateCommentDto.mentionedUserIds,
+          taskDetails.workspaceId,
+        )
+      : (existingComment.mentions ?? []);
+
     const updateCommentUseCase = new UpdateCommentUseCase(
       this.commentRepository,
     );
@@ -213,9 +231,31 @@ export class CommentsService {
       commentId: id,
       userId,
       newContent: updateCommentDto.content,
+      newMentions,
     });
 
     this.logger.debug(`Comment ${id} updated successfully`);
+
+    const enriched = await this.enrichWithAuthor(updatedComment);
+
+    // Notify only newly-mentioned users: editing must not re-notify (W3)
+    const previouslyMentioned = new Set(existingComment.mentions ?? []);
+    for (const mentionedUserId of newMentions) {
+      if (
+        mentionedUserId !== userId &&
+        !previouslyMentioned.has(mentionedUserId)
+      ) {
+        await this.notificationsService.create({
+          userId: mentionedUserId,
+          type: NotificationType.MENTIONED,
+          title: 'You were mentioned',
+          message: `${enriched.author.name} mentioned you in a comment`,
+          resourceId: updatedComment.taskId,
+          resourceType: ResourceType.COMMENT,
+          metadata: { commentId: updatedComment.id },
+        });
+      }
+    }
 
     // Log activity
     await this.activitiesService.logCommentEdited(
@@ -230,8 +270,7 @@ export class CommentsService {
       { taskId: updatedComment.taskId },
     );
 
-    // Enrich response with author details
-    return this.enrichWithAuthor(updatedComment);
+    return enriched;
   }
 
   /**
@@ -379,35 +418,25 @@ export class CommentsService {
       });
     }
 
-    // Notify mentioned users
-    if (mentions.length > 0) {
-      // SECURITY: Only find users that are part of the workspace
-      const mentionedUsers = await this.getUsersByName(
-        mentions,
-        task.workspaceId,
-      );
-
-      for (const mentionedUser of mentionedUsers) {
-        if (mentionedUser.id !== userId) {
-          await this.notificationsService.create({
-            userId: mentionedUser.id,
-            type: NotificationType.MENTIONED,
-            title: 'You were mentioned',
-            message: `${comment.author.name} mentioned you in a comment`,
-            resourceId: comment.taskId,
-            resourceType: ResourceType.COMMENT,
-            metadata: { commentId: comment.id },
-          });
-        }
+    // Notify mentioned users; resolveMentionedUserIds already validated
+    // workspace membership (ODD 018 S2 / W2)
+    for (const mentionedUserId of mentions) {
+      if (mentionedUserId !== userId) {
+        await this.notificationsService.create({
+          userId: mentionedUserId,
+          type: NotificationType.MENTIONED,
+          title: 'You were mentioned',
+          message: `${comment.author.name} mentioned you in a comment`,
+          resourceId: comment.taskId,
+          resourceType: ResourceType.COMMENT,
+          metadata: { commentId: comment.id },
+        });
       }
     }
 
-    // Log activity
-    await this.activitiesService.logCommentAdded(
-      comment.taskId,
-      userId,
-      mentions.length > 0 ? mentions : undefined,
-    );
+    // Log activity. Mentions are no longer put in metadata: they are user
+    // IDs now and rendering raw IDs in the feed would be worse than nothing.
+    await this.activitiesService.logCommentAdded(comment.taskId, userId);
   }
 
   /**
@@ -442,16 +471,58 @@ export class CommentsService {
   }
 
   /**
-   * Detects @mentions in comment content.
+   * Resolves the mentioned user IDs for a comment.
+   *
+   * Primary source of truth: explicit `mentionedUserIds` picked from the
+   * member list by the client — non-members are dropped silently (a removed
+   * member mid-draft must not 400 a comment). Fallback for API/agent
+   * clients: exact case-insensitive "@Full Name" matching against the real
+   * member names, longest name first (so "@Ann Lee" never also notifies
+   * "Ann"). The old /@\w+/ regex split names at spaces and the `contains`
+   * lookup notified "@ann" inside "Joanne" — both gone (ODD 018 S2 / W2).
    *
    * @private
-   * @param content - The comment content
-   * @returns Array of mentioned usernames (without @)
    */
-  private detectMentions(content: string): string[] {
-    const mentionRegex = /@(\w+)/g;
-    const matches = content.match(mentionRegex);
-    return matches ? matches.map((m) => m.substring(1)) : [];
+  private async resolveMentionedUserIds(
+    content: string,
+    mentionedUserIds: string[] | undefined,
+    workspaceId: string,
+  ): Promise<string[]> {
+    if (mentionedUserIds) {
+      const unique = [...new Set(mentionedUserIds)];
+      if (unique.length === 0) return [];
+      const members = await this.prisma.workspaceMember.findMany({
+        where: { workspaceId, userId: { in: unique } },
+        select: { userId: true },
+      });
+      const memberIds = new Set(members.map((m) => m.userId));
+      return unique.filter((id) => memberIds.has(id));
+    }
+
+    const members = await this.prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      select: { userId: true, user: { select: { name: true } } },
+    });
+
+    const namedMembers = members
+      .filter((m) => !!m.user?.name)
+      .map((m) => ({ userId: m.userId, name: m.user.name }))
+      .sort((a, b) => b.name.length - a.name.length);
+
+    const mentioned: string[] = [];
+    let working = content;
+    for (const { userId, name } of namedMembers) {
+      const pattern = new RegExp(
+        `@${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`,
+        'giu',
+      );
+      if (pattern.test(working)) {
+        mentioned.push(userId);
+        // Remove the match so a shorter member name cannot match inside it
+        working = working.replace(pattern, '');
+      }
+    }
+    return mentioned;
   }
 
   /**
@@ -518,36 +589,5 @@ export class CommentsService {
     }
 
     return user;
-  }
-
-  /**
-   * Gets users by name for mention notifications.
-   * Direct DB access - pragmatic compromise for notifications.
-   *
-   * @private
-   */
-  private async getUsersByName(
-    names: string[],
-    workspaceId: string,
-  ): Promise<Array<{ id: string }>> {
-    return this.prisma.user.findMany({
-      where: {
-        AND: [
-          {
-            OR: names.map((name) => ({
-              name: { contains: name, mode: 'insensitive' },
-            })),
-          },
-          {
-            workspaces: {
-              some: {
-                workspaceId: workspaceId,
-              },
-            },
-          },
-        ],
-      },
-      select: { id: true },
-    });
   }
 }

@@ -46,6 +46,7 @@ describe('CommentsService', () => {
       findUnique: jest
         .fn()
         .mockResolvedValue({ id: 'member-1', role: 'MEMBER' }),
+      findMany: jest.fn().mockResolvedValue([]),
     },
   };
 
@@ -133,7 +134,6 @@ describe('CommentsService', () => {
       expect(mockActivitiesService.logCommentAdded).toHaveBeenCalledWith(
         taskId,
         userId,
-        undefined,
       );
     });
 
@@ -184,32 +184,23 @@ describe('CommentsService', () => {
       );
     });
 
-    it('should detect and notify mentioned users', async () => {
+    it('should notify the exact member on "@Full Name" with spaces (ODD 018 S2)', async () => {
       const userId = 'user-1';
-      const mentionedUserId = 'user-2';
       const taskId = 'task-1';
-      const content = 'Hello @User2';
+      const content = 'Hey @Ann Lee, welcome!';
 
-      // The service will add mentions when creating the comment
-      const mockComment = Comment.create({
-        taskId,
-        userId,
-        content,
-        mentions: ['User2'], // Service adds this
-      });
+      const mockComment = Comment.create({ taskId, userId, content });
       (mockComment.id as string) = 'comment-1';
 
-      commentRepository.create = jest.fn().mockResolvedValue(mockComment);
+      const createSpy = jest.fn().mockResolvedValue(mockComment);
+      commentRepository.create = createSpy;
 
-      // Mock author lookup
       (prismaService.user?.findUnique as jest.Mock).mockResolvedValue({
         id: userId,
         name: 'User 1',
         email: 'u1@example.com',
         image: null,
       });
-
-      // Mock task lookup
       (prismaService.task?.findUnique as jest.Mock).mockResolvedValue({
         id: taskId,
         title: 'Task 1',
@@ -217,20 +208,214 @@ describe('CommentsService', () => {
         assigneeId: userId,
         project: { workspaceId: 'ws-1' },
       });
-
-      // Mock mentioned user lookup
-      (prismaService.user?.findMany as jest.Mock).mockResolvedValue([
-        { id: mentionedUserId },
+      // Longest name first must win: "@Ann Lee" notifies Ann Lee, not Ann
+      (prismaService.workspaceMember?.findMany as jest.Mock).mockResolvedValue([
+        { userId: 'user-3', user: { name: 'Ann' } },
+        { userId: 'user-2', user: { name: 'Ann Lee' } },
       ]);
 
-      // Wait for async notifications
       await service.create({ taskId, content }, userId);
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockComment.props.mentions).toContain('User2');
+      const created = createSpy.mock.calls[0][0];
+      expect(created.props.mentions).toEqual(['user-2']);
       expect(mockNotificationsService.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: mentionedUserId,
+          userId: 'user-2',
+          type: NotificationType.MENTIONED,
+        }),
+      );
+      expect(mockNotificationsService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 'user-3' }),
+      );
+    });
+
+    it('should NOT notify "Joanne Hunter" when content says "@ann" (no fuzzy matching, ODD 018 S2)', async () => {
+      const userId = 'user-1';
+      const taskId = 'task-1';
+      const content = 'hey @ann can you look?';
+
+      const mockComment = Comment.create({ taskId, userId, content });
+      (mockComment.id as string) = 'comment-1';
+
+      const createSpy = jest.fn().mockResolvedValue(mockComment);
+      commentRepository.create = createSpy;
+
+      (prismaService.user?.findUnique as jest.Mock).mockResolvedValue({
+        id: userId,
+        name: 'User 1',
+        email: 'u1@example.com',
+        image: null,
+      });
+      (prismaService.task?.findUnique as jest.Mock).mockResolvedValue({
+        id: taskId,
+        title: 'Task 1',
+        ownerId: userId,
+        assigneeId: userId,
+        project: { workspaceId: 'ws-1' },
+      });
+      (prismaService.workspaceMember?.findMany as jest.Mock).mockResolvedValue([
+        { userId: 'user-9', user: { name: 'Joanne Hunter' } },
+      ]);
+
+      await service.create({ taskId, content }, userId);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const created = createSpy.mock.calls[0][0];
+      expect(created.props.mentions).toEqual([]);
+      expect(mockNotificationsService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-9',
+          type: NotificationType.MENTIONED,
+        }),
+      );
+    });
+
+    it('should drop mentionedUserIds that are not workspace members (W2)', async () => {
+      const userId = 'user-1';
+      const taskId = 'task-1';
+
+      const mockComment = Comment.create({
+        taskId,
+        userId,
+        content: 'ping',
+      });
+      (mockComment.id as string) = 'comment-1';
+
+      const createSpy = jest.fn().mockResolvedValue(mockComment);
+      commentRepository.create = createSpy;
+
+      (prismaService.user?.findUnique as jest.Mock).mockResolvedValue({
+        id: userId,
+        name: 'User 1',
+        email: 'u1@example.com',
+        image: null,
+      });
+      (prismaService.task?.findUnique as jest.Mock).mockResolvedValue({
+        id: taskId,
+        title: 'Task 1',
+        ownerId: userId,
+        assigneeId: userId,
+        project: { workspaceId: 'ws-1' },
+      });
+      (prismaService.workspaceMember?.findMany as jest.Mock).mockResolvedValue([
+        { userId: 'user-2' },
+      ]);
+
+      await service.create(
+        {
+          taskId,
+          content: 'ping',
+          mentionedUserIds: ['user-2', 'user-outsider'],
+        },
+        userId,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(
+        prismaService.workspaceMember?.findMany as jest.Mock,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            workspaceId: 'ws-1',
+            userId: { in: ['user-2', 'user-outsider'] },
+          },
+        }),
+      );
+      const created = createSpy.mock.calls[0][0];
+      expect(created.props.mentions).toEqual(['user-2']);
+      expect(mockNotificationsService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-outsider',
+          type: NotificationType.MENTIONED,
+        }),
+      );
+    });
+  });
+
+  describe('mentions on update (ODD 018 S2 / W3)', () => {
+    const buildUpdateMocks = () => {
+      const author = {
+        id: 'user-1',
+        name: 'User 1',
+        email: 'u1@example.com',
+        image: null,
+      };
+      (prismaService.user?.findUnique as jest.Mock).mockResolvedValue(author);
+      (prismaService.task?.findUnique as jest.Mock).mockResolvedValue({
+        id: 'task-1',
+        title: 'Task 1',
+        ownerId: 'user-1',
+        assigneeId: 'user-1',
+        project: { workspaceId: 'ws-1' },
+      });
+    };
+
+    it('should notify only newly-mentioned users when editing', async () => {
+      buildUpdateMocks();
+      const existing = Comment.create({
+        taskId: 'task-1',
+        userId: 'user-1',
+        content: 'first',
+        mentions: ['user-2'],
+      });
+      (existing.id as string) = 'comment-1';
+      commentRepository.findById = jest.fn().mockResolvedValue(existing);
+      commentRepository.update = jest.fn().mockResolvedValue(undefined);
+      (prismaService.workspaceMember?.findMany as jest.Mock).mockResolvedValue([
+        { userId: 'user-2' },
+        { userId: 'user-3' },
+      ]);
+
+      await service.update(
+        'comment-1',
+        {
+          content: 'now with more people',
+          mentionedUserIds: ['user-2', 'user-3'],
+        },
+        'user-1',
+      );
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockNotificationsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-3',
+          type: NotificationType.MENTIONED,
+        }),
+      );
+      expect(mockNotificationsService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-2',
+          type: NotificationType.MENTIONED,
+        }),
+      );
+    });
+
+    it('should not re-notify when editing without new mentions', async () => {
+      buildUpdateMocks();
+      const existing = Comment.create({
+        taskId: 'task-1',
+        userId: 'user-1',
+        content: 'thanks @Ann Lee',
+        mentions: ['user-2'],
+      });
+      (existing.id as string) = 'comment-1';
+      commentRepository.findById = jest.fn().mockResolvedValue(existing);
+      commentRepository.update = jest.fn().mockResolvedValue(undefined);
+      (prismaService.workspaceMember?.findMany as jest.Mock).mockResolvedValue([
+        { userId: 'user-2', user: { name: 'Ann Lee' } },
+      ]);
+
+      await service.update(
+        'comment-1',
+        { content: 'thanks @Ann Lee' },
+        'user-1',
+      );
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockNotificationsService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-2',
           type: NotificationType.MENTIONED,
         }),
       );

@@ -260,6 +260,22 @@ export class Comment extends Entity<CommentProps> {
    * console.log(withMention.mentions); // ['user-789']
    * ```
    */
+  /**
+   * Replaces the full set of mentioned user IDs.
+   *
+   * Used when a comment is edited and mentions are re-resolved; duplicates
+   * are collapsed. Empty array clears all mentions.
+   *
+   * @param mentions - The new list of mentioned user IDs
+   * @returns A new Comment instance with the mention set replaced
+   */
+  withMentions(mentions: string[]): Comment {
+    return this.clone({
+      mentions: [...new Set(mentions)],
+      updatedAt: new Date(),
+    });
+  }
+
   addMention(userId: string): Comment {
     if (!userId || userId.trim().length === 0) {
       throw new Error("User ID for mention cannot be empty");
