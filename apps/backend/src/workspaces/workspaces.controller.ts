@@ -8,6 +8,7 @@ import {
   Body,
   Param,
   Query,
+  Request,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -45,6 +46,7 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { ChangeMemberRoleDto } from './dto/change-member-role.dto';
 import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto';
 import { CreateAuditLogDto } from './dto/create-audit-log.dto';
 
@@ -388,6 +390,71 @@ export class WorkspacesController {
     return this.workspacesService.removeMember(workspaceId, userId);
   }
 
+  /**
+   * Changes a member's role
+   * Requires OWNER or ADMIN role. The OWNER role cannot be assigned and the
+   * owner's role cannot be changed (W5, ODD 018 S3).
+   */
+  @Patch(':id/members/:userId/role')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Change member role',
+    description:
+      'Sets a member role to ADMIN, MEMBER or VIEWER. Assigning OWNER or changing the owner role is forbidden.',
+  })
+  @ApiParam({ name: 'id', description: 'Workspace ID' })
+  @ApiParam({ name: 'userId', description: 'User ID whose role changes' })
+  @ApiResponse({ status: 200, description: 'Role changed successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid role or protected member' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Member not found' })
+  changeMemberRole(
+    @Param('id') workspaceId: string,
+    @Param('userId') userId: string,
+    @Body() dto: ChangeMemberRoleDto,
+    @Request() req,
+  ) {
+    return this.workspacesService.changeMemberRole(
+      workspaceId,
+      req.user.id,
+      userId,
+      dto.role,
+    );
+  }
+
+  /**
+   * Member leaves the workspace (W6, ODD 018 S3)
+   * Any member except the owner may leave.
+   */
+  @Post(':id/leave')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(
+    CoreMemberRole.OWNER,
+    CoreMemberRole.ADMIN,
+    CoreMemberRole.MEMBER,
+    CoreMemberRole.VIEWER,
+  )
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Leave workspace',
+    description: 'Removes the authenticated member from the workspace. The owner cannot leave.',
+  })
+  @ApiParam({ name: 'id', description: 'Workspace ID' })
+  @ApiResponse({ status: 200, description: 'Left the workspace' })
+  @ApiResponse({ status: 400, description: 'The owner cannot leave' })
+  @ApiResponse({ status: 404, description: 'Not a member' })
+  leave(@Param('id') workspaceId: string, @Request() req) {
+    return this.workspacesService.leaveWorkspace(workspaceId, req.user.id);
+  }
+
   // ============ INVITATIONS ============
 
   /**
@@ -476,6 +543,38 @@ export class WorkspacesController {
   /**
    * Accepts an invitation to join a workspace
    */
+  /**
+   * Cancels a pending invitation
+   * Requires OWNER or ADMIN role. Only PENDING invitations can be cancelled.
+   */
+  @Delete(':id/invitations/:invitationId')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Cancel invitation',
+    description: 'Marks a pending invitation as CANCELLED so its token can no longer be redeemed.',
+  })
+  @ApiParam({ name: 'id', description: 'Workspace ID' })
+  @ApiParam({ name: 'invitationId', description: 'Invitation ID' })
+  @ApiResponse({ status: 200, description: 'Invitation cancelled' })
+  @ApiResponse({ status: 400, description: 'Invitation is not pending' })
+  @ApiResponse({ status: 404, description: 'Invitation not found' })
+  cancelInvitation(
+    @Param('id') workspaceId: string,
+    @Param('invitationId') invitationId: string,
+    @Request() req,
+  ) {
+    return this.workspacesService.cancelInvitation(
+      workspaceId,
+      req.user.id,
+      invitationId,
+    );
+  }
+
   @Post('invitations/accept')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

@@ -27,6 +27,7 @@ describe('Workspaces Security (e2e)', () => {
   // Test data
   let user1Token: string;
   let user2Token: string;
+  let user2Id: string;
   let user1Workspace: any;
   let user2Workspace: any;
 
@@ -65,6 +66,7 @@ describe('Workspaces Security (e2e)', () => {
       email: 'user2@example.com',
       name: 'User Two',
     });
+    user2Id = user2.id;
 
     // Generate auth tokens
     const auth1 = await generateAuthToken(prisma, jwtService, user1.id);
@@ -88,6 +90,150 @@ describe('Workspaces Security (e2e)', () => {
     await cleanupTestData(prisma);
     await prisma.client.$disconnect();
     await app.close();
+  });
+
+  describe('Member lifecycle (ODD 018 S3 / W5-W6)', () => {
+    // user2 = ADMIN of user1's workspace; user3 = plain MEMBER
+    let adminToken: string;
+    let memberToken: string;
+    let memberUserId: string;
+
+    beforeEach(async () => {
+      await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/members`)
+        .set(authHeaders(user1Token))
+        .send({ userId: user2Id, role: 'ADMIN' })
+        .expect(201);
+
+      const user3 = await createTestUser(prisma, {
+        email: 'user3@example.com',
+        name: 'User Three',
+      });
+      memberUserId = user3.id;
+      await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/members`)
+        .set(authHeaders(user1Token))
+        .send({ userId: user3.id, role: 'MEMBER' })
+        .expect(201);
+      const auth3 = await generateAuthToken(prisma, jwtService, user3.id);
+      memberToken = auth3.token;
+      adminToken = user2Token;
+    });
+
+    it('a MEMBER cannot change roles (403)', async () => {
+      await request(app.getHttpServer())
+        .patch(`/workspaces/${user1Workspace.id}/members/${user2Id}/role`)
+        .set(authHeaders(memberToken))
+        .send({ role: 'VIEWER' })
+        .expect(403);
+    });
+
+    it('an ADMIN cannot assign OWNER nor change the owner role (400)', async () => {
+      await request(app.getHttpServer())
+        .patch(`/workspaces/${user1Workspace.id}/members/${user2Id}/role`)
+        .set(authHeaders(adminToken))
+        .send({ role: 'OWNER' })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .patch(`/workspaces/${user1Workspace.id}/members/${user1Workspace.ownerId}/role`)
+        .set(authHeaders(adminToken))
+        .send({ role: 'MEMBER' })
+        .expect(400);
+    });
+
+    it('an ADMIN demotes a MEMBER to VIEWER (200)', async () => {
+      await request(app.getHttpServer())
+        .patch(`/workspaces/${user1Workspace.id}/members/${memberUserId}/role`)
+        .set(authHeaders(adminToken))
+        .send({ role: 'VIEWER' })
+        .expect(200);
+
+      const members = await request(app.getHttpServer())
+        .get(`/workspaces/${user1Workspace.id}/members`)
+        .set(authHeaders(user1Token))
+        .expect(200);
+      const member = members.body.find(
+        (m: { user?: { email?: string } | null }) =>
+          m.user?.email === 'user3@example.com',
+      );
+      expect(member.role).toBe('VIEWER');
+    });
+
+    it('the OWNER cannot leave; a MEMBER can (W6)', async () => {
+      await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/leave`)
+        .set(authHeaders(user1Token))
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/leave`)
+        .set(authHeaders(memberToken))
+        .expect(200);
+
+      const members = await request(app.getHttpServer())
+        .get(`/workspaces/${user1Workspace.id}/members`)
+        .set(authHeaders(user1Token))
+        .expect(200);
+      expect(
+        members.body.map(
+          (m: { user?: { email?: string } | null }) => m.user?.email,
+        ),
+      ).not.toContain('user3@example.com');
+    });
+
+    it('a cancelled invitation token can no longer be redeemed', async () => {
+      const inviteRes = await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/invitations`)
+        .set(authHeaders(user1Token))
+        .send({ email: 'ghost@example.com', role: 'MEMBER' })
+        .expect(201);
+      const token = inviteRes.body.devToken;
+
+      const listRes = await request(app.getHttpServer())
+        .get(`/workspaces/${user1Workspace.id}/invitations`)
+        .set(authHeaders(user1Token))
+        .expect(200);
+      const invitation = listRes.body.find(
+        (i: { email?: string }) => i.email === 'ghost@example.com',
+      );
+      expect(invitation).toBeDefined();
+
+      await request(app.getHttpServer())
+        .delete(
+          `/workspaces/${user1Workspace.id}/invitations/${invitation.id}`,
+        )
+        .set(authHeaders(user1Token))
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post('/workspaces/invitations/accept')
+        .set(authHeaders(user2Token))
+        .send({ token })
+        .expect(404);
+    });
+
+    it('an already-accepted token cannot be replayed (T4)', async () => {
+      const inviteRes = await request(app.getHttpServer())
+        .post(`/workspaces/${user1Workspace.id}/invitations`)
+        .set(authHeaders(user1Token))
+        .send({ email: 'user3@example.com', role: 'MEMBER' })
+        .expect(201);
+
+      // user3 (already a MEMBER via the direct add) redeems it once
+      await request(app.getHttpServer())
+        .post('/workspaces/invitations/accept')
+        .set(authHeaders(memberToken))
+        .send({ token: inviteRes.body.devToken })
+        .expect(200);
+
+      // The same token is now ACCEPTED: replaying it must not re-enter
+      await request(app.getHttpServer())
+        .post('/workspaces/invitations/accept')
+        .set(authHeaders(memberToken))
+        .send({ token: inviteRes.body.devToken })
+        .expect(404);
+    });
   });
 
   describe('Invitation acceptance (ODD 018 S4 / W4)', () => {

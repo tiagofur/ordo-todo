@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import type {
   WorkspaceRepository,
@@ -10,6 +11,7 @@ import type {
   WorkspaceSettingsRepository,
   WorkspaceAuditLogRepository,
   WorkflowRepository,
+  WorkspaceMemberRepository,
   HashService,
 } from '@ordo-todo/core';
 import {
@@ -23,6 +25,9 @@ import {
   ArchiveWorkspaceUseCase,
   InviteMemberUseCase,
   AcceptInvitationUseCase,
+  ChangeMemberRoleUseCase,
+  CancelInvitationUseCase,
+  LeaveWorkspaceUseCase,
   UpdateWorkspaceSettingsUseCase,
   GetWorkspaceSettingsUseCase,
   CreateAuditLogUseCase,
@@ -53,6 +58,8 @@ export class WorkspacesService {
     private readonly auditLogRepository: WorkspaceAuditLogRepository,
     @Inject('WorkflowRepository')
     private readonly workflowRepository: WorkflowRepository,
+    @Inject('WorkspaceMemberRepository')
+    private readonly workspaceMemberRepository: WorkspaceMemberRepository,
     @Inject('HashService')
     private readonly hashService: HashService,
     private readonly prisma: PrismaService,
@@ -408,6 +415,125 @@ export class WorkspacesService {
   }
 
   /**
+   * Changes a member's role (W5, ODD 018 S3)
+   *
+   * OWNER/ADMIN reach this via the controller guard. The domain rules
+   * (no OWNER assignment, owner untouchable, no self-changes) live in
+   * the use case; every rule violation surfaces as 400.
+   *
+   * @param workspaceId - ID of the workspace
+   * @param requesterId - ID of the user performing the change
+   * @param dto - Target userId and the new role (ADMIN | MEMBER | VIEWER)
+   */
+  async changeMemberRole(
+    workspaceId: string,
+    requesterId: string,
+    targetUserId: string,
+    role: 'ADMIN' | 'MEMBER' | 'VIEWER',
+  ) {
+    const newRole = this.mapStringToMemberRole(role);
+    if (!newRole) {
+      throw new BadRequestException(`Invalid role: ${role}`);
+    }
+
+    const changeMemberRoleUseCase = new ChangeMemberRoleUseCase(
+      this.workspaceRepository,
+      this.workspaceMemberRepository,
+    );
+    try {
+      await changeMemberRoleUseCase.execute(
+        workspaceId,
+        requesterId,
+        targetUserId,
+        newRole,
+      );
+    } catch (error) {
+      if (
+        error.message === 'Workspace not found' ||
+        error.message === 'Member not found'
+      ) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+
+    await this.createAuditLog(workspaceId, 'MEMBER_ROLE_CHANGED', requesterId, {
+      userId: targetUserId,
+      role,
+    });
+
+    return { success: true };
+  }
+
+  /**
+   * Cancels a pending invitation (W5, ODD 018 S3)
+   *
+   * OWNER/ADMIN via controller guard. Only PENDING invitations can be
+   * cancelled; accepted/expired ones keep their historical status.
+   */
+  async cancelInvitation(
+    workspaceId: string,
+    requesterId: string,
+    invitationId: string,
+  ) {
+    const cancelInvitationUseCase = new CancelInvitationUseCase(
+      this.invitationRepository,
+    );
+    try {
+      await cancelInvitationUseCase.execute(invitationId);
+    } catch (error) {
+      if (error.message === 'Invitation not found') {
+        throw new NotFoundException(error.message);
+      }
+      if (error.message === 'Invitation is not pending') {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
+    await this.createAuditLog(
+      workspaceId,
+      'INVITATION_CANCELLED',
+      requesterId,
+      { invitationId },
+    );
+
+    return { success: true };
+  }
+
+  /**
+   * Leaves a workspace (W6, ODD 018 S3)
+   *
+   * Any member except the owner may leave. The owner gets a 400 until an
+   * ownership-transfer flow exists.
+   */
+  async leaveWorkspace(workspaceId: string, userId: string) {
+    const leaveWorkspaceUseCase = new LeaveWorkspaceUseCase(
+      this.workspaceRepository,
+    );
+    try {
+      await leaveWorkspaceUseCase.execute(workspaceId, userId);
+    } catch (error) {
+      if (
+        error.message === 'Workspace not found' ||
+        error.message === 'User is not a member of this workspace'
+      ) {
+        throw new NotFoundException(error.message);
+      }
+      if (
+        error.message.startsWith('The workspace owner cannot leave')
+      ) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
+    await this.createAuditLog(workspaceId, 'MEMBER_LEFT', userId);
+
+    return { success: true };
+  }
+
+  /**
    * Creates an invitation for a user to join a workspace
    *
    * Generates a secure token, hashes it, and stores the invitation.
@@ -529,6 +655,13 @@ export class WorkspacesService {
 
       if (!matchedInvitation) {
         throw new NotFoundException('Invalid invitation token');
+      }
+
+      // T4: replay/cancelled guard — the fast-path lookup does not filter
+      // by status, so an already-accepted or cancelled token must be
+      // rejected here, before anything is mutated.
+      if (matchedInvitation.props.status !== 'PENDING') {
+        throw new NotFoundException('Invitation is not pending');
       }
 
       // W4 (ODD 018 S4): only the invited account may redeem the token.
