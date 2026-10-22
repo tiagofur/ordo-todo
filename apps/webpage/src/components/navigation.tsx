@@ -76,6 +76,13 @@ export function Navigation() {
             {t('roadmap')}
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#8B5CF6] group-hover:w-full transition-all duration-300" />
           </Link>
+          <Link 
+            href="/pricing" 
+            className="text-sm font-medium text-muted-foreground hover:text-[#EC4899] transition-colors relative group"
+          >
+            {t('pricing')}
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#EC4899] group-hover:w-full transition-all duration-300" />
+          </Link>
         </nav>
 
         {/* Desktop Auth Buttons */}
@@ -154,6 +161,13 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
             >
               {t('roadmap')}
+            </Link>
+            <Link 
+              href="/pricing" 
+              className="text-base font-medium py-2 hover:text-[#EC4899] transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {t('pricing')}
             </Link>
             <div className="flex flex-col gap-3 pt-4 border-t">
               <a href={appLink("/login")} target="_blank" rel="noreferrer">

@@ -152,16 +152,17 @@
     "faq": "FAQ",
     "changelog": "Novidades",
     "roadmap": "Roadmap",
+    "pricing": "Preços",
     "login": "Entrar",
     "register": "Comece Grátis"
   },
   "Hero": {
-    "title": "Domine Seu Tempo",
-    "highlight": "Alcance Seus Objetivos",
-    "description": "Ordo Todo é a plataforma definitiva de produtividade impulsionada por IA. Organize tarefas, gerencie projetos e otimize seu fluxo de trabalho.",
+    "title": "Suas tarefas,",
+    "highlight": "onde você trabalhar",
+    "description": "O Ordo Todo organiza tarefas, projetos, hábitos e tempo de foco em um só lugar — e seu assistente de IA pode operá-lo por você em menos de 60 segundos.",
     "cta_primary": "Comece Grátis",
-    "cta_secondary": "Saiba Mais",
-    "badge": "Agora com Assistente IA",
+    "cta_secondary": "Conecte Seu Agente",
+    "badge": "Funciona com seu assistente de IA",
     "features": {
       "pomodoro": "Timer Pomodoro",
       "ai": "Agenda com IA",
@@ -198,12 +199,186 @@
       "description": "Seus dados são criptografados e seguros. Valorizamos sua privacidade."
     },
     "stats": {
-      "okr": "Rastreamento OKR",
-      "calendar": "Sincro Calendário",
-      "speed": "Velocidade",
-      "uptime": "Disponibilidade"
+      "mcp_tools": "Ferramentas para agentes (MCP)",
+      "calendar": "Sincro calendário",
+      "platforms": "Plataformas",
+      "languages": "Idiomas"
     },
     "discover_more": "Descubra mais 7 recursos que já existem"
+  },
+  "FeaturesPage": {
+    "badge": "Recursos",
+    "title": "Tudo o que o Ordo faz hoje",
+    "subtitle": "Cada recurso abaixo existe hoje no produto. Cada cartão leva ao seu guia.",
+    "tasks": {
+      "title": "Tarefas e projetos",
+      "description": "Tarefas com subtarefas, dependências, recorrência, etiquetas e prioridades; projetos com quadros Kanban, fluxos personalizados e visão Eisenhower."
+    },
+    "focus": {
+      "title": "Pomodoro e timer de foco",
+      "description": "Timers Pomodoro e contínuos com pausa, retomada, histórico e estatísticas — um só motor na web, desktop e móvel."
+    },
+    "habits": {
+      "title": "Hábitos e sequências",
+      "description": "Hábitos diários com sequências, pausa e estatísticas para criar constância."
+    },
+    "plan": {
+      "title": "Meu plano de hoje",
+      "description": "Um plano diário proposto com data de execução vs vencimento, replanejamento automático e alertas quando o dia sobrecarrega."
+    },
+    "ritual": {
+      "title": "Ritual diário",
+      "description": "Planejamento guiado de manhã e encerramento à tarde com lembretes e sequências."
+    },
+    "agent": {
+      "title": "Seu próprio agente",
+      "description": "Pergunte sobre seu espaço de trabalho com respostas citadas, execute ações em linguagem natural e agende trabalhos recorrentes."
+    },
+    "scheduling": {
+      "title": "Agendamento automático",
+      "description": "Sugestões de horário ideal mais previsão de durações aprendida do seu próprio histórico."
+    },
+    "search": {
+      "title": "Busca inteligente",
+      "description": "Busca que entende a intenção, com sugestões em tarefas, projetos e notas."
+    },
+    "coach": {
+      "title": "Coach de IA",
+      "description": "Um coach conversacional com seu contexto para planejar e refletir."
+    },
+    "gamification": {
+      "title": "XP e conquistas",
+      "description": "Pontos de experiência, níveis e conquistas que premiam a constância."
+    },
+    "meetings": {
+      "title": "Ações de reuniões",
+      "description": "Cole uma transcrição e obtenha um resumo mais ações que você pode converter em tarefas. Entrada manual por enquanto — sem gravação automática."
+    },
+    "integrations": {
+      "title": "Agenda, Slack e agentes",
+      "description": "Sincronização bidirecional com Google Agenda e Outlook, integração profunda com Slack, 17 ferramentas MCP e API pública com webhooks."
+    },
+    "cta_text": "Veja o que cada plano inclui",
+    "cta_link": "Comparar planos →"
+  },
+  "AgentsPage": {
+    "badge": "Pronto para agentes",
+    "title": "Use o Ordo do seu assistente de IA",
+    "subtitle": "Conecte ChatGPT, Claude, Hermes ou OpenClaw em menos de 60 segundos. Seu assistente opera o Ordo com suas próprias permissões — nada mais.",
+    "tools_title": "17 ferramentas que seu assistente pode usar",
+    "tools": {
+      "tasks": {
+        "title": "Tarefas",
+        "description": "Liste, crie, atualize e conclua tarefas, leia detalhes e adicione comentários."
+      },
+      "projects": {
+        "title": "Projetos",
+        "description": "Liste, crie e atualize projetos, leia detalhes e acompanhe objetivos."
+      },
+      "day": {
+        "title": "Seu dia",
+        "description": "Leia seu plano diário proposto, aplique-o, revise riscos, conclua hábitos."
+      },
+      "more": {
+        "title": "E mais",
+        "description": "Busca semântica no seu espaço de trabalho mais o contexto do seu perfil."
+      }
+    },
+    "permissions_note": "Seu assistente só vê o que você pode ver: cada solicitação roda com suas permissões e o não autorizado é negado.",
+    "clients_title": "Escolha seu assistente",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Conecte o Ordo como app pelo diretório"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Adicione o Ordo como conector na web ou desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Seu ajudante com memória, agora com Ordo dentro"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Use o Ordo pelo WhatsApp, Telegram ou Discord"
+      }
+    },
+    "directory_note": "As listagens em diretórios estão em andamento: cada guia inclui passos manuais que funcionam hoje.",
+    "cta": "Conecte seu assistente"
+  },
+  "AppsPage": {
+    "badge": "Apps",
+    "title": "Ordo em cada tela",
+    "subtitle": "Web, desktop e móvel compartilham uma conta e um motor. Abaixo, o que cada app oferece hoje — com honestidade.",
+    "platforms": {
+      "web": {
+        "title": "App web",
+        "description": "O produto completo: todos os recursos, incluindo Meu plano de hoje e o ritual completo.",
+        "access": "Abra no seu navegador"
+      },
+      "desktop": {
+        "title": "Desktop (Windows, Mac, Linux)",
+        "description": "App nativo com sincronização offline-first e timer flutuante. A visão de plano diário e a nova visão de ritual ainda não estão lá.",
+        "access": "Compile do código até o primeiro release"
+      },
+      "mobile": {
+        "title": "Móvel (iOS, Android)",
+        "description": "App nativo com tarefas, hábitos, ritual e timer. A visão de plano diário e a paleta de comandos ainda não estão lá.",
+        "access": "Compile do código até o primeiro release"
+      }
+    },
+    "parity_title": "O que funciona onde",
+    "parity_subtitle": "A matriz completa com detalhes vive na documentação. Resumo:",
+    "parity_feature": "Recurso",
+    "parity_web": "Web",
+    "parity_desktop": "Desktop",
+    "parity_mobile": "Móvel",
+    "parity": {
+      "tasks": "Tarefas e projetos",
+      "capture": "Captura rápida",
+      "calendar": "Agenda",
+      "pomodoro": "Pomodoro",
+      "ritual": "Ritual diário",
+      "plan": "Meu plano de hoje",
+      "habits": "Hábitos",
+      "focus": "Modo foco",
+      "offline": "Offline e sync"
+    },
+    "cta_text": "Novo aqui? Comece pelo guia",
+    "cta_link": "Abrir o guia →"
+  },
+  "ComparePage": {
+    "badge": "Comparar",
+    "title": "Ordo contra o resto",
+    "subtitle": "Uma comparação honesta: onde o Ordo vence, onde está alcançando e onde os concorrentes ainda são melhores.",
+    "honesty_note": "Escrevemos esta tabela contra nossa própria análise competitiva. Parcial significa que existe mas está atrás do melhor; vazio significa que não existe. Detalhes dos concorrentes mudam — veja os sites deles para o mais recente.",
+    "col_feature": "Capacidade",
+    "col_ordo": "Ordo",
+    "col_todoist": "Todoist",
+    "col_notion": "Notion",
+    "col_motion": "Motion",
+    "rows": {
+      "tasks": { "label": "Tarefas e projetos" },
+      "capture": { "label": "Captura rápida" },
+      "calendar": { "label": "Sincro agenda" },
+      "habits": { "label": "Hábitos e sequências" },
+      "focus": { "label": "Pomodoro e foco" },
+      "wellbeing": { "label": "Bem-estar e burnout" },
+      "okrs": { "label": "OKRs e metas" },
+      "agents": { "label": "Pronto para assistentes IA (MCP)" },
+      "platforms": { "label": "Web + desktop + móvel" },
+      "price": {
+        "label": "Plano pago a partir de",
+        "ordo": "Grátis; Pro $9",
+        "todoist": "Desde ~$5",
+        "notion": "Desde ~$10",
+        "motion": "Desde ~$19"
+      }
+    },
+    "sources_note": "Coluna Ordo verificada contra este código; colunas de concorrentes resumem conhecimento público até out 2026.",
+    "cta_text": "Veja os preços do Ordo em detalhe",
+    "cta_link": "Abrir preços →"
   },
   "ProductShowcase": {
     "badge": "Tour do Produto",
@@ -285,6 +460,10 @@
     "guide": "Guia do Usuário",
     "blog": "Blog",
     "pricing": "Preços",
+    "features": "Recursos",
+    "agents": "Assistentes IA",
+    "apps": "Apps",
+    "compare": "Comparar",
     "company": "Empresa",
     "about": "Sobre",
     "contact": "Contato",
@@ -613,10 +792,29 @@
     "planned_sso": "SSO/SAML (planejado)",
     "planned_dpa": "DPA (planejado)",
     "usd_note": "Preços em USD. Quando a cobrança estiver ativa:",
-    "trial_title": "Teste Pro de {days} dias, sem cartão",
-    "trial_text": "Teste tudo do Pro por {days} dias. Ao terminar, adicione um cartão para continuar no Pro ou siga usando o plano gratuito.",
+    "trial_title": "Teste {plan} de {days} dias, sem cartão",
+    "trial_text": "Teste tudo do {plan} por {days} dias. {card_note} Ao terminar, adicione um cartão para continuar no {plan} ou siga usando o plano gratuito.",
+    "trial_no_card": "Sem cartão para começar.",
+    "trial_card": "É pedido cartão para começar o teste.",
     "grace_title": "Período de carência se um pagamento falhar",
     "grace_text": "Tudo continua funcionando por {days} dias enquanto tentamos a cobrança novamente. Depois, a conta passa para o Grátis. Ler e exportar seus dados nunca é bloqueado.",
+    "extras": {
+      "pomodoro": "Timer Pomodoro",
+      "basic_analytics": "Análises básicas",
+      "mobile": "Acesso ao app móvel",
+      "ai_scheduling": "Agenda de tarefas com IA",
+      "advanced_analytics": "Análises avançadas",
+      "recurring": "Tarefas recorrentes",
+      "priority_support": "Suporte prioritário",
+      "team_workspaces": "Espaços de equipe",
+      "shared_projects": "Projetos compartilhados",
+      "team_analytics": "Análises de equipe",
+      "admin_controls": "Controles de administração",
+      "dedicated_support": "Suporte dedicado",
+      "unlimited_users": "Usuários ilimitados",
+      "account_manager": "Gerente de conta dedicado",
+      "onboarding": "Integração personalizada"
+    },
     "plans": {
       "free": {
         "name": "Grátis",
@@ -666,6 +864,13 @@
       "title": "Nossa Missão",
       "text1": "No Ordo Todo, acreditamos que a produtividade não deve ser complicada. Construímos esta plataforma para ajudar indivíduos e equipes a organizar seu trabalho, focar no que importa e alcançar seus objetivos sem estresse.",
       "text2": "Nossa jornada começou com uma ideia simples: criar uma ferramenta que se adapte a você, não o contrário."
+    },
+    "facts_title": "Ordo em dados",
+    "facts": {
+      "platforms": "Apps web, desktop e móvel",
+      "mcp_tools": "17 ferramentas para agentes (MCP)",
+      "languages": "Inglês, espanhol, português",
+      "trial": "Plano gratuito e teste Pro de 14 dias, sem cartão"
     },
     "values": {
       "title": "Nossos Valores",

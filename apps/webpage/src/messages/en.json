@@ -152,16 +152,17 @@
     "faq": "FAQ",
     "changelog": "Changelog",
     "roadmap": "Roadmap",
+    "pricing": "Pricing",
     "login": "Login",
     "register": "Start for Free"
   },
   "Hero": {
-    "title": "Master Your Time",
-    "highlight": "Achieve Your Goals",
-    "description": "Ordo Todo is the ultimate productivity platform powered by AI. Organize tasks, manage projects, and optimize your workflow.",
+    "title": "Your tasks,",
+    "highlight": "wherever you work",
+    "description": "Ordo Todo organizes tasks, projects, habits and focus time in one place — and your AI assistant can operate it for you in under 60 seconds.",
     "cta_primary": "Get Started Free",
-    "cta_secondary": "Learn More",
-    "badge": "Now with AI Assistant",
+    "cta_secondary": "Connect Your Agent",
+    "badge": "Works with your AI assistant",
     "features": {
       "pomodoro": "Pomodoro Timer",
       "ai": "AI Scheduling",
@@ -198,12 +199,186 @@
       "description": "Your data is encrypted and secure. We value your privacy."
     },
     "stats": {
-      "okr": "OKR Tracking",
-      "calendar": "Calendar Sync",
-      "speed": "Load Speed",
-      "uptime": "Uptime"
+      "mcp_tools": "Agent tools (MCP)",
+      "calendar": "Calendar sync",
+      "platforms": "Platforms",
+      "languages": "Languages"
     },
     "discover_more": "Discover 7 more features that already exist"
+  },
+  "FeaturesPage": {
+    "badge": "Features",
+    "title": "Everything Ordo does today",
+    "subtitle": "Every feature below exists in the product right now. Each card links to its guide.",
+    "tasks": {
+      "title": "Tasks & projects",
+      "description": "Tasks with subtasks, dependencies, recurrence, tags and priorities; projects with Kanban boards, custom workflows and Eisenhower view."
+    },
+    "focus": {
+      "title": "Pomodoro & focus timer",
+      "description": "Pomodoro and continuous timers with pause, resume, history and stats — one engine on web, desktop and mobile."
+    },
+    "habits": {
+      "title": "Habits & streaks",
+      "description": "Daily habits with streaks, pause and stats to build consistency."
+    },
+    "plan": {
+      "title": "My plan for today",
+      "description": "A proposed day plan with Do Date vs Due Date, automatic replanning and risk alerts when the day overloads."
+    },
+    "ritual": {
+      "title": "Daily ritual",
+      "description": "Guided morning planning and evening shutdown with reminders and streaks."
+    },
+    "agent": {
+      "title": "Your own agent",
+      "description": "Ask questions about your workspace with cited answers, run actions in plain language, and schedule recurrent jobs."
+    },
+    "scheduling": {
+      "title": "Auto-scheduling",
+      "description": "Optimal schedule suggestions plus duration predictions learned from your own history."
+    },
+    "search": {
+      "title": "Smart search",
+      "description": "Search that understands intent, with suggestions across tasks, projects and notes."
+    },
+    "coach": {
+      "title": "AI coach",
+      "description": "A conversational coach with your context for planning and reflection."
+    },
+    "gamification": {
+      "title": "XP & achievements",
+      "description": "Experience points, levels and achievements that reward consistency."
+    },
+    "meetings": {
+      "title": "Meeting actions",
+      "description": "Paste a transcript and get a summary plus action items you can convert into tasks. Manual input for now — no automatic recording."
+    },
+    "integrations": {
+      "title": "Calendar, Slack & agents",
+      "description": "Two-way sync with Google Calendar and Outlook, deep Slack integration, 17 MCP tools and a public API with webhooks."
+    },
+    "cta_text": "See what each plan includes",
+    "cta_link": "Compare plans →"
+  },
+  "AgentsPage": {
+    "badge": "Agent-ready",
+    "title": "Use Ordo from your AI assistant",
+    "subtitle": "Connect ChatGPT, Claude, Hermes or OpenClaw in under 60 seconds. Your assistant operates Ordo with your own permissions — nothing more.",
+    "tools_title": "17 tools your assistant can use",
+    "tools": {
+      "tasks": {
+        "title": "Tasks",
+        "description": "List, create, update and complete tasks, read details and add comments."
+      },
+      "projects": {
+        "title": "Projects",
+        "description": "List, create and update projects, read details and track objectives."
+      },
+      "day": {
+        "title": "Your day",
+        "description": "Read your proposed day plan, apply it, check risks, complete habits."
+      },
+      "more": {
+        "title": "And more",
+        "description": "Semantic search across your workspace plus your profile context."
+      }
+    },
+    "permissions_note": "Your assistant only sees what you can see: every request runs with your permissions and failed checks are denied.",
+    "clients_title": "Pick your assistant",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Connect Ordo as an app from the directory"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Add Ordo as a connector on web or desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Your memory-enabled helper, now with Ordo inside"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Run Ordo from WhatsApp, Telegram or Discord"
+      }
+    },
+    "directory_note": "Directory listings are in progress: each guide includes manual setup steps that work today.",
+    "cta": "Connect your assistant"
+  },
+  "AppsPage": {
+    "badge": "Apps",
+    "title": "Ordo on every screen",
+    "subtitle": "Web, desktop and mobile share one account and one engine. Below is what each app offers today — honestly.",
+    "platforms": {
+      "web": {
+        "title": "Web app",
+        "description": "The full product: every feature, including My plan for today and the complete ritual.",
+        "access": "Open in your browser"
+      },
+      "desktop": {
+        "title": "Desktop (Windows, Mac, Linux)",
+        "description": "Native app with offline-first sync and floating timer. Day-plan view and new ritual view are not there yet.",
+        "access": "Build from source until the first release"
+      },
+      "mobile": {
+        "title": "Mobile (iOS, Android)",
+        "description": "Native app with tasks, habits, ritual and timer. Day-plan view and command palette are not there yet.",
+        "access": "Build from source until the first release"
+      }
+    },
+    "parity_title": "What works where",
+    "parity_subtitle": "Full matrix with details lives in the docs. Summary:",
+    "parity_feature": "Feature",
+    "parity_web": "Web",
+    "parity_desktop": "Desktop",
+    "parity_mobile": "Mobile",
+    "parity": {
+      "tasks": "Tasks & projects",
+      "capture": "Quick capture",
+      "calendar": "Calendar",
+      "pomodoro": "Pomodoro",
+      "ritual": "Daily ritual",
+      "plan": "My plan for today",
+      "habits": "Habits",
+      "focus": "Focus mode",
+      "offline": "Offline & sync"
+    },
+    "cta_text": "New here? Start with the guide",
+    "cta_link": "Open the guide →"
+  },
+  "ComparePage": {
+    "badge": "Compare",
+    "title": "Ordo vs the rest",
+    "subtitle": "An honest comparison: where Ordo wins, where it is catching up, and where competitors are still better.",
+    "honesty_note": "We wrote this table against our own competitive analysis. Partial means it exists but trails the best in class; empty means it does not exist. Competitor details change — check their sites for the latest.",
+    "col_feature": "Capability",
+    "col_ordo": "Ordo",
+    "col_todoist": "Todoist",
+    "col_notion": "Notion",
+    "col_motion": "Motion",
+    "rows": {
+      "tasks": { "label": "Tasks & projects" },
+      "capture": { "label": "Fast capture" },
+      "calendar": { "label": "Calendar sync" },
+      "habits": { "label": "Habits & streaks" },
+      "focus": { "label": "Pomodoro & focus" },
+      "wellbeing": { "label": "Wellbeing & burnout" },
+      "okrs": { "label": "OKRs & goals" },
+      "agents": { "label": "AI assistant ready (MCP)" },
+      "platforms": { "label": "Web + desktop + mobile" },
+      "price": {
+        "label": "Paid plan from",
+        "ordo": "Free; Pro $9",
+        "todoist": "From ~$5",
+        "notion": "From ~$10",
+        "motion": "From ~$19"
+      }
+    },
+    "sources_note": "Ordo column verified against this codebase; competitor columns summarize public knowledge as of Oct 2026.",
+    "cta_text": "See Ordo pricing in detail",
+    "cta_link": "Open pricing →"
   },
   "ProductShowcase": {
     "badge": "Product Tour",
@@ -285,6 +460,10 @@
     "guide": "User Guide",
     "blog": "Blog",
     "pricing": "Pricing",
+    "features": "Features",
+    "agents": "AI Assistants",
+    "apps": "Apps",
+    "compare": "Compare",
     "company": "Company",
     "about": "About Us",
     "contact": "Contact",
@@ -613,10 +792,29 @@
     "planned_sso": "SSO/SAML (planned)",
     "planned_dpa": "DPA (planned)",
     "usd_note": "Prices in USD. When billing launches:",
-    "trial_title": "{days}-day Pro trial, no card required",
-    "trial_text": "Try everything in Pro for {days} days. When it ends, add a card to stay on Pro or keep using Free.",
+    "trial_title": "{days}-day {plan} trial, no card required",
+    "trial_text": "Try everything in {plan} for {days} days. {card_note} When it ends, add a card to stay on {plan} or keep using Free.",
+    "trial_no_card": "No card required to start.",
+    "trial_card": "A card is required to start the trial.",
     "grace_title": "Grace period if a payment fails",
     "grace_text": "Everything keeps working for {days} days while we retry the payment. Then the account moves to Free. Reading and exporting your data are never blocked.",
+    "extras": {
+      "pomodoro": "Pomodoro timer",
+      "basic_analytics": "Basic analytics",
+      "mobile": "Mobile app access",
+      "ai_scheduling": "AI task scheduling",
+      "advanced_analytics": "Advanced analytics",
+      "recurring": "Recurring tasks",
+      "priority_support": "Priority support",
+      "team_workspaces": "Team workspaces",
+      "shared_projects": "Shared projects",
+      "team_analytics": "Team analytics",
+      "admin_controls": "Admin controls",
+      "dedicated_support": "Dedicated support",
+      "unlimited_users": "Unlimited users",
+      "account_manager": "Dedicated account manager",
+      "onboarding": "Custom onboarding"
+    },
     "plans": {
       "free": {
         "name": "Free",
@@ -666,6 +864,13 @@
       "title": "Our Mission",
       "text1": "At Ordo Todo, we believe that productivity shouldn't be complicated. We built this platform to help individuals and teams organize their work, focus on what matters, and achieve their goals without the stress.",
       "text2": "Our journey began with a simple idea: create a tool that adapts to you, not the other way around."
+    },
+    "facts_title": "Ordo in facts",
+    "facts": {
+      "platforms": "Web, desktop and mobile apps",
+      "mcp_tools": "17 agent tools (MCP)",
+      "languages": "English, Spanish, Portuguese",
+      "trial": "Free plan and 14-day Pro trial, no card"
     },
     "values": {
       "title": "Our Core Values",
