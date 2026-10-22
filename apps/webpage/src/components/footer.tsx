@@ -16,6 +16,7 @@ export function Footer() {
       { label: t('features'), href: '/features' },
       { label: t('agents'), href: '/agents' },
       { label: t('apps'), href: '/apps' },
+      { label: t('compare'), href: '/compare' },
     ],
     company: [
       { label: t('about'), href: '/about' },

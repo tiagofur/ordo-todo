@@ -348,6 +348,38 @@
     "cta_text": "Novo aqui? Comece pelo guia",
     "cta_link": "Abrir o guia →"
   },
+  "ComparePage": {
+    "badge": "Comparar",
+    "title": "Ordo contra o resto",
+    "subtitle": "Uma comparação honesta: onde o Ordo vence, onde está alcançando e onde os concorrentes ainda são melhores.",
+    "honesty_note": "Escrevemos esta tabela contra nossa própria análise competitiva. Parcial significa que existe mas está atrás do melhor; vazio significa que não existe. Detalhes dos concorrentes mudam — veja os sites deles para o mais recente.",
+    "col_feature": "Capacidade",
+    "col_ordo": "Ordo",
+    "col_todoist": "Todoist",
+    "col_notion": "Notion",
+    "col_motion": "Motion",
+    "rows": {
+      "tasks": { "label": "Tarefas e projetos" },
+      "capture": { "label": "Captura rápida" },
+      "calendar": { "label": "Sincro agenda" },
+      "habits": { "label": "Hábitos e sequências" },
+      "focus": { "label": "Pomodoro e foco" },
+      "wellbeing": { "label": "Bem-estar e burnout" },
+      "okrs": { "label": "OKRs e metas" },
+      "agents": { "label": "Pronto para assistentes IA (MCP)" },
+      "platforms": { "label": "Web + desktop + móvel" },
+      "price": {
+        "label": "Plano pago desde",
+        "ordo": "Grátis; Pro $9",
+        "todoist": "Desde ~$5",
+        "notion": "Desde ~$10",
+        "motion": "Desde ~$19"
+      }
+    },
+    "sources_note": "Coluna Ordo verificada contra este código; colunas de concorrentes resumem conhecimento público até out 2026.",
+    "cta_text": "Veja os preços do Ordo em detalhe",
+    "cta_link": "Abrir preços →"
+  },
   "ProductShowcase": {
     "badge": "Tour do Produto",
     "title": "Tudo o que você precisa para",
@@ -431,6 +463,7 @@
     "features": "Recursos",
     "agents": "Assistentes IA",
     "apps": "Apps",
+    "compare": "Comparar",
     "company": "Empresa",
     "about": "Sobre",
     "contact": "Contato",
