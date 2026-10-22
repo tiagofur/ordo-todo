@@ -16,7 +16,10 @@ import {
   Hourglass,
   Zap,
   CalendarDays,
-  Hash
+  Hash,
+  Bot,
+  Wand2,
+  MoonStar
 } from 'lucide-react';
 
 export function GuideSidebar() {
@@ -71,6 +74,24 @@ export function GuideSidebar() {
       href: '/guide/calendar', 
       icon: CalendarDays,
       color: '#06B6D4',
+    },
+    { 
+      key: 'ritual', 
+      href: '/guide/ritual', 
+      icon: MoonStar,
+      color: '#A855F7',
+    },
+    { 
+      key: 'scheduling', 
+      href: '/guide/scheduling', 
+      icon: Wand2,
+      color: '#06B6D4',
+    },
+    { 
+      key: 'agent', 
+      href: '/guide/agent', 
+      icon: Bot,
+      color: '#3B82F6',
     },
     { 
       key: 'analytics', 

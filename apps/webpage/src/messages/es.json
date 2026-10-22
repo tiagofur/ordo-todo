@@ -551,6 +551,9 @@
       "habits": "Hábitos",
       "pomodoro": "Pomodoro",
       "calendar": "Sincro Calendario",
+      "ritual": "Ritual Diario",
+      "scheduling": "Auto-Agenda",
+      "agent": "Tu Agente",
       "analytics": "Analíticas",
       "slack": "Slack",
       "need_help": "¿Necesitas más ayuda?",
@@ -662,8 +665,94 @@
         "title": "Integración Slack",
         "description": "Comandos, acciones y resumen diario",
         "time": "5 min"
+      },
+      "agent": {
+        "title": "Tu Propio Agente",
+        "description": "Pregunta, actúa y programa en lenguaje natural",
+        "time": "5 min"
+      },
+      "scheduling": {
+        "title": "Auto-Agenda",
+        "description": "Fecha de ejecución, plan diario y alertas",
+        "time": "5 min"
+      },
+      "ritual": {
+        "title": "Ritual Diario",
+        "description": "Mañana guiada y cierre de tarde",
+        "time": "4 min"
       }
     }
+  },
+  "GuideAgent": {
+    "badge": "Agente",
+    "title": "Tu Propio Agente",
+    "subtitle": "Pregunta sobre tu espacio de trabajo, ejecuta acciones en lenguaje natural y programa trabajos recurrentes.",
+    "powers_title": "Tres poderes",
+    "powers": {
+      "ask": {
+        "title": "Pregunta lo que sea",
+        "description": "Preguntas respondidas desde tus tareas, proyectos y notas — con citas a la fuente.",
+        "example": "¿Qué vence esta semana?"
+      },
+      "actions": {
+        "title": "Actúa en lenguaje natural",
+        "description": "Propón un plan, revísalo y ejecútalo: crea, actualiza y completa sin clics.",
+        "example": "Mueve todas las tareas de diseño al viernes"
+      },
+      "jobs": {
+        "title": "Trabajos recurrentes",
+        "description": "Programa briefings y resúmenes en lenguaje natural; ejecuta, pausa o borra cuando quieras.",
+        "example": "Cada lunes a viernes a las 8:00, infórmame"
+      }
+    },
+    "safety_title": "Seguro por diseño",
+    "safety_text": "Las acciones corren con tus permisos, cada paso se audita y los planes destructivos preguntan antes. Nada corre en silencio.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Empieza preguntando: aprende lo que el agente sabe antes de darle acciones."
+  },
+  "GuideScheduling": {
+    "badge": "Agenda",
+    "title": "Auto-Agenda",
+    "subtitle": "Un plan diario propuesto con fecha de ejecución vs vencimiento, replanificación automática y alertas de riesgo.",
+    "doday_title": "Fecha de ejecución no es vencimiento",
+    "doday_text": "El vencimiento es la fecha límite. La fecha de ejecución es cuándo planeas hacer el trabajo. El planificador agenda por fecha de ejecución y avisa cuando el límite peligra.",
+    "doday_card_title": "Fecha de ejecución",
+    "doday_card_text": "Se define por tarea. Las tareas sin una se agendan alrededor de las que la tienen.",
+    "replan_card_title": "Replanificar",
+    "replan_card_text": "Inicio del día, tarea completada o desbordada: el plan se reconstruye solo.",
+    "plan_title": "Tu plan de hoy",
+    "steps": {
+      "1": "Abre Mi plan de hoy por la mañana",
+      "2": "Revisa los bloques propuestos y congela los que te gusten",
+      "3": "Aplica el plan; las tareas reciben sus fechas de ejecución"
+    },
+    "risks_title": "Alertas de riesgo",
+    "risks_text": "Avisos de sobrecarga y vencimiento en riesgo llegan con opciones: mover, dividir o soltar — tú decides.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Las duraciones mejoran con el tiempo: las predicciones aprenden de tus sesiones completadas."
+  },
+  "GuideRitual": {
+    "badge": "Ritual",
+    "title": "Ritual Diario",
+    "subtitle": "Dos minutos por la mañana, dos por la tarde: planea el día y luego ciérralo.",
+    "morning_title": "Mañana",
+    "morning_text": "Revisa el día, acepta o ajusta los bloques propuestos y empieza con intención.",
+    "evening_title": "Tarde",
+    "evening_text": "Cierra el día: completado, arrastrado y una línea sobre cómo fue.",
+    "flow_title": "El flujo",
+    "steps": {
+      "1": "El ritual de mañana propone tu plan diario",
+      "2": "Acepta los bloques o ajústalos",
+      "3": "Trabaja el plan; el temporizador y la agenda se adaptan",
+      "4": "El ritual de tarde cierra lo completado y arrastra el resto"
+    },
+    "streak_title": "Rachas y recordatorios",
+    "streak_card_title": "Rachas",
+    "streak_card_text": "Días consecutivos con mañana y tarde hechas. Salta un día explícitamente para mantener honesta la racha.",
+    "reminders_card_title": "Recordatorios",
+    "reminders_card_text": "Avisos suaves si la mañana o la tarde siguen abiertas.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Combina el ritual con el plan diario: acepta bloques por la mañana, revísalos por la tarde."
   },
   "GuideCapture": {
     "badge": "Captura",

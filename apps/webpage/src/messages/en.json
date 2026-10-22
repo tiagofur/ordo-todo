@@ -551,6 +551,9 @@
       "habits": "Habits",
       "pomodoro": "Pomodoro",
       "calendar": "Calendar Sync",
+      "ritual": "Daily Ritual",
+      "scheduling": "Auto-Scheduling",
+      "agent": "Your Agent",
       "analytics": "Analytics",
       "slack": "Slack",
       "need_help": "Need more help?",
@@ -662,8 +665,94 @@
         "title": "Slack Integration",
         "description": "Commands, message actions and digest",
         "time": "5 min"
+      },
+      "agent": {
+        "title": "Your Own Agent",
+        "description": "Ask, act and schedule in plain language",
+        "time": "5 min"
+      },
+      "scheduling": {
+        "title": "Auto-Scheduling",
+        "description": "Do Date, day plan and risk alerts",
+        "time": "5 min"
+      },
+      "ritual": {
+        "title": "Daily Ritual",
+        "description": "Guided morning and evening shutdown",
+        "time": "4 min"
       }
     }
+  },
+  "GuideAgent": {
+    "badge": "Agent",
+    "title": "Your Own Agent",
+    "subtitle": "Ask about your workspace, run actions in plain language, and schedule recurrent jobs.",
+    "powers_title": "Three powers",
+    "powers": {
+      "ask": {
+        "title": "Ask anything",
+        "description": "Questions answered from your tasks, projects and notes — with citations to the source.",
+        "example": "What is due this week?"
+      },
+      "actions": {
+        "title": "Act in plain language",
+        "description": "Propose a plan, review it, then execute: create, update and complete without clicking.",
+        "example": "Move all design tasks to Friday"
+      },
+      "jobs": {
+        "title": "Recurrent jobs",
+        "description": "Schedule briefings and summaries in natural language; run, pause or delete anytime.",
+        "example": "Every weekday at 8:00, brief me"
+      }
+    },
+    "safety_title": "Safe by design",
+    "safety_text": "Actions run with your permissions, every step is audited, and destructive plans ask first. Nothing runs silently.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Start with ask: learn what the agent knows before handing it actions."
+  },
+  "GuideScheduling": {
+    "badge": "Scheduling",
+    "title": "Auto-Scheduling",
+    "subtitle": "A proposed day plan with Do Date vs Due Date, automatic replanning and risk alerts.",
+    "doday_title": "Do Date is not Due Date",
+    "doday_text": "Due date is the deadline. Do Date is when you plan to do the work. The planner schedules by Do Date and warns when the deadline is at risk.",
+    "doday_card_title": "Do Date",
+    "doday_card_text": "Set per task. Tasks without one are scheduled around the ones that have it.",
+    "replan_card_title": "Replan",
+    "replan_card_text": "Day start, task completed or overrun: the plan rebuilds itself.",
+    "plan_title": "Your plan for today",
+    "steps": {
+      "1": "Open My plan for today in the morning",
+      "2": "Review the proposed blocks and freeze the ones you like",
+      "3": "Apply the plan; tasks get their Do Dates"
+    },
+    "risks_title": "Risk alerts",
+    "risks_text": "Overload and deadline-at-risk warnings arrive with options: move, split or drop — you decide.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Durations improve over time: predictions learn from your own completed sessions."
+  },
+  "GuideRitual": {
+    "badge": "Ritual",
+    "title": "Daily Ritual",
+    "subtitle": "Two minutes in the morning, two in the evening: plan the day, then shut it down.",
+    "morning_title": "Morning",
+    "morning_text": "Review today, accept or adjust the proposed timeboxes, and start with intent.",
+    "evening_title": "Evening",
+    "evening_text": "Close the day: completed, carried over, and one line on how it went.",
+    "flow_title": "The flow",
+    "steps": {
+      "1": "Morning ritual proposes your day plan",
+      "2": "Accept the timeboxes or adjust them",
+      "3": "Work the plan; the timer and scheduling adapt",
+      "4": "Evening ritual closes completed and carries the rest"
+    },
+    "streak_title": "Streaks & reminders",
+    "streak_card_title": "Streaks",
+    "streak_card_text": "Consecutive days with morning and evening done. Skip a day explicitly to keep the streak honest.",
+    "reminders_card_title": "Reminders",
+    "reminders_card_text": "Gentle nudges if morning or evening is still open.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Pair the ritual with the day plan: accept timeboxes in the morning, review them in the evening."
   },
   "GuideCapture": {
     "badge": "Capture",
