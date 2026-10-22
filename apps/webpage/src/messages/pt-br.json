@@ -152,16 +152,17 @@
     "faq": "FAQ",
     "changelog": "Novidades",
     "roadmap": "Roadmap",
+    "pricing": "Preços",
     "login": "Entrar",
     "register": "Comece Grátis"
   },
   "Hero": {
-    "title": "Domine Seu Tempo",
-    "highlight": "Alcance Seus Objetivos",
-    "description": "Ordo Todo é a plataforma definitiva de produtividade impulsionada por IA. Organize tarefas, gerencie projetos e otimize seu fluxo de trabalho.",
+    "title": "Suas tarefas,",
+    "highlight": "onde você trabalhar",
+    "description": "O Ordo Todo organiza tarefas, projetos, hábitos e tempo de foco em um só lugar — e seu assistente de IA pode operá-lo por você em menos de 60 segundos.",
     "cta_primary": "Comece Grátis",
-    "cta_secondary": "Saiba Mais",
-    "badge": "Agora com Assistente IA",
+    "cta_secondary": "Conecte Seu Agente",
+    "badge": "Funciona com seu assistente de IA",
     "features": {
       "pomodoro": "Timer Pomodoro",
       "ai": "Agenda com IA",
@@ -198,10 +199,10 @@
       "description": "Seus dados são criptografados e seguros. Valorizamos sua privacidade."
     },
     "stats": {
-      "okr": "Rastreamento OKR",
-      "calendar": "Sincro Calendário",
-      "speed": "Velocidade",
-      "uptime": "Disponibilidade"
+      "mcp_tools": "Ferramentas para agentes (MCP)",
+      "calendar": "Sincro calendário",
+      "platforms": "Plataformas",
+      "languages": "Idiomas"
     },
     "discover_more": "Descubra mais 7 recursos que já existem"
   },
@@ -613,10 +614,29 @@
     "planned_sso": "SSO/SAML (planejado)",
     "planned_dpa": "DPA (planejado)",
     "usd_note": "Preços em USD. Quando a cobrança estiver ativa:",
-    "trial_title": "Teste Pro de {days} dias, sem cartão",
-    "trial_text": "Teste tudo do Pro por {days} dias. Ao terminar, adicione um cartão para continuar no Pro ou siga usando o plano gratuito.",
+    "trial_title": "Teste {plan} de {days} dias, sem cartão",
+    "trial_text": "Teste tudo do {plan} por {days} dias. {card_note} Ao terminar, adicione um cartão para continuar no {plan} ou siga usando o plano gratuito.",
+    "trial_no_card": "Sem cartão para começar.",
+    "trial_card": "É pedido cartão para começar o teste.",
     "grace_title": "Período de carência se um pagamento falhar",
     "grace_text": "Tudo continua funcionando por {days} dias enquanto tentamos a cobrança novamente. Depois, a conta passa para o Grátis. Ler e exportar seus dados nunca é bloqueado.",
+    "extras": {
+      "pomodoro": "Timer Pomodoro",
+      "basic_analytics": "Análises básicas",
+      "mobile": "Acesso ao app móvel",
+      "ai_scheduling": "Agenda de tarefas com IA",
+      "advanced_analytics": "Análises avançadas",
+      "recurring": "Tarefas recorrentes",
+      "priority_support": "Suporte prioritário",
+      "team_workspaces": "Espaços de equipe",
+      "shared_projects": "Projetos compartilhados",
+      "team_analytics": "Análises de equipe",
+      "admin_controls": "Controles de administração",
+      "dedicated_support": "Suporte dedicado",
+      "unlimited_users": "Usuários ilimitados",
+      "account_manager": "Gerente de conta dedicado",
+      "onboarding": "Integração personalizada"
+    },
     "plans": {
       "free": {
         "name": "Grátis",
@@ -666,6 +686,13 @@
       "title": "Nossa Missão",
       "text1": "No Ordo Todo, acreditamos que a produtividade não deve ser complicada. Construímos esta plataforma para ajudar indivíduos e equipes a organizar seu trabalho, focar no que importa e alcançar seus objetivos sem estresse.",
       "text2": "Nossa jornada começou com uma ideia simples: criar uma ferramenta que se adapte a você, não o contrário."
+    },
+    "facts_title": "Ordo em dados",
+    "facts": {
+      "platforms": "Apps web, desktop e móvel",
+      "mcp_tools": "17 ferramentas para agentes (MCP)",
+      "languages": "Inglês, espanhol, português",
+      "trial": "Plano gratuito e teste Pro de 14 dias, sem cartão"
     },
     "values": {
       "title": "Nossos Valores",

@@ -152,16 +152,17 @@
     "faq": "FAQ",
     "changelog": "Changelog",
     "roadmap": "Roadmap",
+    "pricing": "Pricing",
     "login": "Login",
     "register": "Start for Free"
   },
   "Hero": {
-    "title": "Master Your Time",
-    "highlight": "Achieve Your Goals",
-    "description": "Ordo Todo is the ultimate productivity platform powered by AI. Organize tasks, manage projects, and optimize your workflow.",
+    "title": "Your tasks,",
+    "highlight": "wherever you work",
+    "description": "Ordo Todo organizes tasks, projects, habits and focus time in one place — and your AI assistant can operate it for you in under 60 seconds.",
     "cta_primary": "Get Started Free",
-    "cta_secondary": "Learn More",
-    "badge": "Now with AI Assistant",
+    "cta_secondary": "Connect Your Agent",
+    "badge": "Works with your AI assistant",
     "features": {
       "pomodoro": "Pomodoro Timer",
       "ai": "AI Scheduling",
@@ -198,10 +199,10 @@
       "description": "Your data is encrypted and secure. We value your privacy."
     },
     "stats": {
-      "okr": "OKR Tracking",
-      "calendar": "Calendar Sync",
-      "speed": "Load Speed",
-      "uptime": "Uptime"
+      "mcp_tools": "Agent tools (MCP)",
+      "calendar": "Calendar sync",
+      "platforms": "Platforms",
+      "languages": "Languages"
     },
     "discover_more": "Discover 7 more features that already exist"
   },
@@ -613,10 +614,29 @@
     "planned_sso": "SSO/SAML (planned)",
     "planned_dpa": "DPA (planned)",
     "usd_note": "Prices in USD. When billing launches:",
-    "trial_title": "{days}-day Pro trial, no card required",
-    "trial_text": "Try everything in Pro for {days} days. When it ends, add a card to stay on Pro or keep using Free.",
+    "trial_title": "{days}-day {plan} trial, no card required",
+    "trial_text": "Try everything in {plan} for {days} days. {card_note} When it ends, add a card to stay on {plan} or keep using Free.",
+    "trial_no_card": "No card required to start.",
+    "trial_card": "A card is required to start the trial.",
     "grace_title": "Grace period if a payment fails",
     "grace_text": "Everything keeps working for {days} days while we retry the payment. Then the account moves to Free. Reading and exporting your data are never blocked.",
+    "extras": {
+      "pomodoro": "Pomodoro timer",
+      "basic_analytics": "Basic analytics",
+      "mobile": "Mobile app access",
+      "ai_scheduling": "AI task scheduling",
+      "advanced_analytics": "Advanced analytics",
+      "recurring": "Recurring tasks",
+      "priority_support": "Priority support",
+      "team_workspaces": "Team workspaces",
+      "shared_projects": "Shared projects",
+      "team_analytics": "Team analytics",
+      "admin_controls": "Admin controls",
+      "dedicated_support": "Dedicated support",
+      "unlimited_users": "Unlimited users",
+      "account_manager": "Dedicated account manager",
+      "onboarding": "Custom onboarding"
+    },
     "plans": {
       "free": {
         "name": "Free",
@@ -666,6 +686,13 @@
       "title": "Our Mission",
       "text1": "At Ordo Todo, we believe that productivity shouldn't be complicated. We built this platform to help individuals and teams organize their work, focus on what matters, and achieve their goals without the stress.",
       "text2": "Our journey began with a simple idea: create a tool that adapts to you, not the other way around."
+    },
+    "facts_title": "Ordo in facts",
+    "facts": {
+      "platforms": "Web, desktop and mobile apps",
+      "mcp_tools": "17 agent tools (MCP)",
+      "languages": "English, Spanish, Portuguese",
+      "trial": "Free plan and 14-day Pro trial, no card"
     },
     "values": {
       "title": "Our Core Values",

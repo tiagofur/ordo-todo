@@ -49,10 +49,16 @@ export default function AboutPage() {
               <p>{t('mission.text2')}</p>
             </div>
           </div>
-          <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video md:aspect-square lg:aspect-video flex items-center justify-center border">
-            <div className="absolute inset-0 bg-[#06B6D4]/10" />
-             {/* Placeholder for About Image - could be a team photo or office */}
-             <Users className="h-24 w-24 text-[#06B6D4]/40" />
+          <div className="relative rounded-2xl bg-card border p-8">
+            <h3 className="text-xl font-bold text-foreground mb-6">{t('facts_title')}</h3>
+            <ul className="space-y-4">
+              {(['platforms', 'mcp_tools', 'languages', 'trial'] as const).map((fact) => (
+                <li key={fact} className="flex items-start gap-3">
+                  <Sparkles className="h-5 w-5 shrink-0 mt-0.5 text-[#06B6D4]" />
+                  <span className="text-muted-foreground">{t(`facts.${fact}`)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </motion.div>
 

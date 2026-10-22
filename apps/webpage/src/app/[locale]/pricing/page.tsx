@@ -8,8 +8,15 @@ import { Link } from '@/i18n/routing';
 import { appLink } from '@/lib/app-url';
 import { PLANS, TRIAL, GRACE_PERIOD_DAYS, formatLimit, type PlanId } from '@/lib/plans';
 
+function assertNever(value: never): never {
+  throw new Error(`Unhandled plan: ${String(value)}`);
+}
+
 export default function PricingPage() {
   const t = useTranslations('Pricing');
+
+  const trialPlanName = t(`plans.${TRIAL.plan}.name`);
+  const trialCardNote = t(TRIAL.requiresCard ? 'trial_card' : 'trial_no_card');
 
   const priceLabel = (key: PlanId): string => {
     const price = PLANS[key].priceUsd;
@@ -49,6 +56,8 @@ export default function PricingPage() {
           t('everything_in', { plan: t('plans.team.name') }),
           storage(limits.storageGb),
         ];
+      default:
+        return assertNever(key);
     }
   };
 
@@ -60,9 +69,9 @@ export default function PricingPage() {
       period: t('period_forever'),
       popular: false,
       extras: [
-        'Pomodoro timer',
-        'Basic analytics',
-        'Mobile app access',
+        t('extras.pomodoro'),
+        t('extras.basic_analytics'),
+        t('extras.mobile'),
       ],
     },
     {
@@ -72,10 +81,10 @@ export default function PricingPage() {
       period: t('period_month'),
       popular: true,
       extras: [
-        'AI task scheduling',
-        'Advanced analytics',
-        'Recurring tasks',
-        'Priority support',
+        t('extras.ai_scheduling'),
+        t('extras.advanced_analytics'),
+        t('extras.recurring'),
+        t('extras.priority_support'),
       ],
     },
     {
@@ -85,11 +94,11 @@ export default function PricingPage() {
       period: t('period_user_month'),
       popular: false,
       extras: [
-        'Team workspaces',
-        'Shared projects',
-        'Team analytics',
-        'Admin controls',
-        'Dedicated support',
+        t('extras.team_workspaces'),
+        t('extras.shared_projects'),
+        t('extras.team_analytics'),
+        t('extras.admin_controls'),
+        t('extras.dedicated_support'),
       ],
     },
     {
@@ -99,11 +108,11 @@ export default function PricingPage() {
       period: null,
       popular: false,
       extras: [
-        'Unlimited users',
+        t('extras.unlimited_users'),
         t('planned_sso'),
         t('planned_dpa'),
-        'Dedicated account manager',
-        'Custom onboarding',
+        t('extras.account_manager'),
+        t('extras.onboarding'),
       ],
     },
   ];
@@ -267,10 +276,10 @@ export default function PricingPage() {
           <div className="p-6 rounded-xl bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-left">
             <Clock className="h-8 w-8 text-[#06B6D4] mb-3" />
             <h3 className="font-bold text-foreground mb-2">
-              {t('trial_title', { days: TRIAL.days })}
+              {t('trial_title', { days: TRIAL.days, plan: trialPlanName })}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {t('trial_text', { days: TRIAL.days })}
+              {t('trial_text', { days: TRIAL.days, plan: trialPlanName, card_note: trialCardNote })}
             </p>
           </div>
           <div className="p-6 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20 text-left">

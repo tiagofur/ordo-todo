@@ -162,10 +162,10 @@ export function Features() {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
         >
           {[
-            { icon: Target, key: 'okr', value: '100%', color: '#06B6D4' },
-            { icon: Calendar, key: 'calendar', value: 'Real-time', color: '#EC4899' },
-            { icon: Zap, key: 'speed', value: '<100ms', color: '#10B981' },
-            { icon: Shield, key: 'uptime', value: '99.9%', color: '#A855F7' },
+            { icon: Target, key: 'mcp_tools', value: '17', color: '#06B6D4' },
+            { icon: Calendar, key: 'calendar', value: '2-way', color: '#EC4899' },
+            { icon: Zap, key: 'platforms', value: '3', color: '#10B981' },
+            { icon: Shield, key: 'languages', value: '3', color: '#A855F7' },
           ].map((stat) => (
             <div key={stat.key} className="space-y-2">
               <stat.icon className="h-8 w-8 mx-auto" style={{ color: stat.color }} />
