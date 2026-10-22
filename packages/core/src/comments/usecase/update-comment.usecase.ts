@@ -22,6 +22,12 @@ export interface UpdateCommentInput {
    * Must be between 1 and 2000 characters.
    */
   newContent: string;
+
+  /**
+   * The re-resolved set of mentioned user IDs to persist with the edit.
+   * When provided, replaces the comment's mentions entirely (ODD 018 S2).
+   */
+  newMentions?: string[];
 }
 
 /**
@@ -119,8 +125,12 @@ export class UpdateCommentUseCase
       throw new Error("You can only edit your own comments");
     }
 
-    // Update the content using the entity's edit method
-    const updatedComment = existingComment.edit(input.newContent.trim());
+    // Update the content using the entity's edit method; mentions are
+    // replaced wholesale when the caller re-resolved them
+    let updatedComment = existingComment.edit(input.newContent.trim());
+    if (input.newMentions) {
+      updatedComment = updatedComment.withMentions(input.newMentions);
+    }
 
     // Persist the update
     await this.commentRepository.update(updatedComment);
