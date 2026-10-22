@@ -434,10 +434,46 @@
       }
     },
     "status_title": "Service status",
-    "status_text": "A live status page is coming soon. Meanwhile, ongoing incidents are announced in the changelog.",
+    "status_text": "Check the live status of the API, database and cache.",
+    "status_cta": "View status",
     "contact_title": "Still stuck?",
     "contact_text": "Send us a message and we will get back to you.",
     "contact_cta": "Contact us"
+  },
+  "StatusPage": {
+    "badge": "Status",
+    "title": "Service Status",
+    "subtitle": "Live status of the Ordo API and its dependencies, checked right now.",
+    "states": {
+      "operational": {
+        "title": "All systems operational",
+        "description": "The API, database and cache are responding normally."
+      },
+      "degraded": {
+        "title": "Degraded performance",
+        "description": "Something is slow or partially unavailable. We are on it."
+      },
+      "down": {
+        "title": "Service disruption",
+        "description": "A critical dependency is down. Check the changelog for updates."
+      },
+      "unknown": {
+        "title": "Status unknown",
+        "description": "We could not reach the API from this page. It may be your connection — try again."
+      }
+    },
+    "checked_at": "Checked at",
+    "components_title": "Components",
+    "components": {
+      "api": "API",
+      "database": "Database",
+      "redis": "Cache"
+    },
+    "up": "Up",
+    "down": "Down",
+    "note": "This page polls the public health endpoint; it shows this moment, not history or uptime percentages.",
+    "changelog_text": "For past incidents and updates, see the changelog.",
+    "changelog_link": "Open changelog →"
   },
   "ProductShowcase": {
     "badge": "Product Tour",
@@ -527,6 +563,7 @@
     "about": "About Us",
     "contact": "Contact",
     "support": "Support",
+    "status": "Status",
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",

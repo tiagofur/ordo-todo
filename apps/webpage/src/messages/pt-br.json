@@ -434,10 +434,46 @@
       }
     },
     "status_title": "Status do serviço",
-    "status_text": "Uma página de status ao vivo chegará em breve. Enquanto isso, incidentes são anunciados no changelog.",
+    "status_text": "Veja o status ao vivo da API, banco de dados e cache.",
+    "status_cta": "Ver status",
     "contact_title": "Ainda travado?",
     "contact_text": "Envie uma mensagem e responderemos.",
     "contact_cta": "Entre em contato"
+  },
+  "StatusPage": {
+    "badge": "Status",
+    "title": "Status do Serviço",
+    "subtitle": "Status ao vivo da API do Ordo e suas dependências, verificado agora mesmo.",
+    "states": {
+      "operational": {
+        "title": "Tudo operacional",
+        "description": "A API, o banco de dados e o cache respondem normalmente."
+      },
+      "degraded": {
+        "title": "Desempenho degradado",
+        "description": "Algo está lento ou parcialmente indisponível. Estamos nisso."
+      },
+      "down": {
+        "title": "Interrupção do serviço",
+        "description": "Uma dependência crítica está fora. Veja o changelog para novidades."
+      },
+      "unknown": {
+        "title": "Status desconhecido",
+        "description": "Não conseguimos contatar a API desta página. Pode ser sua conexão — tente de novo."
+      }
+    },
+    "checked_at": "Verificado às",
+    "components_title": "Componentes",
+    "components": {
+      "api": "API",
+      "database": "Banco de dados",
+      "redis": "Cache"
+    },
+    "up": "Ativo",
+    "down": "Fora",
+    "note": "Esta página consulta o endpoint público de saúde; mostra este momento, não histórico nem porcentagens.",
+    "changelog_text": "Para incidentes passados e novidades, veja o changelog.",
+    "changelog_link": "Abrir changelog →"
   },
   "ProductShowcase": {
     "badge": "Tour do Produto",
@@ -527,6 +563,7 @@
     "about": "Sobre",
     "contact": "Contato",
     "support": "Suporte",
+    "status": "Status",
     "legal": "Legal",
     "privacy": "Política de Privacidade",
     "terms": "Termos de Serviço",

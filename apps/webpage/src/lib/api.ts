@@ -272,3 +272,31 @@ export async function submitContactForm(data: {
         return false;
     }
 }
+
+// ==================== HEALTH ====================
+
+export interface HealthCheck {
+    status: 'healthy' | 'unhealthy' | 'degraded';
+    timestamp: string;
+    uptime: number;
+    checks: {
+        database: { status: 'up' | 'down'; responseTime?: number };
+        redis: { status: 'up' | 'down'; responseTime?: number };
+        memory: { status: 'up' | 'down' };
+    };
+}
+
+export async function getHealth(): Promise<HealthCheck | null> {
+    try {
+        // /health lives at the backend root, outside the /api/v1 prefix
+        const base = API_URL.replace(/\/api\/v1\/?$/, '');
+        const res = await fetch(`${base}/health`, {
+            next: { revalidate: 30 },
+        });
+        if (!res.ok) return null;
+        return res.json();
+    } catch (error) {
+        console.error('Error fetching health:', error);
+        return null;
+    }
+}
