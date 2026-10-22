@@ -35,7 +35,7 @@ const TABLE: Record<(typeof ROWS)[number], RowDef> = {
   focus: { ordo: 'yes', todoist: 'no', notion: 'no', motion: 'partial' },
   wellbeing: { ordo: 'yes', todoist: 'no', notion: 'no', motion: 'no' },
   okrs: { ordo: 'yes', todoist: 'no', notion: 'partial', motion: 'no' },
-  agents: { ordo: 'yes', todoist: 'no', notion: 'partial', motion: 'no' },
+  agents: { ordo: 'yes', todoist: 'no', notion: 'yes', motion: 'no' },
   platforms: { ordo: 'yes', todoist: 'yes', notion: 'yes', motion: 'partial' },
   price: { ordo: 'text', todoist: 'text', notion: 'text', motion: 'text' },
 };

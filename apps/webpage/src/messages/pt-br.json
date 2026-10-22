@@ -369,7 +369,7 @@
       "agents": { "label": "Pronto para assistentes IA (MCP)" },
       "platforms": { "label": "Web + desktop + móvel" },
       "price": {
-        "label": "Plano pago desde",
+        "label": "Plano pago a partir de",
         "ordo": "Grátis; Pro $9",
         "todoist": "Desde ~$5",
         "notion": "Desde ~$10",

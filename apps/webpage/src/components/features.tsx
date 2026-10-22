@@ -186,7 +186,7 @@ export function Features() {
           className="mt-12 text-center"
         >
           <Link
-            href="/guide/more-features"
+            href="/features"
             className="inline-flex items-center gap-2 text-[#06B6D4] hover:text-[#0891B2] font-medium transition-colors"
           >
             {t('discover_more')} →
