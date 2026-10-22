@@ -17,7 +17,7 @@
     "test:e2e": "detox test --configuration android.emu.debug",
     "test:e2e:build": "detox build --configuration android.emu.debug",
     "eas-build-pre-install": "cd ../.. && npm install",
-    "eas-build-post-install": "node scripts/patch-router.js && node scripts/fix-metro-resolution.js"
+    "eas-build-post-install": "node scripts/patch-router.js && node scripts/fix-metro-resolution.js && cd ../.. && npx turbo run build --filter=@ordo-todo/mobile^..."
   },
   "dependencies": {
     "@expo/metro-config": "~0.19.0",

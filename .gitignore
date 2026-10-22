@@ -26,10 +26,11 @@ Turbo
 out/
 build
 
-# Dist folders (except packages which need to be pre-compiled for EAS)
+# Dist folders (generated on demand: npx turbo run build)
+# Workspace packages are NOT committed anymore. Local dev and CI build them
+# with turbo; the mobile EAS pipeline builds them in apps/mobile's
+# eas-build-post-install script.
 dist
-!packages/*/dist
-!packages/*/dist/**
 
 # tmp
 tmp
