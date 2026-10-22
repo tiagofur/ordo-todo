@@ -110,6 +110,12 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
+  // Deep link from task notifications (?taskId=...) opens the panel
+  useEffect(() => {
+    const taskId = new URLSearchParams(window.location.search).get("taskId");
+    if (taskId) setSelectedTaskId(taskId);
+  }, []);
+
   // Quick Actions State
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);

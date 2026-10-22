@@ -117,6 +117,32 @@ describe('CommentThread (ODD 018 S2)', () => {
     });
   });
 
+  it('renders @Name as a chip for known members and leaves unknown text plain', () => {
+    render(
+      <CommentThread
+        taskId="task-1"
+        comments={[
+          {
+            ...baseComment,
+            id: 'c2',
+            content: 'hey @Bob Member and @Stranger Person',
+          } as any,
+        ]}
+        currentUserId="user-1"
+        users={users}
+      />,
+    );
+
+    const chip = screen.getByText('@Bob Member');
+    expect(chip.className).toContain('rounded-full');
+
+    // Unknown mentions stay plain text (leaf node)
+    const plain = screen
+      .getAllByText((_, el) => el?.textContent === 'and @Stranger Person')
+      .filter((el) => el.children.length === 0);
+    expect(plain.length).toBeGreaterThan(0);
+  });
+
   it('sends without mentionedUserIds when no one is mentioned', async () => {
     const onCreate = renderThread();
 

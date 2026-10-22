@@ -169,6 +169,51 @@ export function CommentThread({
     setEditContent('');
   };
 
+  // ODD 018 S5: render @Name as a chip when it matches a workspace member
+  // (longest name first so "@Ann Lee" never matches plain "Ann")
+  const renderContentWithMentions = (content: string) => {
+    const markdown = (text: string) => (
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+    );
+
+    const named = [...users]
+      .filter((u) => !!u.name)
+      .sort((a, b) => b.name.length - a.name.length);
+    if (named.length === 0) return markdown(content);
+
+    const escaped = named
+      .map((u) => u.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|");
+    const pattern = new RegExp(`@(${escaped})(?![\\p{L}\\p{N}_])`, "giu");
+
+    const parts: Array<{ type: "text" | "mention"; value: string }> = [];
+    let last = 0;
+    for (const match of content.matchAll(pattern)) {
+      const index = match.index ?? 0;
+      if (index > last) parts.push({ type: "text", value: content.slice(last, index) });
+      parts.push({ type: "mention", value: match[0] });
+      last = index + match[0].length;
+    }
+    if (last < content.length) parts.push({ type: "text", value: content.slice(last) });
+
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.type === "mention" ? (
+            <span
+              key={`${part.value}-${i}`}
+              className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary align-baseline"
+            >
+              {part.value}
+            </span>
+          ) : (
+            <span key={`text-${i}`}>{markdown(part.value)}</span>
+          ),
+        )}
+      </>
+    );
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -276,9 +321,7 @@ export function CommentThread({
                   </div>
                 ) : (
                   <div className="text-sm prose prose-sm dark:prose-invert max-w-none break-words [&>p]:mb-0 [&>p]:mt-0">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {comment.content}
-                    </ReactMarkdown>
+                    {renderContentWithMentions(comment.content)}
                   </div>
                 )}
               </div>

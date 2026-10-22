@@ -5,7 +5,8 @@ import {
   useUpdateTask, 
   useDeleteTask,
   useCurrentPeriodObjectives,
-  useLinkTaskToKeyResult
+  useLinkTaskToKeyResult,
+  useWorkspaceMembers
 } from "@/hooks/api";
 import { toast } from "sonner";
 import type { TaskStatus, TaskPriority } from "@ordo-todo/api-client";
@@ -69,6 +70,17 @@ export function TaskDetailPanel({
   
   // Fetch task data
   const { data: task, isLoading } = useTaskDetails(taskId || "");
+  // ODD 018 S5: workspace members power the @mention picker in comments
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(
+    task?.project?.workspaceId ?? "",
+  );
+  const mentionUsers = workspaceMembers
+    .filter((m: { user?: { id: string } | null }) => !!m.user)
+    .map((m: { id: string; user: { id: string; name: string | null; image: string | null } }) => ({
+      id: m.user!.id,
+      name: m.user!.name || "Unknown",
+      image: m.user!.image || undefined,
+    }));
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const { data: objectives } = useCurrentPeriodObjectives();
@@ -525,6 +537,7 @@ export function TaskDetailPanel({
                         taskId={taskId} 
                         comments={(task?.comments || []) as any}
                         currentUserId={task?.ownerId}
+                        users={mentionUsers}
                       />
                     )}
                     {activeTab === "attachments" && (
