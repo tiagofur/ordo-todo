@@ -18,8 +18,10 @@ export default function PricingPage() {
 
   const limitRows = (key: PlanId): string[] => {
     const limits = PLANS[key].limits;
-    const storage = (value: number): string =>
-      t('limits.storage', { value: formatLimit(value, 'gb', t('limits.unlimited')) });
+    const storage = (value: number | null): string =>
+      value === null
+        ? t('limits.storage_custom')
+        : t('limits.storage', { value: formatLimit(value, 'gb', t('limits.unlimited')) });
     switch (key) {
       case 'free':
         return [
@@ -38,14 +40,14 @@ export default function PricingPage() {
       case 'team':
         return [
           t('everything_in', { plan: t('plans.pro.name') }),
-          t('limits.workspaces_unlimited'),
+          t('limits.workspaces', { value: limits.workspaces }),
           storage(limits.storageGb),
           t('limits.min_seats', { value: limits.minSeats }),
         ];
       case 'enterprise':
         return [
           t('everything_in', { plan: t('plans.team.name') }),
-          t('limits.storage_unlimited'),
+          storage(limits.storageGb),
         ];
     }
   };
@@ -98,8 +100,8 @@ export default function PricingPage() {
       popular: false,
       extras: [
         'Unlimited users',
-        'SSO/SAML',
-        'DPA available',
+        t('planned_sso'),
+        t('planned_dpa'),
         'Dedicated account manager',
         'Custom onboarding',
       ],
@@ -221,6 +223,11 @@ export default function PricingPage() {
             );
           })}
         </div>
+
+        {/* USD note */}
+        <p className="text-center text-sm text-muted-foreground mt-8">
+          {t('usd_note')}
+        </p>
 
         {/* FAQ Link */}
         <motion.div

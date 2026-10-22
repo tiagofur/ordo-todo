@@ -605,15 +605,17 @@
       "projects": "{value} projetos",
       "projects_unlimited": "Projetos ilimitados",
       "workspaces": "{value} espaços de trabalho",
-      "workspaces_unlimited": "Espaços de trabalho ilimitados",
       "storage": "Armazenamento: {value}",
-      "storage_unlimited": "Armazenamento ilimitado",
+      "storage_custom": "Armazenamento personalizado",
       "min_seats": "Mínimo de {value} assentos"
     },
+    "planned_sso": "SSO/SAML (planejado)",
+    "planned_dpa": "DPA (planejado)",
+    "usd_note": "Preços em USD. Quando a cobrança estiver ativa:",
     "trial_title": "Teste Pro de {days} dias, sem cartão",
     "trial_text": "Teste tudo do Pro por {days} dias. Ao terminar, adicione um cartão para continuar no Pro ou siga usando o plano gratuito.",
     "grace_title": "Período de carência se um pagamento falhar",
-    "grace_text": "Tudo continua funcionando por {days} dias enquanto tentamos a cobrança novamente. Ler e exportar seus dados nunca é bloqueado.",
+    "grace_text": "Tudo continua funcionando por {days} dias enquanto tentamos a cobrança novamente. Depois, a conta passa para o Grátis. Ler e exportar seus dados nunca é bloqueado.",
     "plans": {
       "free": {
         "name": "Grátis",

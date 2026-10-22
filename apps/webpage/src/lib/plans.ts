@@ -1,7 +1,9 @@
 /**
  * Single source of truth for Ordo plans, limits, trial and grace.
  *
- * Business decision recorded 2026-10-21 (issue #328, unblocks #240-T1).
+ * Business decision recorded 2026-10-21 (issue #328, unblocks #240-T1),
+ * clarified 2026-10-22 (#328): Team workspaces inherit Pro (3),
+ * Enterprise workspaces inherit Team (3), Enterprise storage is custom (null).
  * Prices are USD-only and BETA: billing is not live yet (issue #240)
  * and no limits are enforced. This file states intent, not a contract.
  *
@@ -17,8 +19,8 @@ export interface PlanLimits {
   /** Projects: -1 means unlimited */
   projects: number;
   workspaces: number;
-  /** Storage in GB */
-  storageGb: number;
+  /** Storage in GB; null = custom (enterprise) */
+  storageGb: number | null;
   /** Minimum seats for team billing */
   minSeats: number;
   advancedAi: boolean;
@@ -62,7 +64,7 @@ export const PLANS: Record<PlanId, Plan> = {
     limits: {
       tasks: -1,
       projects: -1,
-      workspaces: -1,
+      workspaces: 3,
       storageGb: 100,
       minSeats: 2,
       advancedAi: true,
@@ -74,8 +76,8 @@ export const PLANS: Record<PlanId, Plan> = {
     limits: {
       tasks: -1,
       projects: -1,
-      workspaces: -1,
-      storageGb: -1,
+      workspaces: 3,
+      storageGb: null,
       minSeats: 1,
       advancedAi: true,
     },
@@ -96,6 +98,6 @@ export function formatLimit(
   unlimitedLabel: string,
 ): string {
   if (value === -1) return unlimitedLabel;
-  if (unit === 'gb') return value < 1 ? `${value * 1000}MB` : `${value}GB`;
+  if (unit === 'gb') return value < 1 ? `${Math.round(value * 1000)}MB` : `${value}GB`;
   return String(value);
 }
