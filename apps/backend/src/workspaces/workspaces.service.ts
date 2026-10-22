@@ -531,6 +531,20 @@ export class WorkspacesService {
         throw new NotFoundException('Invalid invitation token');
       }
 
+      // W4 (ODD 018 S4): only the invited account may redeem the token.
+      // Compared case-insensitively — providers and people capitalize
+      // addresses freely, and the token itself is already the secret.
+      const acceptingUser = await this.userRepository.findById(userId);
+      const invitedEmail = (matchedInvitation.props.email ?? '')
+        .trim()
+        .toLowerCase();
+      const acceptingEmail = acceptingUser?.email?.trim().toLowerCase();
+      if (!acceptingEmail || acceptingEmail !== invitedEmail) {
+        throw new ForbiddenException(
+          'This invitation was sent to a different email address',
+        );
+      }
+
       const workspaceId = matchedInvitation.props.workspaceId;
 
       await acceptInvitationUseCase.execute(token, userId);
