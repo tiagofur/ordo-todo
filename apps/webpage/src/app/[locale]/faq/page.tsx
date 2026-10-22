@@ -1,14 +1,43 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, Search, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { getFAQs } from '@/lib/api';
 import type { FAQ } from '@/lib/api';
 import { Link } from '@/i18n/routing';
 
-const CATEGORY_ORDER = ['General', 'Features', 'Billing', 'Privacy & Security'];
+const CATEGORY_KEYS = ['general', 'features', 'billing', 'agents', 'privacy'] as const;
+type CategoryKey = (typeof CATEGORY_KEYS)[number];
+
+const CMS_CATEGORY: Record<CategoryKey, string> = {
+  general: 'General',
+  features: 'Features',
+  billing: 'Billing',
+  agents: 'AI Assistants',
+  privacy: 'Privacy & Security',
+};
+
+const FALLBACK_ITEMS: { key: CategoryKey; pairs: [string, string][] }[] = [
+  {
+    key: 'billing',
+    pairs: [
+      ['billing_trial_q', 'billing_trial_a'],
+      ['billing_grace_q', 'billing_grace_a'],
+      ['billing_live_q', 'billing_live_a'],
+    ],
+  },
+  {
+    key: 'agents',
+    pairs: [
+      ['agents_what_q', 'agents_what_a'],
+      ['agents_permissions_q', 'agents_permissions_a'],
+      ['agents_own_q', 'agents_own_a'],
+    ],
+  },
+];
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +49,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
         className="w-full flex items-center justify-between py-5 text-left hover:text-[#06B6D4] transition-colors"
       >
         <span className="font-medium text-foreground">{question}</span>
-        <ChevronDown 
+        <ChevronDown
           className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
@@ -43,15 +72,19 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-export default function FAQPage() {
+function FAQContent() {
   const t = useTranslations('FAQ');
+  const searchParams = useSearchParams();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('General');
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>('general');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadFAQs();
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFAQs = async () => {
@@ -66,19 +99,27 @@ export default function FAQPage() {
     }
   };
 
-  // Get unique categories from data
-  const categories = CATEGORY_ORDER.filter(cat => 
-    faqs.some(faq => faq.category === cat)
-  );
+  const categoryLabel = (key: CategoryKey): string => t(`categories.${key}`);
 
-  // Filter FAQs by category and search
-  const filteredFAQs = faqs
-    .filter(faq => faq.category === activeCategory)
-    .filter(faq =>
-      searchQuery === '' ||
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  const matchesSearch = (question: string, answer: string): boolean =>
+    searchQuery === '' ||
+    question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    answer.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const cmsItems = faqs
+    .filter((faq) => faq.category === CMS_CATEGORY[activeCategory])
+    .filter((faq) => matchesSearch(faq.question, faq.answer));
+
+  const fallbackPairs =
+    FALLBACK_ITEMS.find((item) => item.key === activeCategory)?.pairs ?? [];
+  const fallbackItems = fallbackPairs
+    .map(([q, a]) => ({ question: t(`fallback.${q}`), answer: t(`fallback.${a}`) }))
+    .filter((item) => matchesSearch(item.question, item.answer));
+
+  const items =
+    cmsItems.length > 0 || fallbackItems.length === 0
+      ? cmsItems
+      : fallbackItems;
 
   return (
     <main className="min-h-screen bg-background pt-24 pb-16">
@@ -117,17 +158,17 @@ export default function FAQPage() {
 
         {/* Categories */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category) => (
+          {CATEGORY_KEYS.map((key) => (
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
+              key={key}
+              onClick={() => setActiveCategory(key)}
               className={`px-6 py-3 rounded-full font-medium transition-all ${
-                activeCategory === category
+                activeCategory === key
                   ? 'bg-[#06B6D4] text-white'
                   : 'bg-card border-2 border-border hover:border-[#06B6D4] text-foreground'
               }`}
             >
-              {category}
+              {categoryLabel(key)}
             </button>
           ))}
         </div>
@@ -145,9 +186,9 @@ export default function FAQPage() {
             className="max-w-3xl mx-auto"
           >
             <div className="bg-card rounded-2xl border-2 border-border p-6 md:p-8">
-              {filteredFAQs.length > 0 ? (
-                filteredFAQs.map((faq) => (
-                  <FAQItem key={faq.id} question={faq.question} answer={faq.answer} />
+              {items.length > 0 ? (
+                items.map((faq, i) => (
+                  <FAQItem key={i} question={faq.question} answer={faq.answer} />
                 ))
               ) : (
                 <p className="text-center text-muted-foreground py-8">
@@ -158,7 +199,7 @@ export default function FAQPage() {
           </motion.div>
         )}
 
-        {/* Contact CTA */}
+        {/* Support CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -166,14 +207,38 @@ export default function FAQPage() {
           className="text-center mt-16"
         >
           <p className="text-muted-foreground mb-4">{t('still_need_help')}</p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#EC4899] text-white font-medium hover:opacity-90 transition-opacity"
-          >
-            {t('contact_us')}
-          </Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/support"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06B6D4] text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              {t('support_cta')}
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#EC4899] text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              {t('contact_us')}
+            </Link>
+          </div>
         </motion.div>
       </div>
     </main>
+  );
+}
+
+export default function FAQPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-background pt-24 pb-16">
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-[#06B6D4]" />
+          </div>
+        </main>
+      }
+    >
+      <FAQContent />
+    </Suspense>
   );
 }

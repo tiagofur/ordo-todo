@@ -143,7 +143,29 @@
     "search_placeholder": "Buscar respuestas...",
     "no_results": "Ninguna pregunta coincide con tu búsqueda. Intenta con otras palabras.",
     "still_need_help": "¿No encuentras lo que buscas?",
-    "contact_us": "Contáctanos"
+    "contact_us": "Contáctanos",
+    "support_cta": "Ir a Soporte",
+    "categories": {
+      "general": "General",
+      "features": "Funciones",
+      "billing": "Facturación",
+      "agents": "Asistentes IA",
+      "privacy": "Privacidad y seguridad"
+    },
+    "fallback": {
+      "billing_trial_q": "¿Hay prueba gratuita?",
+      "billing_trial_a": "Sí: 14 días de Pro sin tarjeta. Al terminar, añade una tarjeta para seguir en Pro o sigue usando el plan gratuito.",
+      "billing_grace_q": "¿Qué pasa si falla un pago?",
+      "billing_grace_a": "Todo sigue funcionando 14 días mientras reintentamos el cobro. Después, la cuenta pasa a Free. Leer y exportar tus datos nunca se bloquea.",
+      "billing_live_q": "¿El cobro ya está activo?",
+      "billing_live_a": "Aún no: todas las funciones son gratis mientras los planes de pago están en beta. Anunciaremos los métodos de pago antes de cobrar nada.",
+      "agents_what_q": "¿Mi asistente de IA puede usar Ordo?",
+      "agents_what_a": "Sí: ChatGPT, Claude, Hermes y OpenClaw se conectan en menos de 60 segundos con 17 herramientas. Mira las guías de conexión.",
+      "agents_permissions_q": "¿Qué puede ver mi asistente?",
+      "agents_permissions_a": "Solo lo que tú puedes ver: cada petición corre con tus permisos y lo no autorizado se deniega.",
+      "agents_own_q": "¿Ordo tiene su propio agente?",
+      "agents_own_a": "Sí: pregunta sobre tu espacio de trabajo con respuestas citadas, ejecuta acciones en lenguaje natural y programa trabajos recurrentes."
+    }
   },
   "Navigation": {
     "home": "Inicio",
@@ -380,6 +402,43 @@
     "cta_text": "Mira los precios de Ordo en detalle",
     "cta_link": "Abrir precios →"
   },
+  "SupportPage": {
+    "badge": "Soporte",
+    "title": "¿Cómo podemos ayudarte?",
+    "subtitle": "Busca en el FAQ o elige un tema. La mayoría de dudas se resuelven sin escribirnos.",
+    "search_placeholder": "Buscar ayuda…",
+    "topics": {
+      "guide": {
+        "title": "Guía de usuario",
+        "description": "Tutoriales paso a paso de cada función."
+      },
+      "faq": {
+        "title": "FAQ",
+        "description": "Respuestas rápidas a las dudas más comunes."
+      },
+      "billing": {
+        "title": "Planes y facturación",
+        "description": "Planes, prueba, gracia y facturas."
+      },
+      "agents": {
+        "title": "Asistentes de IA",
+        "description": "Conecta ChatGPT, Claude, Hermes u OpenClaw."
+      },
+      "security": {
+        "title": "Seguridad y privacidad",
+        "description": "Cómo se protegen tus datos hoy."
+      },
+      "apps": {
+        "title": "Apps y plataformas",
+        "description": "Web, escritorio y móvil: qué funciona dónde."
+      }
+    },
+    "status_title": "Estado del servicio",
+    "status_text": "Una página de estado en vivo llegará pronto. Mientras tanto, las incidencias se anuncian en el changelog.",
+    "contact_title": "¿Sigues atascado?",
+    "contact_text": "Envíanos un mensaje y te responderemos.",
+    "contact_cta": "Contáctanos"
+  },
   "ProductShowcase": {
     "badge": "Tour del Producto",
     "title": "Todo lo que necesitas para",
@@ -467,6 +526,7 @@
     "company": "Compañía",
     "about": "Nosotros",
     "contact": "Contacto",
+    "support": "Soporte",
     "legal": "Legal",
     "privacy": "Política de Privacidad",
     "terms": "Términos de Servicio",
