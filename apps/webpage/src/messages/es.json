@@ -727,7 +727,7 @@
       "3": "Aplica el plan; las tareas reciben sus fechas de ejecución"
     },
     "risks_title": "Alertas de riesgo",
-    "risks_text": "Avisos de sobrecarga y vencimiento en riesgo llegan con opciones: mover, dividir o soltar — tú decides.",
+    "risks_text": "Avisos de sobrecarga y vencimiento en riesgo llegan con opciones: mover, dividir, delegar — tú decides.",
     "pro_tip": "Consejo Pro",
     "pro_tip_text": "Las duraciones mejoran con el tiempo: las predicciones aprenden de tus sesiones completadas."
   },
@@ -738,7 +738,7 @@
     "morning_title": "Mañana",
     "morning_text": "Revisa el día, acepta o ajusta los bloques propuestos y empieza con intención.",
     "evening_title": "Tarde",
-    "evening_text": "Cierra el día: completado, arrastrado y una línea sobre cómo fue.",
+    "evening_text": "Cierra el día: completado, arrastrado y movimientos para mañana.",
     "flow_title": "El flujo",
     "steps": {
       "1": "El ritual de mañana propone tu plan diario",
@@ -748,7 +748,7 @@
     },
     "streak_title": "Rachas y recordatorios",
     "streak_card_title": "Rachas",
-    "streak_card_text": "Días consecutivos con mañana y tarde hechas. Salta un día explícitamente para mantener honesta la racha.",
+    "streak_card_text": "Días consecutivos con mañana o tarde hecha. Un día saltado o perdido rompe la racha — se reinicia con honestidad.",
     "reminders_card_title": "Recordatorios",
     "reminders_card_text": "Avisos suaves si la mañana o la tarde siguen abiertas.",
     "pro_tip": "Consejo Pro",
@@ -828,7 +828,7 @@
       }
     },
     "status_title": "Sincro de foco",
-    "status_text": "Cuando inicias una sesión de foco, tu estado de Slack muestra que estás enfocado para que el equipo no moleste.",
+    "status_text": "Cuando inicias una sesión de foco, tu estado de Slack muestra que estás enfocado para que el equipo no moleste. Actívalo en Ajustes (opt-in).",
     "pro_tip": "Consejo Pro",
     "pro_tip_text": "Usa /ordo today cada mañana para ver lo que vence sin abrir la app."
   },

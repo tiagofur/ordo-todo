@@ -727,7 +727,7 @@
       "3": "Aplique o plano; as tarefas recebem suas datas de execução"
     },
     "risks_title": "Alertas de risco",
-    "risks_text": "Avisos de sobrecarga e vencimento em risco chegam com opções: mover, dividir ou largar — você decide.",
+    "risks_text": "Avisos de sobrecarga e vencimento em risco chegam com opções: mover, dividir, delegar — você decide.",
     "pro_tip": "Dica Pro",
     "pro_tip_text": "As durações melhoram com o tempo: as previsões aprendem das suas sessões concluídas."
   },
@@ -738,7 +738,7 @@
     "morning_title": "Manhã",
     "morning_text": "Revise o dia, aceite ou ajuste os blocos propostos e comece com intenção.",
     "evening_title": "Tarde",
-    "evening_text": "Encerre o dia: concluído, arrastado e uma linha sobre como foi.",
+    "evening_text": "Encerre o dia: concluído, arrastado e movimentos para amanhã.",
     "flow_title": "O fluxo",
     "steps": {
       "1": "O ritual da manhã propõe seu plano diário",
@@ -748,7 +748,7 @@
     },
     "streak_title": "Sequências e lembretes",
     "streak_card_title": "Sequências",
-    "streak_card_text": "Dias consecutivos com manhã e tarde feitas. Pule um dia explicitamente para manter honesta a sequência.",
+    "streak_card_text": "Dias consecutivos com manhã ou tarde feita. Um dia pulado ou perdido quebra a sequência — ela recomeça com honestidade.",
     "reminders_card_title": "Lembretes",
     "reminders_card_text": "Avisos suaves se a manhã ou a tarde ainda estão abertos.",
     "pro_tip": "Dica Pro",
@@ -828,7 +828,7 @@
       }
     },
     "status_title": "Sincro de foco",
-    "status_text": "Quando você inicia uma sessão de foco, seu status no Slack mostra que está focado para o time não perturbar.",
+    "status_text": "Quando você inicia uma sessão de foco, seu status no Slack mostra que está focado para o time não perturbar. Ative nos Ajustes (opt-in).",
     "pro_tip": "Dica Pro",
     "pro_tip_text": "Use /ordo today toda manhã para ver o que vence sem abrir o app."
   },
