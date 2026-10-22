@@ -546,10 +546,13 @@
       "getting_started": "Começando",
       "projects": "Projetos e Quadros",
       "tasks": "Gestão de Tarefas",
+      "capture": "Captura Rápida",
       "focus": "Timer de Foco",
       "habits": "Hábitos",
       "pomodoro": "Pomodoro",
+      "calendar": "Sincro Agenda",
       "analytics": "Análises",
+      "slack": "Slack",
       "need_help": "Precisa de mais ajuda?",
       "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
       "community_link": "Entrar na Comunidade",
@@ -644,8 +647,101 @@
         "title": "Pomodoro a Fundo",
         "description": "Modos, troca de tarefa e histórico",
         "time": "4 min"
+      },
+      "capture": {
+        "title": "Captura Rápida",
+        "description": "Linguagem natural, Quick-Add e paleta",
+        "time": "5 min"
+      },
+      "calendar": {
+        "title": "Sincro Agenda",
+        "description": "Sincronização 2-way com Google e Outlook",
+        "time": "5 min"
+      },
+      "slack": {
+        "title": "Integração Slack",
+        "description": "Comandos, ações e resumo diário",
+        "time": "5 min"
       }
     }
+  },
+  "GuideCapture": {
+    "badge": "Captura",
+    "title": "Captura Rápida",
+    "subtitle": "Tire ideias da cabeça em segundos: linguagem natural, Quick-Add e paleta de comandos.",
+    "nl_title": "Escreva como fala",
+    "nl_text": "Digite uma tarefa com data, hora, prioridade e projeto em uma linha. O Ordo interpreta datas, recorrência, prioridades e projetos automaticamente.",
+    "nl_example": "Ligar para Ana amanhã 15h #trabalho @alta",
+    "nl_result": "→ Tarefa “Ligar para Ana”, vence amanhã 15:00, prioridade alta, projeto “trabalho”.",
+    "methods_title": "Três formas de capturar",
+    "methods": {
+      "quickadd": {
+        "title": "Quick-Add",
+        "description": "A mais rápida: um diálogo com prévia ao vivo.",
+        "shortcut": "N ou Cmd/Ctrl+N"
+      },
+      "palette": {
+        "title": "Paleta de comandos",
+        "description": "Navegue e crie sem tocar o mouse.",
+        "shortcut": "Cmd/Ctrl+K"
+      },
+      "mobile": {
+        "title": "Móvel",
+        "description": "Botão flutuante com a mesma análise ao vivo.",
+        "shortcut": "FAB"
+      }
+    },
+    "palette_title": "O que a paleta faz",
+    "palette_text": "Oito ações canônicas na web e desktop: ir ao painel, tarefas, projetos ou agenda; nova tarefa; novo projeto; iniciar timer; buscar. Digite para filtrar, Enter executa, Esc fecha.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Aperte Tab dentro do Quick-Add para percorrer os campos inferidos (data, prioridade, projeto) antes de salvar."
+  },
+  "GuideCalendar": {
+    "badge": "Agenda",
+    "title": "Sincro Agenda",
+    "subtitle": "Sincronização bidirecional com Google Agenda e Outlook: suas tarefas na agenda, suas reuniões como contexto.",
+    "connect_title": "Conectar uma conta",
+    "steps": {
+      "1": "Abra Ajustes → Agenda e escolha Google ou Microsoft",
+      "2": "Aprove o acesso na janela do provedor",
+      "3": "Escolha quais projetos do Ordo sincronizam com qual agenda"
+    },
+    "sync_title": "Como a sincronização funciona",
+    "push_title": "Ordo → agenda",
+    "push_text": "Tarefas com data aparecem como eventos na sua agenda para que seu dia mostre trabalho e reuniões juntos.",
+    "pull_title": "Agenda → Ordo",
+    "pull_text": "Reuniões viram blocos ocupados que o planejador respeita ao agendar suas tarefas.",
+    "conflicts_title": "Conflitos",
+    "conflicts_text": "Ganha a última mudança por timestamp, e cada conexão mostra seu status (ok, erro, reautorizar). Reconecte nos Ajustes se o acesso expirar.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Dê às tarefas uma data de execução (quando vai fazê-la), não só vencimento, para vê-las na agenda."
+  },
+  "GuideSlack": {
+    "badge": "Slack",
+    "title": "Integração Slack",
+    "subtitle": "Crie tarefas sem sair do Slack: comando slash, ações de mensagem e resumo diário.",
+    "ways_title": "Três formas de trabalhar",
+    "ways": {
+      "command": {
+        "title": "Comando slash",
+        "description": "Crie tarefas e revise seu dia de qualquer canal.",
+        "example": "/ordo create Revisar proposta amanhã"
+      },
+      "action": {
+        "title": "Ação de mensagem",
+        "description": "Converta qualquer mensagem em tarefa com “Create task in Ordo”.",
+        "example": "··· → Create task in Ordo"
+      },
+      "digest": {
+        "title": "Resumo diário",
+        "description": "Um briefing com tarefas vencidas e concluídas recentes no seu canal.",
+        "example": "Briefing diário, automático"
+      }
+    },
+    "status_title": "Sincro de foco",
+    "status_text": "Quando você inicia uma sessão de foco, seu status no Slack mostra que está focado para o time não perturbar.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Use /ordo today toda manhã para ver o que vence sem abrir o app."
   },
   "GuideHabits": {
     "badge": "Hábitos",
