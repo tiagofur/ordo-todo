@@ -261,6 +261,52 @@
     "cta_text": "See what each plan includes",
     "cta_link": "Compare plans →"
   },
+  "AgentsPage": {
+    "badge": "Agent-ready",
+    "title": "Use Ordo from your AI assistant",
+    "subtitle": "Connect ChatGPT, Claude, Hermes or OpenClaw in under 60 seconds. Your assistant operates Ordo with your own permissions — nothing more.",
+    "tools_title": "17 tools your assistant can use",
+    "tools": {
+      "tasks": {
+        "title": "Tasks",
+        "description": "List, create, update and complete tasks, read details and add comments."
+      },
+      "projects": {
+        "title": "Projects",
+        "description": "List, create and update projects, read details and track objectives."
+      },
+      "day": {
+        "title": "Your day",
+        "description": "Read your proposed day plan, apply it, check risks, complete habits."
+      },
+      "more": {
+        "title": "And more",
+        "description": "Semantic search across your workspace plus your profile context."
+      }
+    },
+    "permissions_note": "Your assistant only sees what you can see: every request runs with your permissions and failed checks are denied.",
+    "clients_title": "Pick your assistant",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Connect Ordo as an app from the directory"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Add Ordo as a connector on web or desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Your memory-enabled helper, now with Ordo inside"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Run Ordo from WhatsApp, Telegram or Discord"
+      }
+    },
+    "directory_note": "Directory listings are in progress: each guide includes manual setup steps that work today.",
+    "cta": "Connect your assistant"
+  },
   "ProductShowcase": {
     "badge": "Product Tour",
     "title": "Everything you need to",
@@ -342,6 +388,7 @@
     "blog": "Blog",
     "pricing": "Pricing",
     "features": "Features",
+    "agents": "AI Assistants",
     "company": "Company",
     "about": "About Us",
     "contact": "Contact",

@@ -261,6 +261,52 @@
     "cta_text": "Mira lo que incluye cada plan",
     "cta_link": "Comparar planes →"
   },
+  "AgentsPage": {
+    "badge": "Listo para agentes",
+    "title": "Usa Ordo desde tu asistente de IA",
+    "subtitle": "Conecta ChatGPT, Claude, Hermes u OpenClaw en menos de 60 segundos. Tu asistente opera Ordo con tus propios permisos — nada más.",
+    "tools_title": "17 herramientas que tu asistente puede usar",
+    "tools": {
+      "tasks": {
+        "title": "Tareas",
+        "description": "Lista, crea, actualiza y completa tareas, lee detalles y añade comentarios."
+      },
+      "projects": {
+        "title": "Proyectos",
+        "description": "Lista, crea y actualiza proyectos, lee detalles y sigue objetivos."
+      },
+      "day": {
+        "title": "Tu día",
+        "description": "Lee tu plan diario propuesto, aplícalo, revisa riesgos, completa hábitos."
+      },
+      "more": {
+        "title": "Y más",
+        "description": "Búsqueda semántica en tu espacio de trabajo más el contexto de tu perfil."
+      }
+    },
+    "permissions_note": "Tu asistente solo ve lo que tú puedes ver: cada petición corre con tus permisos y lo no autorizado se deniega.",
+    "clients_title": "Elige tu asistente",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Conecta Ordo como app desde el directorio"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Añade Ordo como conector en web o escritorio"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Tu ayudante con memoria, ahora con Ordo dentro"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Usa Ordo desde WhatsApp, Telegram o Discord"
+      }
+    },
+    "directory_note": "Los listados en directorios están en curso: cada guía incluye pasos manuales que funcionan hoy.",
+    "cta": "Conecta tu asistente"
+  },
   "ProductShowcase": {
     "badge": "Tour del Producto",
     "title": "Todo lo que necesitas para",
@@ -342,6 +388,7 @@
     "blog": "Blog",
     "pricing": "Precios",
     "features": "Funciones",
+    "agents": "Asistentes IA",
     "company": "Compañía",
     "about": "Nosotros",
     "contact": "Contacto",

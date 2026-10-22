@@ -261,6 +261,52 @@
     "cta_text": "Veja o que cada plano inclui",
     "cta_link": "Comparar planos →"
   },
+  "AgentsPage": {
+    "badge": "Pronto para agentes",
+    "title": "Use o Ordo do seu assistente de IA",
+    "subtitle": "Conecte ChatGPT, Claude, Hermes ou OpenClaw em menos de 60 segundos. Seu assistente opera o Ordo com suas próprias permissões — nada mais.",
+    "tools_title": "17 ferramentas que seu assistente pode usar",
+    "tools": {
+      "tasks": {
+        "title": "Tarefas",
+        "description": "Liste, crie, atualize e conclua tarefas, leia detalhes e adicione comentários."
+      },
+      "projects": {
+        "title": "Projetos",
+        "description": "Liste, crie e atualize projetos, leia detalhes e acompanhe objetivos."
+      },
+      "day": {
+        "title": "Seu dia",
+        "description": "Leia seu plano diário proposto, aplique-o, revise riscos, conclua hábitos."
+      },
+      "more": {
+        "title": "E mais",
+        "description": "Busca semântica no seu espaço de trabalho mais o contexto do seu perfil."
+      }
+    },
+    "permissions_note": "Seu assistente só vê o que você pode ver: cada solicitação roda com suas permissões e o não autorizado é negado.",
+    "clients_title": "Escolha seu assistente",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Conecte o Ordo como app pelo diretório"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Adicione o Ordo como conector na web ou desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Seu ajudante com memória, agora com Ordo dentro"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Use o Ordo pelo WhatsApp, Telegram ou Discord"
+      }
+    },
+    "directory_note": "As listagens em diretórios estão em andamento: cada guia inclui passos manuais que funcionam hoje.",
+    "cta": "Conecte seu assistente"
+  },
   "ProductShowcase": {
     "badge": "Tour do Produto",
     "title": "Tudo o que você precisa para",
@@ -342,6 +388,7 @@
     "blog": "Blog",
     "pricing": "Preços",
     "features": "Recursos",
+    "agents": "Assistentes IA",
     "company": "Empresa",
     "about": "Sobre",
     "contact": "Contato",

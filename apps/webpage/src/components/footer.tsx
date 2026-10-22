@@ -14,6 +14,7 @@ export function Footer() {
       { label: t('blog'), href: '/blog' },
       { label: t('pricing'), href: '/pricing' },
       { label: t('features'), href: '/features' },
+      { label: t('agents'), href: '/agents' },
     ],
     company: [
       { label: t('about'), href: '/about' },
