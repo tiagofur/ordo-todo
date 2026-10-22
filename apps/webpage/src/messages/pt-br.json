@@ -206,6 +206,61 @@
     },
     "discover_more": "Descubra mais 7 recursos que já existem"
   },
+  "FeaturesPage": {
+    "badge": "Recursos",
+    "title": "Tudo o que o Ordo faz hoje",
+    "subtitle": "Cada recurso abaixo existe hoje no produto. Cada cartão leva ao seu guia.",
+    "tasks": {
+      "title": "Tarefas e projetos",
+      "description": "Tarefas com subtarefas, dependências, recorrência, etiquetas e prioridades; projetos com quadros Kanban, fluxos personalizados e visão Eisenhower."
+    },
+    "focus": {
+      "title": "Pomodoro e timer de foco",
+      "description": "Timers Pomodoro e contínuos com pausa, retomada, histórico e estatísticas — um só motor na web, desktop e móvel."
+    },
+    "habits": {
+      "title": "Hábitos e sequências",
+      "description": "Hábitos diários com sequências, pausa e estatísticas para criar constância."
+    },
+    "plan": {
+      "title": "Meu plano de hoje",
+      "description": "Um plano diário proposto com data de execução vs vencimento, replanejamento automático e alertas quando o dia sobrecarrega."
+    },
+    "ritual": {
+      "title": "Ritual diário",
+      "description": "Planejamento guiado de manhã e encerramento à tarde com lembretes e sequências."
+    },
+    "agent": {
+      "title": "Seu próprio agente",
+      "description": "Pergunte sobre seu espaço de trabalho com respostas citadas, execute ações em linguagem natural e agende trabalhos recorrentes."
+    },
+    "scheduling": {
+      "title": "Agendamento automático",
+      "description": "Sugestões de horário ideal mais previsão de durações aprendida do seu próprio histórico."
+    },
+    "search": {
+      "title": "Busca inteligente",
+      "description": "Busca que entende a intenção, com sugestões em tarefas, projetos e notas."
+    },
+    "coach": {
+      "title": "Coach de IA",
+      "description": "Um coach conversacional com seu contexto para planejar e refletir."
+    },
+    "gamification": {
+      "title": "XP e conquistas",
+      "description": "Pontos de experiência, níveis e conquistas que premiam a constância."
+    },
+    "meetings": {
+      "title": "Ações de reuniões",
+      "description": "Cole uma transcrição e obtenha um resumo mais ações que você pode converter em tarefas. Entrada manual por enquanto — sem gravação automática."
+    },
+    "integrations": {
+      "title": "Agenda, Slack e agentes",
+      "description": "Sincronização bidirecional com Google Agenda e Outlook, integração profunda com Slack, 17 ferramentas MCP e API pública com webhooks."
+    },
+    "cta_text": "Veja o que cada plano inclui",
+    "cta_link": "Comparar planos →"
+  },
   "ProductShowcase": {
     "badge": "Tour do Produto",
     "title": "Tudo o que você precisa para",
@@ -286,6 +341,7 @@
     "guide": "Guia do Usuário",
     "blog": "Blog",
     "pricing": "Preços",
+    "features": "Recursos",
     "company": "Empresa",
     "about": "Sobre",
     "contact": "Contato",

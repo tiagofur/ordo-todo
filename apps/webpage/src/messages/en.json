@@ -206,6 +206,61 @@
     },
     "discover_more": "Discover 7 more features that already exist"
   },
+  "FeaturesPage": {
+    "badge": "Features",
+    "title": "Everything Ordo does today",
+    "subtitle": "Every feature below exists in the product right now. Each card links to its guide.",
+    "tasks": {
+      "title": "Tasks & projects",
+      "description": "Tasks with subtasks, dependencies, recurrence, tags and priorities; projects with Kanban boards, custom workflows and Eisenhower view."
+    },
+    "focus": {
+      "title": "Pomodoro & focus timer",
+      "description": "Pomodoro and continuous timers with pause, resume, history and stats — one engine on web, desktop and mobile."
+    },
+    "habits": {
+      "title": "Habits & streaks",
+      "description": "Daily habits with streaks, pause and stats to build consistency."
+    },
+    "plan": {
+      "title": "My plan for today",
+      "description": "A proposed day plan with Do Date vs Due Date, automatic replanning and risk alerts when the day overloads."
+    },
+    "ritual": {
+      "title": "Daily ritual",
+      "description": "Guided morning planning and evening shutdown with reminders and streaks."
+    },
+    "agent": {
+      "title": "Your own agent",
+      "description": "Ask questions about your workspace with cited answers, run actions in plain language, and schedule recurrent jobs."
+    },
+    "scheduling": {
+      "title": "Auto-scheduling",
+      "description": "Optimal schedule suggestions plus duration predictions learned from your own history."
+    },
+    "search": {
+      "title": "Smart search",
+      "description": "Search that understands intent, with suggestions across tasks, projects and notes."
+    },
+    "coach": {
+      "title": "AI coach",
+      "description": "A conversational coach with your context for planning and reflection."
+    },
+    "gamification": {
+      "title": "XP & achievements",
+      "description": "Experience points, levels and achievements that reward consistency."
+    },
+    "meetings": {
+      "title": "Meeting actions",
+      "description": "Paste a transcript and get a summary plus action items you can convert into tasks. Manual input for now — no automatic recording."
+    },
+    "integrations": {
+      "title": "Calendar, Slack & agents",
+      "description": "Two-way sync with Google Calendar and Outlook, deep Slack integration, 17 MCP tools and a public API with webhooks."
+    },
+    "cta_text": "See what each plan includes",
+    "cta_link": "Compare plans →"
+  },
   "ProductShowcase": {
     "badge": "Product Tour",
     "title": "Everything you need to",
@@ -286,6 +341,7 @@
     "guide": "User Guide",
     "blog": "Blog",
     "pricing": "Pricing",
+    "features": "Features",
     "company": "Company",
     "about": "About Us",
     "contact": "Contact",
