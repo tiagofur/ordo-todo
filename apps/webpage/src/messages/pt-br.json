@@ -546,8 +546,16 @@
       "getting_started": "Começando",
       "projects": "Projetos e Quadros",
       "tasks": "Gestão de Tarefas",
+      "capture": "Captura Rápida",
       "focus": "Timer de Foco",
+      "habits": "Hábitos",
+      "pomodoro": "Pomodoro",
+      "calendar": "Sincro Agenda",
+      "ritual": "Ritual Diário",
+      "scheduling": "Agenda Automática",
+      "agent": "Seu Agente",
       "analytics": "Análises",
+      "slack": "Slack",
       "need_help": "Precisa de mais ajuda?",
       "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
       "community_link": "Entrar na Comunidade",
@@ -586,34 +594,300 @@
       "pro_tip_shortcut": "Cmd/Ctrl + N",
       "pro_tip_end": "para criar tarefas rapidamente de qualquer lugar do app!",
       "explore_title": "Explore Mais",
-      "explore_text": "Aprofunde-se em recursos específicos com estes guias detalhados:"
+      "explore_text": "Aprofunde-se em recursos específicos com estes guias detalhados, ordenados dos primeiros passos ao uso avançado:"
+    },
+    "levels": {
+      "level1": {
+        "title": "Nível 1 — Primeiros passos",
+        "description": "Configure e capture suas primeiras tarefas."
+      },
+      "level2": {
+        "title": "Nível 2 — Sistema diário",
+        "description": "Foco, hábitos, agenda e ritual."
+      },
+      "level3": {
+        "title": "Nível 3 — Uso avançado",
+        "description": "IA, agentes, integrações e análises."
+      }
     },
     "cards": {
       "projects": {
         "title": "Projetos e Quadros",
-        "description": "Aprenda a organizar trabalho com quadros Kanban"
+        "description": "Aprenda a organizar trabalho com quadros Kanban",
+        "time": "5 min"
       },
       "tasks": {
         "title": "Gestão de Tarefas",
-        "description": "Domine subtarefas, dependências e prioridades"
+        "description": "Domine subtarefas, dependências e prioridades",
+        "time": "6 min"
       },
       "focus": {
         "title": "Timer de Foco",
-        "description": "Aumente produtividade com técnica Pomodoro"
+        "description": "Aumente produtividade com técnica Pomodoro",
+        "time": "4 min"
       },
       "analytics": {
         "title": "Análises",
-        "description": "Acompanhe e melhore sua produtividade"
+        "description": "Acompanhe e melhore sua produtividade",
+        "time": "4 min"
       },
       "connect": {
         "title": "Conectar seu assistente",
-        "description": "Use o Ordo no ChatGPT, Claude, Hermes ou OpenClaw"
+        "description": "Use o Ordo no ChatGPT, Claude, Hermes ou OpenClaw",
+        "time": "5 min"
       },
       "more_features": {
         "title": "Descubra mais",
-        "description": "Reuniões com IA, carga, bem-estar, busca, coach, gamificação e áudio."
+        "description": "Reuniões com IA, carga, bem-estar, busca, coach, gamificação e áudio.",
+        "time": "6 min"
+      },
+      "habits": {
+        "title": "Hábitos e Sequências",
+        "description": "Crie constância com hábitos diários",
+        "time": "4 min"
+      },
+      "pomodoro": {
+        "title": "Pomodoro a Fundo",
+        "description": "Modos, troca de tarefa e histórico",
+        "time": "4 min"
+      },
+      "capture": {
+        "title": "Captura Rápida",
+        "description": "Linguagem natural, Quick-Add e paleta",
+        "time": "5 min"
+      },
+      "calendar": {
+        "title": "Sincro Agenda",
+        "description": "Sincronização 2-way com Google e Outlook",
+        "time": "5 min"
+      },
+      "slack": {
+        "title": "Integração Slack",
+        "description": "Comandos, ações e resumo diário",
+        "time": "5 min"
+      },
+      "agent": {
+        "title": "Seu Próprio Agente",
+        "description": "Pergunte, aja e agende em linguagem natural",
+        "time": "5 min"
+      },
+      "scheduling": {
+        "title": "Agenda Automática",
+        "description": "Data de execução, plano diário e alertas",
+        "time": "5 min"
+      },
+      "ritual": {
+        "title": "Ritual Diário",
+        "description": "Manhã guiada e encerramento à tarde",
+        "time": "4 min"
       }
     }
+  },
+  "GuideAgent": {
+    "badge": "Agente",
+    "title": "Seu Próprio Agente",
+    "subtitle": "Pergunte sobre seu espaço de trabalho, execute ações em linguagem natural e agende trabalhos recorrentes.",
+    "powers_title": "Três poderes",
+    "powers": {
+      "ask": {
+        "title": "Pergunte o que for",
+        "description": "Perguntas respondidas desde suas tarefas, projetos e notas — com citações à fonte.",
+        "example": "O que vence esta semana?"
+      },
+      "actions": {
+        "title": "Aja em linguagem natural",
+        "description": "Proponha um plano, revise-o e execute-o: crie, atualize e conclua sem cliques.",
+        "example": "Mova todas as tarefas de design para sexta"
+      },
+      "jobs": {
+        "title": "Trabalhos recorrentes",
+        "description": "Agende briefings e resumos em linguagem natural; execute, pause ou exclua quando quiser.",
+        "example": "Toda segunda a sexta às 8:00, informe-me"
+      }
+    },
+    "safety_title": "Seguro por design",
+    "safety_text": "As ações rodam com suas permissões, cada passo é auditado e planos destrutivos perguntam antes. Nada roda em silêncio.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Comece perguntando: aprenda o que o agente sabe antes de dar ações a ele."
+  },
+  "GuideScheduling": {
+    "badge": "Agenda",
+    "title": "Agenda Automática",
+    "subtitle": "Um plano diário proposto com data de execução vs vencimento, replanejamento automático e alertas de risco.",
+    "doday_title": "Data de execução não é vencimento",
+    "doday_text": "O vencimento é o prazo final. A data de execução é quando você planeja fazer o trabalho. O planejador agenda por data de execução e avisa quando o prazo está em risco.",
+    "doday_card_title": "Data de execução",
+    "doday_card_text": "Definida por tarefa. Tarefas sem uma são agendadas ao redor das que têm.",
+    "replan_card_title": "Replanejar",
+    "replan_card_text": "Início do dia, tarefa concluída ou estourada: o plano se reconstrói sozinho.",
+    "plan_title": "Seu plano de hoje",
+    "steps": {
+      "1": "Abra Meu plano de hoje de manhã",
+      "2": "Revise os blocos propostos e congele os que gostar",
+      "3": "Aplique o plano; as tarefas recebem suas datas de execução"
+    },
+    "risks_title": "Alertas de risco",
+    "risks_text": "Avisos de sobrecarga e vencimento em risco chegam com opções: mover, dividir, delegar — você decide.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "As durações melhoram com o tempo: as previsões aprendem das suas sessões concluídas."
+  },
+  "GuideRitual": {
+    "badge": "Ritual",
+    "title": "Ritual Diário",
+    "subtitle": "Dois minutos de manhã, dois à tarde: planeje o dia e depois encerre-o.",
+    "morning_title": "Manhã",
+    "morning_text": "Revise o dia, aceite ou ajuste os blocos propostos e comece com intenção.",
+    "evening_title": "Tarde",
+    "evening_text": "Encerre o dia: concluído, arrastado e movimentos para o pendente.",
+    "flow_title": "O fluxo",
+    "steps": {
+      "1": "O ritual da manhã propõe seu plano diário",
+      "2": "Aceite os blocos ou ajuste-os",
+      "3": "Trabalhe o plano; o timer e a agenda se adaptam",
+      "4": "O ritual da tarde encerra o concluído e arrasta o resto"
+    },
+    "streak_title": "Sequências e lembretes",
+    "streak_card_title": "Sequências",
+    "streak_card_text": "Dias consecutivos com manhã ou tarde feita. Um dia pulado ou perdido quebra a sequência — ela recomeça com honestidade.",
+    "reminders_card_title": "Lembretes",
+    "reminders_card_text": "Avisos suaves se a manhã ou a tarde ainda estão abertos.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Combine o ritual com o plano diário: aceite blocos de manhã, revise-os à tarde."
+  },
+  "GuideCapture": {
+    "badge": "Captura",
+    "title": "Captura Rápida",
+    "subtitle": "Tire ideias da cabeça em segundos: linguagem natural, Quick-Add e paleta de comandos.",
+    "nl_title": "Escreva como fala",
+    "nl_text": "Digite uma tarefa com data, hora, prioridade e projeto em uma linha. O Ordo interpreta datas, recorrência, prioridades e projetos automaticamente.",
+    "nl_example": "Ligar para Ana amanhã 15h #trabalho @alta",
+    "nl_result": "→ Tarefa “Ligar para Ana”, vence amanhã 15:00, prioridade alta, projeto “trabalho”.",
+    "methods_title": "Três formas de capturar",
+    "methods": {
+      "quickadd": {
+        "title": "Quick-Add",
+        "description": "A mais rápida: um diálogo com prévia ao vivo.",
+        "shortcut": "N ou Cmd/Ctrl+N"
+      },
+      "palette": {
+        "title": "Paleta de comandos",
+        "description": "Navegue e crie sem tocar o mouse.",
+        "shortcut": "Cmd/Ctrl+K"
+      },
+      "mobile": {
+        "title": "Móvel",
+        "description": "Botão flutuante com a mesma análise ao vivo.",
+        "shortcut": "FAB"
+      }
+    },
+    "palette_title": "O que a paleta faz",
+    "palette_text": "Oito ações canônicas na web e desktop: ir ao painel, tarefas, projetos ou agenda; nova tarefa; novo projeto; iniciar timer; buscar. Digite para filtrar, Enter executa, Esc fecha.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Aperte Tab dentro do Quick-Add para percorrer os campos inferidos (data, prioridade, projeto) antes de salvar."
+  },
+  "GuideCalendar": {
+    "badge": "Agenda",
+    "title": "Sincro Agenda",
+    "subtitle": "Sincronização bidirecional com Google Agenda e Outlook: suas tarefas na agenda, suas reuniões como contexto.",
+    "connect_title": "Conectar uma conta",
+    "steps": {
+      "1": "Abra Ajustes → Agenda e escolha Google ou Microsoft",
+      "2": "Aprove o acesso na janela do provedor",
+      "3": "Escolha quais projetos do Ordo sincronizam com qual agenda"
+    },
+    "sync_title": "Como a sincronização funciona",
+    "push_title": "Ordo → agenda",
+    "push_text": "Tarefas com data aparecem como eventos na sua agenda para que seu dia mostre trabalho e reuniões juntos.",
+    "pull_title": "Agenda → Ordo",
+    "pull_text": "Reuniões viram blocos ocupados que o planejador respeita ao agendar suas tarefas.",
+    "conflicts_title": "Conflitos",
+    "conflicts_text": "Ganha a última mudança por timestamp, e cada conexão mostra seu status (ok, erro, reautorizar). Reconecte nos Ajustes se o acesso expirar.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Dê às tarefas uma data de execução (quando vai fazê-la), não só vencimento, para vê-las na agenda."
+  },
+  "GuideSlack": {
+    "badge": "Slack",
+    "title": "Integração Slack",
+    "subtitle": "Crie tarefas sem sair do Slack: comando slash, ações de mensagem e resumo diário.",
+    "ways_title": "Três formas de trabalhar",
+    "ways": {
+      "command": {
+        "title": "Comando slash",
+        "description": "Crie tarefas e revise seu dia de qualquer canal.",
+        "example": "/ordo create Revisar proposta amanhã"
+      },
+      "action": {
+        "title": "Ação de mensagem",
+        "description": "Converta qualquer mensagem em tarefa com “Create task in Ordo”.",
+        "example": "··· → Create task in Ordo"
+      },
+      "digest": {
+        "title": "Resumo diário",
+        "description": "Um briefing com tarefas vencidas e concluídas recentes no seu canal.",
+        "example": "Briefing diário, automático"
+      }
+    },
+    "status_title": "Sincro de foco",
+    "status_text": "Quando você inicia uma sessão de foco, seu status no Slack mostra que está focado para o time não perturbar. Ative nos Ajustes (opt-in).",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Use /ordo today toda manhã para ver o que vence sem abrir o app."
+  },
+  "GuideHabits": {
+    "badge": "Hábitos",
+    "title": "Hábitos e Sequências",
+    "subtitle": "Pequenas ações diárias, acumuladas. Acompanhe hábitos e mantenha viva a sequência.",
+    "create_title": "Criar um hábito",
+    "steps": {
+      "1": "Abra Hábitos e crie um novo com nome e frequência",
+      "2": "Conclua-o cada dia pela visão de hábitos",
+      "3": "Veja sua sequência crescer nas estatísticas"
+    },
+    "concepts_title": "Como os hábitos funcionam",
+    "concepts": {
+      "streaks": {
+        "title": "Sequências",
+        "description": "Dias consecutivos concluídos. Um dia perdido reinicia a contagem."
+      },
+      "pause": {
+        "title": "Pausa",
+        "description": "Pause um hábito nas férias ou descanso sem perder o histórico."
+      },
+      "stats": {
+        "title": "Estatísticas",
+        "description": "Taxa de conclusão e histórico por hábito."
+      }
+    },
+    "complete_title": "Concluir o dia",
+    "complete_text": "Marque cada hábito uma vez ao dia. Os concluídos contam para XP e conquistas.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Comece com um hábito. Uma sequência de 7 dias dá XP extra."
+  },
+  "GuidePomodoro": {
+    "badge": "Pomodoro",
+    "title": "Pomodoro a Fundo",
+    "subtitle": "Um só motor de timer na web, desktop e móvel: modos, troca de tarefa e histórico.",
+    "modes_title": "Modos Pomodoro e contínuo",
+    "modes_text": "Use ciclos Pomodoro (25 foco, 5 descanso, descanso longo a cada 4) ou um timer contínuo para trabalho aberto. Ambos compartilham histórico e estatísticas.",
+    "controls": {
+      "start": {
+        "title": "Iniciar",
+        "description": "Escolha uma tarefa e inicie o timer de qualquer plataforma."
+      },
+      "pause": {
+        "title": "Pausar e retomar",
+        "description": "Pause nas interrupções e retome a mesma sessão."
+      },
+      "history": {
+        "title": "Histórico",
+        "description": "Cada sessão é registrada com tarefa, duração e pontuação de foco."
+      }
+    },
+    "task_title": "Trocar de tarefa no meio da sessão",
+    "task_text": "Troque a tarefa ativa sem parar o timer: a sessão conserva seus dados e atribui o novo segmento à nova tarefa.",
+    "platforms_title": "Mesmo motor em todo lugar",
+    "platforms_text": "Web, desktop (com timer flutuante) e móvel compartilham um motor, então uma sessão iniciada em uma plataforma mantém seu estado e histórico em todas.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Vincule o timer a uma tarefa para ver o tempo de foco por tarefa nas análises."
   },
   "GuideFocus": {
     "badge": "Timer de Foco",

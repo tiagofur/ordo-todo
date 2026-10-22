@@ -11,7 +11,15 @@ import {
   BarChart3,
   Plug,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Repeat,
+  Hourglass,
+  Zap,
+  CalendarDays,
+  Hash,
+  Bot,
+  Wand2,
+  MoonStar
 } from 'lucide-react';
 
 export function GuideSidebar() {
@@ -38,16 +46,64 @@ export function GuideSidebar() {
       color: '#F97316',
     },
     { 
+      key: 'capture', 
+      href: '/guide/capture', 
+      icon: Zap,
+      color: '#3B82F6',
+    },
+    { 
       key: 'focus', 
       href: '/guide/focus', 
       icon: Timer,
       color: '#10B981',
     },
     { 
+      key: 'habits', 
+      href: '/guide/habits', 
+      icon: Repeat,
+      color: '#F97316',
+    },
+    { 
+      key: 'pomodoro', 
+      href: '/guide/pomodoro', 
+      icon: Hourglass,
+      color: '#EF4444',
+    },
+    { 
+      key: 'calendar', 
+      href: '/guide/calendar', 
+      icon: CalendarDays,
+      color: '#06B6D4',
+    },
+    { 
+      key: 'ritual', 
+      href: '/guide/ritual', 
+      icon: MoonStar,
+      color: '#A855F7',
+    },
+    { 
+      key: 'scheduling', 
+      href: '/guide/scheduling', 
+      icon: Wand2,
+      color: '#06B6D4',
+    },
+    { 
+      key: 'agent', 
+      href: '/guide/agent', 
+      icon: Bot,
+      color: '#3B82F6',
+    },
+    { 
       key: 'analytics', 
       href: '/guide/analytics', 
       icon: BarChart3,
       color: '#A855F7',
+    },
+    {
+      key: 'slack', 
+      href: '/guide/slack', 
+      icon: Hash,
+      color: '#4A154B',
     },
     {
       key: 'connect',
