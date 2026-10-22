@@ -21,6 +21,7 @@ import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
 import { serializeCalendarDateForApi } from '@ordo-todo/core';
+import { useProject, useWorkspaceMembers } from '@/lib/api-hooks';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector';
 
 
@@ -37,6 +38,7 @@ interface CreateTaskFormData {
   dueDate?: string;
   estimatedMinutes?: number;
   recurrence?: RecurrenceValue;
+  assigneeId?: string;
 }
 
 interface CreateTaskDialogProps {
@@ -73,6 +75,8 @@ interface CreateTaskDialogProps {
     formPriority?: string;
     formEstimatedMinutes?: string;
     formDueDate?: string;
+    formAssignee?: string;
+    formUnassigned?: string;
     priorities?: { low: string; medium: string; high: string; urgent?: string };
     buttons?: { cancel: string; create: string; creating: string };
     emptyState?: { title: string; description: string; action: string };
@@ -94,6 +98,8 @@ const DEFAULT_LABELS = {
   formPriority: 'Priority',
   formEstimatedMinutes: 'Est. Minutes',
   formDueDate: 'Due Date',
+  formAssignee: 'Assign to',
+  formUnassigned: 'Unassigned',
   priorities: { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' },
   buttons: { cancel: 'Cancel', create: 'Create Task', creating: 'Creating...' },
   emptyState: {
@@ -130,6 +136,7 @@ export function CreateTaskDialog({
       dayOfMonth: z.number().optional(),
       endDate: z.date().optional(),
     }).optional(),
+    assigneeId: z.string().optional(),
   });
 
   type CreateTaskForm = z.infer<typeof formSchema>;
@@ -152,6 +159,16 @@ export function CreateTaskDialog({
 
   const currentPriority = watch('priority');
 
+  // Workspace members of the selected project, for the optional assignee field
+  const watchedProjectId = watch('projectId');
+  const { data: selectedProject } = useProject(watchedProjectId || projectId || '');
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(
+    selectedProject?.workspaceId ?? '',
+  );
+  const assignableMembers = workspaceMembers.filter(
+    (member: { user?: { id: string } | null }) => !!member.user,
+  );
+
   const handleFormSubmit = async (data: CreateTaskForm) => {
     // Adapter for form data to output data
     const outputData: CreateTaskFormData = {
@@ -162,6 +179,7 @@ export function CreateTaskDialog({
       estimatedMinutes: data.estimatedMinutes || undefined,
       dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
       recurrence: data.recurrence as RecurrenceValue | undefined,
+      assigneeId: data.assigneeId || undefined,
     };
 
     try {
@@ -335,6 +353,30 @@ export function CreateTaskDialog({
                 })}
               </div>
             </div>
+
+            {/* Assignee (only meaningful with more than one member) */}
+            {assignableMembers.length > 1 && (
+              <div className="space-y-2">
+                <Label htmlFor="assigneeId" className="text-sm font-medium text-foreground">
+                  {t.formAssignee}
+                </Label>
+                <select
+                  id="assigneeId"
+                  {...register('assigneeId')}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">{t.formUnassigned}</option>
+                  {assignableMembers.map((member) => {
+                    const user = member.user!;
+                    return (
+                      <option key={user.id} value={user.id}>
+                        {user.name || user.email}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               {/* Estimated Minutes */}

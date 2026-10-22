@@ -220,4 +220,96 @@ describe('Collaboration API (e2e)', () => {
       expect(response.body.count).toBe(0);
     });
   });
+
+  describe('Task Assignment (ODD 018 S1 / W1)', () => {
+    let userCToken: string;
+    let userCId: string;
+
+    const countAssignedNotifications = async () => {
+      const response = await request(app.getHttpServer())
+        .get('/notifications')
+        .set('Authorization', `Bearer ${userBToken}`)
+        .expect(200);
+      return response.body.filter(
+        (n: { type: string; resourceId: string }) =>
+          n.type === 'TASK_ASSIGNED' && n.resourceId === taskId,
+      ).length;
+    };
+
+    beforeAll(async () => {
+      // User C is a registered user but NOT a member of the workspace
+      const registerResponseC = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          email: `userc-${Date.now()}@example.com`,
+          password: 'Password123!',
+          name: 'User C',
+          username: `userc${Date.now()}`,
+        })
+        .expect(201);
+      userCToken = registerResponseC.body.accessToken;
+      userCId = registerResponseC.body.user.id;
+    });
+
+    afterAll(async () => {
+      await prisma.notification.deleteMany({ where: { userId: userCId } });
+      if (userCId) {
+        await prisma.user.deleteMany({ where: { id: userCId } });
+      }
+    });
+
+    it('User A reassigns the task to User B and B gets a new TASK_ASSIGNED', async () => {
+      const before = await countAssignedNotifications();
+
+      // Move it to A first so A → B below is a real assignee transition
+      await request(app.getHttpServer())
+        .patch(`/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ assigneeId: userAId })
+        .expect(200);
+
+      const response = await request(app.getHttpServer())
+        .patch(`/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ assigneeId: userBId })
+        .expect(200);
+      expect(response.body.assigneeId).toBe(userBId);
+
+      expect(await countAssignedNotifications()).toBeGreaterThan(before);
+    });
+
+    it('User A cannot assign the task to User C (not a workspace member)', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ assigneeId: userCId })
+        .expect(400);
+      expect(response.body.message).toContain(
+        'Assignee must be a member of the task workspace',
+      );
+
+      // User C is authenticated: the 400 is the membership rule, not auth
+      expect(userCToken).toBeDefined();
+    });
+
+    it('Creating a task pre-assigned to an outsider is rejected', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ title: 'Outsider Task', projectId, assigneeId: userCId })
+        .expect(400);
+      expect(response.body.message).toContain(
+        'Assignee must be a member of the task workspace',
+      );
+    });
+
+    it('User A can unassign the task with null', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ assigneeId: null })
+        .expect(200);
+      expect(response.body.assigneeId).toBeNull();
+    });
+  });
 });
