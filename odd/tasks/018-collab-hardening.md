@@ -12,27 +12,27 @@ Test runner: Jest (backend, core) · Vitest (web) · e2e Jest (`apps/backend/tes
 Auditoría de referencia (hallazgos con file:line): memoria `collab-multiuser-audit-oct-2026` + `docs/vision/promises-audit.md` §B.
 
 Modelo:
-- `packages/db/prisma/schema.prisma` — `WorkspaceMember` 834-849 + `MemberRole` (OWNER/ADMIN/MEMBER/VIEWER) 851-856; `WorkspaceInvitation` 783-806 + `InviteStatus` (CANCELLED nunca asignado) 808-813; `WorkspaceAuditLog` 816-832; `Comment.mentions` 1333 (el comentario del schema dice "user IDs" pero el backend guarda usernames); `NotificationType` 262-300 (`MENTIONED`, `TASK_ASSIGNED`, `INVITATION_RECEIVED` nunca emitido); `Task.assigneeId` 1066-1068.
+- `packages/db/prisma/schema.prisma` — `WorkspaceMember` 834-849 + `MemberRole` (OWNER/ADMIN/MEMBER/VIEWER) 851-856; `WorkspaceInvitation` 783-806 + `InviteStatus` (CANCELLED nunca asignado) 808-813; `WorkspaceAuditLog` 816-832; `Comment.mentions` 1333 (el comentario del schema dice "user IDs" pero el backend guarda usernames); `NotificationType` 291-300 (`MENTIONED` y `TASK_ASSIGNED` se emiten hoy; `INVITATION_RECEIVED` nunca emitido); `Task.assigneeId` 1066-1068.
 
 Backend workspaces:
 - `apps/backend/src/workspaces/workspaces.controller.ts` (members 276-368, invitations 397-479, accept 479) + `workspaces.service.ts` (`inviteMember` 423, `acceptInvitation` 492 — sin validar email, `getMembers` 566) + ambos `.spec.ts`
 - `apps/backend/src/repositories/prisma-workspace-member.repository.ts:78` (`updateRole()` huérfano — nadie lo llama) · `workspace-invitation.repository.ts` · `workspace-audit-log.repository.ts`
-- `packages/core/src/workspaces/usecase/` (invite-member, accept-invitation, remove-member-from-workspace, add-member-to-workspace) + tests en `packages/core/src/workspaces/`
+- `packages/core/src/workspaces/usecase/` (invite-member, accept-invitation, remove-member-from-workspace, add-member-to-workspace). Sin tests de core para workspaces hoy. OJO: los tests de comments en core (`src/comments/tests/`) NO corren con jest — el `testMatch` de `packages/core/jest.config.js` solo ejecuta `**/test/**`; los tests nuevos de core van en `packages/core/test/{workspaces,comments}/` (convención de `test/users`, `test/tasks`).
 - `apps/backend/src/common/guards/workspace.guard.ts` (contextos direct/from-project/from-task 125-174)
 
 Backend tasks/comments:
-- `apps/backend/src/tasks/tasks.service.ts` (create auto-asigna creador 110; update assignee → `TASK_ASSIGNED` 717-735; **nunca valida que assignee sea miembro**) + `dto/create-task.dto.ts:102`
+- `apps/backend/src/tasks/tasks.service.ts` (create auto-asigna creador 110; update assignee → `TASK_ASSIGNED` 717-735; **nunca valida que assignee sea miembro**) + `dto/create-task.dto.ts:101`
 - `apps/backend/src/comments/comments.service.ts` (`create` 102-178; `handleCommentNotifications` 344-411; `detectMentions` 451-455 regex `/@(\w+)/g` rompe nombres con espacios; `getUsersByName` 529-552 matching `contains` fuzzy; `update` 202-235 no re-parsea) + `.spec.ts`
 - `apps/backend/src/repositories/prisma-comment.repository.ts:110-150` (`findMentionsForUser*` buscan por userId — hoy nunca matchean)
 - `apps/backend/src/notifications/notifications.service.ts` + `notifications.gateway.ts` (evento `notification:new`)
-- `apps/backend/src/slack/slack-notifier.service.ts:23-29` (espera `TASK_MENTIONED`; el backend emite `MENTIONED` → menciones nunca llegan a Slack)
+- `apps/backend/src/slack/slack-notifier.service.ts:21-27` (espera `TASK_MENTIONED`; el backend emite `MENTIONED` → menciones nunca llegan a Slack)
 
 Frontend:
 - `packages/ui/src/components/ui/mention-textarea.tsx` (popover @, inserta texto plano 77, `onMention(userId)` 93-95 sin usar)
 - `apps/web/src/components/task/task-detail-panel.tsx` (`useWorkspaceMembers` 233, `mentionUsers` 254-261, prop opcional `renderAssigneeSelector` 834 sin call sites, `users` 897) — call sites del panel: `dashboard/page.tsx`, `calendar/page.tsx`, `task-calendar.tsx`, `project-list.tsx`, `task-card.tsx`, `task-card-compact.tsx`
 - `apps/web/src/components/task/assignee-selector.tsx` (código muerto) · `task-form.tsx` (crear tarea, sin assignee) · `comment-thread.tsx` (autor `comment.user` 179 — backend devuelve `author`; render markdown sin highlight 257-261; `MentionTextarea` 278-289)
 - `apps/web/src/components/workspace/workspace-members-settings.tsx` (dropdown solo "Remove" 173-181; botón borrar invitación sin `onClick` 237-239) · `invite-member-dialog.tsx`
-- `apps/web/src/hooks/use-workspace-permissions.ts` (canInvite/canManageMembers 120-123) · `apps/web/src/components/shared/notification-popover.tsx` (click solo marca leída, no navega)
+- `apps/web/src/hooks/use-workspace-permissions.ts` (canInvite/canManageMembers 119-122) · `apps/web/src/components/shared/notification-popover.tsx` (click solo marca leída, no navega)
 - `packages/api-client/src/types/comment.types.ts:5-18` (sin `author`/`mentions`/`parentCommentId`/`isEdited`)
 - Paridad: `apps/desktop/src/components/task/comment-thread.tsx` (Textarea plana, sin @) · `apps/desktop/src/components/workspace/workspace-members-settings.tsx` · `apps/mobile/app/screens/(internal)/notifications.tsx:74,89` (icono `TASK_MENTIONED`, backend manda `MENTIONED`)
 
@@ -72,7 +72,7 @@ Fuera de alcance: límites de seats/tier TEAM (012-S4), transferencia de propied
 - `apps/backend/src/repositories/` (prisma-comment, prisma-workspace-member, workspace-invitation, workspace-audit-log + specs)
 - `apps/backend/src/slack/slack-notifier.service.ts` (solo línea `MENTIONED` de S5)
 - `apps/backend/test/collaboration.e2e-spec.ts` + `workspaces-security.e2e-spec.ts`
-- `packages/core/src/workspaces/` (usecases + tests nuevos) · `packages/core/src/comments/` (si el parser exacto vive en core)
+- `packages/core/src/workspaces/` (usecases) · `packages/core/src/comments/` (si el parser exacto vive en core) · `packages/core/test/{workspaces,comments}/` (tests nuevos de core — ver nota de `testMatch` en Context)
 - `packages/db/prisma/schema.prisma` + `migrations/` (solo reset `mentions`; sin columnas nuevas salvo justificación en Log)
 - `packages/api-client/src/types/comment.types.ts` + `client.ts` (3 métodos nuevos) · `packages/hooks/` (hooks de los endpoints nuevos)
 - `packages/ui/src/components/ui/mention-textarea.tsx` (solo lo que S2/S5 exijan)
@@ -86,8 +86,8 @@ Fuera de alcance: límites de seats/tier TEAM (012-S4), transferencia de propied
 
 - `cd apps/backend && npx jest src/tasks src/comments src/workspaces src/repositories src/slack` → verde
 - `cd apps/backend && npm run test:e2e -- collaboration workspaces-security` → verde (requiere DB local; ver memoria docker-dev-env)
-- `cd packages/core && npx jest src/workspaces src/comments` → verde
-- `cd apps/web && npx vitest run src/components/task src/components/workspace src/components/shared` → verde
+- `cd packages/core && npx jest test/workspaces test/comments` → verde (tests nuevos bajo `packages/core/test/`; `src/**/tests/` no lo ejecuta jest)
+- `cd apps/web && npx vitest run src/components/task src/components/shared src/components/__tests__ src/components/workspace` → verde (requiere dists de paquetes construidos; los tests de workspace existentes viven en `src/components/__tests__/`)
 - `npx tsc --noEmit` en backend/web/desktop/mobile/api-client/hooks → 0 (tras rebuild dists locales, nunca commiteados)
 - `npx eslint` en archivos tocados → 0 errores
 - Gates raíz (padre, CI-sim): `npm run build` → `npm run check-types` → `npm run test`
@@ -109,3 +109,4 @@ Orden: T1 → T2 → T3 → T4 → T5 → T6 (P0 primero; T3 antes que T4 por se
 ## Log
 
 L1. Origen (2026-10-21): auditoría de multiusuario pedida por el usuario ("¿cómo funciona el multiuser y todo, está bien de verdad? tenemos funciones para plan business?"). Hallazgos: base real y testeada (roles, invitaciones, guards, presencia, @mentions con notificación), pero sin asignación en UI, menciones frágiles (`\w+` + fuzzy + usernames-vs-IDs), sin cambiar rol/leave/cancelar invitación, accept sin validar email, y plan TEAM sin ningún enforcement (solo marketing). Usuario aprobó crear este ODD con prioridades P0 asignación+menciones / P1 roles+leave+cancel+email / P2 visibilidad y paridad ("si", 2026-10-21).
+L2. Revisión #334 REQUEST CHANGES → fix round (2026-10-22): B1 Context — `MENTIONED`/`TASK_ASSIGNED` SÍ se emiten (solo `INVITATION_RECEIVED` nunca); B2 comando core corregido a `npx jest test/workspaces test/comments` con tests nuevos bajo `packages/core/test/` — hallazgo del revisor: el `testMatch` de `packages/core/jest.config.js` solo ejecuta `**/test/**`, así que los 8 tests de `src/comments/tests/` son muertos hoy (se reporta; arreglarlos NO es alcance de este ODD); B3 eliminada referencia a tests de workspaces inexistentes en core; nits: dto 101, slack 21-27, permissions 119-122, NotificationType 291-300, vitest con `src/components/__tests__` + nota de dists.
