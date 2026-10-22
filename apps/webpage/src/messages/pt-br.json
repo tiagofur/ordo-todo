@@ -759,7 +759,7 @@
   },
   "Security": {
     "title": "Segurança",
-    "subtitle": "O que protege seus dados hoje, o que passa por terceiros e o que ainda está planejado. Nada nesta página é aspiracional.",
+    "subtitle": "O que protege seus dados hoje, o que passa por terceiros e o que ainda está planejado. Tudo que não está disponível hoje está marcado como planejado.",
     "note_title": "Leia isto primeiro",
     "note_text": "Não afirmamos criptografia de ponta a ponta, certificação SOC 2 nem criptografia AES-256 em repouso: nenhum está evidenciado hoje. O que segue é o que existe de forma verificável no produto.",
     "sections": {
@@ -769,7 +769,7 @@
       },
       "data": {
         "title": "Seus dados",
-        "content": "Suas tarefas, projetos e notas vivem em nosso banco de dados e são limitados aos seus espaços de trabalho: você só vê aquilo de que é membro, e os assistentes conectados veem exatamente o mesmo. Você pode exportar seus dados como JSON a qualquer momento e excluir sua conta, o que remove seus dados. Não vendemos informações pessoais. A criptografia em repouso além da oferecida pelo nosso banco de dados, e os programas de conformidade certificados, não estão evidenciados hoje."
+        "content": "Suas tarefas, projetos e notas vivem em nosso banco de dados e são limitados aos seus espaços de trabalho: você só vê aquilo de que é membro, e os assistentes conectados não veem mais do que você. Você pode exportar seus dados como JSON a qualquer momento e excluir sua conta, o que remove seus dados. Não vendemos informações pessoais. A criptografia em repouso além da oferecida pelo nosso banco de dados, e os programas de conformidade certificados, não estão evidenciados hoje."
       },
       "ai": {
         "title": "IA e terceiros",

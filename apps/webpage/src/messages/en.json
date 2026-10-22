@@ -759,7 +759,7 @@
   },
   "Security": {
     "title": "Security",
-    "subtitle": "What protects your data today, what runs through third parties, and what is still planned. Nothing on this page is aspirational.",
+    "subtitle": "What protects your data today, what runs through third parties, and what is still planned. Anything not available today is labeled as planned.",
     "note_title": "Read this first",
     "note_text": "We do not claim end-to-end encryption, SOC 2 certification, or AES-256 encryption at rest: none of them are evidenced today. What follows is what verifiably exists in the product.",
     "sections": {
@@ -769,7 +769,7 @@
       },
       "data": {
         "title": "Your data",
-        "content": "Your tasks, projects and notes live in our database and are scoped to your workspaces: you only see what you are a member of, and connected agents see exactly the same. You can export your data as JSON at any time and delete your account, which removes your data. We do not sell personal information. Encryption at rest beyond what our database provides, and certified compliance programs, are not evidenced today."
+        "content": "Your tasks, projects and notes live in our database and are scoped to your workspaces: you only see what you are a member of, and connected agents see no more than you do. You can export your data as JSON at any time and delete your account, which removes your data. We do not sell personal information. Encryption at rest beyond what our database provides, and certified compliance programs, are not evidenced today."
       },
       "ai": {
         "title": "AI and third parties",
