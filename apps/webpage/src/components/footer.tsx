@@ -22,6 +22,7 @@ export function Footer() {
       { label: t('about'), href: '/about' },
       { label: t('contact'), href: '/contact' },
       { label: t('support'), href: '/support' },
+      { label: t('status'), href: '/status' },
     ],
     legal: [
       { label: t('privacy'), href: '/privacy' },

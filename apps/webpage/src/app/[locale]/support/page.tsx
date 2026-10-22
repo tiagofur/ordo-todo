@@ -111,7 +111,13 @@ export default function SupportPage() {
           <div className="p-6 rounded-xl bg-card border-2 border-border text-left">
             <Activity className="h-8 w-8 text-[#10B981] mb-3" />
             <h3 className="font-bold text-foreground mb-2">{t('status_title')}</h3>
-            <p className="text-sm text-muted-foreground">{t('status_text')}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t('status_text')}</p>
+            <Link
+              href="/status"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#10B981] text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              {t('status_cta')}
+            </Link>
           </div>
           <div className="p-6 rounded-xl bg-[#EC4899]/10 border border-[#EC4899]/20 text-left">
             <Mail className="h-8 w-8 text-[#EC4899] mb-3" />

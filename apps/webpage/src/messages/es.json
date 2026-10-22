@@ -434,10 +434,48 @@
       }
     },
     "status_title": "Estado del servicio",
-    "status_text": "Una página de estado en vivo llegará pronto. Mientras tanto, las incidencias se anuncian en el changelog.",
+    "status_text": "Revisa el estado en vivo de la API, base de datos y caché.",
+    "status_cta": "Ver estado",
     "contact_title": "¿Sigues atascado?",
     "contact_text": "Envíanos un mensaje y te responderemos.",
     "contact_cta": "Contáctanos"
+  },
+  "StatusPage": {
+    "badge": "Estado",
+    "title": "Estado del Servicio",
+    "subtitle": "Estado en vivo de la API de Ordo y sus dependencias, comprobado ahora mismo.",
+    "states": {
+      "operational": {
+        "title": "Todo operativo",
+        "description": "La API, la base de datos y la caché responden con normalidad."
+      },
+      "degraded": {
+        "title": "Rendimiento degradado",
+        "description": "Algo va lento o parcialmente no disponible. Estamos en ello."
+      },
+      "down": {
+        "title": "Interrupción del servicio",
+        "description": "Una dependencia crítica está caída. Revisa el changelog para novedades."
+      },
+      "unknown": {
+        "title": "Estado desconocido",
+        "description": "No pudimos contactar la API desde esta página. Puede ser tu conexión — inténtalo de nuevo."
+      }
+    },
+    "checked_at": "Comprobado a las",
+    "components_title": "Componentes",
+    "components": {
+      "api": "API",
+      "database": "Base de datos",
+      "redis": "Caché",
+      "memory": "Memoria"
+    },
+    "retry": "Comprobar de nuevo",
+    "up": "Activo",
+    "down": "Caído",
+    "note": "Esta página consulta el endpoint público de salud; muestra este momento, no historial ni porcentajes.",
+    "changelog_text": "Para incidencias pasadas y novedades, mira el changelog.",
+    "changelog_link": "Abrir changelog →"
   },
   "ProductShowcase": {
     "badge": "Tour del Producto",
@@ -527,6 +565,7 @@
     "about": "Nosotros",
     "contact": "Contacto",
     "support": "Soporte",
+    "status": "Estado",
     "legal": "Legal",
     "privacy": "Política de Privacidad",
     "terms": "Términos de Servicio",
