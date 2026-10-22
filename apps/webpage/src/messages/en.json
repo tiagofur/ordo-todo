@@ -418,7 +418,7 @@
       },
       "billing": {
         "title": "Plans & billing",
-        "description": "Plans, trial, grace period and invoices."
+        "description": "Plans, trial and grace period."
       },
       "agents": {
         "title": "AI assistants",

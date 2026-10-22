@@ -14,6 +14,8 @@ import {
   Bot,
   Mail,
   Activity,
+  ShieldCheck,
+  MonitorSmartphone,
 } from 'lucide-react';
 
 const TOPICS = [
@@ -21,8 +23,8 @@ const TOPICS = [
   { key: 'faq', icon: HelpCircle, color: '#F97316', href: '/faq' },
   { key: 'billing', icon: CreditCard, color: '#EC4899', href: '/pricing' },
   { key: 'agents', icon: Bot, color: '#A855F7', href: '/guide/connect' },
-  { key: 'security', icon: HelpCircle, color: '#10B981', href: '/security' },
-  { key: 'apps', icon: BookOpen, color: '#3B82F6', href: '/apps' },
+  { key: 'security', icon: ShieldCheck, color: '#10B981', href: '/security' },
+  { key: 'apps', icon: MonitorSmartphone, color: '#3B82F6', href: '/apps' },
 ];
 
 export default function SupportPage() {
@@ -62,6 +64,7 @@ export default function SupportPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
+              aria-label={t('search_placeholder')}
               placeholder={t('search_placeholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}

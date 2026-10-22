@@ -418,7 +418,7 @@
       },
       "billing": {
         "title": "Planos e cobrança",
-        "description": "Planos, teste, carência e faturas."
+        "description": "Planos, teste e carência."
       },
       "agents": {
         "title": "Assistentes de IA",

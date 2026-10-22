@@ -80,12 +80,16 @@ function FAQContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('general');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const initialQuery = searchParams.get('q') ?? '';
+
   useEffect(() => {
     loadFAQs();
-    const q = searchParams.get('q');
-    if (q) setSearchQuery(q);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (initialQuery) setSearchQuery(initialQuery);
+  }, [initialQuery]);
 
   const loadFAQs = async () => {
     setIsLoading(true);
@@ -108,18 +112,20 @@ function FAQContent() {
 
   const cmsItems = faqs
     .filter((faq) => faq.category === CMS_CATEGORY[activeCategory])
-    .filter((faq) => matchesSearch(faq.question, faq.answer));
+    .filter((faq) => matchesSearch(faq.question, faq.answer))
+    .map((faq) => ({ id: faq.id, question: faq.question, answer: faq.answer }));
 
   const fallbackPairs =
     FALLBACK_ITEMS.find((item) => item.key === activeCategory)?.pairs ?? [];
   const fallbackItems = fallbackPairs
-    .map(([q, a]) => ({ question: t(`fallback.${q}`), answer: t(`fallback.${a}`) }))
+    .map(([q, a]) => ({
+      id: `fallback-${q}`,
+      question: t(`fallback.${q}`),
+      answer: t(`fallback.${a}`),
+    }))
     .filter((item) => matchesSearch(item.question, item.answer));
 
-  const items =
-    cmsItems.length > 0 || fallbackItems.length === 0
-      ? cmsItems
-      : fallbackItems;
+  const items = [...cmsItems, ...fallbackItems];
 
   return (
     <main className="min-h-screen bg-background pt-24 pb-16">
@@ -148,6 +154,7 @@ function FAQContent() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
+              aria-label={t('search_placeholder')}
               placeholder={t('search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -187,8 +194,8 @@ function FAQContent() {
           >
             <div className="bg-card rounded-2xl border-2 border-border p-6 md:p-8">
               {items.length > 0 ? (
-                items.map((faq, i) => (
-                  <FAQItem key={i} question={faq.question} answer={faq.answer} />
+                items.map((faq) => (
+                  <FAQItem key={faq.id} question={faq.question} answer={faq.answer} />
                 ))
               ) : (
                 <p className="text-center text-muted-foreground py-8">
