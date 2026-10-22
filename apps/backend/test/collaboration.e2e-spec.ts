@@ -205,6 +205,108 @@ describe('Collaboration API (e2e)', () => {
     // If I change User B's name to "UserB" it would be safer for this test.
   });
 
+  describe('Mentions (ODD 018 S2 / W2-W3)', () => {
+    let userDToken: string;
+    let userDId: string;
+
+    const countMentionedNotifications = async () => {
+      const response = await request(app.getHttpServer())
+        .get('/notifications')
+        .set('Authorization', `Bearer ${userBToken}`)
+        .expect(200);
+      return response.body.filter(
+        (n: { type: string; resourceId: string }) =>
+          n.type === 'MENTIONED' && n.resourceId === taskId,
+      ).length;
+    };
+
+    beforeAll(async () => {
+      // User D is registered but NOT a member of the workspace
+      const registerResponseD = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          email: `userd-${Date.now()}@example.com`,
+          password: 'Password123!',
+          name: 'User D',
+          username: `userd${Date.now()}`,
+        })
+        .expect(201);
+      userDToken = registerResponseD.body.accessToken;
+      userDId = registerResponseD.body.user.id;
+    });
+
+    afterAll(async () => {
+      await prisma.notification.deleteMany({ where: { userId: userDId } });
+      if (userDId) {
+        await prisma.user.deleteMany({ where: { id: userDId } });
+      }
+    });
+
+    it('User B receives MENTIONED when User A sends mentionedUserIds', async () => {
+      const before = await countMentionedNotifications();
+
+      const response = await request(app.getHttpServer())
+        .post('/comments')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({
+          content: 'Look at this via IDs',
+          taskId,
+          mentionedUserIds: [userBId],
+        })
+        .expect(201);
+      expect(response.body.mentions).toContain(userBId);
+
+      expect(await countMentionedNotifications()).toBeGreaterThan(before);
+    });
+
+    it('Exact-name fallback matches "@User B" with a space', async () => {
+      const before = await countMentionedNotifications();
+
+      const response = await request(app.getHttpServer())
+        .post('/comments')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ content: 'Hey @User B, check this out', taskId })
+        .expect(201);
+      expect(response.body.mentions).toContain(userBId);
+
+      expect(await countMentionedNotifications()).toBeGreaterThan(before);
+    });
+
+    it('Non-member mentionedUserIds are dropped silently', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/comments')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({
+          content: 'sneaky',
+          taskId,
+          mentionedUserIds: [userDId],
+        })
+        .expect(201);
+      expect(response.body.mentions).toEqual([]);
+    });
+
+    it('Editing a comment does not re-notify already-mentioned users', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/comments')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({ content: 'first pass', taskId, mentionedUserIds: [userBId] })
+        .expect(201);
+
+      const before = await countMentionedNotifications();
+
+      await request(app.getHttpServer())
+        .put(`/comments/${created.body.id}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .send({
+          content: 'second pass @User B',
+          mentionedUserIds: [userBId],
+        })
+        .expect(200);
+
+      expect(await countMentionedNotifications()).toBe(before);
+    });
+  });
+
   describe('Notifications Flow', () => {
     it('User A should be able to mark all notifications as read', async () => {
       await request(app.getHttpServer())
