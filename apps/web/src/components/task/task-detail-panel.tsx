@@ -278,10 +278,10 @@ export function TaskDetailPanel({
     },
   }));
 
-  const handleCreateComment = async (content: string) => {
+  const handleCreateComment = async (content: string, mentionedUserIds?: string[]) => {
     if (!taskId) return;
     try {
-      await createCommentMutation.mutateAsync({ taskId, content });
+      await createCommentMutation.mutateAsync({ taskId, content, mentionedUserIds });
     } catch {
       toast.error('Error al crear comentario');
     }
