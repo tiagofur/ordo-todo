@@ -594,6 +594,28 @@
     "view_faq": "Ver FAQ →",
     "guarantee_title": "Precios en beta",
     "guarantee_text": "Estos planes están sujetos a cambio: el cobro aún no está activo y no hay límites aplicados. Lo publicado aquí es la intención, no un contrato.",
+    "custom_price": "Personalizado",
+    "period_forever": "para siempre",
+    "period_month": "mes",
+    "period_user_month": "usuario/mes",
+    "everything_in": "Todo lo incluido en {plan}",
+    "limits": {
+      "unlimited": "Ilimitado",
+      "tasks_unlimited": "Tareas ilimitadas",
+      "projects": "{value} proyectos",
+      "projects_unlimited": "Proyectos ilimitados",
+      "workspaces": "{value} espacios de trabajo",
+      "storage": "Almacenamiento: {value}",
+      "storage_custom": "Almacenamiento personalizado",
+      "min_seats": "Mínimo {value} asientos"
+    },
+    "planned_sso": "SSO/SAML (planeado)",
+    "planned_dpa": "DPA (planeado)",
+    "usd_note": "Precios en USD. Cuando el cobro esté activo:",
+    "trial_title": "Prueba de Pro de {days} días, sin tarjeta",
+    "trial_text": "Prueba todo lo de Pro durante {days} días. Al terminar, añade una tarjeta para seguir en Pro o sigue usando el plan gratuito.",
+    "grace_title": "Periodo de gracia si falla un pago",
+    "grace_text": "Todo sigue funcionando durante {days} días mientras reintentamos el cobro. Después, la cuenta pasa a Free. Leer y exportar tus datos nunca se bloquea.",
     "plans": {
       "free": {
         "name": "Gratis",

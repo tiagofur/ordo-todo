@@ -94,6 +94,7 @@ Notas:
 | `odd/tasks/014-pomodoro-engine.md` | #282 | M0 Higiene | [FIX] Motor Pomodoro unificado (un solo motor, contador y reloj) |
 | `odd/tasks/015-phase-persistence.md` | #300 | M0 Higiene | [FIX] Persistencia de fase Pomodoro (el turno sobrevive al restart) |
 | `odd/tasks/016-skip-no-credit.md` | #306 | M0 Higiene | [FIX] Skip sin crédito antifraude (abandonar <80% no acredita) |
+| `odd/tasks/017-public-site-support.md` | #328 | M4 Confianza + ingresos | [TASK] Sitio público + soporte completos (desbloquea #240-T1) |
 
 ## Reglas de ejecución
 

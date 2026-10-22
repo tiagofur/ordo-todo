@@ -2,24 +2,64 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Crown, Building2, Zap } from 'lucide-react';
+import { Check, Sparkles, Crown, Building2, Zap, Clock, ShieldCheck } from 'lucide-react';
 import { Button } from '@ordo-todo/ui';
 import { Link } from '@/i18n/routing';
 import { appLink } from '@/lib/app-url';
+import { PLANS, TRIAL, GRACE_PERIOD_DAYS, formatLimit, type PlanId } from '@/lib/plans';
 
 export default function PricingPage() {
   const t = useTranslations('Pricing');
 
-  const plans = [
+  const priceLabel = (key: PlanId): string => {
+    const price = PLANS[key].priceUsd;
+    return price === null ? t('custom_price') : `$${price}`;
+  };
+
+  const limitRows = (key: PlanId): string[] => {
+    const limits = PLANS[key].limits;
+    const storage = (value: number | null): string =>
+      value === null
+        ? t('limits.storage_custom')
+        : t('limits.storage', { value: formatLimit(value, 'gb', t('limits.unlimited')) });
+    switch (key) {
+      case 'free':
+        return [
+          t('limits.tasks_unlimited'),
+          t('limits.projects', { value: limits.projects }),
+          t('limits.workspaces', { value: limits.workspaces }),
+          storage(limits.storageGb),
+        ];
+      case 'pro':
+        return [
+          t('everything_in', { plan: t('plans.free.name') }),
+          t('limits.projects_unlimited'),
+          t('limits.workspaces', { value: limits.workspaces }),
+          storage(limits.storageGb),
+        ];
+      case 'team':
+        return [
+          t('everything_in', { plan: t('plans.pro.name') }),
+          t('limits.workspaces', { value: limits.workspaces }),
+          storage(limits.storageGb),
+          t('limits.min_seats', { value: limits.minSeats }),
+        ];
+      case 'enterprise':
+        return [
+          t('everything_in', { plan: t('plans.team.name') }),
+          storage(limits.storageGb),
+        ];
+    }
+  };
+
+  const plans: { key: PlanId; icon: typeof Zap; color: string; period: string | null; popular: boolean; extras: string[] }[] = [
     {
       key: 'free',
       icon: Zap,
       color: '#06B6D4',
-      price: '$0',
-      period: 'forever',
+      period: t('period_forever'),
       popular: false,
-      features: [
-        'Unlimited tasks',
+      extras: [
         'Pomodoro timer',
         'Basic analytics',
         'Mobile app access',
@@ -29,12 +69,9 @@ export default function PricingPage() {
       key: 'pro',
       icon: Sparkles,
       color: '#EC4899',
-      price: '$9',
-      period: 'month',
+      period: t('period_month'),
       popular: true,
-      features: [
-        'Everything in Free',
-        'Unlimited projects',
+      extras: [
         'AI task scheduling',
         'Advanced analytics',
         'Recurring tasks',
@@ -45,11 +82,9 @@ export default function PricingPage() {
       key: 'team',
       icon: Crown,
       color: '#F97316',
-      price: '$19',
-      period: 'user/month',
+      period: t('period_user_month'),
       popular: false,
-      features: [
-        'Everything in Pro',
+      extras: [
         'Team workspaces',
         'Shared projects',
         'Team analytics',
@@ -61,12 +96,12 @@ export default function PricingPage() {
       key: 'enterprise',
       icon: Building2,
       color: '#A855F7',
-      price: 'Custom',
-      period: '',
+      period: null,
       popular: false,
-      features: [
-        'Everything in Team',
+      extras: [
         'Unlimited users',
+        t('planned_sso'),
+        t('planned_dpa'),
         'Dedicated account manager',
         'Custom onboarding',
       ],
@@ -130,7 +165,7 @@ export default function PricingPage() {
                   </h3>
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-4xl font-bold" style={{ color: plan.color }}>
-                      {plan.price}
+                      {priceLabel(plan.key)}
                     </span>
                     {plan.period && (
                       <span className="text-muted-foreground">/{plan.period}</span>
@@ -142,7 +177,7 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, i) => (
+                  {[...limitRows(plan.key), ...plan.extras].map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <Check className="h-5 w-5 shrink-0 mt-0.5" style={{ color: plan.color }} />
                       <span className="text-sm text-muted-foreground">{feature}</span>
@@ -189,6 +224,11 @@ export default function PricingPage() {
           })}
         </div>
 
+        {/* USD note */}
+        <p className="text-center text-sm text-muted-foreground mt-8">
+          {t('usd_note')}
+        </p>
+
         {/* FAQ Link */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -215,6 +255,31 @@ export default function PricingPage() {
           <Check className="h-8 w-8 text-[#10B981] mx-auto mb-3" />
           <h3 className="font-bold text-foreground mb-2">{t('guarantee_title')}</h3>
           <p className="text-sm text-muted-foreground">{t('guarantee_text')}</p>
+        </motion.div>
+
+        {/* Trial + grace */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8"
+        >
+          <div className="p-6 rounded-xl bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-left">
+            <Clock className="h-8 w-8 text-[#06B6D4] mb-3" />
+            <h3 className="font-bold text-foreground mb-2">
+              {t('trial_title', { days: TRIAL.days })}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t('trial_text', { days: TRIAL.days })}
+            </p>
+          </div>
+          <div className="p-6 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20 text-left">
+            <ShieldCheck className="h-8 w-8 text-[#F97316] mb-3" />
+            <h3 className="font-bold text-foreground mb-2">{t('grace_title')}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t('grace_text', { days: GRACE_PERIOD_DAYS })}
+            </p>
+          </div>
         </motion.div>
       </div>
     </main>
