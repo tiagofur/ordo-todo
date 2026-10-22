@@ -103,8 +103,11 @@ describe('WorkspaceCard Component', () => {
       const workWorkspace = { ...mockWorkspace, color: '#f59e0b' };
       const { container } = render(<WorkspaceCard workspace={workWorkspace} />);
 
-      const card = container.querySelector('[style*="border-left"]');
-      expect(card).toBeInTheDocument();
+      // The workspace color lives on the icon box (no inline border-left)
+      const iconBox = container.querySelector('[style*="background-color"]');
+      expect(iconBox).toBeInTheDocument();
+      // jsdom normalizes hex to rgb(#f59e0b)
+      expect(iconBox?.getAttribute('style')).toContain('rgb(245, 158, 11)');
     });
   });
 
@@ -336,12 +339,13 @@ describe('WorkspaceCard Component', () => {
   // ============ VISUAL STATES ============
 
   describe('Visual States', () => {
-    it('should apply left border color based on workspace type', () => {
+    it('should apply the workspace color to the icon box', () => {
       const { container } = render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      // Border is applied via inline style, not CSS class
-      const card = container.querySelector('[style*="border-left"]');
-      expect(card).toBeInTheDocument();
+      const iconBox = container.querySelector('[style*="background-color"]');
+      expect(iconBox).toBeInTheDocument();
+      // jsdom normalizes hex to rgb(#06b6d4)
+      expect(iconBox?.getAttribute('style')).toContain('rgb(6, 182, 212)');
     });
 
     it('should render icon box with type-appropriate color', () => {

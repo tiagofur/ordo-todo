@@ -1040,7 +1040,18 @@ export class TasksService {
       throw new NotFoundException('Parent task not found');
     }
 
-    const projectId = createSubtaskDto.projectId || parentTask.props.projectId;
+    // A subtask is pinned to its parent's project: a foreign projectId would
+    // otherwise smuggle the row into another workspace (TaskGuard authorizes
+    // by the parent task, not by this dto field).
+    if (
+      createSubtaskDto.projectId &&
+      createSubtaskDto.projectId !== parentTask.props.projectId
+    ) {
+      throw new BadRequestException(
+        'Subtask must belong to the same project as its parent task',
+      );
+    }
+    const projectId = parentTask.props.projectId;
     await this.assertAssigneeIsWorkspaceMember(
       createSubtaskDto.assigneeId,
       projectId,
