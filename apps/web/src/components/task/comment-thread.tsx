@@ -95,6 +95,22 @@ export function CommentThread({
 
   const [newComment, setNewComment] = useState('');
   const [mentionedIds, setMentionedIds] = useState<string[]>([]);
+
+  // Keep the picked IDs in sync with the text: the backend skips its
+  // name fallback when the array is present, so a stale ID (member picked,
+  // then the text edited) would notify someone the text no longer mentions.
+  const handleChangeDraft = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNewComment(value);
+    setMentionedIds((prev) =>
+      prev.filter((id) => {
+        const user = users.find((u) => u.id === id);
+        return (
+          !!user && value.toLowerCase().includes(`@${user.name.toLowerCase()}`)
+        );
+      }),
+    );
+  };
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [editContent, setEditContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -282,7 +298,7 @@ export function CommentThread({
       <div className="space-y-2">
         <MentionTextarea
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
+          onChange={handleChangeDraft}
           placeholder={t.placeholder}
           className="min-h-[100px] resize-none"
           users={users}
