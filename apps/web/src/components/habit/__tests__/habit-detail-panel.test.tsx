@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { HabitDetailPanel } from '../habit-detail-panel';
 
 // Mock dependencies
@@ -40,6 +40,14 @@ const mockStatsData = {
   completionRate: 85,
   calendarData: [],
 };
+
+// The delete flow goes through the app confirm dialog (not window.confirm)
+vi.mock('@/components/shared/confirm-dialog', () => ({
+  useConfirm: () => ({
+    confirm: vi.fn(async () => true),
+    ConfirmModal: () => null,
+  }),
+}));
 
 vi.mock('@/lib/api-hooks', () => ({
   useHabit: () => ({ data: mockHabitData, isLoading: false }),
@@ -84,15 +92,14 @@ describe('HabitDetailPanel Component', () => {
   });
 
   it('should handle delete action', async () => {
-    // Mock window.confirm
-    vi.spyOn(window, 'confirm').mockImplementation(() => true);
-
     render(<HabitDetailPanel {...defaultProps} />);
-    
+
     const deleteButton = screen.getByText('actions.delete');
     fireEvent.click(deleteButton);
-    
-    expect(mockDeleteHabit.mutateAsync).toHaveBeenCalledWith('habit-1');
+
+    await waitFor(() => {
+      expect(mockDeleteHabit.mutateAsync).toHaveBeenCalledWith('habit-1');
+    });
   });
 
   it('should switch to edit mode when clicking edit', () => {

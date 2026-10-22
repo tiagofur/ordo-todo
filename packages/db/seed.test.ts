@@ -418,14 +418,17 @@ describe('Marketing Seed File (seed-marketing.ts)', () => {
 
     it('should have changelog versions', () => {
       expect(seedMarketingContent).toMatch(/version:/);
-      expect(seedMarketingContent).toMatch(/2\.1\.0/);
-      expect(seedMarketingContent).toMatch(/2\.0\.0/);
+      // ODD 013 T3 retired the fabricated release notes; the honest demo
+      // entry ships as "unreleased" and no fake versions may come back.
+      expect(seedMarketingContent).toMatch(/unreleased/);
+      expect(seedMarketingContent).not.toMatch(/2\.1\.0|2\.0\.0/);
     });
 
     it('should have changelog types', () => {
-      expect(seedMarketingContent).toMatch(/type:\s*['"]NEW['"]/);
-      expect(seedMarketingContent).toMatch(/type:\s*['"]IMPROVED['"]/);
-      expect(seedMarketingContent).toMatch(/type:\s*['"]FIXED['"]/);
+      // Only the single "unreleased" demo entry ships; no fabricated
+      // release history may come back (ODD 013 T3).
+      expect(seedMarketingContent).toMatch(/version:\s*['"]unreleased['"]/);
+      expect(seedMarketingContent).toMatch(/type:\s*['"][A-Z_]+['"]/);
     });
 
     it('should have publishedAt dates', () => {
@@ -555,8 +558,10 @@ describe('Marketing Seed File (seed-marketing.ts)', () => {
 
     it('should have realistic changelog content', () => {
       expect(seedMarketingContent).toMatch(/content/);
+      // Exactly one honest demo entry ("under active development")
       const contentMatches = seedMarketingContent.match(/content:\s*['"]/g);
-      expect(contentMatches?.length).toBeGreaterThan(3);
+      expect(contentMatches?.length).toBe(1);
+      expect(seedMarketingContent).toMatch(/under active development/);
     });
 
     it('should have helpful FAQ answers', () => {

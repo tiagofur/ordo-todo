@@ -251,11 +251,14 @@ describe('FileUpload', () => {
   it('should handle upload progress', async () => {
     const user = userEvent.setup();
     let progressCallback: ((progress: number) => void) | undefined;
+    let resolveUpload!: (value: { id: string; name: string }) => void;
 
     vi.mocked(apiClient.uploadFile).mockImplementation((taskId, file, onProgress) => {
       progressCallback = onProgress;
+      // The upload stays pending until the end of the test so the 50%/100%
+      // states cannot be torn down mid-assertion by a self-resolving timer.
       return new Promise((resolve) => {
-        setTimeout(() => resolve({ id: 'file-123', name: file.name }), 100);
+        resolveUpload = resolve;
       });
     });
 
@@ -279,6 +282,11 @@ describe('FileUpload', () => {
       expect(screen.getByText(/test-file.pdf/)).toBeInTheDocument();
     });
 
+    // The component starts the upload (and captures the callback) async
+    await waitFor(() => {
+      expect(progressCallback).toBeDefined();
+    });
+
     // Simulate progress updates
     if (progressCallback) {
       act(() => {
@@ -297,6 +305,8 @@ describe('FileUpload', () => {
         expect(screen.getByText('100%')).toBeInTheDocument();
       });
     }
+
+    resolveUpload({ id: 'file-123', name: 'test-file.pdf' });
   });
 
   it('should handle upload errors', async () => {

@@ -40,13 +40,13 @@ describe('Light Colors', () => {
   });
 
   it('should have primary colors', () => {
-    expect(lightColors.primary).toBe('#7C3AED');
+    expect(lightColors.primary).toBe('#06B6D4');
     expect(lightColors.primaryForeground).toBe('#FFFFFF');
   });
 
   it('should have secondary colors', () => {
-    expect(lightColors.secondary).toBe('#F5F3FF');
-    expect(lightColors.secondaryForeground).toBe('#7C3AED');
+    expect(lightColors.secondary).toBe('#ECFEFF');
+    expect(lightColors.secondaryForeground).toBe('#0891B2');
   });
 
   it('should have muted colors', () => {
@@ -67,18 +67,18 @@ describe('Light Colors', () => {
   it('should have border and input colors', () => {
     expect(lightColors.border).toBe('#E5E7EB');
     expect(lightColors.input).toBe('#E5E7EB');
-    expect(lightColors.ring).toBe('#7C3AED');
+    expect(lightColors.ring).toBe('#06B6D4');
   });
 
   it('should have sidebar colors', () => {
     expect(lightColors.sidebar).toBe('#FAFAFA');
     expect(lightColors.sidebarForeground).toBe('#1F2937');
-    expect(lightColors.sidebarPrimary).toBe('#7C3AED');
+    expect(lightColors.sidebarPrimary).toBe('#06B6D4');
     expect(lightColors.sidebarPrimaryForeground).toBe('#FFFFFF');
-    expect(lightColors.sidebarAccent).toBe('#F3F4F6');
-    expect(lightColors.sidebarAccentForeground).toBe('#7C3AED');
+    expect(lightColors.sidebarAccent).toBe('#ECFEFF');
+    expect(lightColors.sidebarAccentForeground).toBe('#0891B2');
     expect(lightColors.sidebarBorder).toBe('#E5E7EB');
-    expect(lightColors.sidebarRing).toBe('#7C3AED');
+    expect(lightColors.sidebarRing).toBe('#06B6D4');
   });
 
 });
@@ -94,13 +94,13 @@ describe('Dark Colors', () => {
   });
 
   it('should have primary colors', () => {
-    expect(darkColors.primary).toBe('#A78BFA');
+    expect(darkColors.primary).toBe('#22D3EE');
     expect(darkColors.primaryForeground).toBe('#1A1A24');
   });
 
   it('should have secondary colors', () => {
-    expect(darkColors.secondary).toBe('#27272A');
-    expect(darkColors.secondaryForeground).toBe('#FAFAFA');
+    expect(darkColors.secondary).toBe('#164E63');
+    expect(darkColors.secondaryForeground).toBe('#22D3EE');
   });
 
   it('should have muted colors', () => {
@@ -121,7 +121,7 @@ describe('Dark Colors', () => {
   it('should have border and input colors', () => {
     expect(darkColors.border).toBe('#27272A');
     expect(darkColors.input).toBe('#27272A');
-    expect(darkColors.ring).toBe('#A78BFA');
+    expect(darkColors.ring).toBe('#22D3EE');
   });
 
   it('should have sidebar colors', () => {
