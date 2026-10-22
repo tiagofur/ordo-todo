@@ -216,11 +216,13 @@ export class CommentsService {
     }
 
     const taskDetails = await this.getTaskDetails(existingComment.taskId);
-    const newMentions = await this.resolveMentionedUserIds(
-      updateCommentDto.content,
-      updateCommentDto.mentionedUserIds,
-      taskDetails?.workspaceId ?? '',
-    );
+    const newMentions = taskDetails
+      ? await this.resolveMentionedUserIds(
+          updateCommentDto.content,
+          updateCommentDto.mentionedUserIds,
+          taskDetails.workspaceId,
+        )
+      : (existingComment.mentions ?? []);
 
     const updateCommentUseCase = new UpdateCommentUseCase(
       this.commentRepository,
@@ -234,27 +236,24 @@ export class CommentsService {
 
     this.logger.debug(`Comment ${id} updated successfully`);
 
+    const enriched = await this.enrichWithAuthor(updatedComment);
+
     // Notify only newly-mentioned users: editing must not re-notify (W3)
     const previouslyMentioned = new Set(existingComment.mentions ?? []);
-    if (
-      newMentions.some((mid) => mid !== userId && !previouslyMentioned.has(mid))
-    ) {
-      const { author } = await this.enrichWithAuthor(updatedComment);
-      for (const mentionedUserId of newMentions) {
-        if (
-          mentionedUserId !== userId &&
-          !previouslyMentioned.has(mentionedUserId)
-        ) {
-          await this.notificationsService.create({
-            userId: mentionedUserId,
-            type: NotificationType.MENTIONED,
-            title: 'You were mentioned',
-            message: `${author.name} mentioned you in a comment`,
-            resourceId: updatedComment.taskId,
-            resourceType: ResourceType.COMMENT,
-            metadata: { commentId: updatedComment.id },
-          });
-        }
+    for (const mentionedUserId of newMentions) {
+      if (
+        mentionedUserId !== userId &&
+        !previouslyMentioned.has(mentionedUserId)
+      ) {
+        await this.notificationsService.create({
+          userId: mentionedUserId,
+          type: NotificationType.MENTIONED,
+          title: 'You were mentioned',
+          message: `${enriched.author.name} mentioned you in a comment`,
+          resourceId: updatedComment.taskId,
+          resourceType: ResourceType.COMMENT,
+          metadata: { commentId: updatedComment.id },
+        });
       }
     }
 
@@ -271,8 +270,7 @@ export class CommentsService {
       { taskId: updatedComment.taskId },
     );
 
-    // Enrich response with author details
-    return this.enrichWithAuthor(updatedComment);
+    return enriched;
   }
 
   /**
