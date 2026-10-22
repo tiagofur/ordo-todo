@@ -41,9 +41,9 @@ const hooksState: {
 
 vi.mock('@/lib/api-hooks', () => ({
   useWorkspace: () => ({
+    // Real shape: the endpoint returns ownerId, never an owner object
     data: {
       id: 'ws-1',
-      owner: { id: 'owner-1', name: 'Owner', email: 'owner@x.com' },
       ownerId: 'owner-1',
       createdAt: new Date().toISOString(),
     },

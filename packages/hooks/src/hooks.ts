@@ -349,8 +349,9 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: ({ workspaceId }: { workspaceId: string }) =>
         apiClient.leaveWorkspace(workspaceId),
       onSuccess: () => {
+        // ['workspaces'] is a prefix of every workspace query key (detail,
+        // members, invitations) — invalidates all of them in one call
         queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-        queryClient.invalidateQueries({ queryKey: ["workspace"] });
       },
     });
   }

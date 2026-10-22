@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuSeparator, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
+import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import { Plus, Mail, User, Shield, Trash2, MoreHorizontal, Crown, LogOut } from "lucide-react";
 import { format } from "date-fns";
@@ -51,7 +51,8 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
   const { data: currentUser } = useCurrentUser();
   const permissions = useWorkspacePermissions(workspace);
 
-  const ownerId = workspace?.owner?.id ?? owner?.id;
+  // GET /workspaces/:id returns ownerId (it does not populate an owner object)
+  const ownerId = workspace?.ownerId ?? owner?.id;
   const isCurrentUserOwner = !!currentUser && currentUser.id === ownerId;
   const currentUserIsMember = !!(members || []).some(
     (m: WorkspaceMember) => m.userId === currentUser?.id,
