@@ -480,7 +480,7 @@ export class WorkspacesService {
       this.invitationRepository,
     );
     try {
-      await cancelInvitationUseCase.execute(invitationId);
+      await cancelInvitationUseCase.execute(workspaceId, invitationId);
     } catch (error) {
       if (error.message === 'Invitation not found') {
         throw new NotFoundException(error.message);

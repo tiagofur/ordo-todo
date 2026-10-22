@@ -213,6 +213,22 @@ describe('Workspaces Security (e2e)', () => {
         .expect(404);
     });
 
+    it('an ADMIN cannot cancel another workspace invitation (B1)', async () => {
+      // user2 (ADMIN of user1Workspace) owns user2Workspace with its own invite
+      const foreignInvite = await request(app.getHttpServer())
+        .post(`/workspaces/${user2Workspace.id}/invitations`)
+        .set(authHeaders(user2Token))
+        .send({ email: 'foreign@example.com', role: 'MEMBER' })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .delete(
+          `/workspaces/${user1Workspace.id}/invitations/${foreignInvite.body.invitationId}`,
+        )
+        .set(authHeaders(user1Token))
+        .expect(404);
+    });
+
     it('an already-accepted token cannot be replayed (T4)', async () => {
       const inviteRes = await request(app.getHttpServer())
         .post(`/workspaces/${user1Workspace.id}/invitations`)

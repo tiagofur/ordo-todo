@@ -2264,6 +2264,11 @@ describe('WorkspacesService', () => {
       });
 
       it('rejects changing the owner role (400)', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue({
+          id: 'm-owner',
+          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+        } as any);
+
         await expect(
           service.changeMemberRole('ws-1', 'user-2', 'owner-1', 'MEMBER'),
         ).rejects.toThrow(BadRequestException);
@@ -2287,7 +2292,7 @@ describe('WorkspacesService', () => {
     describe('cancelInvitation (W5)', () => {
       it('cancels a pending invitation and logs the audit event', async () => {
         const invitation = {
-          props: { id: 'inv-1', status: 'PENDING' },
+          props: { id: 'inv-1', workspaceId: 'ws-1', status: 'PENDING' },
           cancel: jest.fn().mockReturnThis(),
         };
         mockInvitationRepository.findById.mockResolvedValue(invitation as any);
@@ -2314,7 +2319,7 @@ describe('WorkspacesService', () => {
 
       it('returns 400 when the invitation is not pending', async () => {
         mockInvitationRepository.findById.mockResolvedValue({
-          props: { id: 'inv-2', status: 'ACCEPTED' },
+          props: { id: 'inv-2', workspaceId: 'ws-1', status: 'ACCEPTED' },
           cancel: jest.fn(),
         } as any);
 
@@ -2340,6 +2345,11 @@ describe('WorkspacesService', () => {
       });
 
       it('blocks the owner from leaving (400)', async () => {
+        mockWorkspaceRepository.findMember.mockResolvedValue({
+          id: 'm-owner',
+          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+        } as any);
+
         await expect(service.leaveWorkspace('ws-1', 'owner-1')).rejects.toThrow(
           BadRequestException,
         );

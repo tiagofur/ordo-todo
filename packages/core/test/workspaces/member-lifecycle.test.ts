@@ -69,9 +69,9 @@ describe("Member lifecycle use cases (ODD 018 S3 / W5-W6)", () => {
   });
 
   describe("CancelInvitationUseCase (W5)", () => {
-    it("cancels a pending invitation", async () => {
+    it("cancels a pending invitation of the route workspace", async () => {
       const invitation = {
-        props: { id: "inv-1", status: "PENDING" },
+        props: { id: "inv-1", workspaceId: "ws-1", status: "PENDING" },
         cancel: jest.fn().mockReturnThis(),
       };
       const repository = {
@@ -79,23 +79,47 @@ describe("Member lifecycle use cases (ODD 018 S3 / W5-W6)", () => {
         update: jest.fn().mockResolvedValue(undefined),
       };
 
-      await new CancelInvitationUseCase(repository as never).execute("inv-1");
+      await new CancelInvitationUseCase(repository as never).execute(
+        "ws-1",
+        "inv-1",
+      );
 
       expect(invitation.cancel).toHaveBeenCalled();
       expect(repository.update).toHaveBeenCalledWith(invitation);
     });
 
-    it("rejects cancelling a non-pending invitation", async () => {
+    it("treats a foreign-workspace invitation as not found (B1)", async () => {
       const repository = {
         findById: jest.fn().mockResolvedValue({
-          props: { id: "inv-2", status: "ACCEPTED" },
+          props: { id: "inv-2", workspaceId: "other-ws", status: "PENDING" },
           cancel: jest.fn(),
         }),
         update: jest.fn(),
       };
 
       await expect(
-        new CancelInvitationUseCase(repository as never).execute("inv-2"),
+        new CancelInvitationUseCase(repository as never).execute(
+          "ws-1",
+          "inv-2",
+        ),
+      ).rejects.toThrow("Invitation not found");
+      expect(repository.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects cancelling a non-pending invitation", async () => {
+      const repository = {
+        findById: jest.fn().mockResolvedValue({
+          props: { id: "inv-2", workspaceId: "ws-1", status: "ACCEPTED" },
+          cancel: jest.fn(),
+        }),
+        update: jest.fn(),
+      };
+
+      await expect(
+        new CancelInvitationUseCase(repository as never).execute(
+          "ws-1",
+          "inv-2",
+        ),
       ).rejects.toThrow("Invitation is not pending");
       expect(repository.update).not.toHaveBeenCalled();
     });
@@ -120,7 +144,10 @@ describe("Member lifecycle use cases (ODD 018 S3 / W5-W6)", () => {
     it("blocks the owner from leaving (W6)", async () => {
       const repository = {
         findById: jest.fn().mockResolvedValue(workspace),
-        findMember: jest.fn(),
+        findMember: jest.fn().mockResolvedValue({
+          id: "m-owner",
+          props: { id: "m-owner", workspaceId: "ws-1", userId: "owner-1", role: "OWNER" },
+        }),
         removeMember: jest.fn(),
       };
 
@@ -128,6 +155,28 @@ describe("Member lifecycle use cases (ODD 018 S3 / W5-W6)", () => {
         new LeaveWorkspaceUseCase(repository as never).execute(
           "ws-1",
           "owner-1",
+        ),
+      ).rejects.toThrow("The workspace owner cannot leave");
+      expect(repository.removeMember).not.toHaveBeenCalled();
+    });
+
+    it("blocks an OWNER-row member when ownerId is null (nullable edge)", async () => {
+      const repository = {
+        findById: jest.fn().mockResolvedValue({
+          id: "ws-x",
+          props: { id: "ws-x", ownerId: null },
+        }),
+        findMember: jest.fn().mockResolvedValue({
+          id: "m-owner",
+          props: { id: "m-owner", workspaceId: "ws-x", userId: "user-o", role: "OWNER" },
+        }),
+        removeMember: jest.fn(),
+      };
+
+      await expect(
+        new LeaveWorkspaceUseCase(repository as never).execute(
+          "ws-x",
+          "user-o",
         ),
       ).rejects.toThrow("The workspace owner cannot leave");
       expect(repository.removeMember).not.toHaveBeenCalled();

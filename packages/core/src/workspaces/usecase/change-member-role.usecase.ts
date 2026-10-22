@@ -35,16 +35,21 @@ export class ChangeMemberRoleUseCase {
             throw new Error("Cannot change your own role");
         }
 
-        if (workspace.props.ownerId === targetUserId) {
-            throw new Error("Cannot change the owner role");
-        }
-
         const member = await this.workspaceRepository.findMember(
             workspaceId,
             targetUserId,
         );
         if (!member) {
             throw new Error("Member not found");
+        }
+
+        // ownerId is nullable in the schema: a workspace with a null ownerId
+        // but an OWNER membership row must be protected through the row too
+        if (
+            workspace.props.ownerId === targetUserId ||
+            member.props.role === MemberRole.OWNER
+        ) {
+            throw new Error("Cannot change the owner role");
         }
 
         await this.workspaceMemberRepository.updateRole(

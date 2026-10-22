@@ -8,9 +8,10 @@ import { WorkspaceInvitationRepository } from "../provider/workspace-invitation.
 export class CancelInvitationUseCase {
     constructor(private invitationRepository: WorkspaceInvitationRepository) { }
 
-    async execute(invitationId: string): Promise<void> {
+    async execute(workspaceId: string, invitationId: string): Promise<void> {
         const invitation = await this.invitationRepository.findById(invitationId);
-        if (!invitation) {
+        if (!invitation || invitation.props.workspaceId !== workspaceId) {
+            // Same message for missing and foreign invitations: no existence leak
             throw new Error("Invitation not found");
         }
 

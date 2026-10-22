@@ -1,4 +1,5 @@
 import { WorkspaceRepository } from "../provider/workspace.repository";
+import { MemberRole } from "../model/member-role.enum";
 
 /**
  * ODD 018 S3 / W6: any member except the owner may leave the workspace.
@@ -14,18 +15,21 @@ export class LeaveWorkspaceUseCase {
             throw new Error("Workspace not found");
         }
 
-        if (workspace.props.ownerId === userId) {
-            throw new Error(
-                "The workspace owner cannot leave; transfer ownership first",
-            );
-        }
-
         const member = await this.workspaceRepository.findMember(
             workspaceId,
             userId,
         );
         if (!member) {
             throw new Error("User is not a member of this workspace");
+        }
+
+        if (
+            workspace.props.ownerId === userId ||
+            member.props.role === MemberRole.OWNER
+        ) {
+            throw new Error(
+                "The workspace owner cannot leave; transfer ownership first",
+            );
         }
 
         await this.workspaceRepository.removeMember(workspaceId, userId);

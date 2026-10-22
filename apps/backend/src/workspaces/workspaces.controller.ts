@@ -445,7 +445,8 @@ export class WorkspacesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Leave workspace',
-    description: 'Removes the authenticated member from the workspace. The owner cannot leave.',
+    description:
+      'Removes the authenticated member from the workspace. The owner cannot leave.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
   @ApiResponse({ status: 200, description: 'Left the workspace' })
@@ -541,9 +542,6 @@ export class WorkspacesController {
   }
 
   /**
-   * Accepts an invitation to join a workspace
-   */
-  /**
    * Cancels a pending invitation
    * Requires OWNER or ADMIN role. Only PENDING invitations can be cancelled.
    */
@@ -556,7 +554,8 @@ export class WorkspacesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Cancel invitation',
-    description: 'Marks a pending invitation as CANCELLED so its token can no longer be redeemed.',
+    description:
+      'Marks a pending invitation as CANCELLED so its token can no longer be redeemed.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
   @ApiParam({ name: 'invitationId', description: 'Invitation ID' })
@@ -575,6 +574,9 @@ export class WorkspacesController {
     );
   }
 
+  /**
+   * Accepts an invitation to join a workspace
+   */
   @Post('invitations/accept')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
