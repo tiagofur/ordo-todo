@@ -291,6 +291,7 @@
     "legal": "Legal",
     "privacy": "Política de Privacidad",
     "terms": "Términos de Servicio",
+    "security": "Seguridad",
     "rights": "Todos los derechos reservados",
     "made_with": "Hecho con",
     "for_productivity": "para la productividad"
@@ -654,7 +655,8 @@
     "subject_placeholder": "¿Cómo podemos ayudarte?",
     "message_placeholder": "Cuéntanos más...",
     "sending": "Enviando...",
-    "submit": "Enviar Mensaje"
+    "submit": "Enviar Mensaje",
+    "error_message": "No pudimos enviar tu mensaje. Revisa tu conexión e inténtalo de nuevo."
   },
   "About": {
     "badge": "Nuestra Historia",
@@ -691,6 +693,7 @@
     "title": "Política de Privacidad",
     "last_updated": "Última Actualización",
     "intro": "En Ordo Todo, tomamos tu privacidad en serio. Esta política describe cómo recopilamos, usamos y protegemos tu información personal.",
+    "contact_link": "contáctanos",
     "sections": {
       "collection": {
         "title": "Recopilación de Información",
@@ -700,9 +703,17 @@
         "title": "Cómo usamos la información",
         "content": "Usamos tu información para proporcionar, mantener y mejorar nuestros servicios, y para comunicarnos contigo sobre productos, servicios y eventos."
       },
+      "ai_data": {
+        "title": "Tus datos y la IA",
+        "content": "Las funciones de IA hoy usan Google Gemini: el contenido necesario para responder (tareas, notas, contexto que incluyas) se envía a la API de Google bajo sus términos de API. No vendemos tus datos. Publicaremos los detalles de retención y tratamiento de datos para planes de pago antes de activar el cobro."
+      },
+      "billing": {
+        "title": "Datos de facturación",
+        "content": "El cobro aún no está activo: hoy no recogemos datos de pago. Cuando se active, los pagos los procesará Stripe y los datos de tu tarjeta nunca tocarán nuestros servidores. Los límites mostrados en la página de precios son intención hasta que el cobro sea real."
+      },
       "protection": {
         "title": "Protección de Datos",
-        "content": "Implementamos medidas técnicas y organizativas apropiadas para proteger tus datos personales contra el acceso o divulgación no autorizados."
+        "content": "Implementamos medidas técnicas y organizativas apropiadas para proteger tus datos personales contra el acceso o divulgación no autorizados. Lo que existe hoy está detallado en la página de seguridad."
       },
       "sharing": {
         "title": "Intercambio de Información",
@@ -716,10 +727,19 @@
     "title": "Términos de Servicio",
     "last_updated": "Última Actualización",
     "intro": "Al acceder o usar Ordo Todo, aceptas estar sujeto a estos Términos. Si no estás de acuerdo con alguna parte de los términos, no podrás acceder al servicio.",
+    "contact_link": "contáctanos",
     "sections": {
       "acceptance": {
         "title": "Aceptación de Términos",
         "content": "Al crear una cuenta o usar nuestros servicios, aceptas estos términos y nuestra Política de Privacidad."
+      },
+      "billing": {
+        "title": "Planes y facturación",
+        "content": "Los planes de pago están en beta: los precios y límites de la página de precios son nuestra intención declarada, no un contrato, hasta que el cobro esté activo. Cuando se active, las suscripciones las procesará Stripe, con 14 días de prueba de Pro sin tarjeta y 14 días de gracia si falla un pago. Leer y exportar tus datos nunca se bloquea por falta de pago."
+      },
+      "dpa": {
+        "title": "Tratamiento de datos (DPA)",
+        "content": "Un acuerdo estándar de tratamiento de datos está planeado para organizaciones en planes de pago, incluido Enterprise. Se publicará antes de activar el cobro. Hasta entonces, la Política de Privacidad y la página de seguridad describen cómo tratamos tus datos."
       },
       "usage": {
         "title": "Uso Aceptable",
@@ -736,6 +756,37 @@
     },
     "contact_title": "Contáctanos",
     "contact_text": "Si tienes alguna pregunta sobre estos Términos, por favor"
+  },
+  "Security": {
+    "title": "Seguridad",
+    "subtitle": "Qué protege tus datos hoy, qué pasa por terceros y qué sigue planeado. Todo lo no disponible hoy está marcado como planeado.",
+    "note_title": "Lee esto primero",
+    "note_text": "No afirmamos cifrado de extremo a extremo, certificación SOC 2 ni cifrado AES-256 en reposo: ninguno está evidenciado hoy. Lo que sigue es lo que existe de forma verificable en el producto.",
+    "sections": {
+      "auth": {
+        "title": "Cuentas e inicio de sesión",
+        "content": "Inicia sesión con email y contraseña (guardadas con hash bcrypt) o con Google o GitHub vía OAuth. Las sesiones usan tokens JWT con refresco rotativo, revocación al cerrar sesión, protección contra falsificación de peticiones entre sitios y límite de intentos en los endpoints de autenticación. La autenticación en dos pasos aún no está disponible."
+      },
+      "data": {
+        "title": "Tus datos",
+        "content": "Tus tareas, proyectos y notas viven en nuestra base de datos y están limitados a tus espacios de trabajo: solo ves aquello de lo que eres miembro, y los agentes conectados no ven más que tú. Puedes exportar tus datos como JSON en cualquier momento y borrar tu cuenta, lo que elimina tus datos. No vendemos información personal. El cifrado en reposo más allá del que ofrece nuestra base de datos, y los programas de cumplimiento certificados, no están evidenciados hoy."
+      },
+      "ai": {
+        "title": "IA y terceros",
+        "content": "Las funciones de IA hoy usan Google Gemini: el contenido necesario para responder tu petición se envía a la API de Google bajo sus términos de datos de API. Nada se envía a ningún otro sitio para procesamiento de IA. Las integraciones que conectes (por ejemplo Google Calendar o Slack) intercambian solo los datos necesarios para la función que activaste."
+      },
+      "billing": {
+        "title": "Pagos",
+        "content": "El cobro aún no está activo, así que no recogemos datos de pago. Cuando se active, los pagos los procesará Stripe y los datos de tu tarjeta nunca tocarán nuestros servidores."
+      },
+      "planned": {
+        "title": "Planeado, no disponible",
+        "content": "En la hoja de ruta: inicio de sesión único (SSO/SAML) para organizaciones, un acuerdo de tratamiento de datos (DPA) publicado y un camino hacia SOC 2. Aparecen en la página de precios como planeados y se anunciarán en el changelog cuando estén listos."
+      }
+    },
+    "contact_title": "Reporta un problema de seguridad",
+    "contact_text": "¿Encontraste algo? Por favor",
+    "contact_link": "contáctanos"
   },
   "GuideConnect": {
     "badge": "Conectar tu asistente",

@@ -291,6 +291,7 @@
     "legal": "Legal",
     "privacy": "Política de Privacidade",
     "terms": "Termos de Serviço",
+    "security": "Segurança",
     "rights": "Todos os direitos reservados",
     "made_with": "Feito com",
     "for_productivity": "para produtividade"
@@ -654,7 +655,8 @@
     "subject_placeholder": "Como podemos ajudar?",
     "message_placeholder": "Conte-nos mais...",
     "sending": "Enviando...",
-    "submit": "Enviar Mensagem"
+    "submit": "Enviar Mensagem",
+    "error_message": "Não conseguimos enviar sua mensagem. Verifique sua conexão e tente novamente."
   },
   "About": {
     "badge": "Nossa História",
@@ -691,6 +693,7 @@
     "title": "Política de Privacidade",
     "last_updated": "Última Atualização",
     "intro": "No Ordo Todo, levamos sua privacidade a sério. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais.",
+    "contact_link": "entre em contato",
     "sections": {
       "collection": {
         "title": "Coleta de Informações",
@@ -700,9 +703,17 @@
         "title": "Como usamos as informações",
         "content": "Usamos suas informações para fornecer, manter e melhorar nossos serviços, e para nos comunicar com você sobre produtos, serviços e eventos."
       },
+      "ai_data": {
+        "title": "Seus dados e a IA",
+        "content": "Os recursos de IA hoje usam o Google Gemini: o conteúdo necessário para responder (tarefas, notas, contexto que você incluir) é enviado à API do Google sob seus termos de API. Não vendemos seus dados. Publicaremos os detalhes de retenção e tratamento de dados para planos pagos antes de ativar a cobrança."
+      },
+      "billing": {
+        "title": "Dados de cobrança",
+        "content": "A cobrança ainda não está ativa: hoje não coletamos dados de pagamento. Quando for ativada, os pagamentos serão processados pela Stripe e os dados do seu cartão nunca tocarão nossos servidores. Os limites mostrados na página de preços são intenção até a cobrança ser real."
+      },
       "protection": {
         "title": "Proteção de Dados",
-        "content": "Implementamos medidas técnicas e organizacionais apropriadas para proteger seus dados pessoais contra acesso ou divulgação não autorizados."
+        "content": "Implementamos medidas técnicas e organizacionais apropriadas para proteger seus dados pessoais contra acesso ou divulgação não autorizados. O que existe hoje está detalhado na página de segurança."
       },
       "sharing": {
         "title": "Compartilhamento de Informações",
@@ -716,10 +727,19 @@
     "title": "Termos de Serviço",
     "last_updated": "Última Atualização",
     "intro": "Ao acessar ou usar o Ordo Todo, você concorda em ficar vinculado a estes Termos. Se você não concordar com qualquer parte dos termos, não poderá acessar o serviço.",
+    "contact_link": "entre em contato",
     "sections": {
       "acceptance": {
         "title": "Aceitação dos Termos",
         "content": "Ao criar uma conta ou usar nossos serviços, você concorda com estes termos e nossa Política de Privacidade."
+      },
+      "billing": {
+        "title": "Planos e cobrança",
+        "content": "Os planos pagos estão em beta: os preços e limites da página de preços são nossa intenção declarada, não um contrato, até a cobrança estar ativa. Quando for ativada, as assinaturas serão processadas pela Stripe, com 14 dias de teste do Pro sem cartão e 14 dias de carência se um pagamento falhar. Ler e exportar seus dados nunca é bloqueado por falta de pagamento."
+      },
+      "dpa": {
+        "title": "Tratamento de dados (DPA)",
+        "content": "Um acordo padrão de tratamento de dados está planejado para organizações em planos pagos, incluindo Enterprise. Será publicado antes de ativar a cobrança. Até lá, a Política de Privacidade e a página de segurança descrevem como tratamos seus dados."
       },
       "usage": {
         "title": "Uso Aceitável",
@@ -736,6 +756,37 @@
     },
     "contact_title": "Entre em Contato",
     "contact_text": "Se você tiver alguma dúvida sobre estes Termos, por favor"
+  },
+  "Security": {
+    "title": "Segurança",
+    "subtitle": "O que protege seus dados hoje, o que passa por terceiros e o que ainda está planejado. Tudo que não está disponível hoje está marcado como planejado.",
+    "note_title": "Leia isto primeiro",
+    "note_text": "Não afirmamos criptografia de ponta a ponta, certificação SOC 2 nem criptografia AES-256 em repouso: nenhum está evidenciado hoje. O que segue é o que existe de forma verificável no produto.",
+    "sections": {
+      "auth": {
+        "title": "Contas e login",
+        "content": "Entre com e-mail e senha (guardadas com hash bcrypt) ou com Google ou GitHub via OAuth. As sessões usam tokens JWT com renovação rotativa, revogação ao sair, proteção contra falsificação de solicitações entre sites e limite de tentativas nos endpoints de autenticação. A autenticação em duas etapas ainda não está disponível."
+      },
+      "data": {
+        "title": "Seus dados",
+        "content": "Suas tarefas, projetos e notas vivem em nosso banco de dados e são limitados aos seus espaços de trabalho: você só vê aquilo de que é membro, e os assistentes conectados não veem mais do que você. Você pode exportar seus dados como JSON a qualquer momento e excluir sua conta, o que remove seus dados. Não vendemos informações pessoais. A criptografia em repouso além da oferecida pelo nosso banco de dados, e os programas de conformidade certificados, não estão evidenciados hoje."
+      },
+      "ai": {
+        "title": "IA e terceiros",
+        "content": "Os recursos de IA hoje usam o Google Gemini: o conteúdo necessário para responder sua solicitação é enviado à API do Google sob seus termos de dados de API. Nada é enviado para nenhum outro lugar para processamento de IA. As integrações que você conectar (por exemplo Google Agenda ou Slack) trocam apenas os dados necessários para o recurso que você ativou."
+      },
+      "billing": {
+        "title": "Pagamentos",
+        "content": "A cobrança ainda não está ativa, então não coletamos dados de pagamento. Quando for ativada, os pagamentos serão processados pela Stripe e os dados do seu cartão nunca tocarão nossos servidores."
+      },
+      "planned": {
+        "title": "Planejado, não disponível",
+        "content": "No roteiro: login único (SSO/SAML) para organizações, um acordo de tratamento de dados (DPA) publicado e um caminho para SOC 2. Aparecem na página de preços como planejados e serão anunciados no changelog quando estiverem prontos."
+      }
+    },
+    "contact_title": "Reporte um problema de segurança",
+    "contact_text": "Encontrou algo? Por favor",
+    "contact_link": "entre em contato"
   },
   "GuideConnect": {
     "badge": "Conectar seu assistente",

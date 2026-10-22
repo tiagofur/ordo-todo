@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Server } from 'lucide-react';
+import { Shield, Lock, Eye, Server, Brain, CreditCard } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function PrivacyPage() {
@@ -11,6 +11,8 @@ export default function PrivacyPage() {
   const sections = [
     { key: 'collection', icon: Eye },
     { key: 'usage', icon: Server },
+    { key: 'ai_data', icon: Brain },
+    { key: 'billing', icon: CreditCard },
     { key: 'protection', icon: Shield },
     { key: 'sharing', icon: Lock },
   ];
@@ -58,7 +60,7 @@ export default function PrivacyPage() {
           })}
 
           <h3>{t('contact_title')}</h3>
-          <p>{t('contact_text')} <Link href="/contact" className="text-primary hover:underline">contact us</Link>.</p>
+          <p>{t('contact_text')} <Link href="/contact" className="text-primary hover:underline">{t('contact_link')}</Link>.</p>
         </div>
       </div>
     </main>

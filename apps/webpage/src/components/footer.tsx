@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
-import { Sparkles, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Sparkles, Github, Twitter, Linkedin } from 'lucide-react';
 
 export function Footer() {
   const t = useTranslations('Footer');
@@ -21,6 +21,7 @@ export function Footer() {
     legal: [
       { label: t('privacy'), href: '/privacy' },
       { label: t('terms'), href: '/terms' },
+      { label: t('security'), href: '/security' },
     ],
   };
 

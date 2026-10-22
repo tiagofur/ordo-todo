@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Scale, FileText, AlertCircle, HelpCircle } from 'lucide-react';
+import { Scale, FileText, AlertCircle, HelpCircle, CreditCard, FileCheck } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function TermsPage() {
@@ -10,6 +10,8 @@ export default function TermsPage() {
 
   const sections = [
     { key: 'acceptance', icon: FileText },
+    { key: 'billing', icon: CreditCard },
+    { key: 'dpa', icon: FileCheck },
     { key: 'usage', icon: Scale },
     { key: 'disclaimer', icon: AlertCircle },
     { key: 'changes', icon: HelpCircle },
@@ -58,7 +60,7 @@ export default function TermsPage() {
           })}
 
           <h3>{t('contact_title')}</h3>
-          <p>{t('contact_text')} <Link href="/contact" className="text-primary hover:underline">contact us</Link>.</p>
+          <p>{t('contact_text')} <Link href="/contact" className="text-primary hover:underline">{t('contact_link')}</Link>.</p>
         </div>
       </div>
     </main>
