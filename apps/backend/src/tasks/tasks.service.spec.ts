@@ -1007,6 +1007,69 @@ describe('TasksService', () => {
       expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
     });
 
+    it('createSubtask: rejects a foreign projectId (subtask is pinned to its parent project)', async () => {
+      const parentTask = {
+        id: 'parent-123',
+        props: { id: 'parent-123', projectId, title: 'Parent' },
+      };
+      mockTaskRepository.findById.mockResolvedValue(parentTask as any);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+
+      await expect(
+        service.createSubtask(
+          'parent-123',
+          { title: 'Sub', projectId: 'other-workspace-project' } as any,
+          'user-123',
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Subtask must belong to the same project as its parent task',
+        ),
+      );
+
+      expect(executeSpy).not.toHaveBeenCalled();
+    });
+
+    it('createSubtask: places the subtask in the parent project when projectId omitted', async () => {
+      const parentTask = {
+        id: 'parent-123',
+        props: { id: 'parent-123', projectId, title: 'Parent' },
+      };
+      mockTaskRepository.findById.mockResolvedValue(parentTask as any);
+
+      const mockTask = {
+        id: 'sub-123',
+        props: {
+          id: 'sub-123',
+          title: 'Sub',
+          projectId,
+          ownerId: 'user-123',
+          assigneeId: 'user-456',
+          parentTaskId: 'parent-123',
+        },
+      };
+      const executeSpy = jest
+        .spyOn(CreateTaskUseCase.prototype, 'execute')
+        .mockResolvedValue(mockTask as any);
+      mockActivitiesService.logSubtaskAdded = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+
+      await service.createSubtask(
+        'parent-123',
+        { title: 'Sub', assigneeId: 'user-456' } as any,
+        'user-123',
+      );
+
+      expect(executeSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ projectId }),
+      );
+    });
+
     it('createSubtask: rejects an assignee from outside the workspace', async () => {
       const parentTask = {
         id: 'parent-123',
