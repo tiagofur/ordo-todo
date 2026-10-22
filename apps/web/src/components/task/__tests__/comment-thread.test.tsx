@@ -95,6 +95,28 @@ describe('CommentThread (ODD 018 S2)', () => {
     });
   });
 
+  it('drops picked IDs whose @name is no longer in the text (review round)', async () => {
+    const onCreate = renderThread();
+
+    const textarea = screen.getByPlaceholderText(
+      'Write a comment...',
+    ) as HTMLTextAreaElement;
+    fireEvent.change(textarea, { target: { value: 'Hey @' } });
+    fireEvent.click(await screen.findByText('Bob Member'));
+
+    await waitFor(() => {
+      expect(textarea.value).toContain('@Bob Member');
+    });
+
+    // Author removes the mention from the draft entirely
+    fireEvent.change(textarea, { target: { value: 'nothing to see' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(onCreate).toHaveBeenCalledWith('nothing to see', undefined);
+    });
+  });
+
   it('sends without mentionedUserIds when no one is mentioned', async () => {
     const onCreate = renderThread();
 
