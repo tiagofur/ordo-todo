@@ -2,12 +2,19 @@ import { PersonName } from "../../shared/person-name.vo";
 import { Email, HashPassword, Id } from "../../shared";
 import { Entity, EntityMode, EntityProps } from "../../shared/entity";
 
+export type UserAccountStatus = 'ACTIVE' | 'BLOCKED';
+
 export interface UserProps extends EntityProps<string> {
   name?: string;
   username: string;
   email?: string;
   password?: string;
   image?: string | null;
+
+  // Platform account state (ODD 019). BLOCKED users cannot authenticate.
+  status?: UserAccountStatus;
+  blockedAt?: Date | null;
+  lastLoginAt?: Date | null;
 
   // Extended Profile
   phone?: string | null;
@@ -27,6 +34,7 @@ export class User extends Entity<UserProps> {
   public readonly username: string;
   public readonly email: string;
   public readonly password?: string;
+  public readonly status: UserAccountStatus;
 
   constructor(props: UserProps, mode: EntityMode = "valid") {
     super(props);
@@ -42,6 +50,7 @@ export class User extends Entity<UserProps> {
     this.password = props?.password
       ? HashPassword.create(props.password).value
       : undefined;
+    this.status = props?.status ?? 'ACTIVE';
   }
 
   withoutPassword(): User {

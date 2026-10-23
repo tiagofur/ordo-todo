@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { CacheModule } from './cache/cache.module';
 import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { WorkflowsModule } from './workflows/workflows.module';
@@ -76,6 +77,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     HealthModule, // Health check endpoints (no prefix)
     MetricsModule, // Prometheus metrics endpoint (no prefix)
     AuthModule,
+    AdminModule, // Platform admin (ODD 019)
     // ImagesModule,
     UsersModule,
     WorkspacesModule,

@@ -35,6 +35,7 @@ export class PrismaUserRepository implements UserRepository {
         timezone: prismaUser.timezone ?? undefined,
         locale: prismaUser.locale ?? undefined,
         lastUsernameChangeAt: prismaUser.lastUsernameChangeAt,
+        status: prismaUser.status,
         createdAt: prismaUser.createdAt,
         updatedAt: prismaUser.updatedAt,
       },
@@ -87,6 +88,9 @@ export class PrismaUserRepository implements UserRepository {
         locale: props.locale,
         lastUsernameChangeAt: props.lastUsernameChangeAt,
         hashedPassword: props.password,
+        status: props.status,
+        blockedAt: props.blockedAt,
+        lastLoginAt: props.lastLoginAt,
         updatedAt: new Date(),
       },
     });
@@ -107,6 +111,9 @@ export class PrismaUserRepository implements UserRepository {
     locale: true,
     lastUsernameChangeAt: true,
     hashedPassword: true,
+    status: true,
+    blockedAt: true,
+    lastLoginAt: true,
     createdAt: true,
     updatedAt: true,
   } as const;

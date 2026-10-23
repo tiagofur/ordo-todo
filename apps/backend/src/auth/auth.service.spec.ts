@@ -484,6 +484,66 @@ describe('AuthService', () => {
     });
   });
 
+  describe('blocked accounts (ODD 019 S3)', () => {
+    const validHash =
+      '$2b$10$epRnT3MmKDDW.4Q6D9m9euO059y/qJ0k/1Zq6e4D2xY4oZ7hU8P32';
+
+    const accountWithStatus = (status: 'ACTIVE' | 'BLOCKED') =>
+      new User(
+        {
+          id: 'user-9',
+          email: 'blocked@example.com',
+          username: 'blocked',
+          name: 'Blocked',
+          password: validHash,
+          status,
+        },
+        'draft',
+      );
+
+    it('rejects login for a BLOCKED account with ACCOUNT_BLOCKED', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(
+        accountWithStatus('BLOCKED'),
+      );
+      mockCryptoProvider.compare.mockResolvedValue(true);
+
+      const error = (await service
+        .login({ email: 'blocked@example.com', password: 'SecurePass123!' })
+        .catch((e: unknown) => e)) as HttpException;
+
+      expect(error).toBeInstanceOf(HttpException);
+      expect(error.getStatus()).toBe(HttpStatus.UNAUTHORIZED);
+      expect(error.getResponse()).toMatchObject({ code: 'ACCOUNT_BLOCKED' });
+      expect(mockAuthAuditService.loginFailed).toHaveBeenCalled();
+    });
+
+    it('validateUser returns null for a BLOCKED account (kills live tokens)', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(
+        accountWithStatus('BLOCKED'),
+      );
+
+      expect(await service.validateUser('blocked@example.com')).toBeNull();
+    });
+
+    it('a successful login stamps lastLoginAt', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(
+        accountWithStatus('ACTIVE'),
+      );
+      mockCryptoProvider.compare.mockResolvedValue(true);
+      mockUserRepository.updateProps.mockResolvedValue(undefined);
+
+      await service.login({
+        email: 'blocked@example.com',
+        password: 'SecurePass123!',
+      });
+
+      expect(mockUserRepository.updateProps).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'user-9' }),
+        { lastLoginAt: expect.any(Date) },
+      );
+    });
+  });
+
   describe('login', () => {
     const loginDto: LoginDto = {
       email: 'test@example.com',

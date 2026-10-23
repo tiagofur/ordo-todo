@@ -1,4 +1,4 @@
-import { User, UserProps } from "./model/user.entity";
+import { User, UserProps, UserAccountStatus } from "./model/user.entity";
 import UserRepository, { CreateUserProps } from "./provider/user.repository";
 import CryptoProvider from "./provider/crypto.provider";
 
@@ -8,4 +8,4 @@ import UserByEmail from "./usecase/user-by-email.usecase";
 import UserLogin from "./usecase/user-login.usecase";
 
 export { User, UserLogin, RegisterUser, ChangeUserName, UserByEmail };
-export type { UserProps, UserRepository, CryptoProvider, CreateUserProps };
+export type { UserProps, UserAccountStatus, UserRepository, CryptoProvider, CreateUserProps };
