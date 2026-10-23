@@ -4,9 +4,11 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { UserRepository } from '@ordo-todo/core';
 import { UserByEmail, ChangeUserName } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
+import { isAdminEmail } from '../common/utils/admin-emails';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import { UserProfileResponseDto } from './dto/user-response.dto';
@@ -17,13 +19,17 @@ export class UsersService {
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getMe(email: string) {
     try {
       const userByEmailUseCase = new UserByEmail(this.userRepository);
       const user = await userByEmailUseCase.execute(email);
-      return user?.props;
+      // ODD 019: single source of truth for the admin menu entry.
+      return user
+        ? { ...user.props, isAdmin: isAdminEmail(this.configService, email) }
+        : null;
     } catch {
       return null;
     }

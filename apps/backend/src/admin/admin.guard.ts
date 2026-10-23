@@ -5,9 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-/** Default platform admins when ADMIN_EMAILS is unset (ODD 019). */
-export const DEFAULT_ADMIN_EMAILS = ['tiagofur@gmail.com'];
+import { resolveAdminEmails } from '../common/utils/admin-emails';
 
 /**
  * Platform-level admin gate (ODD 019 A5). Reusable guard for /admin
@@ -27,12 +25,7 @@ export class AdminGuard implements CanActivate {
       return true;
     }
 
-    const configured = (this.configService.get<string>('ADMIN_EMAILS') ?? '')
-      .split(',')
-      .map((email: string) => email.trim().toLowerCase())
-      .filter(Boolean);
-    const adminEmails =
-      configured.length > 0 ? configured : DEFAULT_ADMIN_EMAILS;
+    const adminEmails = resolveAdminEmails(this.configService);
 
     const email = request.user?.email?.toLowerCase();
     if (email && adminEmails.includes(email)) {
