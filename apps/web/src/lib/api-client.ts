@@ -447,7 +447,9 @@ axiosInstance.interceptors.response.use(
 
 export const apiClient = {
   // Auth
-  // Auth
+  // ODD 019: public registration gate ('invite-only' | 'open')
+  getRegistrationMode: (): Promise<{ mode: "invite-only" | "open" }> =>
+    axiosInstance.get("/auth/registration-mode").then((res) => res.data),
   register: (data: RegisterDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/register", data).then((res) => res.data),
   login: (data: LoginDto): Promise<AuthResponse> =>

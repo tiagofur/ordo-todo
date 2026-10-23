@@ -2978,5 +2978,16 @@
       "start-timer": "Iniciar temporizador",
       "search": "Buscar en Ordo"
     }
+  },
+  "RegisterInvite": {
+    "label": "Código de invitación",
+    "placeholder": "ORDO-XXXX-XXXX",
+    "helper": "Ordo está en beta cerrada: necesitas un código para crear tu cuenta",
+    "errorRequired": "Necesitas un código de invitación para registrarte",
+    "errorInvalid": "El código de invitación no es válido",
+    "errorInactive": "Ese código de invitación ya no está activo",
+    "errorExpired": "El código de invitación ha expirado",
+    "errorExhausted": "Ese código de invitación ya no tiene usos disponibles",
+    "errorInviteOnly": "Ahora el registro requiere código de invitación"
   }
 }

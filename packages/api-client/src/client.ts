@@ -3,6 +3,7 @@ import type { TokenStorage } from "./utils/storage";
 import type {
   // Auth
   RegisterDto,
+  RegistrationMode,
   LoginDto,
   AuthResponse,
   RefreshTokenDto,
@@ -540,6 +541,16 @@ export class OrdoApiClient {
 
   /**
    * Register a new user account
+   * GET /auth/registration-mode (ODD 019)
+   */
+  async getRegistrationMode(): Promise<{ mode: RegistrationMode }> {
+    const response = await this.axios.get<{ mode: RegistrationMode }>(
+      "/auth/registration-mode",
+    );
+    return response.data;
+  }
+
+  /**
    * POST /auth/register
    */
   async register(data: RegisterDto): Promise<AuthResponse> {

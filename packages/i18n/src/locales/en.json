@@ -2978,5 +2978,16 @@
       "start-timer": "Start timer",
       "search": "Search Ordo"
     }
+  },
+  "RegisterInvite": {
+    "label": "Invitation code",
+    "placeholder": "ORDO-XXXX-XXXX",
+    "helper": "Ordo is in closed beta: you need a code to create your account",
+    "errorRequired": "You need an invitation code to sign up",
+    "errorInvalid": "That invitation code is not valid",
+    "errorInactive": "That invitation code is no longer active",
+    "errorExpired": "The invitation code has expired",
+    "errorExhausted": "That invitation code has no uses left",
+    "errorInviteOnly": "Registration now requires an invitation code"
   }
 }

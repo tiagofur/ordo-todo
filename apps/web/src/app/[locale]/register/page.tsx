@@ -16,14 +16,21 @@ import {
   X,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Ticket
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { UsernameInput } from "@ordo-todo/ui";
 import { useUsernameValidation, generateUsernameSuggestions } from "@ordo-todo/hooks";
 import { apiClient } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import {
+  inviteCodeMissing,
+  resolveRegisterErrorMessage,
+} from "@/lib/registration-invite";
+import { useRegistrationMode } from "@/hooks/use-registration-mode";
 
 // Define interface for password checks
 interface PasswordChecks {
@@ -40,14 +47,19 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const t = useTranslations("RegisterInvite");
   const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
+    inviteCode: "",
   });
-  
+
+  // ODD 019: fail closed — until proven open, the form asks for a code.
+  const registrationMode = useRegistrationMode(apiClient);
+
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Real API client for username validation
@@ -146,6 +158,12 @@ export default function SignUpPage() {
       return;
     }
 
+    const inviteOnly = registrationMode !== "open";
+    if (inviteCodeMissing(registrationMode, formData.inviteCode)) {
+      toast.error(t("errorRequired"));
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -154,13 +172,16 @@ export default function SignUpPage() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
+        ...(inviteOnly ? { inviteCode: formData.inviteCode.trim() } : {}),
       });
 
       toast.success("Cuenta creada exitosamente");
       // Redirect is handled by auth context
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Error al crear cuenta";
-      toast.error(message);
+      // ODD 019: machine-readable invite codes → precise messages.
+      toast.error(
+        resolveRegisterErrorMessage(error, t, "Error al crear cuenta"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -201,6 +222,32 @@ export default function SignUpPage() {
           className="overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Invite Code Input (ODD 019 — hidden while registration is open) */}
+            {registrationMode !== "open" && (
+              <div className="space-y-2">
+                <label htmlFor="inviteCode" className="text-sm font-medium text-foreground">
+                  {t("label")}
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 transition-colors">
+                    <Ticket className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="inviteCode"
+                    type="text"
+                    required
+                    value={formData.inviteCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, inviteCode: e.target.value })
+                    }
+                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all duration-200 placeholder:normal-case placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    placeholder={t("placeholder")}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">{t("helper")}</p>
+              </div>
+            )}
+
             {/* Name Input */}
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-foreground">

@@ -7,7 +7,11 @@ export interface RegisterDto {
   username: string;
   password: string;
   name: string;
+  /** ODD 019: required by the backend while registration is invite-only. */
+  inviteCode?: string;
 }
+
+export type RegistrationMode = 'invite-only' | 'open';
 
 export interface LoginDto {
   email: string;
