@@ -11,7 +11,6 @@ export * from "./kanban-task-card.js";
 export * from "./project-board.js";
 export * from "./project-card.js";
 export * from "./project-timeline.js";
-export * from "./project-view-switcher.js";
 
 // NOTE: The following components have been moved to apps/web/src/components/project/:
 // - create-project-dialog (uses useState, useEffect, useForm)

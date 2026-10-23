@@ -14,13 +14,12 @@ import {
   EmptyState,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
-import { Briefcase, CheckSquare, Sparkles, Layers } from "lucide-react";
+import { Briefcase } from "lucide-react";
 
 const createProjectSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   description: z.string().optional(),
   color: z.string().optional(),
-  type: z.enum(["STANDARD", "SERIES", "FOCUS", "CREATOR", "HYBRID"]),
   workspaceId: z.string().min(1, "Workspace es requerido"),
   workflowId: z.string().optional(),
 });
@@ -43,48 +42,8 @@ const projectColors = [
   "#6B7280", // gray
 ];
 
-const projectTypes = [
-  {
-    value: "STANDARD",
-    label: "Standard",
-    description: "Classic To-Do with checklists and boards",
-    icon: CheckSquare,
-    color: "text-slate-600 dark:text-slate-400",
-    bgColor: "bg-slate-50 dark:bg-slate-900",
-    borderColor: "border-slate-200 dark:border-slate-800",
-  },
-  {
-    value: "FOCUS",
-    label: "Focus",
-    description: "Personal productivity mode",
-    icon: CheckSquare,
-    color: "text-cyan-600 dark:text-cyan-400",
-    bgColor: "bg-cyan-50 dark:bg-cyan-950",
-    borderColor: "border-cyan-200 dark:border-cyan-800",
-  },
-  {
-    value: "CREATOR",
-    label: "Creator",
-    description: "Content pipeline with scripting & publishing",
-    icon: Sparkles,
-    color: "text-amber-600 dark:text-amber-400",
-    bgColor: "bg-amber-50 dark:bg-amber-950",
-    borderColor: "border-amber-200 dark:border-amber-800",
-  },
-  {
-    value: "HYBRID",
-    label: "Hybrid",
-    description: "Both Focus and Creator modes available",
-    icon: Layers,
-    color: "text-violet-600 dark:text-violet-400",
-    bgColor: "bg-violet-50 dark:bg-violet-950",
-    borderColor: "border-violet-200 dark:border-violet-800",
-  },
-];
-
 export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateProjectDialogProps) {
   const [selectedColor, setSelectedColor] = useState(projectColors[3]);
-  const [selectedType, setSelectedType] = useState<"STANDARD" | "SERIES" | "FOCUS" | "CREATOR" | "HYBRID">("STANDARD");
 
   const createWorkflow = useCreateWorkflow();
 
@@ -103,7 +62,6 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
     defaultValues: {
       workspaceId: workspaceId || "",
       color: projectColors[3],
-      type: "STANDARD",
       workflowId: "",
     },
   });
@@ -219,45 +177,6 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                     />
                 ))}
                 </div>
-            </div>
-
-            {/* Project Type Selector */}
-            <div className="space-y-2">
-                <Label htmlFor="type">Tipo de Proyecto *</Label>
-                <input type="hidden" {...register("type")} value={selectedType} />
-                <div className="grid grid-cols-2 gap-2">
-                    {projectTypes.map((type) => {
-                        const Icon = type.icon;
-                        return (
-                            <button
-                                key={type.value}
-                                type="button"
-                                onClick={() => setSelectedType(type.value as any)}
-                                className={`
-                                    flex items-center gap-2 p-3 rounded-lg border-2 text-left
-                                    transition-all duration-200
-                                    ${selectedType === type.value
-                                        ? "ring-2 ring-offset-2 " + type.borderColor + " " + type.bgColor
-                                        : "border-border hover:bg-muted"
-                                    }
-                                `}
-                            >
-                                <Icon className={`h-5 w-5 flex-shrink-0 ${type.color}`} />
-                                <div className="min-w-0">
-                                    <div className={`font-medium text-sm ${type.color}`}>
-                                        {type.label}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                        {type.description}
-                                    </div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-                {errors.type && (
-                    <p className="text-sm text-red-500">{errors.type.message}</p>
-                )}
             </div>
 
             {/* Name */}

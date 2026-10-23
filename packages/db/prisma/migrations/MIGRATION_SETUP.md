@@ -102,3 +102,16 @@ npx prisma migrate status
 - [ ] Document rollback procedure
 - [ ] Add pre-migration backup verification
 - [ ] Consider read replicas for scaling
+
+## ⚠️ Peligro conocido: `prisma migrate dev` barre drift ajeno
+
+El índice vectorial `AiEmbedding_embedding_idx` (hnsw/pgvector, creado a mano en
+`20261019_agent_embeddings`) NO es expresable en `schema.prisma`, así que **cualquier
+`prisma migrate dev` lo intentará dropear** junto con cualquier otra diferencia entre
+el schema y la historia (ha pasado: el barrido del 2026-10-23 también quiso borrar
+tablas huérfanas de Creator OS, ya eliminadas por `20261023_drop_creator_os`).
+
+Regla del repo: migraciones NUEVAS se escriben A MANO (carpeta con fecha + nombre
+kebab, sin `prisma migrate dev`), y se validan con replay en una base desechable:
+`DATABASE_URL=...ordo_scratch npx prisma migrate deploy` + drop de la base.
+`prisma migrate deploy` (lo que usa CI y los e2e) es seguro: aplica la historia tal cual.

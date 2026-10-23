@@ -6,5 +6,3 @@ export * from './layout';
 // Composition component types
 export * from './composition';
 
-// Creator OS content types
-export * from './content';
