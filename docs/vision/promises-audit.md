@@ -62,6 +62,7 @@ Nada de lo marcado ❌ puede aparecer en marketing o docs nuevas como disponible
 - ❌ Sin módulo de billing/Stripe/pagos en `apps/backend/src/`. Solo el modelo `Subscription` (con campos `stripeCustomerId`, `stripeSubscriptionId`) en `packages/db/prisma/schema.prisma:1243`. Cero enforcement de límites.
 - ⚠️ De lo listado como Pro: recurrencia ✅, IA ⚠️ (requiere `GEMINI_API_KEY`), calendar integrations ❌ (ver §F), custom themes ❌ (solo light/dark/auto).
 - ⚠️/❌ De lo listado como Team: workspaces/roles/audit/workload ✅, **SSO/SAML ❌** (solo OAuth Google/GitHub), **API pública ❌** (solo `ADMIN_API_KEY` interna).
+- ✅ Colaboración multiusuario verificada en código y e2e (ODD 018, oct 2026, `odd/tasks/018-collab-hardening.md`): compartir workspace con invitación por email (token hasheado, canje ligado al email invitado, cancelable), roles OWNER/ADMIN/MEMBER/VIEWER gestionables desde la UI, asignación de tareas desde la UI con notificación, menciones fiables por ID de usuario con chips y navegación desde notificaciones (web + autocomplete en desktop + Slack + icono móvil), salir del workspace, audit log. Queda fuera: transferencia de ownership, SSO, API pública, team analytics agregado.
 - ❌ Enterprise: sin data residency, SLA, self-hosted para clientes ni white-label (solo `deploy/` interno + docker-compose).
 - ✅ Voto roadmap ponderado FREE=1/PRO=3/TEAM=5/ENTERPRISE=10 (modelo `RoadmapVote` + `apps/webpage` UI).
 
