@@ -1,6 +1,7 @@
 import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
+  IsIn,
   IsNumber,
   IsString,
   Min,
@@ -91,6 +92,18 @@ export class EnvironmentVariables {
   @IsEnum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])
   @IsOptional()
   LOG_LEVEL?: string;
+
+  // ODD 019: registration gate. 'invite-only' (default in code) requires a
+  // valid InviteCode to create an account; 'open' allows public registration.
+  @IsIn(['invite-only', 'open'])
+  @IsOptional()
+  REGISTRATION_MODE?: 'invite-only' | 'open';
+
+  // ODD 019: platform admin emails (comma-separated). Empty defaults to
+  // tiagofur@gmail.com in code; grants access to /admin endpoints.
+  @IsString()
+  @IsOptional()
+  ADMIN_EMAILS?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

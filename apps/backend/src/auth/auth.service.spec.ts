@@ -5,8 +5,10 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-import { User } from '@ordo-todo/core';
+import { User, InviteCode } from '@ordo-todo/core';
 import { AuthService } from './auth.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
@@ -21,13 +23,32 @@ describe('AuthService', () => {
   let jwtService: JwtService;
   let tokenBlacklistService: TokenBlacklistService;
 
+  // ODD 019: REGISTRATION_MODE as the service would read it (null = default
+  // invite-only). Existing register tests run in 'open'.
+  let registrationMode: string | null = null;
+
   const mockUserRepository = {
     findByEmail: jest.fn(),
     findByUsername: jest.fn(),
     findById: jest.fn(),
+    findByProvider: jest.fn(),
+    linkOAuthAccount: jest.fn(),
     updateProps: jest.fn(),
     save: jest.fn(),
     create: jest.fn(),
+  };
+
+  const mockInviteCodeRepository = {
+    save: jest.fn(),
+    update: jest.fn(),
+    findById: jest.fn(),
+    findByCode: jest.fn(),
+    listAll: jest.fn(),
+    consume: jest.fn(),
+    release: jest.fn(),
+    recordRedemption: jest.fn(),
+    findRedemptionByUserId: jest.fn(),
+    countRedemptions: jest.fn(),
   };
 
   const mockCryptoProvider = {
@@ -37,6 +58,7 @@ describe('AuthService', () => {
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
+      if (key === 'REGISTRATION_MODE') return registrationMode;
       if (key === 'JWT_SECRET') return 'test-secret-key';
       if (key === 'JWT_EXPIRATION') return '1h';
       if (key === 'JWT_REFRESH_EXPIRATION') return '7d';
@@ -63,6 +85,10 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
+    registrationMode = 'open';
+    Object.values(mockInviteCodeRepository).forEach((fn) => fn.mockReset());
+    mockInviteCodeRepository.release.mockResolvedValue(undefined);
+    mockInviteCodeRepository.findRedemptionByUserId.mockResolvedValue(null);
     mockUserRepository.findByEmail.mockReset();
     mockUserRepository.findByUsername.mockReset().mockResolvedValue(null);
     mockUserRepository.save.mockReset().mockResolvedValue(undefined);
@@ -84,6 +110,10 @@ describe('AuthService', () => {
         {
           provide: 'UserRepository',
           useValue: mockUserRepository,
+        },
+        {
+          provide: 'InviteCodeRepository',
+          useValue: mockInviteCodeRepository,
         },
         {
           provide: BcryptCryptoProvider,
@@ -118,7 +148,9 @@ describe('AuthService', () => {
           provide: EmailService,
           useValue: {
             sendEmail: jest.fn().mockResolvedValue({ success: true }),
-            sendWorkspaceInvitation: jest.fn().mockResolvedValue({ success: true }),
+            sendWorkspaceInvitation: jest
+              .fn()
+              .mockResolvedValue({ success: true }),
             sendPasswordReset: jest.fn().mockResolvedValue({ success: true }),
             sendWelcome: jest.fn().mockResolvedValue({ success: true }),
           },
@@ -199,6 +231,256 @@ describe('AuthService', () => {
       await expect(service.register(registerDto)).rejects.toThrow(
         ConflictException,
       );
+    });
+  });
+
+  describe('register with invitation (ODD 019 S2)', () => {
+    const registerDto: RegisterDto = {
+      email: 'invited@example.com',
+      username: 'inviteduser',
+      password: 'SecurePass123!',
+      name: 'Invited User',
+      inviteCode: 'ORDO-7KM2-QP9X',
+    };
+
+    const validHash =
+      '$2b$10$epRnT3MmKDDW.4Q6D9m9euO059y/qJ0k/1Zq6e4D2xY4oZ7hU8P32';
+
+    const invite = (overrides: Record<string, unknown> = {}) =>
+      new InviteCode({
+        code: 'ORDO-7KM2-QP9X',
+        maxUses: 1,
+        usedCount: 0,
+        isActive: true,
+        ...overrides,
+      });
+
+    const createdUser = () =>
+      new User(
+        {
+          id: 'user-new',
+          email: registerDto.email,
+          username: registerDto.username,
+          name: registerDto.name,
+          password: validHash,
+        },
+        'draft',
+      );
+
+    const expectHttpError = async (
+      promise: Promise<unknown>,
+      status: number,
+      code: string,
+    ) => {
+      const error = (await promise.catch((e: unknown) => e)) as HttpException;
+      expect(error).toBeInstanceOf(HttpException);
+      expect(error.getStatus()).toBe(status);
+      expect(error.getResponse()).toMatchObject({ code });
+    };
+
+    beforeEach(() => {
+      registrationMode = null; // default: invite-only
+    });
+
+    it('consumes the code, registers and records the redemption', async () => {
+      const code = invite();
+      const user = createdUser();
+      mockInviteCodeRepository.findByCode.mockResolvedValue(code);
+      mockInviteCodeRepository.consume.mockResolvedValue(true);
+      mockInviteCodeRepository.findById.mockResolvedValue(code);
+      mockUserRepository.findByEmail
+        .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
+        .mockResolvedValueOnce(user) // redemption lookup
+        .mockResolvedValueOnce(user); // login lookup
+      mockCryptoProvider.encrypt.mockResolvedValue(validHash);
+      mockCryptoProvider.compare.mockResolvedValue(true);
+
+      const result = await service.register(registerDto);
+
+      expect(mockInviteCodeRepository.consume).toHaveBeenCalledWith(
+        code.id,
+        expect.any(Date),
+      );
+      expect(mockInviteCodeRepository.recordRedemption).toHaveBeenCalledWith(
+        code.id,
+        user.id,
+      );
+      expect(mockInviteCodeRepository.release).not.toHaveBeenCalled();
+      expect(result).toHaveProperty('accessToken');
+    });
+
+    it('rejects a missing code with INVITE_INVALID before touching users', async () => {
+      await expectHttpError(
+        service.register({ ...registerDto, inviteCode: '  ' }),
+        HttpStatus.BAD_REQUEST,
+        'INVITE_INVALID',
+      );
+      expect(mockInviteCodeRepository.findByCode).not.toHaveBeenCalled();
+      expect(mockUserRepository.save).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['unknown', null, HttpStatus.BAD_REQUEST, 'INVITE_INVALID'],
+      [
+        'inactive',
+        { isActive: false },
+        HttpStatus.BAD_REQUEST,
+        'INVITE_INACTIVE',
+      ],
+      [
+        'expired',
+        { expiresAt: new Date('2026-01-01T00:00:00.000Z') },
+        HttpStatus.GONE,
+        'INVITE_EXPIRED',
+      ],
+      [
+        'exhausted',
+        { usedCount: 1 },
+        HttpStatus.BAD_REQUEST,
+        'INVITE_EXHAUSTED',
+      ],
+    ] as const)(
+      'maps an %s code to %i/%s and never creates the user',
+      async (_name, overrides, status, machineCode) => {
+        mockInviteCodeRepository.findByCode.mockResolvedValue(
+          overrides === null ? null : invite(overrides),
+        );
+
+        await expectHttpError(
+          service.register(registerDto),
+          status,
+          machineCode,
+        );
+
+        expect(mockInviteCodeRepository.consume).not.toHaveBeenCalled();
+        expect(mockUserRepository.save).not.toHaveBeenCalled();
+      },
+    );
+
+    it('treats a lost consume race as INVITE_EXHAUSTED', async () => {
+      mockInviteCodeRepository.findByCode.mockResolvedValue(invite());
+      mockInviteCodeRepository.consume.mockResolvedValue(false);
+
+      await expectHttpError(
+        service.register(registerDto),
+        HttpStatus.BAD_REQUEST,
+        'INVITE_EXHAUSTED',
+      );
+      expect(mockUserRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('refunds the consumed use when the registration itself fails', async () => {
+      const code = invite();
+      mockInviteCodeRepository.findByCode.mockResolvedValue(code);
+      mockInviteCodeRepository.consume.mockResolvedValue(true);
+      mockInviteCodeRepository.findById.mockResolvedValue(code);
+      mockUserRepository.findByEmail.mockResolvedValue(
+        new User(
+          {
+            id: 'existing',
+            email: registerDto.email,
+            username: 'existing',
+            name: 'Existing',
+          },
+          'draft',
+        ),
+      );
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(mockInviteCodeRepository.release).toHaveBeenCalledWith(code.id);
+      expect(mockInviteCodeRepository.recordRedemption).not.toHaveBeenCalled();
+    });
+
+    it('ignores the code entirely when REGISTRATION_MODE=open', async () => {
+      registrationMode = 'open';
+      const user = createdUser();
+      mockUserRepository.findByEmail
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(user);
+      mockCryptoProvider.encrypt.mockResolvedValue(validHash);
+      mockCryptoProvider.compare.mockResolvedValue(true);
+
+      await service.register(registerDto);
+
+      expect(mockInviteCodeRepository.findByCode).not.toHaveBeenCalled();
+      expect(mockInviteCodeRepository.consume).not.toHaveBeenCalled();
+      expect(mockUserRepository.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('oauthLogin with the invitation gate (ODD 019 S2 / A1)', () => {
+    const oauthDto = {
+      provider: 'google' as const,
+      providerId: 'google-1',
+      email: 'social@example.com',
+      name: 'Social User',
+    };
+
+    it('rejects a brand-new social account while invite-only', async () => {
+      registrationMode = null;
+      mockUserRepository.findByProvider.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+
+      const error = (await service
+        .oauthLogin(oauthDto)
+        .catch((e: unknown) => e)) as HttpException;
+
+      expect(error).toBeInstanceOf(HttpException);
+      expect(error.getStatus()).toBe(HttpStatus.FORBIDDEN);
+      expect(error.getResponse()).toMatchObject({
+        code: 'REGISTRATION_INVITE_ONLY',
+      });
+      expect(mockUserRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('still links the provider to an existing account while invite-only', async () => {
+      registrationMode = null;
+      const existing = new User(
+        {
+          id: 'user-existing',
+          email: oauthDto.email,
+          username: 'existing',
+          name: 'Existing',
+        },
+        'draft',
+      );
+      mockUserRepository.findByProvider.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(existing);
+      mockUserRepository.linkOAuthAccount.mockResolvedValue(existing);
+
+      const result = await service.oauthLogin(oauthDto);
+
+      expect(mockUserRepository.linkOAuthAccount).toHaveBeenCalledWith(
+        existing.id,
+        'google',
+        'google-1',
+      );
+      expect(mockUserRepository.create).not.toHaveBeenCalled();
+      expect(result).toHaveProperty('accessToken');
+    });
+
+    it('creates the social account when the mode is open', async () => {
+      registrationMode = 'open';
+      const created = new User(
+        {
+          id: 'user-social',
+          email: oauthDto.email,
+          username: 'socialabc123',
+          name: oauthDto.name,
+        },
+        'draft',
+      );
+      mockUserRepository.findByProvider.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+      mockUserRepository.create.mockResolvedValue(created);
+      mockWorkspacesService.create.mockResolvedValue({ id: 'ws-1' });
+
+      const result = await service.oauthLogin(oauthDto);
+
+      expect(mockUserRepository.create).toHaveBeenCalled();
+      expect(result).toHaveProperty('accessToken');
     });
   });
 
@@ -427,7 +709,9 @@ describe('AuthService', () => {
         'OldPassword123!',
         mockUser.password,
       );
-      expect(mockCryptoProvider.encrypt).toHaveBeenCalledWith('NewPassword456!');
+      expect(mockCryptoProvider.encrypt).toHaveBeenCalledWith(
+        'NewPassword456!',
+      );
       expect(mockUserRepository.updateProps).toHaveBeenCalledWith(mockUser, {
         password: '$2b$12$newhashedpassword',
       });

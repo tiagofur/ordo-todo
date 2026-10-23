@@ -26,5 +26,3 @@ export interface InviteCodeRepository {
   findRedemptionByUserId(userId: string): Promise<InviteRedemptionData | null>;
   countRedemptions(inviteCodeId: string): Promise<number>;
 }
-
-export const INVITE_CODE_REPOSITORY = "InviteCodeRepository";

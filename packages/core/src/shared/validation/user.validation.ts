@@ -24,6 +24,8 @@ export const registerUserSchema = z.object({
         .string()
         .min(USER_LIMITS.PASSWORD_MIN_LENGTH, `Password must be at least ${USER_LIMITS.PASSWORD_MIN_LENGTH} characters`)
         .max(USER_LIMITS.PASSWORD_MAX_LENGTH, `Password must be less than ${USER_LIMITS.PASSWORD_MAX_LENGTH} characters`),
+    // ODD 019: required by the backend while registration is invite-only.
+    inviteCode: z.string().max(32).optional(),
 });
 
 /**
