@@ -738,9 +738,6 @@ model Workspace {
   projects  Project[]
   tags      Tag[]
 
-  // Legacy Creator OS Features (deprecated)
-  contentMetadata ContentMetadata[]
-
   // NUEVAS RELACIONES
   settings      WorkspaceSettings?
   invitations   WorkspaceInvitation[]
@@ -898,9 +895,6 @@ model Project {
   slug        String // Único por workspace
   description String?
 
-  // Type (Creator OS)
-  type ProjectType @default(STANDARD)
-
   // Status & Priority
   status   ProjectStatus @default(ACTIVE)
   priority Priority      @default(MEDIUM)
@@ -972,14 +966,6 @@ enum ProjectStatus {
   ON_HOLD
   COMPLETED
   ARCHIVED
-}
-
-enum ProjectType {
-  STANDARD      // Classic To-Do (checkbox, lista simple)
-  SERIES        // Episodic content management
-  FOCUS         // ← NUEVO: Modo专注 para productividad personal
-  CREATOR       // ← NUEVO: Modo Creator OS con pipeline
-  HYBRID        // ← NUEVO: Ambos modos disponibles
 }
 
 // ============ CUSTOM FIELDS ============
@@ -1107,10 +1093,6 @@ model Task {
   // Custom Field Values
   customFieldValues CustomFieldValue[]
 
-  // Creator OS Content Metadata
-  contentMetadata ContentMetadata?
-  contentStatus   ContentStatus?
-
   // Time Sessions
   timeSessions TimeSession[]
 
@@ -1146,57 +1128,6 @@ enum TaskStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
-}
-
-// Creator OS Content Status
-enum ContentStatus {
-  IDEA
-  SCRIPTING
-  FILMING
-  EDITING
-  SCHEDULED
-  PUBLISHED
-}
-
-model ContentMetadata {
-  id     String @id @default(cuid())
-  taskId String @unique
-  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  // Core Fields
-  platform     ContentPlatform
-  contentType  ContentType
-  script       String?         @db.Text
-  url          String? // Published URL
-  thumbnailUrl String?
-
-  // Workspace Context (Optional denormalization for queries)
-  workspaceId String?
-  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum ContentPlatform {
-  YOUTUBE
-  TIKTOK
-  INSTAGRAM
-  LINKEDIN
-  TWITTER
-  BLOG
-  PODCAST
-  OTHER
-}
-
-enum ContentType {
-  VIDEO
-  SHORT
-  POST
-  THREAD
-  ARTICLE
-  AUDIO
-  IMAGE
 }
 
 enum Priority {
