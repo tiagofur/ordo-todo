@@ -101,6 +101,23 @@ describe('SlackNotifierService', () => {
     expect(mockWebClient.chat.postMessage).not.toHaveBeenCalled();
   });
 
+  it('should route MENTIONED notifications (ODD 018 S5)', async () => {
+    mockDeliverySetup();
+
+    await service.notify({
+      userId: 'user-1',
+      type: 'MENTIONED',
+      title: 'You were mentioned',
+      message: 'Ann mentioned you in a comment',
+      resourceId: 'task-1',
+      resourceType: 'COMMENT',
+    });
+
+    expect(mockWebClient.chat.postMessage).toHaveBeenCalledTimes(1);
+    const payload = mockWebClient.chat.postMessage.mock.calls[0][0];
+    expect(payload.text).toContain('You were mentioned');
+  });
+
   it('should skip non-task notifications without resource', async () => {
     mockDeliverySetup();
 

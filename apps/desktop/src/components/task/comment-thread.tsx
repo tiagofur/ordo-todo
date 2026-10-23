@@ -6,6 +6,7 @@ import {
   cn,
   Button,
   Textarea,
+  MentionTextarea,
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -31,17 +32,27 @@ interface Comment {
   };
 }
 
+interface MentionUser {
+  id: string;
+  name: string;
+  image?: string;
+}
+
 interface CommentThreadProps {
   taskId: string;
   comments?: Comment[];
   currentUserId?: string;
   workspaceId?: string;
+  users?: MentionUser[];
 }
 
-export function CommentThread({ taskId, comments = [], currentUserId, workspaceId }: CommentThreadProps) {
+export function CommentThread({ taskId, comments = [], currentUserId, workspaceId, users = [] }: CommentThreadProps) {
   const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
   const [newComment, setNewComment] = useState("");
+  // ODD 018 S2: picked mention IDs travel with the comment; the backend
+  // drops non-members, so stale picks are safe
+  const [mentionedIds, setMentionedIds] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [editContent, setEditContent] = useState("");
 
@@ -60,10 +71,12 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
     createComment.mutate({
       taskId,
       content: newComment,
+      mentionedUserIds: mentionedIds.length > 0 ? mentionedIds : undefined,
     }, {
       onSuccess: () => {
         toast.success(t('CommentThread.toast.added'));
         setNewComment("");
+        setMentionedIds([]);
       },
       onError: (error: any) => {
         toast.error(error.message || t('CommentThread.toast.addError'));
@@ -235,8 +248,14 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
 
       {/* New Comment Form */}
       <div className="space-y-2">
-        <Textarea
+        <MentionTextarea
           value={newComment}
+          users={users}
+          onMention={(userId) =>
+            setMentionedIds((prev) =>
+              prev.includes(userId) ? prev : [...prev, userId],
+            )
+          }
           onChange={(e) => setNewComment(e.target.value)}
           placeholder={t('CommentThread.placeholder')}
           className="min-h-[100px] resize-none"

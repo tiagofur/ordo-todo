@@ -8,11 +8,13 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Notification } from "@ordo-todo/api-client";
 
 export function NotificationPopover() {
   const t = useTranslations('Notifications');
   const locale = useLocale();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const { data: notifications = [], isLoading } = useNotifications();
@@ -23,6 +25,20 @@ export function NotificationPopover() {
 
   const handleMarkAsRead = (id: string) => {
     markAsRead.mutate(id);
+  };
+
+  // ODD 018 S5: task-linked notifications open the task in the dashboard
+  // panel (resourceId holds the taskId for TASK and COMMENT notifications)
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.isRead) handleMarkAsRead(notification.id);
+    if (
+      (notification.resourceType === "TASK" ||
+        notification.resourceType === "COMMENT") &&
+      notification.resourceId
+    ) {
+      setOpen(false);
+      router.push(`/dashboard?taskId=${notification.resourceId}`);
+    }
   };
 
   const handleMarkAllAsRead = () => {
@@ -108,7 +124,7 @@ export function NotificationPopover() {
                     "p-4 hover:bg-muted transition-colors cursor-pointer relative group",
                     !notification.isRead && "bg-blue-100 dark:bg-blue-900"
                   )}
-                  onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-3">
                     <div className={cn(

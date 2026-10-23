@@ -75,6 +75,19 @@ const DEFAULT_LABELS = {
   },
 };
 
+/** Renders data-mention emphasis nodes as chips; plain emphasis stays <em>.
+ * react-markdown v10 spreads data.hProperties as element props. */
+function MentionEm(props: any) {
+  if (props?.["data-mention"] === "true") {
+    return (
+      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary align-baseline">
+        {props.children}
+      </span>
+    );
+  }
+  return <em>{props.children}</em>;
+}
+
 export function CommentThread({
   taskId: _taskId,
   comments = [],
@@ -167,6 +180,49 @@ export function CommentThread({
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditContent('');
+  };
+
+  // ODD 018 S5: remark plugin that splits text nodes on exact "@Name"
+  // member matches (longest name first). Matches become emphasis nodes tagged
+  // with data-mention, rendered as chips by the `em` override below.
+  // Text-node only: markdown structure (lists, code fences) is untouched.
+  const remarkMentionMembers = () => (tree: any) => {
+    const named = [...users]
+      .filter((u) => !!u.name)
+      .sort((a, b) => b.name.length - a.name.length);
+    if (named.length === 0) return tree;
+
+    const escaped = named
+      .map((u) => u.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|");
+    const pattern = new RegExp(`@(${escaped})(?![\\p{L}\\p{N}_])`, "giu");
+
+    const walk = (node: any): void => {
+      if (!Array.isArray(node.children)) return;
+      node.children = node.children.flatMap((child: any) => {
+        if (child.type === "text") {
+          const value = String(child.value);
+          const parts: any[] = [];
+          let last = 0;
+          const key = 0;
+          for (const match of value.matchAll(pattern)) {
+            const index = match.index ?? 0;
+            if (index > last) parts.push({ type: "text", value: value.slice(last, index) });
+            parts.push({
+              type: "emphasis",
+              data: { hProperties: { "data-mention": "true" } },
+              children: [{ type: "text", value: match[0] }],
+            });
+            last = index + match[0].length;
+          }
+          if (last < value.length) parts.push({ type: "text", value: value.slice(last) });
+          return parts;
+        }
+        walk(child);
+        return [child];
+      });
+    };
+    walk(tree);
   };
 
   const getInitials = (name: string) => {
@@ -276,7 +332,10 @@ export function CommentThread({
                   </div>
                 ) : (
                   <div className="text-sm prose prose-sm dark:prose-invert max-w-none break-words [&>p]:mb-0 [&>p]:mt-0">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMentionMembers]}
+                      components={{ em: MentionEm }}
+                    >
                       {comment.content}
                     </ReactMarkdown>
                   </div>

@@ -72,6 +72,7 @@ export default function NotificationsScreen() {
     const iconMap: Record<string, any> = {
       TASK_ASSIGNED: "check-square",
       TASK_MENTIONED: "at-sign",
+      MENTIONED: "at-sign",
       TASK_COMPLETED: "check-circle",
       TASK_DUE_SOON: "clock",
       TASK_OVERDUE: "alert-circle",
@@ -87,6 +88,7 @@ export default function NotificationsScreen() {
     const colorMap: Record<string, string> = {
       TASK_ASSIGNED: "#3B82F6",
       TASK_MENTIONED: "#8B5CF6",
+      MENTIONED: "#8B5CF6",
       TASK_COMPLETED: "#10B981",
       TASK_DUE_SOON: "#F59E0B",
       TASK_OVERDUE: "#EF4444",

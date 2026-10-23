@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Notification } from "@ordo-todo/api-client";
 
 export default function NotificationsPage() {
   const t = useTranslations('Notifications');
   const locale = useLocale();
+  const router = useRouter();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const { data: notifications = [], isLoading } = useNotifications();
@@ -152,6 +154,17 @@ export default function NotificationsPage() {
               {filteredNotifications.map((notification: Notification) => (
                 <Card 
                   key={notification.id}
+                  onClick={() => {
+                    // ODD 018 S5: task-linked notifications open the task panel
+                    if (
+                      (notification.resourceType === 'TASK' ||
+                        notification.resourceType === 'COMMENT') &&
+                      notification.resourceId
+                    ) {
+                      if (!notification.isRead) handleMarkAsRead(notification.id);
+                      router.push(`/dashboard?taskId=${notification.resourceId}`);
+                    }
+                  }}
                   className={cn(
                     "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-default shadow-xs",
                     !notification.isRead 
