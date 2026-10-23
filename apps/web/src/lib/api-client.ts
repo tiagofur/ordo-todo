@@ -1322,6 +1322,142 @@ export const apiClient = {
       unlockedAt: string | null;
     }>;
   }> => axiosInstance.get("/gamification/me").then((res) => res.data),
+
+  // Admin panel (ODD 019 T6) — aggregated/identifying data only, never task
+  // or note content (invariant A4)
+  getAdminOverview: (): Promise<AdminOverview> =>
+    axiosInstance.get("/admin/overview").then((res) => res.data),
+  getAdminUsers: (params?: GetAdminUsersParams): Promise<AdminUsersPage> =>
+    axiosInstance.get("/admin/users", { params }).then((res) => res.data),
+  getAdminUser: (userId: string): Promise<AdminUserDetail> =>
+    axiosInstance.get(`/admin/users/${userId}`).then((res) => res.data),
+  blockAdminUser: (userId: string): Promise<AdminUserStatusResult> =>
+    axiosInstance.post(`/admin/users/${userId}/block`).then((res) => res.data),
+  unblockAdminUser: (userId: string): Promise<AdminUserStatusResult> =>
+    axiosInstance
+      .post(`/admin/users/${userId}/unblock`)
+      .then((res) => res.data),
+  grantAdminPro: (
+    userId: string,
+    data?: GrantProDto,
+  ): Promise<AdminProResult> =>
+    axiosInstance
+      .post(`/admin/users/${userId}/grant-pro`, data)
+      .then((res) => res.data),
+  revokeAdminPro: (userId: string): Promise<AdminProResult> =>
+    axiosInstance
+      .post(`/admin/users/${userId}/revoke-pro`)
+      .then((res) => res.data),
+  getAdminInviteCodes: (): Promise<AdminInviteCode[]> =>
+    axiosInstance.get("/admin/invite-codes").then((res) => res.data),
+  createAdminInviteCode: (
+    data?: CreateAdminInviteCodeDto,
+  ): Promise<AdminInviteCode> =>
+    axiosInstance.post("/admin/invite-codes", data).then((res) => res.data),
+  deactivateAdminInviteCode: (codeId: string): Promise<AdminInviteCode> =>
+    axiosInstance
+      .patch(`/admin/invite-codes/${codeId}`, { isActive: false })
+      .then((res) => res.data),
 };
+
+// Admin panel types (ODD 019 T6)
+export interface AdminOverview {
+  users: {
+    total: number;
+    newLast7Days: number;
+    newLast30Days: number;
+    activeLast30Days: number;
+  };
+  tasks: {
+    total: number;
+    completed: number;
+  };
+  workspaces: {
+    total: number;
+  };
+  planDistribution: Record<string, number>;
+  generatedAt: string;
+}
+
+export type AdminUserStatus = "ACTIVE" | "BLOCKED";
+export type AdminUserPlan = "FREE" | "PRO" | "TEAM" | "ENTERPRISE";
+
+export interface AdminUserListItem {
+  id: string;
+  email: string;
+  username: string;
+  name: string;
+  status: AdminUserStatus;
+  blockedAt: string | null;
+  lastLoginAt: string | null;
+  createdAt: string;
+  plan: AdminUserPlan;
+}
+
+export interface AdminUsersPage {
+  total: number;
+  page: number;
+  limit: number;
+  users: AdminUserListItem[];
+}
+
+export interface AdminUserDetail {
+  id: string;
+  email: string;
+  username: string;
+  name: string;
+  status: AdminUserStatus;
+  blockedAt: string | null;
+  lastLoginAt: string | null;
+  createdAt: string;
+  locale: string;
+  timezone: string;
+  plan: AdminUserPlan;
+  inviteCode: string | null;
+  invitedAt: string | null;
+  counts: {
+    tasks: number;
+    workspaces: number;
+  };
+}
+
+export interface AdminUserStatusResult {
+  id: string;
+  status: AdminUserStatus;
+}
+
+export interface AdminProResult {
+  id: string;
+  plan: AdminUserPlan;
+  expiresAt: string | null;
+}
+
+export interface AdminInviteCode {
+  id: string;
+  code: string;
+  label: string | null;
+  maxUses: number;
+  usedCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  redemptions: number;
+}
+
+export interface CreateAdminInviteCodeDto {
+  label?: string;
+  maxUses?: number;
+  expiresAt?: string;
+}
+
+export interface GetAdminUsersParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GrantProDto {
+  days?: number | null;
+}
 // Export apiClient as default for convenient importing
 export default apiClient;
