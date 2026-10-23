@@ -33,6 +33,11 @@ model User {
   accounts       Account[]
   sessions       Session[]
 
+  // Platform account state (ODD 019). BLOCKED users cannot authenticate by any path.
+  status      UserStatus @default(ACTIVE)
+  blockedAt   DateTime?
+  lastLoginAt DateTime?
+
   // Settings
   preferences  UserPreferences?
   subscription Subscription?
@@ -54,6 +59,10 @@ model User {
   // Workspace Management
   sentInvitations WorkspaceInvitation[] @relation("SentInvitations")
   auditLogs       WorkspaceAuditLog[]   @relation("AuditLogs")
+
+  // Invite codes (ODD 019)
+  createdInviteCodes InviteCode[]      @relation("CreatedInviteCodes")
+  inviteRedemption   InviteRedemption?
 
   // AI Data
   aiProfile           AIProfile?
@@ -1599,6 +1608,53 @@ model AiUsageEvent {
   @@index([accountId, createdAt])
 }
 
+// ============ INVITE CODES (ODD 019) ============
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+// Platform-level registration gate (invite-only beta). Distinct from
+// WorkspaceInvitation: this grants the right to CREATE an account, not to join
+// a workspace. The code is stored in plaintext on purpose: the admin must be
+// able to re-read and copy it from the panel (it is not a bearer secret).
+model InviteCode {
+  id String @id @default(cuid())
+
+  code      String    @unique
+  label     String?
+  maxUses   Int       @default(1)
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+
+  createdById String?
+  createdBy   User?   @relation("CreatedInviteCodes", fields: [createdById], references: [id], onDelete: SetNull)
+
+  redemptions InviteRedemption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model InviteRedemption {
+  id String @id @default(cuid())
+
+  inviteCodeId String
+  userId       String @unique
+
+  inviteCode InviteCode @relation(fields: [inviteCodeId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  redeemedAt DateTime @default(now())
+
+  @@index([inviteCodeId])
+}
+
 // ============ SUBSCRIPTIONS ============
 
 model Subscription {
@@ -2067,5 +2123,11 @@ enum AuthEventType {
   WEBHOOK_DELETED
   MCP_TOOL_CALL
   AGENT_TOOL_CALL
+  ADMIN_USER_BLOCKED
+  ADMIN_USER_UNBLOCKED
+  ADMIN_PRO_GRANTED
+  ADMIN_PRO_REVOKED
+  INVITE_CODE_CREATED
+  INVITE_CODE_DEACTIVATED
 }
 
