@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { PrismaService } from '../database/prisma.service';
@@ -38,6 +39,10 @@ describe('UsersService', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(undefined) },
+        },
       ],
     }).compile();
 
@@ -67,7 +72,19 @@ describe('UsersService', () => {
       const result = await service.getMe(email);
 
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(email);
-      expect(result).toEqual(mockUser.props);
+      expect(result).toEqual({ ...mockUser.props, isAdmin: false });
+    });
+
+    it('flags the platform admin (ODD 019: default admin email)', async () => {
+      const email = 'tiagofur@gmail.com';
+      mockUserRepository.findByEmail.mockResolvedValue({
+        withoutPassword: jest.fn().mockReturnThis(),
+        props: { id: 'admin-1', email, username: 'tiago', name: 'Tiago' },
+      } as any);
+
+      const result = await service.getMe(email);
+
+      expect(result).toMatchObject({ isAdmin: true });
     });
 
     it('should return null when user not found', async () => {

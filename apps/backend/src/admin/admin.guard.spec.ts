@@ -1,6 +1,7 @@
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AdminGuard, DEFAULT_ADMIN_EMAILS } from './admin.guard';
+import { AdminGuard } from './admin.guard';
+import { DEFAULT_ADMIN_EMAILS } from '../common/utils/admin-emails';
 
 describe('AdminGuard (ODD 019 A5)', () => {
   const buildGuard = (config: Record<string, string | undefined>) =>

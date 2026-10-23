@@ -16,10 +16,7 @@ export class ProjectGuard extends BaseResourceGuard {
           isDeleted: false,
           ...(userId
             ? {
-                OR: [
-                  { ownerId: userId },
-                  { members: { some: { userId } } },
-                ],
+                OR: [{ ownerId: userId }, { members: { some: { userId } } }],
               }
             : {}),
         },
