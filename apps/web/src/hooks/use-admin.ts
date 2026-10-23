@@ -46,6 +46,7 @@ function useInvalidateAdminUserQueries() {
   const queryClient = useQueryClient();
   return () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    queryClient.invalidateQueries({ queryKey: ["admin", "user"] });
     queryClient.invalidateQueries({ queryKey: adminKeys.overview });
   };
 }
