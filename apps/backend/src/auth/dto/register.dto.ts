@@ -40,4 +40,11 @@ export class RegisterDto {
   @MinLength(1, { message: 'Name is required' })
   @MaxLength(100, { message: 'Name must be less than 100 characters' })
   name: string;
+
+  // ODD 019: required by the service while REGISTRATION_MODE=invite-only
+  // (kept optional in the DTO so the error stays machine-readable).
+  @IsOptional()
+  @IsString()
+  @MaxLength(32, { message: 'Invite code must be less than 32 characters' })
+  inviteCode?: string;
 }

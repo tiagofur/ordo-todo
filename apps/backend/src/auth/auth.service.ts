@@ -6,6 +6,8 @@ import {
   ConflictException,
   forwardRef,
   Logger,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +18,11 @@ import {
   type UserRepository,
   UserAlreadyExistsError,
   InvalidCredentialsError,
+  ConsumeInviteCodeUseCase,
+  RecordInviteRedemptionUseCase,
+  type InviteCodeRepository,
+  type InviteCode,
+  DomainError,
 } from '@ordo-todo/core';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
@@ -37,6 +44,8 @@ export class AuthService {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
+    @Inject('InviteCodeRepository')
+    private readonly inviteCodeRepository: InviteCodeRepository,
     private readonly cryptoProvider: BcryptCryptoProvider,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -51,6 +60,11 @@ export class AuthService {
     registerDto: RegisterDto,
     requestContext?: { ip?: string; userAgent?: string },
   ): Promise<AuthResponseDto> {
+    // ODD 019: in invite-only mode a valid InviteCode gates every new account.
+    const consumedInvite = this.isRegistrationInviteOnly()
+      ? await this.consumeInviteCode(registerDto.inviteCode)
+      : null;
+
     try {
       const registerUseCase = new RegisterUser(
         this.userRepository,
@@ -64,25 +78,25 @@ export class AuthService {
         password: registerDto.password,
       });
 
-      // Dispatch welcome email asynchronously without blocking registration
-      this.emailService
-        .sendWelcome({
-          to: registerDto.email,
-          userName: registerDto.name || registerDto.username,
-        })
-        .catch((err) =>
-          this.logger.warn(`Failed to dispatch welcome email: ${err.message}`),
+      if (consumedInvite) {
+        const created = await this.userRepository.findByEmail(
+          registerDto.email,
+          false,
         );
-
-      // After registration, log the user in
-      return this.login(
-        {
-          email: registerDto.email,
-          password: registerDto.password,
-        },
-        requestContext,
-      );
+        if (created) {
+          await new RecordInviteRedemptionUseCase(
+            this.inviteCodeRepository,
+          ).execute({
+            inviteCodeId: consumedInvite.id,
+            userId: created.id,
+          });
+        }
+      }
     } catch (error) {
+      // Refund the consumed use: a failed registration must not burn it.
+      if (consumedInvite) {
+        await this.inviteCodeRepository.release(consumedInvite.id);
+      }
       if (
         error instanceof UserAlreadyExistsError ||
         error.message?.includes('já existe') ||
@@ -90,6 +104,73 @@ export class AuthService {
         error.message?.includes('already exists')
       ) {
         throw new ConflictException(error.message);
+      }
+      throw error;
+    }
+
+    // Dispatch welcome email asynchronously without blocking registration
+    this.emailService
+      .sendWelcome({
+        to: registerDto.email,
+        userName: registerDto.name || registerDto.username,
+      })
+      .catch((err) =>
+        this.logger.warn(`Failed to dispatch welcome email: ${err.message}`),
+      );
+
+    // After registration, log the user in
+    return this.login(
+      {
+        email: registerDto.email,
+        password: registerDto.password,
+      },
+      requestContext,
+    );
+  }
+
+  // ODD 019: registration gate. Invite-only by default; REGISTRATION_MODE=open
+  // reopens public registration without a deploy.
+  private isRegistrationInviteOnly(): boolean {
+    return (
+      (this.configService.get<string>('REGISTRATION_MODE') ?? 'invite-only') !==
+      'open'
+    );
+  }
+
+  /**
+   * Validates and consumes one use of an invite code. Domain errors become
+   * machine-readable HTTP responses so the frontend can show precise messages
+   * (INVITE_INVALID / INVITE_INACTIVE / INVITE_EXHAUSTED → 400,
+   * INVITE_EXPIRED → 410).
+   */
+  private async consumeInviteCode(rawCode?: string): Promise<InviteCode> {
+    if (!rawCode || !rawCode.trim()) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          code: 'INVITE_INVALID',
+          message: 'An invitation code is required to register',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      return await new ConsumeInviteCodeUseCase(
+        this.inviteCodeRepository,
+      ).execute({
+        code: rawCode,
+      });
+    } catch (error) {
+      if (error instanceof DomainError) {
+        const status =
+          error.code === 'INVITE_EXPIRED'
+            ? HttpStatus.GONE
+            : HttpStatus.BAD_REQUEST;
+        throw new HttpException(
+          { statusCode: status, code: error.code, message: error.message },
+          status,
+        );
       }
       throw error;
     }
@@ -385,6 +466,17 @@ export class AuthService {
           providerId,
         );
       } else {
+        if (this.isRegistrationInviteOnly()) {
+          // ODD 019 (A1): no new account without an invite code, social included.
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.FORBIDDEN,
+              code: 'REGISTRATION_INVITE_ONLY',
+              message: 'New account registration requires an invitation code',
+            },
+            HttpStatus.FORBIDDEN,
+          );
+        }
         // Create new user with OAuth
         // Generate a random username based on email
         const baseUsername = email.split('@')[0].replace(/[^a-z0-9]/g, '');
@@ -554,7 +646,9 @@ export class AuthService {
 
         this.logger.log(`Password reset email dispatched for ${email}`);
       } else {
-        this.logger.warn(`Password reset requested for non-existent email: ${email}`);
+        this.logger.warn(
+          `Password reset requested for non-existent email: ${email}`,
+        );
       }
 
       // Always return identical message to prevent account enumeration
@@ -602,16 +696,16 @@ export class AuthService {
         password: hashedPassword,
       });
 
-      this.logger.log(`Password reset successfully completed for user: ${user.id}`);
+      this.logger.log(
+        `Password reset successfully completed for user: ${user.id}`,
+      );
 
       return {
         success: true,
         message: 'Password has been reset successfully. You can now log in.',
       };
     } catch (error: any) {
-      if (
-        error instanceof BadRequestException
-      ) {
+      if (error instanceof BadRequestException) {
         throw error;
       }
       if (error.name === 'TokenExpiredError') {
@@ -623,7 +717,9 @@ export class AuthService {
         throw new BadRequestException('Invalid password reset token.');
       }
       this.logger.error(`Reset password failed: ${error.message}`, error.stack);
-      throw new BadRequestException('Failed to reset password. Please try again.');
+      throw new BadRequestException(
+        'Failed to reset password. Please try again.',
+      );
     }
   }
 }

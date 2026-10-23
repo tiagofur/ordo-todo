@@ -12,6 +12,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiTags,
   ApiOperation,
@@ -40,11 +41,12 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly csrfService: CsrfService,
+    private readonly configService: ConfigService,
   ) {}
 
-  private extractRequestContext(req?: Request):
-    | { ip?: string; userAgent?: string }
-    | undefined {
+  private extractRequestContext(
+    req?: Request,
+  ): { ip?: string; userAgent?: string } | undefined {
     if (!req) return undefined;
     const forwardedFor = req.headers?.['x-forwarded-for'];
     const ip =
@@ -59,6 +61,20 @@ export class AuthController {
         ? req.headers['user-agent']
         : undefined) || 'unknown';
     return { ip, userAgent };
+  }
+
+  /**
+   * Public: which registration gate applies right now (ODD 019).
+   * The signup form uses it to show/hide the invite-code field.
+   */
+  @Public()
+  @Get('registration-mode')
+  @ApiOperation({ summary: 'Get registration mode (invite-only | open)' })
+  getRegistrationMode() {
+    return {
+      mode:
+        this.configService.get<string>('REGISTRATION_MODE') ?? 'invite-only',
+    };
   }
 
   /**
@@ -527,7 +543,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Reset request processed (generic message to prevent enumeration)',
+    description:
+      'Reset request processed (generic message to prevent enumeration)',
   })
   async forgotPassword(@Body('email') email: string) {
     this.logger.log(`Password reset requested for email: ${email}`);
