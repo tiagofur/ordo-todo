@@ -13,6 +13,7 @@ import {
   Sunrise,
   Target,
   Users,
+  ShieldCheck,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { MobileSidebar as MobileSidebarUI, type NavSection } from "@ordo-todo/ui";
@@ -26,6 +27,7 @@ import { useCreateWorkspace } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 interface MobileSidebarProps {
   open: boolean;
@@ -35,6 +37,7 @@ interface MobileSidebarProps {
 export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
+  const { isAdmin } = useIsAdmin();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const createWorkspace = useCreateWorkspace();
   const { setSelectedWorkspaceId } = useWorkspaceStore();
@@ -83,6 +86,21 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         { name: t("workload"), href: "/workload", icon: Users, color: "purple" },
       ],
     },
+    ...(isAdmin
+      ? [
+          {
+            label: t("sectionAdmin"),
+            items: [
+              {
+                name: t("admin"),
+                href: "/admin",
+                icon: ShieldCheck,
+                color: "purple" as const,
+              },
+            ],
+          },
+        ]
+      : []),
   ];
 
   return (

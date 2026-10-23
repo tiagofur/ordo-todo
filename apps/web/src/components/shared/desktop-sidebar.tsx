@@ -20,6 +20,7 @@ import {
   Heart,
   Tags,
   Trash2,
+  ShieldCheck,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
@@ -33,6 +34,7 @@ import { useCreateWorkspace } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 interface DesktopSidebarProps {
   collapsed?: boolean;
@@ -41,6 +43,7 @@ interface DesktopSidebarProps {
 export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
+  const { isAdmin } = useIsAdmin();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const createWorkspace = useCreateWorkspace();
   const { setSelectedWorkspaceId } = useWorkspaceStore();
@@ -96,6 +99,21 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
         { name: t("trash"), href: "/trash/tasks", icon: Trash2, color: "red" },
       ],
     },
+    ...(isAdmin
+      ? [
+          {
+            label: t("sectionAdmin"),
+            items: [
+              {
+                name: t("admin"),
+                href: "/admin",
+                icon: ShieldCheck,
+                color: "purple" as const,
+              },
+            ],
+          },
+        ]
+      : []),
   ];
 
   return (
