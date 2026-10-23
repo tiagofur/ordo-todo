@@ -52,13 +52,26 @@ export class OAuthGuard implements CanActivate {
 
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, username: true, name: true },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        status: true,
+      },
     });
     if (!user) {
       this.logger.warn(
         `OAuth token for missing user ${payload.sub} (client ${payload.client_id})`,
       );
       throw new UnauthorizedException('Token owner not found');
+    }
+    // ODD 019 (A3): a BLOCKED owner loses MCP/public-API access immediately.
+    if (user.status === 'BLOCKED') {
+      this.logger.warn(
+        `OAuth token for blocked user ${payload.sub} (client ${payload.client_id})`,
+      );
+      throw new UnauthorizedException('Account blocked');
     }
 
     request.user = {

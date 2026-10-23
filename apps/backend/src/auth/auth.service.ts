@@ -90,6 +90,10 @@ export class AuthService {
             inviteCodeId: consumedInvite.id,
             userId: created.id,
           });
+        } else {
+          this.logger.warn(
+            `Invite ${consumedInvite.code} consumed but user ${registerDto.email} not found right after registration`,
+          );
         }
       }
     } catch (error) {
@@ -230,6 +234,26 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      // ODD 019 (A3): a BLOCKED account cannot authenticate, even with valid
+      // credentials. Machine-readable code for the frontend.
+      if (user.status === 'BLOCKED') {
+        await this.authAuditService.loginFailed(
+          loginDto.email,
+          clientIp,
+          clientUserAgent,
+          'Account blocked',
+        );
+
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.UNAUTHORIZED,
+            code: 'ACCOUNT_BLOCKED',
+            message: 'This account has been blocked',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
       const basePayload = {
         sub: user.id,
         email: user.email,
@@ -263,6 +287,9 @@ export class AuthService {
         clientUserAgent,
       );
 
+      // ODD 019: last successful login feeds the admin user table.
+      await this.userRepository.updateProps(user, { lastLoginAt: new Date() });
+
       return {
         accessToken,
         refreshToken,
@@ -289,7 +316,9 @@ export class AuthService {
 
   async validateUser(email: string): Promise<any> {
     const user = await this.userRepository.findByEmail(email, false);
-    if (!user) {
+    // ODD 019 (A3): BLOCKED users fail every authenticated request here, which
+    // is what kills their already-issued tokens the moment they are blocked.
+    if (!user || user.status === 'BLOCKED') {
       return null;
     }
     return {
@@ -512,6 +541,18 @@ export class AuthService {
           );
         }
       }
+    }
+
+    // ODD 019 (A3): never issue fresh tokens to a blocked account.
+    if (user.status === 'BLOCKED') {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          code: 'ACCOUNT_BLOCKED',
+          message: 'This account has been blocked',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     // Generate JWT tokens
