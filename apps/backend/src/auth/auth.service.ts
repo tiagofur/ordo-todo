@@ -543,6 +543,18 @@ export class AuthService {
       }
     }
 
+    // ODD 019 (A3): never issue fresh tokens to a blocked account.
+    if (user.status === 'BLOCKED') {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          code: 'ACCOUNT_BLOCKED',
+          message: 'This account has been blocked',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     // Generate JWT tokens
     const basePayload = {
       sub: user.id,

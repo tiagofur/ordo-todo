@@ -40,13 +40,26 @@ export class ApiTokenGuard implements CanActivate {
 
     const user = await this.prisma.user.findUnique({
       where: { id: validated.userId },
-      select: { id: true, email: true, username: true, name: true },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        status: true,
+      },
     });
     if (!user) {
       this.logger.warn(
         `API token ${validated.tokenId} has no owner (user ${validated.userId})`,
       );
       throw new UnauthorizedException('Token owner not found');
+    }
+    // ODD 019 (A3): a BLOCKED owner loses API access immediately, PAT included.
+    if (user.status === 'BLOCKED') {
+      this.logger.warn(
+        `API token ${validated.tokenId} rejected: owner ${validated.userId} is blocked`,
+      );
+      throw new UnauthorizedException('Account blocked');
     }
 
     request.user = {

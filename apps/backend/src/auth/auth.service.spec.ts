@@ -525,6 +525,20 @@ describe('AuthService', () => {
       expect(await service.validateUser('blocked@example.com')).toBeNull();
     });
 
+    it('refresh rejects a BLOCKED account (N1: transitive via validateUser)', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(
+        accountWithStatus('BLOCKED'),
+      );
+      (jwtService.verify as jest.Mock).mockResolvedValueOnce({
+        email: 'blocked@example.com',
+        tokenType: 'refresh',
+      });
+
+      await expect(
+        service.refresh('valid-refresh-token'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
     it('a successful login stamps lastLoginAt', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(
         accountWithStatus('ACTIVE'),
