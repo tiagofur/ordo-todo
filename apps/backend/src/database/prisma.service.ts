@@ -312,4 +312,13 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get aiUsageEvent() {
     return this.prisma.aiUsageEvent;
   }
+
+  // Invite codes (ODD 019)
+  get inviteCode() {
+    return this.prisma.inviteCode;
+  }
+
+  get inviteRedemption() {
+    return this.prisma.inviteRedemption;
+  }
 }

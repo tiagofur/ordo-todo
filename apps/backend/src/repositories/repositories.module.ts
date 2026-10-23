@@ -41,6 +41,7 @@ import { PrismaWorkspaceMemberRepository } from './prisma-workspace-member.repos
 import { PrismaUserIntegrationRepository } from './prisma-user-integration.repository';
 import { PrismaAdminUserRepository } from './prisma-admin-user.repository';
 import { PrismaSessionRepository } from './prisma-session.repository';
+import { PrismaInviteCodeRepository } from './prisma-invite-code.repository';
 import { PrismaAccountRepository } from './prisma-account.repository';
 import { AuthAuditLogRepository } from './auth-audit-log.repository';
 
@@ -288,6 +289,12 @@ import { AuthAuditLogRepository } from './auth-audit-log.repository';
       useFactory: (prisma: PrismaService) => new AuthAuditLogRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'InviteCodeRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaInviteCodeRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -332,6 +339,7 @@ import { AuthAuditLogRepository } from './auth-audit-log.repository';
     'SessionRepository',
     'AccountRepository',
     'AuthAuditLogRepository',
+    'InviteCodeRepository',
   ],
 })
 export class RepositoriesModule {}
