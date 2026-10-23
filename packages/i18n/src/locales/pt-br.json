@@ -2972,5 +2972,16 @@
       "start-timer": "Iniciar cronômetro",
       "search": "Pesquisar no Ordo"
     }
+  },
+  "RegisterInvite": {
+    "label": "Código de convite",
+    "placeholder": "ORDO-XXXX-XXXX",
+    "helper": "O Ordo está em beta fechado: você precisa de um código para criar sua conta",
+    "errorRequired": "Você precisa de um código de convite para se registrar",
+    "errorInvalid": "O código de convite não é válido",
+    "errorInactive": "Esse código de convite não está mais ativo",
+    "errorExpired": "O código de convite expirou",
+    "errorExhausted": "Esse código de convite não tem mais usos disponíveis",
+    "errorInviteOnly": "O registro agora exige um código de convite"
   }
 }
