@@ -114,6 +114,8 @@ describe('AdminUsersService (ODD 019 S3)', () => {
   });
 
   it('unblocks a user and records the audit trail', async () => {
+    mockUserRepository.findById.mockResolvedValue(user({ status: 'BLOCKED' }));
+
     const result = await service.unblockUser('user-2', admin);
 
     expect(result).toEqual({ id: 'user-2', status: 'ACTIVE' });
@@ -127,6 +129,14 @@ describe('AdminUsersService (ODD 019 S3)', () => {
         metadata: { adminEmail: admin.email },
       }),
     );
+  });
+
+  it('re-unblocking an active user is a no-op (N-B4)', async () => {
+    const result = await service.unblockUser('user-2', admin);
+
+    expect(result).toEqual({ id: 'user-2', status: 'ACTIVE' });
+    expect(mockUserRepository.updateProps).not.toHaveBeenCalled();
+    expect(mockAuthAuditService.logEvent).not.toHaveBeenCalled();
   });
 
   it('rejects unblocking an unknown user', async () => {

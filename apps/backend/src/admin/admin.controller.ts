@@ -19,7 +19,11 @@ import { AdminGuard } from './admin.guard';
 import { AdminUsersService } from './admin-users.service';
 import { AdminOverviewService } from './admin-overview.service';
 import { AdminInviteCodesService } from './admin-invite-codes.service';
-import { CreateInviteCodeDto, GrantProDto } from './dto/admin.dto';
+import {
+  CreateInviteCodeDto,
+  GrantProDto,
+  UpdateInviteCodeDto,
+} from './dto/admin.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('Admin')
@@ -150,20 +154,17 @@ export class AdminController {
   }
 
   @Patch('invite-codes/:id')
-  @ApiOperation({ summary: 'Deactivate an invite code' })
+  @ApiOperation({ summary: 'Deactivate an invite code (isActive=false only)' })
   updateInviteCode(
     @Param('id') id: string,
-    @Body() body: { isActive?: boolean },
+    @Body() _body: UpdateInviteCodeDto,
     @CurrentUser() admin: { id: string; email: string },
     @Req() req: Request,
   ) {
-    if (body.isActive === false) {
-      return this.adminInviteCodesService.deactivate(
-        id,
-        admin,
-        this.extractRequestContext(req),
-      );
-    }
-    return this.adminInviteCodesService.list();
+    return this.adminInviteCodesService.deactivate(
+      id,
+      admin,
+      this.extractRequestContext(req),
+    );
   }
 }

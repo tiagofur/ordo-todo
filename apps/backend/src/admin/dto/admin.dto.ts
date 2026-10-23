@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  Equals,
+  IsBoolean,
   IsDateString,
   IsInt,
   IsOptional,
@@ -36,4 +38,11 @@ export class GrantProDto {
   @Min(1)
   @Max(3650)
   days?: number | null;
+}
+
+/** Only deactivation is supported: codes are never hard-deleted nor revived. */
+export class UpdateInviteCodeDto {
+  @IsBoolean()
+  @Equals(false, { message: 'Only isActive=false is supported' })
+  isActive: false;
 }

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 import { AdminInviteCodesService } from './admin-invite-codes.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { PrismaService } from '../database/prisma.service';
@@ -101,6 +102,18 @@ describe('AdminInviteCodesService (ODD 019 S4)', () => {
       usedCount: 2,
       redemptions: 2,
     });
+  });
+
+  it('maps an unknown id to 404 INVITE_NOT_FOUND (N-B2)', async () => {
+    inviteCodeRepository.findById.mockResolvedValue(null);
+
+    const error = (await service
+      .deactivate('nope', admin)
+      .catch((e: unknown) => e)) as NotFoundException;
+
+    expect(error).toBeInstanceOf(NotFoundException);
+    expect(error.getResponse()).toMatchObject({ code: 'INVITE_NOT_FOUND' });
+    expect(authAuditService.logEvent).not.toHaveBeenCalled();
   });
 
   it('deactivates and audits only when the state actually changed', async () => {

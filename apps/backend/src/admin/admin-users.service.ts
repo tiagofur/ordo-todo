@@ -82,6 +82,11 @@ export class AdminUsersService {
   ): Promise<{ id: string; status: typeof ACTIVE }> {
     const user = await this.requireUser(userId);
 
+    // Idempotent: re-unblocking an active account is a no-op (no audit churn).
+    if (user.status !== BLOCKED) {
+      return { id: user.id, status: ACTIVE };
+    }
+
     await this.userRepository.updateProps(user, {
       status: ACTIVE,
       blockedAt: null,

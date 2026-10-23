@@ -1,7 +1,8 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateInviteCodeUseCase,
   DeactivateInviteCodeUseCase,
+  InviteNotFoundError,
   type InviteCodeRepository,
 } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -68,11 +69,29 @@ export class AdminInviteCodesService {
     requestContext?: RequestContext,
   ) {
     const before = await this.inviteCodeRepository.findById(inviteCodeId);
+    if (!before) {
+      throw new NotFoundException({
+        statusCode: 404,
+        code: 'INVITE_NOT_FOUND',
+        message: 'Invite code not found',
+      });
+    }
     const invite = await new DeactivateInviteCodeUseCase(
       this.inviteCodeRepository,
-    ).execute(inviteCodeId);
+    )
+      .execute(inviteCodeId)
+      .catch((error: unknown) => {
+        if (error instanceof InviteNotFoundError) {
+          throw new NotFoundException({
+            statusCode: 404,
+            code: 'INVITE_NOT_FOUND',
+            message: 'Invite code not found',
+          });
+        }
+        throw error;
+      });
 
-    if (before?.isActive && !invite.isActive) {
+    if (before.isActive && !invite.isActive) {
       await this.authAuditService.logEvent({
         type: AuthEventType.INVITE_CODE_DEACTIVATED,
         userId: admin.id,
