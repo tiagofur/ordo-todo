@@ -179,10 +179,6 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                 </div>
             </div>
 
-            {/* Project Type Selector */}
-            <div className="space-y-2">
-            </div>
-
             {/* Name */}
             <div className="space-y-2">
                 <Label htmlFor="name">Nombre *</Label>
