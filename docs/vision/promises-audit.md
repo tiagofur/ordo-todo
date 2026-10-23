@@ -47,7 +47,8 @@ Nada de lo marcado ❌ puede aparecer en marketing o docs nuevas como disponible
 
 **Veredicto**: ❌ La landing vende como presente un producto que no existe.
 
-**Corrección**: decisión cerrada 1 — una sola narrativa (productividad general). Retirar o marcar como "Visión / No disponible" todo lo creators hasta que exista o se ejecute el fork `ordo-todo-creators` propuesto en `README.md`. → `odd/tasks/013-marketing-docs-cleanup.md` S1–S3.
+
+- ✅ (oct 2026, ODD 019 T4b, PR #361) los últimos residuos técnicos de Creators OS en `ordo-todo` (tablas y enums huérfanos en la BD, `ProjectType`/`Task.contentStatus`, componentes `content/` de los paquetes UI, selector de arquetipos en los diálogos) se eliminaron con migración `20261023_drop_creator_os` verificada por replay; la narrativa creators vive solo en el repo `ordo-creators`.
 
 ## B. Precios y planes
 
@@ -65,6 +66,7 @@ Nada de lo marcado ❌ puede aparecer en marketing o docs nuevas como disponible
 - ✅ Colaboración multiusuario verificada en código y e2e (ODD 018, oct 2026, `odd/tasks/018-collab-hardening.md`): compartir workspace con invitación por email (token hasheado, canje ligado al email invitado, cancelable), roles OWNER/ADMIN/MEMBER/VIEWER gestionables desde la UI, asignación de tareas desde la UI con notificación, menciones fiables por ID de usuario con chips y navegación desde notificaciones (web + autocomplete en desktop + Slack + icono móvil), salir del workspace, audit log. Queda fuera: transferencia de ownership, SSO, API pública, team analytics agregado.
 - ❌ Enterprise: sin data residency, SLA, self-hosted para clientes ni white-label (solo `deploy/` interno + docker-compose).
 - ✅ Voto roadmap ponderado FREE=1/PRO=3/TEAM=5/ENTERPRISE=10 (modelo `RoadmapVote` + `apps/webpage` UI).
+- ✅ Registro por invitación y panel de admin verificados en código y e2e (ODD 019, oct 2026, `odd/tasks/019-admin-invite-codes.md`): registro cerrado por defecto (`REGISTRATION_MODE=invite-only`) con códigos `ORDO-XXXX-XXXX` creados desde un panel `/admin` restringido por `ADMIN_EMAILS` (default `tiagofur@gmail.com`), con usos máximos/expiración y canje auditado; bloqueo de usuarios efectivo por cualquier vía (password, OAuth nuevo, PAT y tokens MCP); "regalar Pro" sobre la fila `Subscription` (sin Stripe: sigue sin existir cobro real); métricas agregadas y datos de usuario sin acceso a su contenido. Sigue ❌: Stripe/cobro, límites por plan, promo codes, SSO, multi-admin.
 
 **Veredicto**: ❌ Promesa comercial sin backend de cobro y con tres versiones contradictorias.
 
