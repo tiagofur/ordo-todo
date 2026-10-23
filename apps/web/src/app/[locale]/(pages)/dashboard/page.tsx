@@ -42,6 +42,7 @@ import {
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { useTaskIdFromUrl } from "@/lib/use-task-from-url";
 import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
 import { HabitsWidget } from "@/components/dashboard/habits-widget";
@@ -110,11 +111,13 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
-  // Deep link from task notifications (?taskId=...) opens the panel
+  // Deep link from task notifications (?taskId=...) opens the panel;
+  // re-read on every render: router.push only changes the search params when
+  // the user is already on the dashboard, so a mount-only effect would miss it
+  const urlTaskId = useTaskIdFromUrl();
   useEffect(() => {
-    const taskId = new URLSearchParams(window.location.search).get("taskId");
-    if (taskId) setSelectedTaskId(taskId);
-  }, []);
+    if (urlTaskId) setSelectedTaskId(urlTaskId);
+  }, [urlTaskId]);
 
   // Quick Actions State
   const [showQuickActions, setShowQuickActions] = useState(false);

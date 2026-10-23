@@ -136,11 +136,31 @@ describe('CommentThread (ODD 018 S2)', () => {
     const chip = screen.getByText('@Bob Member');
     expect(chip.className).toContain('rounded-full');
 
-    // Unknown mentions stay plain text (leaf node)
-    const plain = screen
-      .getAllByText((_, el) => el?.textContent === 'and @Stranger Person')
-      .filter((el) => el.children.length === 0);
-    expect(plain.length).toBeGreaterThan(0);
+    // Unknown mentions stay plain text: no chip for them
+    expect(screen.queryByText('@Stranger Person')).toBeNull();
+    expect(document.body.textContent).toContain('and @Stranger Person');
+  });
+
+  it('preserves markdown structure when the mention is inside a list', () => {
+    render(
+      <CommentThread
+        taskId="task-1"
+        comments={[
+          {
+            ...baseComment,
+            id: 'c3',
+            content: '- remember @Bob Member today\n- second item',
+          } as any,
+        ]}
+        currentUserId="user-1"
+        users={users}
+      />,
+    );
+
+    const list = document.querySelector('ul');
+    expect(list).not.toBeNull();
+    expect(list?.textContent).toContain('@Bob Member');
+    expect(list?.textContent).toContain('second item');
   });
 
   it('sends without mentionedUserIds when no one is mentioned', async () => {
