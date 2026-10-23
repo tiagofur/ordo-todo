@@ -113,7 +113,7 @@ export function MobileSidebar({
         'dashboard', 'tasks', 'calendar', 'projects', 'workspaces', 'habits',
         'goals', 'notes', 'ai-chat', 'eisenhower', 'meetings', 'insights',
         'wellbeing', 'tags', 'settings', 'profile', 'notifications', 'reports',
-        'timer', 'trash', 'login', 'register', 'auth'
+        'timer', 'trash', 'login', 'register', 'auth', 'admin'
       ];
       if (segments.length === 2 && firstSegment && !reservedTopLevel.includes(firstSegment)) {
         return true;
