@@ -35,7 +35,7 @@ export default function GuideLayout({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="prose prose-lg dark:prose-invert max-w-none
+              className="prose prose-lg prose-invert max-w-none
                 prose-headings:font-bold
                 prose-h1:text-3xl prose-h1:mb-6
                 prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:pb-2
