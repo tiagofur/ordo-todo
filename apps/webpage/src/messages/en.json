@@ -1802,5 +1802,44 @@
         "description": "Automatically counts tasks linked to the KR."
       }
     }
+  },
+  "GuideNotes": {
+    "badge": "Notes",
+    "title": "Sticky Notes",
+    "subtitle": "Fast capture without friction: one post-it per idea, no statuses or dates.",
+    "what_title": "What they are for",
+    "what_text": "Notes are each workspace's capture zone: ideas, quick reminders and thoughts that do not deserve a task yet. You write; they save themselves.",
+    "modes_title": "Two modes: wall and board",
+    "modes_text": "Choose how to see your post-its depending on the moment:",
+    "perks_title": "Details that add up",
+    "perks_text": "They are simple on purpose, but nothing is missing:",
+    "from_idea_title": "From idea to task",
+    "from_idea_text": "When a note matures, turn it into a task with a project and date, then delete the note. Notes capture; tasks commit.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Give each color a fixed meaning (yellow = idea, pink = urgent, green = learning) and the color filter becomes your classification system.",
+    "modes": {
+      "wall": {
+        "title": "Wall",
+        "description": "Tidy grid: search, filter by color and edit cleanly."
+      },
+      "board": {
+        "title": "Board",
+        "description": "Free canvas: drag each note and group it wherever; position is saved."
+      }
+    },
+    "perks": {
+      "colors": {
+        "title": "Six colors",
+        "description": "Change a note's color on the fly with its palette."
+      },
+      "autosave": {
+        "title": "Autosave",
+        "description": "\"Writing…\" → \"Saved\", no buttons, no fear."
+      },
+      "search": {
+        "title": "Filter and search",
+        "description": "Find the note among hundreds by color or text."
+      }
+    }
   }
 }

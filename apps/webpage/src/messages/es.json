@@ -1802,5 +1802,44 @@
         "description": "Cuenta automáticamente las tareas vinculadas al KR."
       }
     }
+  },
+  "GuideNotes": {
+    "badge": "Notas",
+    "title": "Notas Post-it",
+    "subtitle": "Captura rápida sin fricción: un post-it por idea, sin estados ni fechas.",
+    "what_title": "Para qué sirven",
+    "what_text": "Las notas son la zona de captura de cada workspace: ideas, recordatorios ágiles y apuntes que todavía no merecen una tarea. Se escriben y se guardan solas.",
+    "modes_title": "Dos modos: muro y pizarra",
+    "modes_text": "Elige cómo quieres ver tus post-its según el momento:",
+    "perks_title": "Detalles que se notan",
+    "perks_text": "Parecen simples a propósito, pero no les falta nada:",
+    "from_idea_title": "De idea a tarea",
+    "from_idea_text": "Cuando un post-it madura, conviértelo en tarea con su proyecto y fecha, y borra la nota. La nota captura; la tarea compromete.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Dale un significado fijo a cada color (amarillo = idea, rosa = urgente, verde = aprendizaje) y el filtro por color se convierte en tu sistema de clasificación.",
+    "modes": {
+      "wall": {
+        "title": "Muro",
+        "description": "Cuadrícula ordenada: buscar, filtrar por color y editar en limpio."
+      },
+      "board": {
+        "title": "Pizarra",
+        "description": "Lienzo libre: arrastra cada nota y agrúpala donde quieras; la posición se guarda."
+      }
+    },
+    "perks": {
+      "colors": {
+        "title": "Seis colores",
+        "description": "Cambia el color de una nota al vuelo con su paleta."
+      },
+      "autosave": {
+        "title": "Autoguardado",
+        "description": "«Escribiendo…» → «Guardado», sin botones ni miedo."
+      },
+      "search": {
+        "title": "Filtro y búsqueda",
+        "description": "Encuentra la nota entre cientos por color o texto."
+      }
+    }
   }
 }
