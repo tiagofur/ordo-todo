@@ -5,12 +5,10 @@ import { API_URL } from "./api";
 const tokenStorage = new LocalStorageTokenStorage();
 
 /**
- * Abre el flujo OAuth en el navegador del sistema. El backend, al terminar,
- * redirige a ordo://auth/callback?access_token=…&refresh_token=… y el deep
- * link vuelve a la app (ver lib/deep-links.ts).
- *
- * El backend decide el redirect por el parámetro state: "desktop" usa el
- * deep link ordo:// (lo usan desktop y mobile, mismo scheme).
+ * Abre el flujo OAuth en el navegador del sistema con state=plataforma (lo
+ * propaga el OAuthPlatformGuard del backend a través del proveedor). Al
+ * terminar, el backend redirige a ordo://auth/callback?access_token=…&
+ * refresh_token=… y el deep link vuelve a la app (ver lib/deep-links.ts).
  */
 export async function startOAuthFlow(
   provider: "google" | "github",

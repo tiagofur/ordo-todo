@@ -3,6 +3,9 @@ import { storeOAuthCallbackTokens } from "./oauth";
 
 export type DeepLinkCallback = (ok: boolean) => void;
 
+const isAuthCallback = (url: string) =>
+  url.startsWith("ordo://auth/callback?") || url === "ordo://auth/callback";
+
 /**
  * Registra el manejo del deep link ordo://auth/callback (OAuth). El callback
  * se invoca con true cuando llega un callback con tokens válidos, para que
@@ -15,10 +18,9 @@ export async function initDeepLinks(onCallback: DeepLinkCallback) {
   const handle = async (urls: unknown) => {
     for (const raw of Array.isArray(urls) ? urls : [urls]) {
       const url = typeof raw === "string" ? raw : String(raw);
-      if (!url.startsWith("ordo://")) continue;
+      if (!isAuthCallback(url)) continue;
 
-      const qIndex = url.indexOf("?");
-      const params = new URLSearchParams(qIndex >= 0 ? url.slice(qIndex + 1) : "");
+      const params = new URLSearchParams(url.slice(url.indexOf("?") + 1));
       const ok = await storeOAuthCallbackTokens(params);
       onCallback(ok);
     }

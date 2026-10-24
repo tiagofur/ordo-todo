@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@ordo-todo/auth-provider";
 import { apiClient } from "./lib/api";
 import { initDeepLinks } from "./lib/deep-links";
@@ -15,14 +19,20 @@ const queryClient = new QueryClient();
  * ordo://auth/callback (OAuth) y refresca el usuario al recibir tokens.
  */
 function Shell() {
-  const { isAuthenticated, isLoading, user, logout, error } = useAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const qc = useQueryClient();
   const [screen, setScreen] = useState<"login" | "register">("login");
-  const [oauthMessage, setOauthMessage] = useState<string | null>(null);
+  const [oauthResult, setOauthResult] = useState<{
+    ok: boolean;
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     initDeepLinks((ok) => {
-      setOauthMessage(ok ? "Sesión iniciada con OAuth" : "OAuth no completado");
+      setOauthResult({
+        ok,
+        text: ok ? "Sesión iniciada con OAuth" : "OAuth no completado",
+      });
       // Con tokens nuevos en el storage, el currentUser se recalcula.
       qc.invalidateQueries();
     });
@@ -39,20 +49,15 @@ function Shell() {
   if (!isAuthenticated || !user) {
     return (
       <div>
-        {oauthMessage && (
+        {oauthResult && (
           <p
             className={`mx-auto mt-4 max-w-md rounded-lg border px-3 py-2 text-xs ${
-              oauthMessage.startsWith("Sesión")
+              oauthResult.ok
                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                 : "border-red-500/30 bg-red-500/10 text-red-400"
             }`}
           >
-            {oauthMessage}
-          </p>
-        )}
-        {Boolean(error) && !oauthMessage && (
-          <p className="mx-auto mt-4 max-w-md rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-500">
-            Sin sesión: {String((error as Error)?.message ?? error).slice(0, 90)}
+            {oauthResult.text}
           </p>
         )}
         {screen === "login" ? (
