@@ -1909,5 +1909,28 @@
         "description": "Who was there and what role they played."
       }
     }
+  },
+  "GuideCoach": {
+    "badge": "AI Chat",
+    "title": "Coach Chat",
+    "subtitle": "Talk with the assistant to plan, prioritize and decide with judgment.",
+    "what_title": "A copilot, not another inbox",
+    "what_text": "The chat connects to an assistant that advises on your productivity: how to split the day, what to tackle first, how to structure breaks. It helps you think; then you execute in Tasks or the plan.",
+    "starters_title": "Start with a tap",
+    "starters_text": "Four ready-made suggestions save you the blank page:",
+    "ask_title": "Ask better, get better",
+    "ask_text": "Answer quality depends on the context you give. Mention deadlines, available time and what is truly urgent.",
+    "ask_box_text": "\"I have 12 tasks and 3 hours, where do I start?\" gets better advice than \"help with my tasks\". Iterate: reply with more detail and refine.",
+    "limits_title": "Know what it is (and is not)",
+    "limits_text": "The coach is advisory: it gives advice but does not create or move tasks from the chat. And like any AI, it can be wrong.",
+    "limits_box_text": "Treat its answers as a starting point, not a verdict. Conversations are saved per session: copy what matters before closing.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Enter sends the message; Shift + Enter adds a line break.",
+    "starters": {
+      "day_plan": "Plan my day",
+      "triage": "Task triage",
+      "eisenhower": "Eisenhower priority",
+      "breaks": "Optimize breaks"
+    }
   }
 }
