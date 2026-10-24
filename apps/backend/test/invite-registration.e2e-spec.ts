@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import request from 'supertest';
 import { PrismaService } from '../src/database/prisma.service';
+import { neverThrottleStorage } from './helpers';
 
 /**
  * ODD 019 S2: while REGISTRATION_MODE=invite-only no account can be created
@@ -61,7 +63,11 @@ describe('Invite-only registration (e2e)', () => {
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      // Every rejected attempt below still counts against the register limit.
+      .overrideProvider(ThrottlerStorage)
+      .useValue(neverThrottleStorage)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
