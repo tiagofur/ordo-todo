@@ -94,6 +94,25 @@ describe('AttachmentGuard', () => {
     );
   });
 
+  it('denies access when the project from the route does not exist', async () => {
+    prisma.project.findUnique.mockResolvedValue(null);
+
+    await expect(
+      guard.canActivate(createContext({ params: { projectId: 'missing' } })),
+    ).resolves.toBe(false);
+
+    expect(prisma.workspaceMember.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('denies a non-member whose id came from the task in the body', async () => {
+    prisma.task.findUnique.mockResolvedValue({ project: { workspaceId } });
+    prisma.workspaceMember.findUnique.mockResolvedValue(null);
+
+    await expect(
+      guard.canActivate(createContext({ body: { taskId: 'task-1' } })),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it('rejects a user who is not a member of the workspace', async () => {
     prisma.attachment.findUnique.mockResolvedValue({
       task: { project: { workspaceId } },
