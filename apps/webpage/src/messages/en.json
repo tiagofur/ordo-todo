@@ -1802,5 +1802,77 @@
         "description": "Automatically counts tasks linked to the KR."
       }
     }
+  },
+  "GuideNotes": {
+    "badge": "Notes",
+    "title": "Sticky Notes",
+    "subtitle": "Fast capture without friction: one post-it per idea, no statuses or dates.",
+    "what_title": "What they are for",
+    "what_text": "Notes are each workspace's capture zone: ideas, quick reminders and thoughts that do not deserve a task yet. You write; they save themselves.",
+    "modes_title": "Two modes: wall and board",
+    "modes_text": "Choose how to see your post-its depending on the moment:",
+    "perks_title": "Details that add up",
+    "perks_text": "They are simple on purpose, but nothing is missing:",
+    "from_idea_title": "From idea to task",
+    "from_idea_text": "When a note matures, turn it into a task with a project and date, then delete the note. Notes capture; tasks commit.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Give each color a fixed meaning (yellow = idea, pink = urgent, green = learning) and the color filter becomes your classification system.",
+    "modes": {
+      "wall": {
+        "title": "Wall",
+        "description": "Tidy grid: search, filter by color and edit cleanly."
+      },
+      "board": {
+        "title": "Board",
+        "description": "Free canvas: drag each note and group it wherever; position is saved."
+      }
+    },
+    "perks": {
+      "colors": {
+        "title": "Six colors",
+        "description": "Change a note's color on the fly with its palette."
+      },
+      "autosave": {
+        "title": "Autosave",
+        "description": "\"Writing…\" → \"Saved\", no buttons, no fear."
+      },
+      "search": {
+        "title": "Filter and search",
+        "description": "Find the note among hundreds by color or text."
+      }
+    }
+  },
+  "GuideEisenhower": {
+    "badge": "Priorities",
+    "title": "Eisenhower Matrix",
+    "subtitle": "Two questions — urgent? important? — to decide what comes now.",
+    "what_title": "How it works",
+    "what_text": "The matrix sorts your pending tasks into four quadrants by urgency and importance. Ordo proposes a classification; the final call is yours.",
+    "quadrants_title": "The four quadrants",
+    "quadrants_text": "Each quadrant comes with a clear next action:",
+    "drag_title": "Dragging decides",
+    "drag_text": "Move tasks between quadrants by dragging: on drop, their real priority changes in the app (Do First = urgent, Schedule = high, Delegate = medium, Delete = low).",
+    "when_title": "When to use it",
+    "when_text": "It is the perfect triage exercise for Monday morning… or for any moment when everything seems urgent at once. Completing tasks is one click, without leaving the matrix.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Dragging to \"Delete\" does not remove the task: it only lowers its priority so it stops getting in the way. Real deleting still happens in Tasks.",
+    "quadrants": {
+      "do": {
+        "title": "Do First",
+        "description": "Urgent and important: today, hands on."
+      },
+      "schedule": {
+        "title": "Schedule",
+        "description": "Important, not urgent: it deserves a calendar slot."
+      },
+      "delegate": {
+        "title": "Delegate",
+        "description": "Urgent, not important: a candidate for new hands."
+      },
+      "delete": {
+        "title": "Delete",
+        "description": "Neither urgent nor important: lower its priority so it stops getting in the way."
+      }
+    }
   }
 }

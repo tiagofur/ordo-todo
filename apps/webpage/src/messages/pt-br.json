@@ -1802,5 +1802,77 @@
         "description": "Conta automaticamente as tarefas vinculadas ao KR."
       }
     }
+  },
+  "GuideNotes": {
+    "badge": "Notas",
+    "title": "Notas Post-it",
+    "subtitle": "Captura rápida sem fricção: um post-it por ideia, sem estados nem datas.",
+    "what_title": "Para que servem",
+    "what_text": "As notas são a zona de captura de cada workspace: ideias, lembretes ágeis e anotações que ainda não merecem uma tarefa. Você escreve; elas se salvam sozinhas.",
+    "modes_title": "Dois modos: mural e quadro",
+    "modes_text": "Escolha como ver seus post-its conforme o momento:",
+    "perks_title": "Detalhes que fazem diferença",
+    "perks_text": "São simples de propósito, mas não falta nada:",
+    "from_idea_title": "De ideia a tarefa",
+    "from_idea_text": "Quando um post-it amadurece, transforme-o em tarefa com projeto e data, e apague a nota. A nota captura; a tarefa compromete.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Dê um significado fixo a cada cor (amarelo = ideia, rosa = urgente, verde = aprendizado) e o filtro por cor vira seu sistema de classificação.",
+    "modes": {
+      "wall": {
+        "title": "Mural",
+        "description": "Grade organizada: buscar, filtrar por cor e editar limpo."
+      },
+      "board": {
+        "title": "Quadro",
+        "description": "Livrete livre: arraste cada nota e agrupe onde quiser; a posição é salva."
+      }
+    },
+    "perks": {
+      "colors": {
+        "title": "Seis cores",
+        "description": "Mude a cor de uma nota na hora com sua paleta."
+      },
+      "autosave": {
+        "title": "Salvamento automático",
+        "description": "\"Escrevendo…\" → \"Salvo\", sem botões nem medo."
+      },
+      "search": {
+        "title": "Filtro e busca",
+        "description": "Encontre a nota entre centenas por cor ou texto."
+      }
+    }
+  },
+  "GuideEisenhower": {
+    "badge": "Prioridades",
+    "title": "Matriz Eisenhower",
+    "subtitle": "Duas perguntas — urgente? importante? — para decidir o que vem agora.",
+    "what_title": "Como funciona",
+    "what_text": "A matriz classifica suas tarefas pendentes em quatro quadrantes por urgência e importância. A Ordo propõe uma classificação automática; a decisão final é sua.",
+    "quadrants_title": "Os quatro quadrantes",
+    "quadrants_text": "Cada quadrante vem com uma ação clara associada:",
+    "drag_title": "Arrastar decide",
+    "drag_text": "Mova tarefas entre quadrantes arrastando: ao soltar, a prioridade real muda no app (Fazer Primeiro = urgente, Agendar = alta, Delegar = média, Excluir = baixa).",
+    "when_title": "Quando usar",
+    "when_text": "É o exercício de triagem perfeito para a segunda-feira… ou para qualquer momento em que tudo parece urgente ao mesmo tempo. Concluir tarefas é um clique, sem sair da matriz.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Arrastar para \"Excluir\" não apaga a tarefa: apenas baixa a prioridade para ela parar de atrapalhar. A exclusão real continua em Tarefas.",
+    "quadrants": {
+      "do": {
+        "title": "Fazer Primeiro",
+        "description": "Urgente e importante: hoje, mãos à obra."
+      },
+      "schedule": {
+        "title": "Agendar",
+        "description": "Importante, não urgente: merece espaço no calendário."
+      },
+      "delegate": {
+        "title": "Delegar",
+        "description": "Urgente, não importante: candidato a trocar de mãos."
+      },
+      "delete": {
+        "title": "Excluir",
+        "description": "Nem urgente nem importante: baixa a prioridade para parar de atrapalhar."
+      }
+    }
   }
 }
