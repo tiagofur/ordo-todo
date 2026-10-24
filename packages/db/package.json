@@ -27,20 +27,20 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "@prisma/config": "^7.1.0",
+    "@prisma/client": "^7.10.1",
+    "@prisma/config": "^7.10.1",
     "dotenv": "^16.6.1",
     "expo-local-authentication": "~15.0.2"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@types/node": "^24.10.1",
-    "prisma": "^7.2.0",
+    "@types/node": "^24.19.2",
+    "prisma": "^7.10.1",
     "ts-node": "^10.9.2",
-    "tsx": "^4.19.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16",
-    "@vitest/coverage-v8": "^4.0.16"
+    "vitest": "^4.1.12",
+    "@vitest/coverage-v8": "^4.1.12"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",

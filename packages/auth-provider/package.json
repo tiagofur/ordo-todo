@@ -37,10 +37,10 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@tanstack/react-query": "^5.62.7",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.2.3",
-    "react": "^19.0.0",
+    "@tanstack/react-query": "^5.104.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.1",
     "typescript": "^5.9.3"
   }
 }

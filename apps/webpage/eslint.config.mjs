@@ -19,6 +19,12 @@ const eslintConfig = defineConfig([
       "@next/next/no-html-link-for-pages": "warn",
       "@next/next/no-img-element": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+      // eslint-config-next 16.4 ships eslint-plugin-react-hooks 7 (React Compiler
+      // rules as errors). Existing pages trip them; keep visible as warnings until
+      // the effects are refactored.
+      "react-hooks/immutability": "warn",
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
 ]);

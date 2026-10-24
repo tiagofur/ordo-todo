@@ -33,10 +33,10 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.1.12",
     "jsdom": "^27.4.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16",
-    "zustand": "^5.0.9"
+    "vitest": "^4.1.12",
+    "zustand": "^5.0.16"
   }
 }
