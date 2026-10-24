@@ -1762,5 +1762,45 @@
         "description": "Read-only: sees content without changing anything."
       }
     }
+  },
+  "GuideGoals": {
+    "badge": "OKRs",
+    "title": "Goals (OKRs)",
+    "subtitle": "Big goals measured with numbers: the OKR method, inside Ordo.",
+    "okr_title": "Objective + Key Results",
+    "okr_text": "An Objective is the qualitative goal (\"grow as a consultant\"). Its Key Results are the metrics that prove progress (\"3 new clients\"). Together they form an OKR with its own progress bar.",
+    "create_title": "Create your first objective",
+    "create_box_text": "\"New Objective\" asks for title, description, period (quarterly, yearly or custom), color and dates. Average progress shows up on the dashboard right away.",
+    "kr_title": "Key Results: pick the metric type",
+    "kr_text": "Each KR supports five metric types, and Ordo fills in sensible values when you pick one:",
+    "link_title": "Connect tasks to your goals",
+    "link_text": "KRs can be linked to concrete tasks: every completed task pushes the KR, and the KR pushes the objective's bar — no manual counting.",
+    "link_box_text": "When creating or editing a task you can attach it to a Key Result. The KR shows how many tasks are linked.",
+    "review_title": "Review it weekly",
+    "review_text": "The screen tabs separate Active, Completed and At Risk. At-risk objectives are the ones that need a decision, not just effort.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Two or three measurable KRs per objective. If it does not fit in a number, it is not a Key Result yet: sharpen it until it does.",
+    "kr_types": {
+      "percent": {
+        "title": "Percentage",
+        "description": "0 to 100: adoption, improvements, quotas. Autocompletes 0 → 100."
+      },
+      "number": {
+        "title": "Number",
+        "description": "Count anything: clients, posts, demos."
+      },
+      "currency": {
+        "title": "Currency",
+        "description": "Revenue and savings, with a monetary unit."
+      },
+      "boolean": {
+        "title": "Yes / No",
+        "description": "Binary milestones: published or not, signed or not."
+      },
+      "tasks": {
+        "title": "Completed tasks",
+        "description": "Automatically counts tasks linked to the KR."
+      }
+    }
   }
 }
