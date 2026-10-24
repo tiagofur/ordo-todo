@@ -1,7 +1,7 @@
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { CustomThrottleGuard } from './throttle.guard';
-import { ThrottlerStorage } from '@nestjs/throttler';
+import { ThrottlerStorage, ThrottlerStorageService } from '@nestjs/throttler';
 
 describe('CustomThrottleGuard', () => {
   let guard: CustomThrottleGuard;
@@ -533,6 +533,70 @@ describe('CustomThrottleGuard', () => {
 
       // Current implementation still rate limits GET requests to auth endpoints
       expect(result).toBe(true);
+    });
+  });
+
+  // The mocked storage above cannot detect counting bugs in the library itself
+  // (@nestjs/throttler 6.5 reset the counter whenever the limit was exceeded
+  // with blockDuration 0, so strict limits never blocked anything).
+  describe('real in-memory storage', () => {
+    let storage: ThrottlerStorageService;
+    let realGuard: CustomThrottleGuard;
+
+    const contextForIp = (ip: string): ExecutionContext =>
+      ({
+        switchToHttp: () => ({
+          getRequest: () => ({
+            headers: {},
+            route: { path: '/auth/register' },
+            url: '/auth/register',
+            method: 'POST',
+            ip,
+          }),
+          getResponse: () => ({}),
+        }),
+        getHandler: () => jest.fn(),
+        getClass: () => jest.fn(),
+      }) as unknown as ExecutionContext;
+
+    beforeEach(() => {
+      reflector.get.mockReturnValue(false);
+      storage = new ThrottlerStorageService();
+      realGuard = new CustomThrottleGuard(
+        { throttlers: [] } as any,
+        storage,
+        reflector,
+      );
+    });
+
+    afterEach(() => {
+      storage.onApplicationShutdown();
+    });
+
+    it('blocks the fourth registration attempt from the same IP', async () => {
+      const context = contextForIp('203.0.113.10');
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        await expect(realGuard.canActivate(context)).resolves.toBe(true);
+      }
+
+      await expect(realGuard.canActivate(context)).rejects.toMatchObject({
+        status: HttpStatus.TOO_MANY_REQUESTS,
+      });
+      await expect(realGuard.canActivate(context)).rejects.toMatchObject({
+        status: HttpStatus.TOO_MANY_REQUESTS,
+      });
+    });
+
+    it('counts each IP independently', async () => {
+      const blocked = contextForIp('203.0.113.10');
+      const other = contextForIp('203.0.113.11');
+
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        await realGuard.canActivate(blocked).catch(() => undefined);
+      }
+
+      await expect(realGuard.canActivate(other)).resolves.toBe(true);
     });
   });
 });

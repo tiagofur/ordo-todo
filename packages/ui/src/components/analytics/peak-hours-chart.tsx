@@ -164,8 +164,9 @@ export function PeakHoursChart({
             />
             <Tooltip
               content={({ active, payload }) => {
-                if (active && payload && payload.length > 0) {
-                  const data = payload[0].payload;
+                const first = payload?.[0];
+                if (active && first) {
+                  const data = first.payload;
                   return (
                     <div className="rounded-lg border bg-background p-3 shadow-md">
                       <div className="flex flex-col gap-1">

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
 import type { PlanBlock } from '../scheduling/day-planner';
@@ -32,8 +33,10 @@ export class DayPlanService {
       data: {
         userId,
         date: startOfTodayIn(timezone),
-        blocks: plan.blocks as unknown as object,
-        changes: changes as unknown as object,
+        // Prisma 7.10 types Json columns as InputJsonValue, which interfaces
+        // like PlanBlock[] do not satisfy without an explicit assertion.
+        blocks: plan.blocks as unknown as Prisma.InputJsonValue,
+        changes: changes as unknown as Prisma.InputJsonValue,
         status: 'PROPOSED',
       },
     });

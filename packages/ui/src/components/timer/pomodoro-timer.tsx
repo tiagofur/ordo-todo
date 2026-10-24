@@ -153,7 +153,6 @@ export function PomodoroTimer({
     horizontalView = 'Vista Horizontal',
     circularView = 'Vista Circular',
     skipConfirmTitle = (phase: string) => `¿Saltar a ${phase}?`,
-    skipConfirmDescription = 'La fase actual se cerrará como completada.',
     skipConfirmDescriptionNoCredit = 'Saltar ahora no contará como pomodoro completado.',
     skipConfirmOk = 'Saltar',
     cancel = 'Cancelar',

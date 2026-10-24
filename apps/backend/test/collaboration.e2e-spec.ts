@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/database/prisma.service';
+import { neverThrottleStorage } from './helpers';
 
 describe('Collaboration API (e2e)', () => {
   let app: INestApplication;
@@ -23,7 +25,11 @@ describe('Collaboration API (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      // Four accounts are registered below; see neverThrottleStorage.
+      .overrideProvider(ThrottlerStorage)
+      .useValue(neverThrottleStorage)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
