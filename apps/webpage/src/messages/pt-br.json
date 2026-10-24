@@ -1932,5 +1932,40 @@
       "eisenhower": "Prioridade Eisenhower",
       "breaks": "Otimizar pausas"
     }
+  },
+  "GuideWellbeing": {
+    "badge": "Bem-estar",
+    "title": "Bem-estar e Burnout",
+    "subtitle": "Produzir muito tudo bem; saber a que custo, ainda melhor.",
+    "what_title": "O lado humano das métricas",
+    "what_text": "Enquanto as analíticas celebram sua produtividade, o Bem-estar vigia o preço: analisa seus padrões reais de trabalho para detectar o burnout antes que ele chegue.",
+    "signals_title": "Os quatro sinais",
+    "signals_text": "A tela resume seu estado em quatro indicadores:",
+    "analysis_title": "Fatores e sugestões",
+    "analysis_text": "Quando o risco sobe, a tela nomeia os fatores detectados (sobrecargas recentes, sessões sem pausa, trabalho noturno) e propõe sugestões imediatas para cada um.",
+    "weekly_title": "Resumo semanal",
+    "weekly_text": "Uma pontuação de bem-estar com o positivo e os pontos a melhorar da semana, além da tendência geral: melhorando, estável ou requer atenção.",
+    "data_title": "Alimentado pelo seu uso real",
+    "data_text": "A análise vem das suas sessões de timer e pausas. Quanto mais honesto o sinal (use o timer, marque pausas), mais útil o diagnóstico.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "É uma ferramenta de autoconhecimento, não um diagnóstico médico. Se os números e o seu corpo dizem a mesma coisa, ouça o corpo.",
+    "signals": {
+      "energy": {
+        "title": "Nível de energia",
+        "description": "Sua bateria do dia a dia, com tendência: melhorando, estável ou em declínio."
+      },
+      "burnout": {
+        "title": "Risco de burnout",
+        "description": "Porcentagem e nível: baixo, moderado, alto ou crítico."
+      },
+      "breaks": {
+        "title": "Pausas",
+        "description": "Minutos médios de desconexão entre sessões."
+      },
+      "night": {
+        "title": "Trabalho noturno",
+        "description": "Porcentagem de sessões fora do horário."
+      }
+    }
   }
 }
