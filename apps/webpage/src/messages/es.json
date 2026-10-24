@@ -1874,5 +1874,40 @@
         "description": "Ni urgente ni importante: baja su prioridad para que deje de estorbar."
       }
     }
+  },
+  "GuideMeetings": {
+    "badge": "Meetings con IA",
+    "title": "Asistente de Reuniones",
+    "subtitle": "Pega la transcripción y convierte la charla en resumen, decisiones y tareas.",
+    "how_title": "De transcripción a análisis",
+    "how_text": "Copia la transcripción de tu videollamada (o anota el diálogo a mano) y pégala en el área de la pantalla Reuniones. Un clic y la IA hace el resto.",
+    "paste_box_text": "El formato es simple: «Nombre: lo que dijo», una línea por intervención. Si la primera línea es el título de la reunión, el historial quedará ordenado.",
+    "analyze_box_text": "«Analizar con IA» extrae la estructura de la conversación y guarda la reunión en tu historial automáticamente.",
+    "output_title": "Qué obtienes",
+    "output_text": "Cuatro bloques por reunión, todos revisables y plegables:",
+    "convert_title": "Convierte lo acordado en tareas",
+    "convert_text": "Cada action item trae responsable, fecha e insignia de prioridad. El botón «Convertir a Tareas» los crea de golpe como tareas reales de Ordo, listas para el calendario y la matriz.",
+    "history_title": "Tu historial de reuniones",
+    "history_box_text": "Las últimas reuniones analizadas quedan guardadas: un clic recarga su transcripción y su análisis cuando alguien pregunta «¿qué se acordó?».",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "El input es manual y privado: Ordo no graba tus llamadas. Pega solo lo que quieras analizar.",
+    "outputs": {
+      "summary": {
+        "title": "Resumen",
+        "description": "El punto de la reunión en un párrafo, con puntos clave y temas."
+      },
+      "actions": {
+        "title": "Action Items",
+        "description": "Qué se acordó, quién se lo lleva y para cuándo, con prioridad."
+      },
+      "decisions": {
+        "title": "Decisiones",
+        "description": "Qué se decidió, quién lo decidió y el contexto textual."
+      },
+      "people": {
+        "title": "Participantes",
+        "description": "Quién estuvo y qué papel jugó en la conversación."
+      }
+    }
   }
 }

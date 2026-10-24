@@ -1874,5 +1874,40 @@
         "description": "Neither urgent nor important: lower its priority so it stops getting in the way."
       }
     }
+  },
+  "GuideMeetings": {
+    "badge": "AI Meetings",
+    "title": "Meeting Assistant",
+    "subtitle": "Paste the transcript and turn the talk into a summary, decisions and tasks.",
+    "how_title": "From transcript to analysis",
+    "how_text": "Copy the transcript from your video call (or jot the dialogue down by hand) and paste it into the Meetings screen area. One click and the AI does the rest.",
+    "paste_box_text": "The format is simple: \"Name: what they said\", one line per speaker. If the first line is the meeting title, your history will stay tidy.",
+    "analyze_box_text": "\"Analyze with AI\" extracts the conversation's structure and saves the meeting to your history automatically.",
+    "output_title": "What you get",
+    "output_text": "Four blocks per meeting, all reviewable and collapsible:",
+    "convert_title": "Turn agreements into tasks",
+    "convert_text": "Every action item carries an owner, a due date and a priority badge. The \"Convert to Tasks\" button creates them all at once as real Ordo tasks, ready for the calendar and the matrix.",
+    "history_title": "Your meeting history",
+    "history_box_text": "The latest analyzed meetings are kept: one click reloads their transcript and analysis when someone asks \"what did we agree on?\".",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Input is manual and private: Ordo never records your calls. Paste only what you want analyzed.",
+    "outputs": {
+      "summary": {
+        "title": "Summary",
+        "description": "The meeting's point in a paragraph, with key points and topics."
+      },
+      "actions": {
+        "title": "Action Items",
+        "description": "What was agreed, who owns it and by when, with priority."
+      },
+      "decisions": {
+        "title": "Decisions",
+        "description": "What was decided, by whom, with the exact context."
+      },
+      "people": {
+        "title": "Participants",
+        "description": "Who was there and what role they played."
+      }
+    }
   }
 }
