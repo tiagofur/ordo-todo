@@ -599,7 +599,14 @@
       "community_text": "Join our community for tips and support.",
       "community_link": "Join Community",
       "connect": "Connect your assistant",
-      "more_features": "Discover more"
+      "more_features": "Discover more",
+      "workspaces": "Workspaces",
+      "notes": "Sticky Notes",
+      "goals": "Goals (OKRs)",
+      "eisenhower": "Eisenhower Matrix",
+      "meetings": "AI Meetings",
+      "coach": "Coach Chat",
+      "wellbeing": "Wellbeing"
     },
     "main": {
       "badge": "Quick Start Guide",
@@ -719,7 +726,42 @@
         "title": "Daily Ritual",
         "description": "Guided morning and evening shutdown",
         "time": "4 min"
-      }
+      },
+      "workspaces": {
+          "title": "Workspaces",
+          "description": "Create teams, invite people and control roles",
+          "time": "5 min"
+        },
+      "notes": {
+          "title": "Sticky Notes",
+          "description": "Wall and board for your loose ideas",
+          "time": "3 min"
+        },
+      "goals": {
+          "title": "Goals (OKRs)",
+          "description": "Big goals measured with key results",
+          "time": "5 min"
+        },
+      "eisenhower": {
+          "title": "Eisenhower Matrix",
+          "description": "Prioritize by urgent and important",
+          "time": "4 min"
+        },
+      "meetings": {
+          "title": "AI Meetings",
+          "description": "From transcript to tasks in one click",
+          "time": "4 min"
+        },
+      "coach": {
+          "title": "Coach Chat",
+          "description": "Ask for advice to plan and decide",
+          "time": "3 min"
+        },
+      "wellbeing": {
+          "title": "Wellbeing",
+          "description": "Spot burnout before it arrives",
+          "time": "4 min"
+        }
     }
   },
   "GuideAgent": {
@@ -1684,5 +1726,41 @@
       "description": "Ambient sound generated in-app for your focus sessions. No external subscriptions."
     },
     "openInApp": "View guide"
+  },
+  "GuideWorkspaces": {
+    "badge": "Team",
+    "title": "Workspaces",
+    "subtitle": "One container per area of your life: projects, people and activity, cleanly separated.",
+    "what_title": "What a workspace is",
+    "what_text": "It is the highest level of organization. Projects, tasks, notes and tags live inside a workspace, so personal never mixes with work or with each client.",
+    "what_switch_text": "The sidebar selector decides which workspace you are viewing: switch it and the tasks, calendar and notes you see change too. Everything stays where it belongs.",
+    "roles_title": "Roles: who can do what",
+    "roles_text": "Every member joins with a role. The hierarchy is simple and strict:",
+    "invite_title": "Invite your team",
+    "invite_text": "From the workspace settings (Members tab) you invite by email and choose each person's role.",
+    "invite_box_text": "You can cancel pending invitations, change roles later, and any member can leave the workspace on their own (except the owner).",
+    "activity_title": "Recent activity",
+    "activity_text": "The workspace side panel shows a log of the latest actions: who created what, who joined, what moved.",
+    "activity_box_text": "It is an audit log of the workspace's latest actions. \"View all activity\" opens the full record.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Start with three workspaces: Personal, Work and one for your current big client or project. Switching context is one click.",
+    "roles": {
+      "owner": {
+        "title": "Owner",
+        "description": "Created the workspace: invites, manages members and is the only one who can delete it."
+      },
+      "admin": {
+        "title": "Admin",
+        "description": "Manages members, settings and activity. Can also invite."
+      },
+      "member": {
+        "title": "Member",
+        "description": "Works normally and creates projects inside the workspace."
+      },
+      "viewer": {
+        "title": "Viewer",
+        "description": "Read-only: sees content without changing anything."
+      }
+    }
   }
 }

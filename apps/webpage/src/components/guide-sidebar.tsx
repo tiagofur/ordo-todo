@@ -3,11 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { motion } from 'framer-motion';
-import { 
-  BookOpen, 
-  Layout, 
-  CheckSquare, 
-  Timer, 
+import {
+  BookOpen,
+  Layout,
+  CheckSquare,
+  Timer,
   BarChart3,
   Plug,
   ChevronRight,
@@ -19,7 +19,14 @@ import {
   Hash,
   Bot,
   Wand2,
-  MoonStar
+  MoonStar,
+  Briefcase,
+  Target,
+  StickyNote,
+  LayoutGrid,
+  Video,
+  MessagesSquare,
+  HeartPulse
 } from 'lucide-react';
 
 export function GuideSidebar() {
@@ -45,59 +52,101 @@ export function GuideSidebar() {
       icon: CheckSquare,
       color: '#F97316',
     },
-    { 
-      key: 'capture', 
-      href: '/guide/capture', 
+    {
+      key: 'capture',
+      href: '/guide/capture',
       icon: Zap,
       color: '#3B82F6',
     },
-    { 
-      key: 'focus', 
-      href: '/guide/focus', 
+    {
+      key: 'notes',
+      href: '/guide/notes',
+      icon: StickyNote,
+      color: '#EAB308',
+    },
+    {
+      key: 'workspaces',
+      href: '/guide/workspaces',
+      icon: Briefcase,
+      color: '#F97316',
+    },
+    {
+      key: 'focus',
+      href: '/guide/focus',
       icon: Timer,
       color: '#10B981',
     },
-    { 
-      key: 'habits', 
-      href: '/guide/habits', 
+    {
+      key: 'habits',
+      href: '/guide/habits',
       icon: Repeat,
       color: '#F97316',
     },
-    { 
-      key: 'pomodoro', 
-      href: '/guide/pomodoro', 
+    {
+      key: 'pomodoro',
+      href: '/guide/pomodoro',
       icon: Hourglass,
       color: '#EF4444',
     },
-    { 
-      key: 'calendar', 
-      href: '/guide/calendar', 
+    {
+      key: 'calendar',
+      href: '/guide/calendar',
       icon: CalendarDays,
       color: '#06B6D4',
     },
-    { 
-      key: 'ritual', 
-      href: '/guide/ritual', 
+    {
+      key: 'ritual',
+      href: '/guide/ritual',
       icon: MoonStar,
       color: '#A855F7',
     },
-    { 
-      key: 'scheduling', 
-      href: '/guide/scheduling', 
+    {
+      key: 'scheduling',
+      href: '/guide/scheduling',
       icon: Wand2,
       color: '#06B6D4',
     },
-    { 
-      key: 'agent', 
-      href: '/guide/agent', 
+    {
+      key: 'goals',
+      href: '/guide/goals',
+      icon: Target,
+      color: '#F97316',
+    },
+    {
+      key: 'eisenhower',
+      href: '/guide/eisenhower',
+      icon: LayoutGrid,
+      color: '#8B5CF6',
+    },
+    {
+      key: 'meetings',
+      href: '/guide/meetings',
+      icon: Video,
+      color: '#06B6D4',
+    },
+    {
+      key: 'coach',
+      href: '/guide/coach',
+      icon: MessagesSquare,
+      color: '#3B82F6',
+    },
+    {
+      key: 'agent',
+      href: '/guide/agent',
       icon: Bot,
       color: '#3B82F6',
     },
-    { 
-      key: 'analytics', 
-      href: '/guide/analytics', 
+    {
+      key: 'analytics',
+      href: '/guide/analytics',
       icon: BarChart3,
       color: '#A855F7',
+    },
+    {
+      key: 'wellbeing',
+      href: '/guide/wellbeing',
+      icon: HeartPulse,
+      color: '#EC4899',
     },
     {
       key: 'slack', 
