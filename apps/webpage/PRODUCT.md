@@ -27,7 +27,7 @@ El único todo-en-uno que une ejecución con persona completa, conectable con un
 
 ## Capabilities and Constraints
 
-Existe hoy: `/`, `/pricing`, `/guide` + 12 tutoriales, `/faq`, `/blog`, `/changelog`, `/roadmap`, `/about`, `/contact`, `/privacy`, `/terms`, admin del blog.
+Existe hoy: `/`, `/pricing`, `/guide` + 21 tutoriales (oct 2026: +7 guías de pantallas — workspaces, goals, notes, eisenhower, meetings, coach, wellbeing), `/faq`, `/blog`, `/changelog`, `/roadmap`, `/about`, `/contact`, `/privacy`, `/terms`, admin del blog.
 
 Restricciones:
 

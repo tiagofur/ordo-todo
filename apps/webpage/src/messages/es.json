@@ -599,7 +599,14 @@
       "community_text": "Únete a nuestra comunidad para consejos y soporte.",
       "community_link": "Unirse a la Comunidad",
       "connect": "Conectar tu asistente",
-      "more_features": "Descubre más"
+      "more_features": "Descubre más",
+      "workspaces": "Espacios de Trabajo",
+      "notes": "Notas Post-it",
+      "goals": "Objetivos (OKRs)",
+      "eisenhower": "Matriz Eisenhower",
+      "meetings": "Meetings con IA",
+      "coach": "Chat Coach",
+      "wellbeing": "Bienestar"
     },
     "main": {
       "badge": "Guía de Inicio Rápido",
@@ -719,7 +726,42 @@
         "title": "Ritual Diario",
         "description": "Mañana guiada y cierre de tarde",
         "time": "4 min"
-      }
+      },
+      "workspaces": {
+          "title": "Espacios de Trabajo",
+          "description": "Crea equipos, invita personas y controla roles",
+          "time": "5 min"
+        },
+      "notes": {
+          "title": "Notas Post-it",
+          "description": "Muro y pizarra para tus ideas sueltas",
+          "time": "3 min"
+        },
+      "goals": {
+          "title": "Objetivos (OKRs)",
+          "description": "Metas grandes medidas con resultados clave",
+          "time": "5 min"
+        },
+      "eisenhower": {
+          "title": "Matriz Eisenhower",
+          "description": "Prioriza por urgente e importante",
+          "time": "4 min"
+        },
+      "meetings": {
+          "title": "Meetings con IA",
+          "description": "De transcripción a tareas en un clic",
+          "time": "4 min"
+        },
+      "coach": {
+          "title": "Chat Coach",
+          "description": "Pide consejo para planificar y decidir",
+          "time": "3 min"
+        },
+      "wellbeing": {
+          "title": "Bienestar",
+          "description": "Detecta el burnout antes de que llegue",
+          "time": "4 min"
+        }
     }
   },
   "GuideAgent": {
@@ -1684,5 +1726,41 @@
       "description": "Sonido ambiental generado en la app para tus sesiones de foco. Sin suscripciones externas."
     },
     "openInApp": "Ver guía"
+  },
+  "GuideWorkspaces": {
+    "badge": "Equipo",
+    "title": "Espacios de Trabajo",
+    "subtitle": "Un contenedor por área de tu vida: proyectos, personas y actividad, bien separados.",
+    "what_title": "Qué es un workspace",
+    "what_text": "Es el nivel más alto de organización. Proyectos, tareas, notas y etiquetas viven dentro de un espacio de trabajo, así que lo personal nunca se mezcla con lo del trabajo ni con lo de cada cliente.",
+    "what_switch_text": "El selector del sidebar decide qué espacio estás viendo: al cambiarlo, cambian las tareas, el calendario y las notas que ves. Todo queda donde corresponde.",
+    "roles_title": "Roles: quién puede hacer qué",
+    "roles_text": "Cada miembro entra con un rol. La jerarquía es simple y estricta:",
+    "invite_title": "Invita a tu equipo",
+    "invite_text": "Desde la configuración del workspace (pestaña Miembros) invitas por email eligiendo el rol de cada persona.",
+    "invite_box_text": "Puedes cancelar invitaciones pendientes, cambiar roles más tarde y cualquier miembro puede salirse del espacio por sí mismo (salvo el dueño).",
+    "activity_title": "Actividad reciente",
+    "activity_text": "El panel lateral del workspace muestra un registro de las últimas acciones: quién creó qué, quién entró, qué se movió.",
+    "activity_box_text": "Es un historial de auditoría con las últimas acciones del espacio. «Ver toda la actividad» abre el registro completo.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Empieza con tres espacios: Personal, Trabajo y un tercero para el cliente o proyecto grande del momento. Cambiar de contexto es un clic.",
+    "roles": {
+      "owner": {
+        "title": "Dueño",
+        "description": "Creó el espacio: invita, gestiona miembros y es el único que puede eliminarlo."
+      },
+      "admin": {
+        "title": "Administrador",
+        "description": "Gestiona miembros, ajustes y actividad. También puede invitar."
+      },
+      "member": {
+        "title": "Miembro",
+        "description": "Trabaja con normalidad y crea proyectos dentro del espacio."
+      },
+      "viewer": {
+        "title": "Observador",
+        "description": "Solo lectura: ve el contenido sin poder cambiar nada."
+      }
+    }
   }
 }

@@ -599,7 +599,14 @@
       "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
       "community_link": "Entrar na Comunidade",
       "connect": "Conectar seu assistente",
-      "more_features": "Descubra mais"
+      "more_features": "Descubra mais",
+      "workspaces": "Espaços de Trabalho",
+      "notes": "Notas Post-it",
+      "goals": "Objetivos (OKRs)",
+      "eisenhower": "Matriz Eisenhower",
+      "meetings": "Reuniões com IA",
+      "coach": "Chat Coach",
+      "wellbeing": "Bem-estar"
     },
     "main": {
       "badge": "Guia de Início Rápido",
@@ -719,7 +726,42 @@
         "title": "Ritual Diário",
         "description": "Manhã guiada e encerramento à tarde",
         "time": "4 min"
-      }
+      },
+      "workspaces": {
+          "title": "Espaços de Trabalho",
+          "description": "Crie equipes, convide pessoas e controle papéis",
+          "time": "5 min"
+        },
+      "notes": {
+          "title": "Notas Post-it",
+          "description": "Mural e quadro para suas ideias soltas",
+          "time": "3 min"
+        },
+      "goals": {
+          "title": "Objetivos (OKRs)",
+          "description": "Metas grandes medidas com resultados-chave",
+          "time": "5 min"
+        },
+      "eisenhower": {
+          "title": "Matriz Eisenhower",
+          "description": "Priorize por urgente e importante",
+          "time": "4 min"
+        },
+      "meetings": {
+          "title": "Reuniões com IA",
+          "description": "Da transcrição às tarefas em um clique",
+          "time": "4 min"
+        },
+      "coach": {
+          "title": "Chat Coach",
+          "description": "Peça conselhos para planejar e decidir",
+          "time": "3 min"
+        },
+      "wellbeing": {
+          "title": "Bem-estar",
+          "description": "Detecte o burnout antes que ele chegue",
+          "time": "4 min"
+        }
     }
   },
   "GuideAgent": {
@@ -1684,5 +1726,41 @@
       "description": "Som ambiente gerado no app para suas sessões de foco. Sem assinaturas externas."
     },
     "openInApp": "Ver guia"
+  },
+  "GuideWorkspaces": {
+    "badge": "Equipe",
+    "title": "Espaços de Trabalho",
+    "subtitle": "Um contêiner por área da sua vida: projetos, pessoas e atividade, bem separados.",
+    "what_title": "O que é um workspace",
+    "what_text": "É o nível mais alto de organização. Projetos, tarefas, notas e etiquetas vivem dentro de um espaço de trabalho, então o pessoal nunca se mistura com o trabalho nem com cada cliente.",
+    "what_switch_text": "O seletor da barra lateral decide qual espaço você está vendo: ao trocá-lo, mudam as tarefas, o calendário e as notas exibidos. Tudo fica onde pertence.",
+    "roles_title": "Papéis: quem pode fazer o quê",
+    "roles_text": "Cada membro entra com um papel. A hierarquia é simples e rígida:",
+    "invite_title": "Convide sua equipe",
+    "invite_text": "Nas configurações do workspace (aba Membros) você convida por e-mail escolhendo o papel de cada pessoa.",
+    "invite_box_text": "Você pode cancelar convites pendentes, mudar papéis depois, e qualquer membro pode sair do espaço por conta própria (exceto o dono).",
+    "activity_title": "Atividade recente",
+    "activity_text": "O painel lateral do workspace mostra um registro das últimas ações: quem criou o quê, quem entrou, o que mudou.",
+    "activity_box_text": "É um histórico de auditoria com as últimas ações do espaço. \"Ver toda a atividade\" abre o registro completo.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Comece com três espaços: Pessoal, Trabalho e um terceiro para o cliente ou projeto grande do momento. Trocar de contexto é um clique.",
+    "roles": {
+      "owner": {
+        "title": "Dono",
+        "description": "Criou o espaço: convida, gerencia membros e é o único que pode excluí-lo."
+      },
+      "admin": {
+        "title": "Administrador",
+        "description": "Gerencia membros, ajustes e atividade. Também pode convidar."
+      },
+      "member": {
+        "title": "Membro",
+        "description": "Trabalha normalmente e cria projetos dentro do espaço."
+      },
+      "viewer": {
+        "title": "Observador",
+        "description": "Somente leitura: vê o conteúdo sem poder mudar nada."
+      }
+    }
   }
 }
