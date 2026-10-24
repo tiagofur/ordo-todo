@@ -1762,5 +1762,45 @@
         "description": "Solo lectura: ve el contenido sin poder cambiar nada."
       }
     }
+  },
+  "GuideGoals": {
+    "badge": "OKRs",
+    "title": "Objetivos (OKRs)",
+    "subtitle": "Metas grandes, medidas con números: la metodología OKR dentro de Ordo.",
+    "okr_title": "Objetivo + Resultados Clave",
+    "okr_text": "Un Objetivo es la meta cualitativa («crecer como consultor»). Sus Key Results son las métricas que demuestran el progreso («3 clientes nuevos»). Juntos forman un OKR con barra de avance propia.",
+    "create_title": "Crea tu primer objetivo",
+    "create_box_text": "«Nuevo Objetivo» pide título, descripción, período (trimestral, anual o personalizado), color y fechas. El progreso medio aparece de inmediato en el dashboard.",
+    "kr_title": "Resultados Clave: elige el tipo de métrica",
+    "kr_text": "Cada KR admite cinco tipos de medida, y Ordo autocompleta valores razonables al elegirlos:",
+    "link_title": "Conecta tareas a tus metas",
+    "link_text": "Los KRs pueden vincularse a tareas concretas: cada tarea completada empuja el KR y el KR empuja la barra del objetivo, sin contarlo a mano.",
+    "link_box_text": "Al crear o editar una tarea puedes asociarla a un Key Result. El KR muestra cuántas tareas tiene conectadas.",
+    "review_title": "Revísalo cada semana",
+    "review_text": "Las pestañas de la pantalla separan Activos, Completados y En Riesgo. Los objetivos en riesgo son los que necesitan una decisión, no solo esfuerzo.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Dos o tres KRs medibles por objetivo. Si no cabe en un número, todavía no es un Key Result: afínalo hasta que quepa.",
+    "kr_types": {
+      "percent": {
+        "title": "Porcentaje",
+        "description": "De 0 a 100: adopciones, mejoras, cuotas. Se autocompleta 0 → 100."
+      },
+      "number": {
+        "title": "Número",
+        "description": "Cuenta cualquier cosa: clientes, publicaciones, demos."
+      },
+      "currency": {
+        "title": "Moneda",
+        "description": "Ingresos y ahorros, con unidad monetaria."
+      },
+      "boolean": {
+        "title": "Sí / No",
+        "description": "Hitos binarios: publicado o no, firmado o no."
+      },
+      "tasks": {
+        "title": "Tareas completadas",
+        "description": "Cuenta automáticamente las tareas vinculadas al KR."
+      }
+    }
   }
 }

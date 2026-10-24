@@ -1762,5 +1762,45 @@
         "description": "Somente leitura: vê o conteúdo sem poder mudar nada."
       }
     }
+  },
+  "GuideGoals": {
+    "badge": "OKRs",
+    "title": "Objetivos (OKRs)",
+    "subtitle": "Metas grandes medidas com números: o método OKR dentro da Ordo.",
+    "okr_title": "Objetivo + Resultados-Chave",
+    "okr_text": "Um Objetivo é a meta qualitativa (\"crescer como consultor\"). Seus Resultados-Chave são as métricas que provam o progresso (\"3 clientes novos\"). Juntos formam um OKR com barra de avanço própria.",
+    "create_title": "Crie seu primeiro objetivo",
+    "create_box_text": "\"Novo Objetivo\" pede título, descrição, período (trimestral, anual ou personalizado), cor e datas. O progresso médio aparece no dashboard na hora.",
+    "kr_title": "Resultados-Chave: escolha o tipo de métrica",
+    "kr_text": "Cada KR aceita cinco tipos de medida, e a Ordo preenche valores razoáveis quando você escolhe:",
+    "link_title": "Conecte tarefas às suas metas",
+    "link_text": "Os KRs podem ser vinculados a tarefas concretas: cada tarefa concluída empurra o KR, e o KR empurra a barra do objetivo — sem contar na mão.",
+    "link_box_text": "Ao criar ou editar uma tarefa você pode associá-la a um Resultado-Chave. O KR mostra quantas tarefas estão conectadas.",
+    "review_title": "Revise toda semana",
+    "review_text": "As abas da tela separam Ativos, Concluídos e Em Risco. Os objetivos em risco são os que precisam de uma decisão, não só de esforço.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Dois ou três KRs mensuráveis por objetivo. Se não cabe em um número, ainda não é um Resultado-Chave: refine até caber.",
+    "kr_types": {
+      "percent": {
+        "title": "Porcentagem",
+        "description": "De 0 a 100: adoção, melhorias, cotas. Autocompleta 0 → 100."
+      },
+      "number": {
+        "title": "Número",
+        "description": "Conta qualquer coisa: clientes, publicações, demos."
+      },
+      "currency": {
+        "title": "Moeda",
+        "description": "Receitas e economias, com unidade monetária."
+      },
+      "boolean": {
+        "title": "Sim / Não",
+        "description": "Marcos binários: publicado ou não, assinado ou não."
+      },
+      "tasks": {
+        "title": "Tarefas concluídas",
+        "description": "Conta automaticamente as tarefas vinculadas ao KR."
+      }
+    }
   }
 }
