@@ -28,6 +28,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { generateUuid } from '../common/utils/uuid.util';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AttachmentGuard } from '../common/guards/attachment.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { AttachmentsService } from './attachments.service';
@@ -67,7 +68,9 @@ export class AttachmentsController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  // A missing project and a foreign project both yield 403 from the guard.
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
+  @UseGuards(AttachmentGuard)
   findByProject(@Param('projectId') projectId: string) {
     return this.attachmentsService.findByProject(projectId);
   }
@@ -264,7 +267,9 @@ export class AttachmentsController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Task not found' })
+  // A missing task and a foreign task both yield 403 from the guard.
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
+  @UseGuards(AttachmentGuard)
   create(
     @Body() createAttachmentDto: CreateAttachmentDto,
     @CurrentUser() user: RequestUser,
@@ -297,7 +302,9 @@ export class AttachmentsController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Attachment not found' })
+  // A missing attachment and a foreign one both yield 403 from the guard.
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
+  @UseGuards(AttachmentGuard)
   findOne(@Param('id') id: string) {
     return this.attachmentsService.findOne(id);
   }
@@ -332,9 +339,10 @@ export class AttachmentsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Not the attachment uploader',
+    description:
+      'Not a member of the workspace, or not the attachment uploader',
   })
-  @ApiResponse({ status: 404, description: 'Attachment not found' })
+  @UseGuards(AttachmentGuard)
   update(
     @Param('id') id: string,
     @Body() updateAttachmentDto: CreateAttachmentDto,
@@ -354,9 +362,9 @@ export class AttachmentsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - not the attachment owner',
+    description: 'Not a member of the workspace, or not the attachment owner',
   })
-  @ApiResponse({ status: 404, description: 'Attachment not found' })
+  @UseGuards(AttachmentGuard)
   remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.attachmentsService.remove(id, user.id);
   }

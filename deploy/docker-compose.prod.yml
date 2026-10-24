@@ -78,6 +78,20 @@ services:
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
       CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-https://www.${DOMAIN}}
+      REGISTRATION_MODE: ${REGISTRATION_MODE:-invite-only}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      # Without SMTP (or RESEND_API_KEY) the email service runs in mock mode and
+      # only logs messages; reset/welcome/invite emails never leave the server.
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      REDIS_ENABLED: ${REDIS_ENABLED:-false}
+      REDIS_URL: ${REDIS_URL:-}
     networks:
       - ordo-network
     labels:
@@ -98,7 +112,8 @@ services:
       retries: 3
       start_period: 40s
     volumes:
-      - backend_uploads:/app/apps/backend/uploads
+      # The app writes to process.cwd()/uploads and the image's WORKDIR is /app.
+      - backend_uploads:/app/uploads
 
   # =============================================================================
   # Web Frontend (Next.js)

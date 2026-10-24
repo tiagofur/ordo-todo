@@ -320,7 +320,11 @@ jobs:
             echo "[$(date)] 🗄️ Running database migrations..."
             docker compose up -d postgres
             sleep 5
-            docker compose up migrations --exit-code-from migrations || true
+            if ! docker compose up migrations --exit-code-from migrations; then
+              echo "[$(date)] ❌ Database migrations failed; not starting the new images against an old schema."
+              echo "Fix the migration and re-run the deploy, or redeploy the previous IMAGE_TAG to restore service."
+              exit 1
+            fi
             
             # Deploy services
             echo "[$(date)] 🔄 Deploying services..."
