@@ -9,7 +9,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test --filter=!@ordo-todo/mobile"
+    "test": "turbo run test --filter=!@ordo-todo/mobile-expo"
   },
   "devDependencies": {
     "prettier": "^3.9.10",

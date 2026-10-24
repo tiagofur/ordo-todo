@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Permisos del spike: notificaciones locales y apertura de enlaces del sistema",
+  "windows": ["*"],
+  "permissions": ["core:default", "notification:default", "opener:default"]
+}
