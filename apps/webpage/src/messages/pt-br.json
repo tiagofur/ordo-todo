@@ -1909,5 +1909,28 @@
         "description": "Quem esteve lá e que papel teve na conversa."
       }
     }
+  },
+  "GuideCoach": {
+    "badge": "IA Chat",
+    "title": "Chat Coach",
+    "subtitle": "Converse com o assistente para planejar, priorizar e decidir com critério.",
+    "what_title": "Um copiloto, não outra caixa de entrada",
+    "what_text": "O chat conecta a um assistente que aconselha sobre sua produtividade: como dividir o dia, o que atacar primeiro, como estruturar pausas. Ele ajuda você a pensar; depois você executa em Tarefas ou no plano.",
+    "starters_title": "Comece com um toque",
+    "starters_text": "Quatro sugestões prontas poupam a página em branco:",
+    "ask_title": "Pergunte melhor, receba melhor",
+    "ask_text": "A qualidade da resposta depende do contexto que você der. Mencione prazos, tempo disponível e o que é realmente urgente.",
+    "ask_box_text": "\"Tenho 12 tarefas e 3 horas, por onde começo?\" recebe conselhos melhores que \"ajuda com minhas tarefas\". Itere: responda com mais detalhes e refine.",
+    "limits_title": "Saiba o que é (e o que não é)",
+    "limits_text": "O coach é consultivo: aconselha, mas não cria nem move tarefas pelo chat. E como toda IA, pode errar.",
+    "limits_box_text": "Use as respostas como ponto de partida, não como sentença. As conversas ficam salvas por sessão: copie o que importar antes de fechar.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Enter envia a mensagem; Shift + Enter insere uma quebra de linha.",
+    "starters": {
+      "day_plan": "Planejar meu dia",
+      "triage": "Triagem de tarefas",
+      "eisenhower": "Prioridade Eisenhower",
+      "breaks": "Otimizar pausas"
+    }
   }
 }

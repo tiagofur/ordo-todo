@@ -1909,5 +1909,28 @@
         "description": "Quién estuvo y qué papel jugó en la conversación."
       }
     }
+  },
+  "GuideCoach": {
+    "badge": "AI Chat",
+    "title": "Chat Coach",
+    "subtitle": "Conversa con el asistente para planificar, priorizar y decidir con criterio.",
+    "what_title": "Un copiloto, no otro inbox",
+    "what_text": "El chat conecta con un asistente que aconseja sobre tu productividad: cómo repartir el día, qué atender primero, cómo estructurar los descansos. Te ayuda a pensar; luego ejecutas en Tareas o en el plan.",
+    "starters_title": "Empieza con un toque",
+    "starters_text": "Cuatro sugerencias listas para usar te evitan la página en blanco:",
+    "ask_title": "Pide mejor, recibe mejor",
+    "ask_text": "La calidad de la respuesta depende del contexto que des. Menciona plazos, tiempo disponible y qué es urgente de verdad.",
+    "ask_box_text": "«Tengo 12 tareas y 3 horas, ¿por dónde empiezo?» recibe mejor consejo que «ayuda con mis tareas». Itera: responde con más detalles y afina.",
+    "limits_title": "Saber lo que es (y lo que no)",
+    "limits_text": "El coach es consultivo: aconseja, pero no crea ni mueve tareas desde el chat. Y como toda IA, puede equivocarse.",
+    "limits_box_text": "Usa sus respuestas como punto de partida, no como sentencia. La conversación se guarda por sesión: copia lo valioso antes de cerrar.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Enter envía el mensaje; Shift + Enter inserta un salto de línea.",
+    "starters": {
+      "day_plan": "Planificar mi día",
+      "triage": "Triage de tareas",
+      "eisenhower": "Prioridad Eisenhower",
+      "breaks": "Optimizar descansos"
+    }
   }
 }
