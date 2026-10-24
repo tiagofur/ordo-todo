@@ -1841,5 +1841,38 @@
         "description": "Find the note among hundreds by color or text."
       }
     }
+  },
+  "GuideEisenhower": {
+    "badge": "Priorities",
+    "title": "Eisenhower Matrix",
+    "subtitle": "Two questions — urgent? important? — to decide what comes now.",
+    "what_title": "How it works",
+    "what_text": "The matrix sorts your pending tasks into four quadrants by urgency and importance. Ordo proposes a classification; the final call is yours.",
+    "quadrants_title": "The four quadrants",
+    "quadrants_text": "Each quadrant comes with a clear next action:",
+    "drag_title": "Dragging decides",
+    "drag_text": "Move tasks between quadrants by dragging: on drop, their real priority changes in the app (Do First = urgent, Schedule = high, Delegate = medium, Delete = low).",
+    "when_title": "When to use it",
+    "when_text": "It is the perfect triage exercise for Monday morning… or for any moment when everything seems urgent at once. Completing tasks is one click, without leaving the matrix.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Dragging to \"Delete\" does not remove the task: it only lowers its priority so it stops getting in the way. Real deleting still happens in Tasks.",
+    "quadrants": {
+      "do": {
+        "title": "Do First",
+        "description": "Urgent and important: today, hands on."
+      },
+      "schedule": {
+        "title": "Schedule",
+        "description": "Important, not urgent: it deserves a calendar slot."
+      },
+      "delegate": {
+        "title": "Delegate",
+        "description": "Urgent, not important: a candidate for new hands."
+      },
+      "delete": {
+        "title": "Delete",
+        "description": "Neither urgent nor important: lower its priority so it stops getting in the way."
+      }
+    }
   }
 }

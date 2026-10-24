@@ -1841,5 +1841,38 @@
         "description": "Encuentra la nota entre cientos por color o texto."
       }
     }
+  },
+  "GuideEisenhower": {
+    "badge": "Prioridades",
+    "title": "Matriz de Eisenhower",
+    "subtitle": "Dos preguntas — ¿urgente? ¿importante? — para decidir qué toca ahora.",
+    "what_title": "Cómo funciona",
+    "what_text": "La matriz clasifica tus tareas pendientes en cuatro cuadrantes según urgencia e importancia. Ordo propone una clasificación automática; la decisión final es tuya.",
+    "quadrants_title": "Los cuatro cuadrantes",
+    "quadrants_text": "Cada cuadrante lleva una acción clara asociada:",
+    "drag_title": "Arrastrar decide",
+    "drag_text": "Mueve tareas entre cuadrantes arrastrándolas: al soltarlas, su prioridad real cambia en la app (Hacer Primero = urgente, Programar = alta, Delegar = media, Eliminar = baja).",
+    "when_title": "Cuándo usarla",
+    "when_text": "Es el ejercicio de triage perfecto para el lunes… o para cualquier momento en que todo parezca urgente a la vez. Completar tareas es un clic, sin salir de la matriz.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Arrastrar a «Eliminar» no borra la tarea: solo le baja la prioridad para que deje de estorbar. El borrado real sigue estando en Tareas.",
+    "quadrants": {
+      "do": {
+        "title": "Hacer Primero",
+        "description": "Urgente e importante: hoy, manos a la obra."
+      },
+      "schedule": {
+        "title": "Programar",
+        "description": "Importante, no urgente: merece hueco en el calendario."
+      },
+      "delegate": {
+        "title": "Delegar",
+        "description": "Urgente, no importante: candidato a cambio de manos."
+      },
+      "delete": {
+        "title": "Eliminar",
+        "description": "Ni urgente ni importante: baja su prioridad para que deje de estorbar."
+      }
+    }
   }
 }

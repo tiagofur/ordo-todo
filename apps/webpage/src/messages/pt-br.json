@@ -1841,5 +1841,38 @@
         "description": "Encontre a nota entre centenas por cor ou texto."
       }
     }
+  },
+  "GuideEisenhower": {
+    "badge": "Prioridades",
+    "title": "Matriz Eisenhower",
+    "subtitle": "Duas perguntas — urgente? importante? — para decidir o que vem agora.",
+    "what_title": "Como funciona",
+    "what_text": "A matriz classifica suas tarefas pendentes em quatro quadrantes por urgência e importância. A Ordo propõe uma classificação automática; a decisão final é sua.",
+    "quadrants_title": "Os quatro quadrantes",
+    "quadrants_text": "Cada quadrante vem com uma ação clara associada:",
+    "drag_title": "Arrastar decide",
+    "drag_text": "Mova tarefas entre quadrantes arrastando: ao soltar, a prioridade real muda no app (Fazer Primeiro = urgente, Agendar = alta, Delegar = média, Excluir = baixa).",
+    "when_title": "Quando usar",
+    "when_text": "É o exercício de triagem perfeito para a segunda-feira… ou para qualquer momento em que tudo parece urgente ao mesmo tempo. Concluir tarefas é um clique, sem sair da matriz.",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Arrastar para \"Excluir\" não apaga a tarefa: apenas baixa a prioridade para ela parar de atrapalhar. A exclusão real continua em Tarefas.",
+    "quadrants": {
+      "do": {
+        "title": "Fazer Primeiro",
+        "description": "Urgente e importante: hoje, mãos à obra."
+      },
+      "schedule": {
+        "title": "Agendar",
+        "description": "Importante, não urgente: merece espaço no calendário."
+      },
+      "delegate": {
+        "title": "Delegar",
+        "description": "Urgente, não importante: candidato a trocar de mãos."
+      },
+      "delete": {
+        "title": "Excluir",
+        "description": "Nem urgente nem importante: baixa a prioridade para parar de atrapalhar."
+      }
+    }
   }
 }
