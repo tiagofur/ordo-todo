@@ -1874,5 +1874,40 @@
         "description": "Nem urgente nem importante: baixa a prioridade para parar de atrapalhar."
       }
     }
+  },
+  "GuideMeetings": {
+    "badge": "Reuniões com IA",
+    "title": "Assistente de Reuniões",
+    "subtitle": "Cole a transcrição e transforme a conversa em resumo, decisões e tarefas.",
+    "how_title": "Da transcrição à análise",
+    "how_text": "Copie a transcrição da sua videochamada (ou anote o diálogo à mão) e cole na área da tela Reuniões. Um clique e a IA faz o resto.",
+    "paste_box_text": "O formato é simples: \"Nome: o que disse\", uma linha por fala. Se a primeira linha for o título da reunião, seu histórico fica organizado.",
+    "analyze_box_text": "\"Analisar com IA\" extrai a estrutura da conversa e salva a reunião no seu histórico automaticamente.",
+    "output_title": "O que você recebe",
+    "output_text": "Quatro blocos por reunião, todos revisáveis e retráteis:",
+    "convert_title": "Transforme acordos em tarefas",
+    "convert_text": "Cada action item traz responsável, data e selo de prioridade. O botão \"Converter em Tarefas\" os cria de uma vez como tarefas reais da Ordo, prontas para o calendário e a matriz.",
+    "history_title": "Seu histórico de reuniões",
+    "history_box_text": "As últimas reuniões analisadas ficam guardadas: um clique recarrega a transcrição e a análise quando alguém pergunta \"o que foi acordado?\".",
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "A entrada é manual e privada: a Ordo não grava suas chamadas. Cole apenas o que quiser analisar.",
+    "outputs": {
+      "summary": {
+        "title": "Resumo",
+        "description": "O ponto da reunião em um parágrafo, com pontos-chave e temas."
+      },
+      "actions": {
+        "title": "Action Items",
+        "description": "O que foi acordado, quem assume e para quando, com prioridade."
+      },
+      "decisions": {
+        "title": "Decisões",
+        "description": "O que foi decidido, por quem e o contexto exato."
+      },
+      "people": {
+        "title": "Participantes",
+        "description": "Quem esteve lá e que papel teve na conversa."
+      }
+    }
   }
 }
