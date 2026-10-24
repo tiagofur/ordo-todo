@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06b6d4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%276%27 fill=%27%2306b6d4%27/%3E%3Cpath d=%27M12 4l1.9 4.9 4.9 1.9-4.9 1.9L12 17.6l-1.9-4.9-4.9-1.9 4.9-1.9z%27 fill=%27white%27/%3E%3C/svg%3E">
+<title>Tareas · Tutorial de Ordo</title>
+<meta name="description" content="La pantalla de tareas de Ordo: crea, filtra, prioriza y completa tareas, con vista de lista, cuadrícula y matriz Eisenhower.">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-screen="tareas">
+<div class="layout">
+  <aside id="sidebar" aria-label="Pantallas del tutorial"></aside>
+  <main class="main">
+    <div class="col">
+
+      <span class="route-pill" style="--c:#8b5cf6"><i></i> Ruta de la app: <b>/tasks</b> · atajo <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></span>
+
+      <header class="page-head">
+        <span class="head-icon" aria-hidden="true"></span>
+        <h1>Tareas, el corazón de Ordo</h1>
+        <p class="lead">Todo lo que hay que hacer vive aquí: crear, buscar, filtrar, priorizar y completar. Con tres vistas (cuadrícula, lista y matriz Eisenhower) y filtros rápidos para encontrar siempre la tarea correcta.</p>
+      </header>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>Qué hace</h2>
+        <p>«Tareas» es el inventario vivo de tu trabajo. Cada tarea tiene estado (Por hacer, En progreso, Completada, En espera), prioridad, fecha de vencimiento, proyecto, etiquetas y tiempo estimado. Desde esta pantalla las lanzas al calendario, les dedicas sesiones de foco y las conectas a tus objetivos. Si alguna vez dudas «¿qué toca ahora?», esta es la pantalla que abre la respuesta.</p>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></span>Qué verás</h2>
+        <dl class="zones" style="--c:#8b5cf6">
+          <div><dt>Cabecera</dt><dd>Contadores en vivo de Total / Pendientes / Completadas y el botón morado «Nueva Tarea». Si llegaste desde una etiqueta, verás el chip de esa etiqueta con su color.</dd></div>
+          <div><dt>Buscador y filtros</dt><dd>Busca por título o descripción; filtra con Todas / Pendientes / Hoy / Urgentes / Completadas, y en «Más» también Vencidas y Esta semana.</dd></div>
+          <div><dt>Vistas</dt><dd>Cuadrícula de tarjetas, lista vertical o matriz Eisenhower integrada (la misma de <a href="eisenhower.html">su pantalla</a>).</dd></div>
+          <div><dt>Tarjeta de tarea</dt><dd>Título, proyecto, prioridad, vencimiento (en rojo si es urgente), etiquetas y menú de estado. El botón ⋮ abre acciones y el check la completa.</dd></div>
+          <div><dt>Panel de detalle</dt><dd>Al hacer clic en una tarea se abre a la derecha: editar campos, cambiar estado, gestionar etiquetas y compartir.</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg></span>Cómo se usa</h2>
+        <ol class="steps">
+          <li><b>Crea la tarea</b> con «Nueva Tarea» (<kbd>Ctrl</kbd>+<kbd>N</kbd>): título, proyecto, prioridad, vencimiento, minutos estimados y recurrencia si se repite.</li>
+          <li><b>Filtra para decidir:</b> «Hoy» para lo inmediato, «Urgentes» para lo que quema, «Vencidas» para recuperar el terreno perdido.</li>
+          <li><b>Cambia el estado</b> desde el propio menú de la tarjeta mientras trabajas: Por hacer → En progreso → Completada.</li>
+          <li><b>Abre el detalle</b> para añadir etiquetas, subtareas o compartir la tarea con un enlace público.</li>
+          <li><b>Prográmala:</b> arrástrala en el <a href="calendario.html">Calendario</a> o deja que el planificador lo haga en <a href="mi-plan.html">Mi plan</a>.</li>
+          <li><b>Complétala</b> con el check cuando termines: alimentará tus métricas de <a href="insights.html">Insights</a>.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Trucos y detalles</h2>
+        <div class="callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+          <p>Para crear tareas rápido sin abrir esta pantalla: <kbd>Ctrl</kbd>+<kbd>N</kbd> funciona en toda la app, y la paleta de comandos (<kbd>Ctrl</kbd>+<kbd>K</kbd>) también crea tareas y proyectos.</p>
+        </div>
+        <div class="callout warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <p>Una tarea necesita un proyecto para existir. Si aún no tienes ninguno, el diálogo de creación te ofrece crearlo en el momento.</p>
+        </div>
+        <div class="callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+          <p>Filtrar por etiqueta es instantáneo: ve a <a href="etiquetas.html">Etiquetas</a> y haz clic en cualquier tarjeta para ver solo sus tareas.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Pantallas relacionadas</h2>
+        <div class="related">
+          <a href="calendario.html" style="--c:#3b82f6"><i></i>Calendario</a>
+          <a href="proyectos.html" style="--c:#ec4899"><i></i>Proyectos</a>
+          <a href="eisenhower.html" style="--c:#8b5cf6"><i></i>Matriz de Eisenhower</a>
+          <a href="etiquetas.html" style="--c:#22c55e"><i></i>Etiquetas</a>
+          <a href="papelera.html" style="--c:#ef4444"><i></i>Papelera</a>
+        </div>
+      </section>
+
+      <nav id="pager" class="pager" aria-label="Navegación entre pantallas"></nav>
+      <div id="markRead" style="display:flex;justify-content:center;margin-top:20px"></div>
+
+      <footer class="foot"><span>Ordo · Tutorial</span><span>Tareas</span></footer>
+    </div>
+  </main>
+</div>
+<script src="assets/screens.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06b6d4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%276%27 fill=%27%2306b6d4%27/%3E%3Cpath d=%27M12 4l1.9 4.9 4.9 1.9-4.9 1.9L12 17.6l-1.9-4.9-4.9-1.9 4.9-1.9z%27 fill=%27white%27/%3E%3C/svg%3E">
+<title>Proyectos · Tutorial de Ordo</title>
+<meta name="description" content="Proyectos de Ordo: agrupa tareas con color y progreso, usa plantillas, kanban, línea de tiempo y archivos por proyecto.">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-screen="proyectos">
+<div class="layout">
+  <aside id="sidebar" aria-label="Pantallas del tutorial"></aside>
+  <main class="main">
+    <div class="col">
+
+      <span class="route-pill" style="--c:#ec4899"><i></i> Ruta de la app: <b>/projects</b> · atajo <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></span>
+
+      <header class="page-head">
+        <span class="head-icon" aria-hidden="true"></span>
+        <h1>Proyectos, el contenedor de cada empeño</h1>
+        <p class="lead">Un proyecto agrupa las tareas de un objetivo concreto —una mudanza, una campaña, un desarrollo— con su propio color, descripción y porcentaje de progreso calculado desde sus tareas.</p>
+      </header>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>Qué hace</h2>
+        <p>Organiza el trabajo que tiene más de un paso. Cada tarea de <a href="tareas.html">Tareas</a> pertenece a un proyecto, y el proyecto devuelve el favor con estructura: estados, tablero kanban, línea de tiempo, archivos y estadísticas. Aquí se crean con plantillas precargadas (Software, Marketing, Metas personales, Reforma, Plan de estudio, Lanzamiento de producto) que ya traen tareas de ejemplo.</p>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></span>Qué verás</h2>
+        <dl class="zones" style="--c:#ec4899">
+          <div><dt>Lista de proyectos</dt><dd>Tarjetas con color, insignia de estado (Activo, En Progreso, Completado, Archivado), barra de progreso y contador «X/Y tareas». Buscador, pestañas Todos/Activos/Completados/Archivados y vista cuadrícula o lista.</dd></div>
+          <div><dt>Detalle: cabecera</dt><dd>Nombre, descripción, progreso general, botón «Nueva Tarea» y menú ⋯ (configuración, marcar completado, archivar, eliminar).</dd></div>
+          <div><dt>Detalle: KPIs</dt><dd>Cuatro tarjetas clicables que filtran la lista: Total, Por Hacer, En Progreso y Completadas.</dd></div>
+          <div><dt>Detalle: pestañas</dt><dd><b>Lista</b> (por defecto), <b>Tablero</b> (kanban con arrastrar y soltar entre estados), <b>Resumen</b>, <b>Línea de Tiempo</b> (orden por vencimiento), <b>Archivos</b> (adjuntos de las tareas) y <b>Configuración</b> (campos personalizados).</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg></span>Cómo se usa</h2>
+        <ol class="steps">
+          <li><b>Crea un proyecto</b> con «Nuevo Proyecto»: elige color, nombre y descripción; o despliega «Usar plantilla» y parte de una estructura hecha.</li>
+          <li><b>Añade tareas</b> desde el botón «Nueva Tarea» del detalle; el progreso se recalcula solo.</li>
+          <li><b>Mueve en el tablero:</b> en la pestaña Tablero, arrastra tarjetas entre Por Hacer / En Progreso / Completada.</li>
+          <li><b>Vigila la línea de tiempo</b> para detectar tareas con fecha apiladas en los mismos días.</li>
+          <li><b>Archiva al terminar</b> (menú ⋯): desaparece de Activos pero conserva su historia; también puedes marcarlo como Completado cuando todas sus tareas están hechas.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Trucos y detalles</h2>
+        <div class="callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+          <p>Las plantillas no solo rellenan el nombre: al crear el proyecto generan sus tareas dentro. Perfecto para procesos repetibles.</p>
+        </div>
+        <div class="callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+          <p>«Un proyecto es Completado cuando tiene al menos una tarea y todas están completadas», dice la app. Los KPIs del detalle son filtros: úsalos para ver solo lo pendiente.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Pantallas relacionadas</h2>
+        <div class="related">
+          <a href="tareas.html" style="--c:#8b5cf6"><i></i>Tareas</a>
+          <a href="workspaces.html" style="--c:#f97316"><i></i>Espacios de trabajo</a>
+          <a href="objetivos.html" style="--c:#f97316"><i></i>Objetivos (OKRs)</a>
+          <a href="papelera.html" style="--c:#ef4444"><i></i>Papelera</a>
+        </div>
+      </section>
+
+      <nav id="pager" class="pager" aria-label="Navegación entre pantallas"></nav>
+      <div id="markRead" style="display:flex;justify-content:center;margin-top:20px"></div>
+
+      <footer class="foot"><span>Ordo · Tutorial</span><span>Proyectos</span></footer>
+    </div>
+  </main>
+</div>
+<script src="assets/screens.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
