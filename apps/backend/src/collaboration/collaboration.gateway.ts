@@ -36,10 +36,15 @@ const getAllowedOrigins = (): string[] => {
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
       const allowedOrigins = getAllowedOrigins();
-      // Allow requests with no origin (e.g., same-origin, mobile apps)
+      // Same policy as the HTTP CORS in main.ts: exact allowlist match plus
+      // local/Tauri origins. No prefix matching — "http://localhost:3000.evil"
+      // must not pass.
       if (
         !origin ||
-        allowedOrigins.some((allowed) => origin.startsWith(allowed))
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+        /^tauri:\/\//.test(origin) ||
+        origin === 'http://tauri.localhost'
       ) {
         callback(null, true);
       } else {
@@ -68,11 +73,14 @@ export class CollaborationGateway
       const cookieHeader = client.handshake?.headers?.cookie;
       let cookieToken: string | undefined;
       if (cookieHeader) {
-        const cookies = cookieHeader.split(';').reduce((res, c) => {
-          const [key, val] = c.trim().split('=');
-          if (key && val) res[key] = decodeURIComponent(val);
-          return res;
-        }, {} as Record<string, string>);
+        const cookies = cookieHeader.split(';').reduce(
+          (res, c) => {
+            const [key, val] = c.trim().split('=');
+            if (key && val) res[key] = decodeURIComponent(val);
+            return res;
+          },
+          {} as Record<string, string>,
+        );
         cookieToken = cookies['access_token'] || cookies['token'];
       }
 
@@ -102,8 +110,11 @@ export class CollaborationGateway
   handleDisconnect(client: Socket) {
     const userId = client.data.userId;
     if (userId) {
+      const workspaceId = client.data.currentWorkspaceId as string | undefined;
       this.activeUsers.delete(client.id);
-      this.broadcastPresence();
+      if (workspaceId) {
+        this.broadcastPresence(workspaceId);
+      }
       this.logger.log(`Client disconnected: ${client.id} (User: ${userId})`);
     }
   }
@@ -278,19 +289,14 @@ export class CollaborationGateway
     this.logger.log(`Task ${data.taskId} updated by ${client.data.userId}`);
   }
 
-  // Broadcast presence to workspace
-  private broadcastPresence(workspaceId?: string) {
+  // Broadcast presence to a workspace room only; a server-wide emit would show
+  // every online user (id, name, workspace) to every connected client.
+  private broadcastPresence(workspaceId: string) {
     const users = Array.from(this.activeUsers.values()).filter(
-      (u) => !workspaceId || u.workspaceId === workspaceId,
+      (u) => u.workspaceId === workspaceId,
     );
 
-    const room = workspaceId ? `workspace:${workspaceId}` : undefined;
-
-    if (room) {
-      this.server.to(room).emit('presence-update', users);
-    } else {
-      this.server.emit('presence-update', users);
-    }
+    this.server.to(`workspace:${workspaceId}`).emit('presence-update', users);
   }
 
   // Broadcast task-specific presence

@@ -6,11 +6,11 @@ node_modules
 .pnp.js
 
 # Local env files
- .env
- .env.local
- .env.development.local
- .env.test.local
- .env.production.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Testing
 coverage
@@ -25,6 +25,7 @@ Turbo
 .next/
 out/
 build
+*.tsbuildinfo
 
 # Dist folders (generated on demand: npx turbo run build)
 # Workspace packages are NOT committed anymore. Local dev and CI build them

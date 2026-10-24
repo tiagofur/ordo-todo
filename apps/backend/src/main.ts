@@ -29,9 +29,19 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const httpAdapter = app.get(HttpAdapterHost);
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+
+  // Production sits behind Traefik (one hop) and the backend port is not
+  // published, so trusting a single proxy is what lets rate limiting and audit
+  // logs see the client IP instead of the proxy's.
+  if (isProduction) {
+    app.set('trust proxy', 1);
+  }
 
   // CORS - MUST be configured before helmet and other middleware
-  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '').split(',');
+  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '').split(
+    ',',
+  );
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
@@ -189,17 +199,20 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-      displayRequestDuration: true,
-      docExpansion: 'none',
-      filter: true,
-      showRequestHeaders: true,
-    },
-    customSiteTitle: 'Ordo-Todo API Docs',
-  });
+  // The docs describe every internal endpoint, so they stay off in production.
+  if (!isProduction) {
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api-docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        docExpansion: 'none',
+        filter: true,
+        showRequestHeaders: true,
+      },
+      customSiteTitle: 'Ordo-Todo API Docs',
+    });
+  }
 
   // Global exception filter
   app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
@@ -222,7 +235,9 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
   const apiPrefix = configService.get<string>('API_PREFIX')!;
   console.log(`Application running on: http://localhost:${port}`);
   console.log(`API available at: http://localhost:${port}/${apiPrefix}`);
-  console.log(`API documentation at: http://localhost:${port}/api-docs`);
+  if (!isProduction) {
+    console.log(`API documentation at: http://localhost:${port}/api-docs`);
+  }
 
   // Graceful shutdown
   const gracefulShutdownTimeout = 10000; // 10 seconds

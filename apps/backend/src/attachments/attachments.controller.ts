@@ -28,6 +28,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { generateUuid } from '../common/utils/uuid.util';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AttachmentGuard } from '../common/guards/attachment.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { AttachmentsService } from './attachments.service';
@@ -67,7 +68,9 @@ export class AttachmentsController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
   @ApiResponse({ status: 404, description: 'Project not found' })
+  @UseGuards(AttachmentGuard)
   findByProject(@Param('projectId') projectId: string) {
     return this.attachmentsService.findByProject(projectId);
   }
@@ -264,7 +267,9 @@ export class AttachmentsController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
   @ApiResponse({ status: 404, description: 'Task not found' })
+  @UseGuards(AttachmentGuard)
   create(
     @Body() createAttachmentDto: CreateAttachmentDto,
     @CurrentUser() user: RequestUser,
@@ -297,7 +302,9 @@ export class AttachmentsController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
   @ApiResponse({ status: 404, description: 'Attachment not found' })
+  @UseGuards(AttachmentGuard)
   findOne(@Param('id') id: string) {
     return this.attachmentsService.findOne(id);
   }
