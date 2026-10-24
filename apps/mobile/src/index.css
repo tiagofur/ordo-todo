@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/*
+ * Tokens mínimos del spike (dark-first). Las fases P1+ traen los tokens
+ * completos compartidos con desktop.
+ */
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #09090b;
+  color: #f4f4f5;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Respetar las safe areas del notch en iOS */
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}

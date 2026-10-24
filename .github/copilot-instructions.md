@@ -121,19 +121,20 @@ npm run lint                   # ESLint
 npm run build                  # Production build
 ```
 
-### Mobile Setup (Expo)
+### Mobile Setup (Tauri 2 — rebuild en curso, ODD 020)
 
 ```powershell
 cd apps/mobile
 
 # Desarrollo
-npm run start                  # Start Expo dev server
-npm run android                # Run on Android
-npm run ios                    # Run on iOS
-npm run web                    # Run on web
+npm run dev                    # Vite dev server (puerto 1421)
+npm run build                  # Build del frontend
+npm run tauri android init     # Generar proyecto Android (ya hecho)
+# APK debug: requiere cargo de rustup primero en PATH (el de Homebrew no
+# tiene std de Android) + JAVA_HOME/ANDROID_HOME/NDK_HOME
 ```
 
-### Desktop Setup (Electron)
+### Desktop Setup (Tauri)
 
 ```powershell
 cd apps/desktop
