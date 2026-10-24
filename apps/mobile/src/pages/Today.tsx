@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Circle, CircleCheck, Plus } from "lucide-react";
+import { Circle, CircleCheck, LogOut, Plus } from "lucide-react";
 import { useAuth } from "@ordo-todo/auth-provider";
 import type { Task } from "@ordo-todo/api-client";
 import {
@@ -20,9 +20,7 @@ function TaskRow({ task }: { task: Task }) {
       <button
         aria-label={done ? "Reabrir tarea" : "Completar tarea"}
         disabled={complete.isPending}
-        onClick={() =>
-          complete.mutate({ id: task.id, completed: !done })
-        }
+        onClick={() => complete.mutate({ id: task.id, completed: !done })}
         className="shrink-0"
       >
         {done ? (
@@ -48,20 +46,12 @@ function TaskRow({ task }: { task: Task }) {
           {task.title}
         </p>
       </Link>
-      {due && (
-        <span className="shrink-0 text-[11px] text-zinc-500">{due}</span>
-      )}
+      {due && <span className="shrink-0 text-[11px] text-zinc-500">{due}</span>}
     </li>
   );
 }
 
-function Section({
-  title,
-  tasks,
-}: {
-  title: string;
-  tasks: Task[];
-}) {
+function Section({ title, tasks }: { title: string; tasks: Task[] }) {
   if (tasks.length === 0) return null;
   return (
     <section className="rounded-xl border border-zinc-800 bg-zinc-900">
@@ -78,7 +68,7 @@ function Section({
 }
 
 export default function Today() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data, isLoading, isError } = useTodayTasks();
 
   const sections = useMemo(() => {
@@ -93,22 +83,31 @@ export default function Today() {
     ).filter(([, tasks]) => tasks.length > 0);
   }, [data]);
 
-  const total = sections.reduce((sum, [, tasks]) => sum + tasks.length, 0);
-
   return (
     <div className="mx-auto min-h-dvh max-w-md space-y-4 p-5">
       <header className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-zinc-500">Hola, {user?.name || user?.username}</p>
+          <p className="text-xs text-zinc-500">
+            Hola, {user?.name || user?.username}
+          </p>
           <h1 className="text-xl font-semibold">Hoy</h1>
         </div>
-        <Link
-          to="/tasks/new"
-          aria-label="Nueva tarea"
-          className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white active:bg-emerald-700"
-        >
-          <Plus className="size-4" /> Nueva
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/tasks/new"
+            aria-label="Nueva tarea"
+            className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white active:bg-emerald-700"
+          >
+            <Plus className="size-4" /> Nueva
+          </Link>
+          <button
+            onClick={() => void logout()}
+            aria-label="Cerrar sesión"
+            className="flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 active:bg-zinc-800"
+          >
+            <LogOut className="size-4" /> Salir
+          </button>
+        </div>
       </header>
 
       {isLoading && (
@@ -122,8 +121,8 @@ export default function Today() {
 
       {!isLoading && sections.length === 0 && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
-          {total === 0 && !data
-            ? "Cargando…"
+          {isError
+            ? "Sin conexión y sin caché local — reconecta para cargar tus tareas."
             : "Sin tareas pendientes. ¡Disfruta el día! 🎉"}
         </div>
       )}

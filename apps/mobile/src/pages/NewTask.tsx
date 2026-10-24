@@ -22,6 +22,7 @@ export default function NewTask() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (loadingProject) return;
     if (!projectInfo?.project) {
       setError(
         "No tienes ningún proyecto. Crea uno desde la web e inténtalo de nuevo.",
@@ -77,7 +78,13 @@ export default function NewTask() {
                   : "border-zinc-800 bg-zinc-900 text-zinc-400"
               }`}
             >
-              {p === "LOW" ? "Baja" : p === "MEDIUM" ? "Media" : p === "HIGH" ? "Alta" : "Urgente"}
+              {p === "LOW"
+                ? "Baja"
+                : p === "MEDIUM"
+                  ? "Media"
+                  : p === "HIGH"
+                    ? "Alta"
+                    : "Urgente"}
             </button>
           ))}
         </div>

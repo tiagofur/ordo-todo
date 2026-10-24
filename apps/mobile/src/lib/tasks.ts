@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./api";
 import type {
   CreateTaskDto,
@@ -79,14 +75,7 @@ export function useUpdateTask(id: string, onDone?: () => void) {
 export function useCompleteTask() {
   const invalidate = useInvalidateTasks();
   return useMutation({
-    mutationFn: ({
-      id,
-      completed,
-    }: {
-      id: string;
-      completed: boolean;
-      priority?: TaskPriority;
-    }) =>
+    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
       completed
         ? apiClient.completeTask(id)
         : apiClient.updateTask(id, { status: "TODO" }),

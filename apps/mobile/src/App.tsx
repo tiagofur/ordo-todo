@@ -20,9 +20,10 @@ function RequireAuth() {
   const { isAuthenticated, isLoading, user } = useAuth();
   const qc = useQueryClient();
   const [screen, setScreen] = useState<"login" | "register">("login");
-  const [oauthResult, setOauthResult] = useState<
-    { ok: boolean; text: string } | null
-  >(null);
+  const [oauthResult, setOauthResult] = useState<{
+    ok: boolean;
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     initDeepLinks((ok) => {
