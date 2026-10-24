@@ -21,24 +21,34 @@ Test runner: Vitest (unit, cuando haya lógica propia) · verificación manual e
 ## Fases
 
 ### P0 — Spike validado (ESTE PR)
+
 Scaffold `apps/mobile` (Tauri 2 + Vite + React + tailwind 4) con pantalla validadora de 5 checks. **Aceptación**: APK debug instalado en el emulador; app renderiza; notificación inmediata recibida; **notificación programada a 5 s recibida con la app en background** (el caso real del timer); scroll de 200 filas sin cortes; `openUrl` abre el navegador del sistema; typecheck en verde. Riesgo iOS: sin Xcode no se valida aquí — el código Tauri es común; validar en cuanto el owner instale Xcode.
 
 ### P1 — Auth completa
+
 Login/registro in-app con `api-client`+`auth-provider` (mismo flujo JWT que desktop), OAuth Google/GitHub vía navegador del sistema + deep link `ordo://` (registrar scheme con `tauri-plugin-deep-link`; el backend ya responde), sesión persistente (`tauri-plugin-store`), logout y refresh. **Aceptación**: login email+password ok; OAuth round-trip completo; sesión sobrevive reinicio de app; refresh automático tras 401.
 
 ### P2 — Tasks core offline-friendly
+
 Lista Hoy/Próximas, detalle, crear/editar/completar con `react-hook-form`+`zod` (validations del monorepo), campos personalizados, time blocking. Tanstack-query con caché persistida (lectura offline). **Aceptación**: CRUD completo contra backend; la app muestra datos en frío sin red.
 
 ### P3 — Timer/focus con notificaciones en background
+
 Paridad con ODD 014/015/016 (motor backend-owned, `useTimerBackend`, skip sin crédito, persistencia de fase): pantalla timer, contador wall-clock, notificación local al acabar fase **con app cerrada**, haptics al cambiar de fase. **Aceptación**: pomodoro completo con la app en background dispara notificación y el contador del backend cuadra.
 
 ### P4 — Paridad del resto
+
 Notas (muro), ritual (mañana/tarde), proyectos, analytics/dashboard, perfil/ajustes, menciones y navegación, quick actions (iOS/Android shortcuts). **Aceptación**: checklist pantalla a pantalla contra `apps/web` (mismas historias que la app Expo implementaba).
 
 ### P5 — Release
-Iconos/producto finales, signing Android (keystore) + iOS (requiere Xcode del owner), CI de builds (o procesos manuales documentados), TestFlight/Play internal testing, **borrar `apps/mobile-expo`** y con ello cerrar el clúster de vulnerabilidades Expo (baseline audit → 0 fuera de riesgo aceptado).
+
+Iconos/producto finales, signing Android (keystore) + iOS (requiere Xcode del owner), CI de builds (o procesos manuales documentados), TestFlight/Play internal testing, **borrar `apps/mobile-expo`** y con ello cerrar el clúster de vulnerabilidades Expo (baseline audit → 0 fuera de riesgo aceptado). **Aceptación de seguridad (del review del spike)**: CSP restrictiva en `tauri.conf.json` (hoy `null` por el spike), capabilities por-ventana en vez de `"windows": ["*"]`, y revisión de permisos de los plugins activos — sin esto no hay release.
 
 ## Riesgos abiertos
+
 - Plugin de notificaciones: `schedule()` en Android con battery optimizations (probado en P0 con `allowWhileIdle`); en iOS requiere validación con Xcode.
 - Biometría: plugin community (`tauri-plugin-biometric`) — validar en P1; fallback: login normal.
 - Scroll/gestos webview: si el tacto no convence en P2, plan B documentado = Capacitor reutilizando el mismo código React.
+- **Socket.io en webview** (la app Expo lo usaba para notificaciones y timer en vivo — `use-notifications-socket.ts`, `use-timer-backend.ts`): el WebSocket se suspende en background (crítico en iOS/WKWebView). P2/P3 deben incluir reconexión y sync-on-foreground como criterio de aceptación.
+- **Deep link `ordo://` en cold start** (P1): con la app cerrada, el intent/scheme llega al arrastre — verificar `tauri-plugin-deep-link` en Android (intent-filter) e iOS (custom scheme) ambos escenarios: warm y cold.
+- **Botón atrás de Android con react-router** (P1/P2): el back físico debe navegar el historial del router y no cerrar la app (clásico de webview); probar en P1.

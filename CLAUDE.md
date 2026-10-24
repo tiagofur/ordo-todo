@@ -125,14 +125,17 @@ npm run build:linux            # Build for Linux
 npm run build:all              # Build for all platforms
 ```
 
-### Mobile-Specific Commands
+### Mobile-Specific Commands (Tauri 2 — rebuild en curso, ODD 020)
 
 ```bash
 cd apps/mobile
-npm run start                  # Start Expo dev server
-npm run android                # Run on Android
-npm run ios                    # Run on iOS
-npm run web                    # Run on web
+npm run dev                    # Vite dev server (puerto 1421)
+npm run build                  # Build del frontend
+npm run tauri android init     # Generar proyecto Android (ya hecho)
+PATH="$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$PATH" \
+  npm run tauri android build --debug --target aarch64   # APK debug
+# NOTA: el cargo del PATH (Homebrew) no tiene std de Android; usar el de
+# rustup primero. La app Expo legacy está congelada en apps/mobile-expo.
 ```
 
 ## Architecture & Domain Patterns
@@ -676,8 +679,9 @@ This is a monorepo with workspaces:
 
 **Applications:**
 - `apps/web` - @ordo-todo/web (Next.js 16)
-- `apps/mobile` - @ordo-todo/mobile (React Native + Expo)
-- `apps/desktop` - @ordo-todo/desktop (Electron)
+- `apps/mobile` - @ordo-todo/mobile (Tauri 2 + React; rebuild en curso, ODD 020)
+- `apps/mobile-expo` - @ordo-todo/mobile-expo (app Expo legacy, CONGELADA; se borra en P5)
+- `apps/desktop` - @ordo-todo/desktop (Tauri 2)
 - `apps/backend` - @ordo-todo/backend (NestJS REST API)
 
 **Shared Packages:**
