@@ -18,11 +18,11 @@ import { Link } from '@/i18n/routing';
 // links out (the focus guide exists); the rest describe in-app locations
 // in prose — no dead links, no fake "open in app" buttons.
 const BLOCKS = [
-  { key: 'meetings', icon: Video, color: '#06B6D4', href: null as string | null },
-  { key: 'workload', icon: Users, color: '#EC4899', href: null as string | null },
-  { key: 'wellbeing', icon: Heart, color: '#F97316', href: null as string | null },
+  { key: 'meetings', icon: Video, color: '#06B6D4', href: '/guide/meetings' },
+  { key: 'workload', icon: Users, color: '#EC4899', href: '/guide/workspaces' },
+  { key: 'wellbeing', icon: Heart, color: '#F97316', href: '/guide/wellbeing' },
   { key: 'search', icon: Search, color: '#10B981', href: null as string | null },
-  { key: 'coach', icon: MessagesSquare, color: '#A855F7', href: null as string | null },
+  { key: 'coach', icon: MessagesSquare, color: '#A855F7', href: '/guide/coach' },
   { key: 'gamification', icon: Trophy, color: '#3B82F6', href: null as string | null },
   { key: 'focusAudio', icon: Headphones, color: '#F59E0B', href: '/guide/focus' },
 ];

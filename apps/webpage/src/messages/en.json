@@ -1932,5 +1932,40 @@
       "eisenhower": "Eisenhower priority",
       "breaks": "Optimize breaks"
     }
+  },
+  "GuideWellbeing": {
+    "badge": "Wellbeing",
+    "title": "Wellbeing and Burnout",
+    "subtitle": "Producing a lot is fine; knowing the cost is even better.",
+    "what_title": "The human side of the metrics",
+    "what_text": "While analytics celebrate your productivity, Wellbeing watches its price: it analyzes your real working patterns to catch burnout before it arrives.",
+    "signals_title": "The four signals",
+    "signals_text": "The screen sums up your state in four indicators:",
+    "analysis_title": "Factors and suggestions",
+    "analysis_text": "When risk rises, the screen names the detected factors (recent overloads, sessions without breaks, night work) and offers immediate suggestions for each.",
+    "weekly_title": "Weekly summary",
+    "weekly_text": "A wellbeing score with the week's positives and areas to improve, plus the overall trend: improving, stable or needs attention.",
+    "data_title": "Fed by your real usage",
+    "data_text": "The analysis comes from your timer sessions and breaks. The more honest the signal (use the timer, mark breaks), the more useful the diagnosis.",
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "It is a self-awareness tool, not a medical diagnosis. If the numbers and your body say the same thing, listen to your body.",
+    "signals": {
+      "energy": {
+        "title": "Energy level",
+        "description": "Your day-to-day battery, with trend: improving, stable or declining."
+      },
+      "burnout": {
+        "title": "Burnout risk",
+        "description": "Percentage and level: low, moderate, high or critical."
+      },
+      "breaks": {
+        "title": "Breaks",
+        "description": "Average minutes of disconnection between sessions."
+      },
+      "night": {
+        "title": "Night work",
+        "description": "Percentage of sessions outside working hours."
+      }
+    }
   }
 }

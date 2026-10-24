@@ -1932,5 +1932,40 @@
       "eisenhower": "Prioridad Eisenhower",
       "breaks": "Optimizar descansos"
     }
+  },
+  "GuideWellbeing": {
+    "badge": "Bienestar",
+    "title": "Bienestar y Burnout",
+    "subtitle": "Producir mucho está bien; saber a qué costo, mejor todavía.",
+    "what_title": "La contraparte humana de las métricas",
+    "what_text": "Mientras las analíticas celebran tu productividad, Bienestar vigila su precio: analiza tus patrones reales de trabajo para detectar el burnout antes de que llegue.",
+    "signals_title": "Las cuatro señales",
+    "signals_text": "La pantalla resume tu estado en cuatro indicadores:",
+    "analysis_title": "Factores y sugerencias",
+    "analysis_text": "Si el riesgo sube, la pantalla nombra los factores detectados (sobrecargas recientes, sesiones sin pausa, trabajo nocturno) y propone sugerencias inmediatas para cada uno.",
+    "weekly_title": "Resumen semanal",
+    "weekly_text": "Una puntuación de bienestar con lo positivo y las áreas de mejora de la semana, y la tendencia general: mejorando, estable o requiere atención.",
+    "data_title": "Se alimenta de tu uso real",
+    "data_text": "El análisis proviene de tus sesiones de timer y descansos. Cuanto más honesta sea la señal (usa el timer, marca pausas), más útil será el diagnóstico.",
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Es una herramienta de autoconocimiento, no un diagnóstico médico. Si los números y tu cuerpo dicen lo mismo, escucha a este último.",
+    "signals": {
+      "energy": {
+        "title": "Nivel de energía",
+        "description": "Tu batería del día a día, con tendencia: mejorando, estable o en declive."
+      },
+      "burnout": {
+        "title": "Riesgo de burnout",
+        "description": "Porcentaje y nivel: bajo, moderado, alto o crítico."
+      },
+      "breaks": {
+        "title": "Descansos",
+        "description": "Minutos medios de desconexión entre sesiones."
+      },
+      "night": {
+        "title": "Trabajo nocturno",
+        "description": "Porcentaje de sesiones fuera de horario."
+      }
+    }
   }
 }
