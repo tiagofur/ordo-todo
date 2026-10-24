@@ -31,6 +31,10 @@ import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  GitHubOAuthPlatformGuard,
+  GoogleOAuthPlatformGuard,
+} from './guards/oauth-platform.guard';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -379,7 +383,7 @@ export class AuthController {
    */
   @Public()
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleOAuthPlatformGuard)
   @ApiOperation({
     summary: 'Google OAuth login',
     description: 'Redirects to Google OAuth consent screen',
@@ -446,7 +450,7 @@ export class AuthController {
    */
   @Public()
   @Get('github')
-  @UseGuards(AuthGuard('github'))
+  @UseGuards(GitHubOAuthPlatformGuard)
   @ApiOperation({
     summary: 'GitHub OAuth login',
     description: 'Redirects to GitHub OAuth consent screen',

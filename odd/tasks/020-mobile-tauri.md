@@ -24,13 +24,13 @@ Test runner: Vitest (unit, cuando haya lógica propia) · verificación manual e
 
 Scaffold `apps/mobile` (Tauri 2 + Vite + React + tailwind 4) con pantalla validadora de 5 checks. **Aceptación**: APK debug instalado en el emulador; app renderiza; notificación inmediata recibida; **notificación programada a 5 s recibida con la app en background** (el caso real del timer); scroll de 200 filas sin cortes; `openUrl` abre el navegador del sistema; typecheck en verde. Riesgo iOS: sin Xcode no se valida aquí — el código Tauri es común; validar en cuanto el owner instale Xcode.
 
-### P1 — Auth completa
+### P1 — Auth completa (MERGEADA — PR feat/mobile-p1)
 
-Login/registro in-app con `api-client`+`auth-provider` (mismo flujo JWT que desktop), OAuth Google/GitHub vía navegador del sistema + deep link `ordo://` (registrar scheme con `tauri-plugin-deep-link`; el backend ya responde), sesión persistente (`tauri-plugin-store`), logout y refresh. **Aceptación**: login email+password ok; OAuth round-trip completo; sesión sobrevive reinicio de app; refresh automático tras 401.
+Login/registro in-app con `api-client`+`auth-provider` (mismo flujo JWT que desktop), OAuth Google/GitHub vía navegador del sistema + deep link `ordo://` (scheme con `tauri-plugin-deep-link`), sesión persistente (localStorage del webview; upgrade a `tauri-plugin-store` opcional), logout y refresh. **Fix de backend necesario descubierto en P1**: el redirect a `ordo://` era inalcanzable con proveedor real porque el `state` no se propagaba — nuevo `OAuthPlatformGuard` (google/github) que envía `state=platform` en el authorize (NullStore de passport-oauth2 no lo verifica, misma política aceptada de desktop; PKCE via `PkceService` como mejora futura). **Aceptación cumplida**: registro por API con código de invitación consumido; login UI→backend; deep link ordo://auth/callback con tokens reales del backend → sesión (warm y cold start); sesión sobrevive reinicio de app; refresh automático tras 401 (interceptor del client). **P1-b (deuda)**: biometría (plugin community `tauri-plugin-biometric` + fallback a login normal) y OAuth con pantalla real del proveedor (requiere credenciales reales en `.env`; el mecanismo deep link quedó validado con tokens reales).
 
 ### P2 — Tasks core offline-friendly
 
-Lista Hoy/Próximas, detalle, crear/editar/completar con `react-hook-form`+`zod` (validations del monorepo), campos personalizados, time blocking. Tanstack-query con caché persistida (lectura offline). **Aceptación**: CRUD completo contra backend; la app muestra datos en frío sin red.
+Lista Hoy/Próximas, detalle, crear/editar/completar con `react-hook-form`+`zod` (validations del monorepo), campos personalizados, time blocking. Tanstack-query con caché persistida (lectura offline), react-router vuelve (con manejo del botón atrás Android). **Aceptación**: CRUD completo contra backend; la app muestra datos en frío sin red.
 
 ### P3 — Timer/focus con notificaciones en background
 

@@ -16,11 +16,11 @@ fn init_platform_log() {}
 pub fn run() {
     init_platform_log();
     info!("run(): empezando");
-    println!("run(): empezando (stdout)");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_deep_link::init())
         .setup(|_app| {
             info!("setup(): app configurada, creando webview");
             Ok(())

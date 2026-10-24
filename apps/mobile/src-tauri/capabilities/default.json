@@ -1,6 +1,11 @@
 {
   "identifier": "default",
-  "description": "Permisos del spike: notificaciones locales y apertura de enlaces del sistema",
+  "description": "Permisos de la app: notificaciones, apertura de enlaces y deep links OAuth",
   "windows": ["*"],
-  "permissions": ["core:default", "notification:default", "opener:default"]
+  "permissions": [
+    "core:default",
+    "notification:default",
+    "opener:default",
+    "deep-link:default"
+  ]
 }
