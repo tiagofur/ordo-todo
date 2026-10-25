@@ -38,9 +38,10 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    command: >
-      sh -c "npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma
-             && echo 'Migrations completed successfully!'"
+    # Prisma 7 toma la URL de prisma.config.ts (en packages/db), no del schema:
+    # hay que ejecutar desde ese directorio.
+    working_dir: /app/packages/db
+    command: ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
     restart: "no"
 
   backend:

@@ -29,7 +29,14 @@ WEBPAGE_PORT=$(envval WEBPAGE_PORT); WEBPAGE_PORT=${WEBPAGE_PORT:-3002}
 HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-$(envval HEALTH_TIMEOUT)}
 
 health_of() {
-  docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "ordo-$1" 2>/dev/null || echo missing
+  local st
+  st=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "ordo-$1" 2>/dev/null) || st=""
+  printf '%s' "${st:-missing}"
+}
+restarts_of() {
+  local n
+  n=$(docker inspect --format '{{.RestartCount}}' "ordo-$1" 2>/dev/null) || n=""
+  printf '%s' "${n:--}"
 }
 
 if [ "${1:-}" = "--wait" ]; then
@@ -58,8 +65,7 @@ docker compose ps --format 'table {{.Name}}\t{{.Status}}\t{{.Ports}}' 2>/dev/nul
 
 echo; echo "== Salud y reinicios =="
 for s in postgres backend web webpage; do
-  printf '%-9s %-10s reinicios=%s\n' "$s" "$(health_of "$s")" \
-    "$(docker inspect --format '{{.RestartCount}}' "ordo-$s" 2>/dev/null || echo -)"
+  printf '%-9s %-10s reinicios=%s\n' "$s" "$(health_of "$s")" "$(restarts_of "$s")"
 done
 
 echo; echo "== Endpoints (127.0.0.1, lo que ve Plesk) =="
