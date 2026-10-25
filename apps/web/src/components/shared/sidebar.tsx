@@ -1,24 +1,14 @@
 "use client";
 
-import {
-  Home,
-  CheckSquare,
-  FolderKanban,
-  BarChart3,
-  Briefcase,
-  Calendar,
-  CalendarDays,
-  Download,
-  Sparkles,
-  Sunrise,
-  Target,
-  Users,
-  ShieldCheck,
-} from "lucide-react";
+import { CheckSquare, Download } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
-import { MobileSidebar as MobileSidebarUI, type NavSection } from "@ordo-todo/ui";
+import { MobileSidebar as MobileSidebarUI } from "@ordo-todo/ui";
+import { buildNavSections } from "./nav-config";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
-import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
+import {
+  CreateWorkspaceDialog,
+  type CreateWorkspaceFormData,
+} from "@/components/workspace/create-workspace-dialog";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
@@ -36,72 +26,27 @@ interface MobileSidebarProps {
 
 export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   const t = useTranslations("Sidebar");
+  const tCreate = useTranslations("CreateWorkspaceDialog");
   const pathname = usePathname();
   const { isAdmin } = useIsAdmin();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const createWorkspace = useCreateWorkspace();
   const { setSelectedWorkspaceId } = useWorkspaceStore();
 
-  const handleCreateWorkspace = async (data: any) => {
+  const handleCreateWorkspace = async (data: CreateWorkspaceFormData) => {
     try {
       const created = await createWorkspace.mutateAsync(data);
       if (created?.id) {
         setSelectedWorkspaceId(created.id);
       }
-      toast.success("Workspace creado exitosamente");
+      toast.success(tCreate("toast.success"));
       setShowCreateWorkspace(false);
     } catch (error) {
-      toast.error(getErrorMessage(error, "Error al crear workspace"));
+      toast.error(getErrorMessage(error, tCreate("toast.error")));
     }
   };
 
-  const navSections: NavSection[] = [
-    {
-      items: [
-        { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
-        { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-        { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-        { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
-        { name: t("ritual"), href: "/ritual", icon: Sunrise, color: "orange" },
-      ],
-    },
-    {
-      label: t("sectionPlan"),
-      items: [
-        { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-        { name: t("habits"), href: "/habits", icon: Sparkles, color: "emerald" },
-        { name: t("goals"), href: "/goals", icon: Target, color: "orange" },
-      ],
-    },
-    {
-      label: t("sectionInsights"),
-      items: [
-        { name: t("insights"), href: "/insights", icon: BarChart3, color: "cyan" },
-      ],
-    },
-    {
-      label: t("sectionTeam"),
-      items: [
-        { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-        { name: t("workload"), href: "/workload", icon: Users, color: "purple" },
-      ],
-    },
-    ...(isAdmin
-      ? [
-          {
-            label: t("sectionAdmin"),
-            items: [
-              {
-                name: t("admin"),
-                href: "/admin",
-                icon: ShieldCheck,
-                color: "purple" as const,
-              },
-            ],
-          },
-        ]
-      : []),
-  ];
+  const navSections = buildNavSections(t, isAdmin);
 
   return (
     <>
@@ -118,7 +63,12 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         )}
         renderTimerWidget={() => <TimerWidget />}
         renderWorkspaceSelector={() => (
-          <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
+          // El drawer mide 280px con p-3: el dropdown no puede exceder 256px
+          // o sobresale del drawer sobre el scrim.
+          <WorkspaceSelector
+            onCreateClick={() => setShowCreateWorkspace(true)}
+            contentClassName="max-w-[256px]"
+          />
         )}
         renderInstallButton={() => <InstallPWAButton />}
         showSettingsButton={false}

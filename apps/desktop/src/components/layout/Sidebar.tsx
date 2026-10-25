@@ -36,45 +36,121 @@ export function Sidebar() {
   // Windows/Linux: add padding for custom TitleBar (40px)
   const topPadding = platform === "darwin" ? "pt-12" : "pt-10";
 
+  // Sistema de color (decisión del owner, oct 2026): el color codifica la
+  // sección — purple = trabajo diario, emerald = planificación, orange =
+  // equipo y enfoque, cyan = rendimiento — y red se reserva para la Papelera.
   const navSections: NavSection[] = [
     {
       items: [
-        { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
-        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
-        { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-        { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+        {
+          name: t("Sidebar.today"),
+          href: "/dashboard",
+          icon: Home,
+          color: "purple",
+        },
+        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "purple" },
+        {
+          name: t("Sidebar.tasks"),
+          href: "/tasks",
+          icon: CheckSquare,
+          color: "purple",
+        },
+        {
+          name: t("Sidebar.calendar"),
+          href: "/calendar",
+          icon: Calendar,
+          color: "purple",
+        },
       ],
     },
     {
       label: t("Sidebar.sectionPlan"),
       items: [
-        { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-        { name: t("Sidebar.habits"), href: "/habits", icon: Sparkles, color: "emerald" },
-        { name: t("Sidebar.goals"), href: "/goals", icon: Target, color: "orange" },
-        { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
+        {
+          name: t("Sidebar.projects"),
+          href: "/projects",
+          icon: FolderKanban,
+          color: "emerald",
+        },
+        {
+          name: t("Sidebar.habits"),
+          href: "/habits",
+          icon: Sparkles,
+          color: "emerald",
+        },
+        {
+          name: t("Sidebar.goals"),
+          href: "/goals",
+          icon: Target,
+          color: "emerald",
+        },
+        {
+          name: t("Sidebar.notes"),
+          href: "/notes",
+          icon: StickyNote,
+          color: "emerald",
+        },
       ],
     },
     {
       label: t("Sidebar.sectionTeam"),
       items: [
-        { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-        { name: t("Sidebar.workload"), href: "/workload", icon: Users, color: "purple" },
-        { name: t("Sidebar.eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
-        { name: t("Sidebar.meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
+        {
+          name: t("Sidebar.workspaces"),
+          href: "/workspaces",
+          icon: Briefcase,
+          color: "orange",
+        },
+        {
+          name: t("Sidebar.workload"),
+          href: "/workload",
+          icon: Users,
+          color: "orange",
+        },
+        {
+          name: t("Sidebar.eisenhower"),
+          href: "/eisenhower",
+          icon: LayoutGrid,
+          color: "orange",
+        },
+        {
+          name: t("Sidebar.meetings"),
+          href: "/meetings",
+          icon: MessageSquare,
+          color: "orange",
+        },
       ],
     },
     {
       label: t("Sidebar.sectionInsights"),
       items: [
-        { name: t("Sidebar.insights") || t("Sidebar.analytics"), href: "/insights", icon: BarChart3, color: "cyan" },
-        { name: t("Sidebar.wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
-        { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
-        { name: t("Sidebar.trash"), href: "/trash/tasks", icon: Trash2, color: "red" },
+        {
+          name: t("Sidebar.insights") || t("Sidebar.analytics"),
+          href: "/insights",
+          icon: BarChart3,
+          color: "cyan",
+        },
+        {
+          name: t("Sidebar.wellbeing"),
+          href: "/wellbeing",
+          icon: Heart,
+          color: "cyan",
+        },
+        { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "cyan" },
+        {
+          name: t("Sidebar.trash"),
+          href: "/trash/tasks",
+          icon: Trash2,
+          color: "red",
+        },
       ],
     },
   ];
 
-  const isMac = desktopBridge.getPlatform() === "darwin" || (typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("mac"));
+  const isMac =
+    desktopBridge.getPlatform() === "darwin" ||
+    (typeof navigator !== "undefined" &&
+      navigator.userAgent.toLowerCase().includes("mac"));
 
   return (
     <>
@@ -90,7 +166,9 @@ export function Sidebar() {
         )}
         renderTimerWidget={() => <TimerWidget />}
         renderWorkspaceSelector={() => (
-          <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
+          <WorkspaceSelector
+            onCreateClick={() => setShowCreateWorkspace(true)}
+          />
         )}
         showSettingsButton={false}
         labels={{
