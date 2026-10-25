@@ -891,7 +891,57 @@
       "create": "Crear Proyecto"
     }
   },
-  "CreateWorkspaceDialog": {
+    "AIFeaturesTour": {
+    "team": "Equipo",
+    "close": "Cerrar",
+    "personal": "Personal",
+    "stepOf": "Paso {current} de {total}",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "start": "¡Empezar!",
+    "steps": {
+      "welcomeTeam": {
+        "title": "¡Bienvenido, Líder de Equipo!",
+        "description": "Hemos añadido potentes herramientas de IA diseñadas para equipos. Descubre cómo mejorar la colaboración y productividad de tu equipo."
+      },
+      "welcomeIndividual": {
+        "title": "¡Nuevas Funciones de IA!",
+        "description": "Hemos añadido potentes herramientas de inteligencia artificial para impulsar tu productividad personal. Te mostramos lo nuevo."
+      },
+      "smartSearch": {
+        "title": "Búsqueda Inteligente",
+        "description": "Usa Cmd+K (o Ctrl+K) para abrir la búsqueda semántica. Encuentra tareas por significado, no solo por palabras exactas."
+      },
+      "meetings": {
+        "title": "Asistente de Reuniones",
+        "description": "Pega transcripciones de tus reuniones y la IA extraerá automáticamente action items, decisiones y participantes.",
+        "action": "Ir a Meetings"
+      },
+      "wellbeing": {
+        "title": "Panel de Bienestar",
+        "description": "Monitorea tu riesgo de burnout, analiza tus patrones de trabajo y recibe recomendaciones personalizadas.",
+        "action": "Ver Bienestar"
+      },
+      "workload": {
+        "title": "Carga del Equipo",
+        "description": "Visualiza la carga de trabajo de tu equipo, identifica desequilibrios y redistribuye tareas de forma inteligente.",
+        "action": "Ver Carga"
+      },
+      "focusAudio": {
+        "title": "Audio para Focus",
+        "description": "Activa sonidos ambient durante tus sesiones de enfoque para mejorar la concentración. Lo puedes configurar en Settings."
+      },
+      "completeTeam": {
+        "title": "¡Tu Equipo Está Listo!",
+        "description": "Explora estas nuevas funciones y comparte con tu equipo cómo la IA puede ayudarles a ser más productivos. ¡Comienza ahora!"
+      },
+      "completeIndividual": {
+        "title": "¡Todo Listo!",
+        "description": "Explora estas nuevas funciones y descubre cómo la IA puede ayudarte a ser más productivo. ¡Comienza ahora!"
+      }
+    }
+  },
+"CreateWorkspaceDialog": {
     "validation": {
       "nameRequired": "El nombre es requerido"
     },
@@ -903,6 +953,8 @@
     "description": "Organiza tus tareas en diferentes espacios de trabajo",
     "form": {
       "type": "Tipo de Workspace",
+      "color": "Color",
+      "icon": "Icono",
       "name": "Nombre *",
       "namePlaceholder": "Ej: Mi Empresa, Personal, etc.",
       "description": "Descripción",

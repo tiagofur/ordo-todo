@@ -891,7 +891,57 @@
       "create": "Create Project"
     }
   },
-  "CreateWorkspaceDialog": {
+    "AIFeaturesTour": {
+    "team": "Team",
+    "close": "Close",
+    "personal": "Personal",
+    "stepOf": "Step {current} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "start": "Let's go!",
+    "steps": {
+      "welcomeTeam": {
+        "title": "Welcome, Team Leader!",
+        "description": "We've added powerful AI tools designed for teams. Discover how to boost your team's collaboration and productivity."
+      },
+      "welcomeIndividual": {
+        "title": "New AI Features!",
+        "description": "We've added powerful AI tools to boost your personal productivity. Here's what's new."
+      },
+      "smartSearch": {
+        "title": "Smart Search",
+        "description": "Use Cmd+K (or Ctrl+K) to open semantic search. Find tasks by meaning, not just exact words."
+      },
+      "meetings": {
+        "title": "Meeting Assistant",
+        "description": "Paste your meeting transcripts and AI will automatically extract action items, decisions and participants.",
+        "action": "Go to Meetings"
+      },
+      "wellbeing": {
+        "title": "Wellbeing Panel",
+        "description": "Monitor your burnout risk, analyze your work patterns and receive personalized recommendations.",
+        "action": "View Wellbeing"
+      },
+      "workload": {
+        "title": "Team Workload",
+        "description": "Visualize your team's workload, spot imbalances and redistribute tasks intelligently.",
+        "action": "View Workload"
+      },
+      "focusAudio": {
+        "title": "Focus Audio",
+        "description": "Turn on ambient sounds during your focus sessions to improve concentration. You can configure it in Settings."
+      },
+      "completeTeam": {
+        "title": "Your Team Is Ready!",
+        "description": "Explore these new features and share with your team how AI can help them be more productive. Start now!"
+      },
+      "completeIndividual": {
+        "title": "All Set!",
+        "description": "Explore these new features and discover how AI can help you be more productive. Start now!"
+      }
+    }
+  },
+"CreateWorkspaceDialog": {
     "validation": {
       "nameRequired": "Name is required"
     },
@@ -903,6 +953,8 @@
     "description": "Organize your tasks in different workspaces",
     "form": {
       "type": "Workspace Type",
+      "color": "Color",
+      "icon": "Icon",
       "name": "Name *",
       "namePlaceholder": "Ex: My Company, Personal, etc.",
       "description": "Description",

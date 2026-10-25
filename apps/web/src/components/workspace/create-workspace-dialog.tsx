@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ import { Label } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Textarea } from "@/components/ui";
 import { Button } from "@/components/ui";
-import { createWorkspaceSchema, generateSlug } from "@ordo-todo/core";
+import { generateSlug } from "@ordo-todo/core";
 
 export interface CreateWorkspaceFormData {
   name: string;
@@ -53,27 +54,6 @@ interface CreateWorkspaceDialogProps {
   };
 }
 
-const DEFAULT_LABELS = {
-  title: "Create Workspace",
-  description: "Create a new workspace to organize your projects and tasks.",
-  form: {
-    color: "Color",
-    icon: "Icon",
-    name: "Name",
-    namePlaceholder: "Enter workspace name",
-    description: "Description",
-    descriptionPlaceholder: "Optional description...",
-  },
-  buttons: {
-    cancel: "Cancel",
-    create: "Create Workspace",
-    creating: "Creating...",
-  },
-  validation: {
-    nameRequired: "Name is required",
-  },
-};
-
 export function CreateWorkspaceDialog({
   open,
   onOpenChange,
@@ -81,12 +61,30 @@ export function CreateWorkspaceDialog({
   isPending = false,
   labels = {},
 }: CreateWorkspaceDialogProps) {
+  const tDialog = useTranslations("CreateWorkspaceDialog");
   const t = {
-    ...DEFAULT_LABELS,
-    ...labels,
-    form: { ...DEFAULT_LABELS.form, ...labels.form },
-    buttons: { ...DEFAULT_LABELS.buttons, ...labels.buttons },
-    validation: { ...DEFAULT_LABELS.validation, ...labels.validation },
+    title: labels.title ?? tDialog("title"),
+    description: labels.description ?? tDialog("description"),
+    form: {
+      color: labels.form?.color ?? tDialog("form.color"),
+      icon: labels.form?.icon ?? tDialog("form.icon"),
+      name: labels.form?.name ?? tDialog("form.name"),
+      namePlaceholder:
+        labels.form?.namePlaceholder ?? tDialog("form.namePlaceholder"),
+      description: labels.form?.description ?? tDialog("form.description"),
+      descriptionPlaceholder:
+        labels.form?.descriptionPlaceholder ??
+        tDialog("form.descriptionPlaceholder"),
+    },
+    buttons: {
+      cancel: labels.buttons?.cancel ?? tDialog("buttons.cancel"),
+      create: labels.buttons?.create ?? tDialog("buttons.create"),
+      creating: labels.buttons?.creating ?? tDialog("buttons.creating"),
+    },
+    validation: {
+      nameRequired:
+        labels.validation?.nameRequired ?? tDialog("validation.nameRequired"),
+    },
   };
 
   const [selectedColor, setSelectedColor] = useState("#2563EB");
@@ -167,6 +165,43 @@ export function CreateWorkspaceDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-foreground"
+              >
+                {t.form.name}
+              </Label>
+              <Input
+                id="name"
+                autoFocus
+                {...register("name")}
+                placeholder={t.form.namePlaceholder}
+              />
+              {errors.name && (
+                <p className="text-sm text-destructive">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="description"
+                className="text-sm font-medium text-foreground"
+              >
+                {t.form.description}
+              </Label>
+              <Textarea
+                id="description"
+                {...register("description")}
+                placeholder={t.form.descriptionPlaceholder}
+                className="min-h-[100px] resize-none"
+              />
+            </div>
+
             {/* Color */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">
@@ -218,42 +253,6 @@ export function CreateWorkspaceDialog({
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Name */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-medium text-foreground"
-              >
-                {t.form.name}
-              </Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder={t.form.namePlaceholder}
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="description"
-                className="text-sm font-medium text-foreground"
-              >
-                {t.form.description}
-              </Label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder={t.form.descriptionPlaceholder}
-                className="min-h-[100px] resize-none"
-              />
             </div>
 
             <DialogFooter className="pt-2">
