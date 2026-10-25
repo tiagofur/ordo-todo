@@ -137,6 +137,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       NEXT_PUBLIC_API_URL: https://api.${DOMAIN}/api/v1
+      NEXT_PUBLIC_APP_URL: https://${DOMAIN}
     ports:
       - "127.0.0.1:${WEBPAGE_PORT:-3002}:3000"
     healthcheck:
