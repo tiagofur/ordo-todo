@@ -5,6 +5,13 @@
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
+/* Tailwind 4 ya no centra `container` (v3 lo hacía con mx-auto implícito):
+   sin esto, en pantallas más anchas que el max-width (1536px) el contenido
+   queda pegado a la izquierda. El padding lo pone cada uso (px-4 md:px-6). */
+@utility container {
+  margin-inline: auto;
+}
+
 /* Import shared styles from @ordo-todo/styles */
 /* These paths are relative to the package inside node_modules or monorepo workspace resolution */
 /* Actually, for Tailwind 4 with @import, we might need direct paths or node resolution */
