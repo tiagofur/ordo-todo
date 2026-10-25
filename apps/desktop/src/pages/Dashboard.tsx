@@ -21,9 +21,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@ordo-todo/ui";
 import { isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
-import { 
-  useTimerStats, 
-  useDailyMetrics, 
+import {
+  useTimerStats,
+  useDailyMetrics,
   useProductivityStreak,
   useTasks,
   useProjects,
@@ -33,13 +33,16 @@ import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
-import { DailyRitualDialog, type RitualMode } from "@/components/planning/daily-ritual-dialog";
-import { 
-  TimerWidget, 
-  ProductivityStreakWidget, 
-  HabitsWidget, 
-  OkrWidget, 
-  AIInsightsWidget 
+import {
+  DailyRitualDialog,
+  type RitualMode,
+} from "@/components/planning/daily-ritual-dialog";
+import {
+  TimerWidget,
+  ProductivityStreakWidget,
+  HabitsWidget,
+  OkrWidget,
+  AIInsightsWidget,
 } from "@/components/dashboard";
 
 type SortOption = "priority" | "duration" | "created";
@@ -48,7 +51,7 @@ type ViewMode = "list" | "grid";
 export function Dashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const accentColor = "#06b6d4";
+  const accentColor = "#9333ea";
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -71,7 +74,7 @@ export function Dashboard() {
   const startOfDay = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   );
   const endOfDay = new Date(
     today.getFullYear(),
@@ -79,7 +82,7 @@ export function Dashboard() {
     today.getDate(),
     23,
     59,
-    59
+    59,
   );
 
   // Fetch today's timer stats
@@ -102,11 +105,16 @@ export function Dashboard() {
   const todaysTasks = allTasks.filter((task: any) => {
     // Workspace isolation filter
     if (selectedWorkspaceId) {
-      const taskWorkspaceId = task.project?.workspace?.id || task.project?.workspaceId;
+      const taskWorkspaceId =
+        task.project?.workspace?.id || task.project?.workspaceId;
       if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
         return false;
       }
-      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+      if (
+        !taskWorkspaceId &&
+        projects.length > 0 &&
+        !projects.some((p: any) => p.id === task.projectId)
+      ) {
         return false;
       }
     }
@@ -183,7 +191,7 @@ export function Dashboard() {
 
   // Count completed tasks for the toggle label
   const completedCount = todaysTasks.filter(
-    (task: any) => task.status === "COMPLETED"
+    (task: any) => task.status === "COMPLETED",
   ).length;
 
   // Use metrics from backend
@@ -191,7 +199,9 @@ export function Dashboard() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const hoursWorked = stats
+    ? Math.floor((stats.totalMinutesWorked ?? 0) / 60)
+    : 0;
   const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
@@ -243,7 +253,7 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-3.5">
-          <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 shrink-0">
+          <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-sm shadow-purple-600/25 shrink-0">
             <Home className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div>
@@ -273,7 +283,7 @@ export function Dashboard() {
               "group relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border shadow-xs hover:shadow-md cursor-pointer",
               new Date().getHours() >= 17
                 ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20"
-                : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50"
+                : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50",
             )}
           >
             {new Date().getHours() >= 17 ? (
@@ -298,7 +308,11 @@ export function Dashboard() {
             key={card.title}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.35,
+              delay: index * 0.05,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             whileHover={{
               y: -4,
               borderColor: `${card.color}70`,
@@ -347,7 +361,10 @@ export function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <TimerWidget onExpand={() => navigate("/timer")} className="h-full flex-1" />
+          <TimerWidget
+            onExpand={() => navigate("/timer")}
+            className="h-full flex-1"
+          />
         </motion.div>
         <motion.div
           className="h-full flex flex-col"
@@ -385,7 +402,9 @@ export function Dashboard() {
       >
         {/* Header with controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h2 className="text-xl font-semibold">{t("Dashboard.todaysTasks", "Tareas de hoy")}</h2>
+          <h2 className="text-xl font-semibold">
+            {t("Dashboard.todaysTasks", "Tareas de hoy")}
+          </h2>
 
           <div className="flex items-center gap-3">
             {/* View mode toggle */}
@@ -395,8 +414,8 @@ export function Dashboard() {
                 className={cn(
                   "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "list"
-                    ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
+                    ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 font-semibold"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
                 title="Vista de lista"
               >
@@ -407,8 +426,8 @@ export function Dashboard() {
                 className={cn(
                   "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "grid"
-                    ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
+                    ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 font-semibold"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
                 title="Vista de cuadrícula"
               >
@@ -422,11 +441,17 @@ export function Dashboard() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
               >
-                <option value="priority">{t("Dashboard.sortOptions.priority", "Prioridad")}</option>
-                <option value="duration">{t("Dashboard.sortOptions.duration", "Duración")}</option>
-                <option value="created">{t("Dashboard.sortOptions.created", "Recientes")}</option>
+                <option value="priority">
+                  {t("Dashboard.sortOptions.priority", "Prioridad")}
+                </option>
+                <option value="duration">
+                  {t("Dashboard.sortOptions.duration", "Duración")}
+                </option>
+                <option value="created">
+                  {t("Dashboard.sortOptions.created", "Recientes")}
+                </option>
               </select>
             </div>
 
@@ -436,8 +461,8 @@ export function Dashboard() {
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border cursor-pointer",
                 showCompleted
-                  ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-semibold"
-                  : "bg-muted border-border text-muted-foreground hover:bg-muted"
+                  ? "bg-purple-500/15 border-purple-500/30 text-purple-700 dark:text-purple-300 font-semibold"
+                  : "bg-muted border-border text-muted-foreground hover:bg-muted",
               )}
             >
               {showCompleted ? (
@@ -446,15 +471,17 @@ export function Dashboard() {
                 <EyeOff className="h-4 w-4" />
               )}
               <span className="hidden sm:inline">
-                {showCompleted ? t("Dashboard.hideCompleted", "Ocultar") : t("Dashboard.showCompleted", "Mostrar completadas")}
+                {showCompleted
+                  ? t("Dashboard.hideCompleted", "Ocultar")
+                  : t("Dashboard.showCompleted", "Mostrar completadas")}
               </span>
               {completedCount > 0 && (
                 <span
                   className={cn(
                     "px-1.5 py-0.5 rounded-full text-xs font-medium",
                     showCompleted
-                      ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-purple-500/20 text-purple-700 dark:text-purple-300"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
                   {completedCount}
@@ -469,13 +496,22 @@ export function Dashboard() {
             <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="mb-2 text-lg font-medium">
               {!showCompleted && completedCount > 0
-                ? t("Dashboard.allTasksCompleted", "Todas las tareas completadas")
+                ? t(
+                    "Dashboard.allTasksCompleted",
+                    "Todas las tareas completadas",
+                  )
                 : t("Dashboard.noTasks", "Sin tareas")}
             </h3>
             <p className="mb-4 text-sm text-muted-foreground">
               {!showCompleted && completedCount > 0
-                ? t("Dashboard.tasksCompletedToday", { count: completedCount, defaultValue:`Tienes ${completedCount} tareas completadas hoy` })
-                : t("Dashboard.noTasksDescription", "No tienes tareas para hoy")}
+                ? t("Dashboard.tasksCompletedToday", {
+                    count: completedCount,
+                    defaultValue: `Tienes ${completedCount} tareas completadas hoy`,
+                  })
+                : t(
+                    "Dashboard.noTasksDescription",
+                    "No tienes tareas para hoy",
+                  )}
             </p>
             {!showCompleted && completedCount > 0 ? (
               <button
@@ -488,7 +524,7 @@ export function Dashboard() {
             ) : (
               <button
                 onClick={() => setShowCreateTaskDialog(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 hover:bg-cyan-600 transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-purple-600 text-white shadow-sm shadow-purple-600/25 hover:bg-purple-700 transition-all duration-200 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 {t("Dashboard.createTask", "Crear tarea")}
@@ -500,7 +536,7 @@ export function Dashboard() {
             className={cn(
               viewMode === "grid"
                 ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-2"
+                : "space-y-2",
             )}
           >
             {sortedTasks.map((task: any, index: number) => (
@@ -555,7 +591,7 @@ export function Dashboard() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     Nuevo Proyecto
                   </span>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-pink-500 shadow-sm shadow-pink-500/25">
@@ -575,7 +611,7 @@ export function Dashboard() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     Iniciar Timer
                   </span>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-amber-500 shadow-sm shadow-amber-500/25">
@@ -595,7 +631,7 @@ export function Dashboard() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     Nueva Tarea
                   </span>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-cyan-500 shadow-sm shadow-cyan-500/25">
@@ -613,8 +649,8 @@ export function Dashboard() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 cursor-pointer",
-            showQuickActions ? "rotate-45" : "rotate-0"
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-600/30 hover:bg-purple-700 transition-all duration-300 cursor-pointer",
+            showQuickActions ? "rotate-45" : "rotate-0",
           )}
         >
           <Plus className="h-7 w-7" />

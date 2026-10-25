@@ -563,7 +563,7 @@ export function DailyRitualDialog({
                           className={cn(
                             'flex items-center justify-between rounded-lg border p-3 cursor-pointer transition-all',
                             isSelected
-                              ? 'border-cyan-500 bg-cyan-500/10 shadow-xs'
+                              ? 'border-purple-500 bg-purple-500/10 shadow-xs'
                               : 'border-border bg-card hover:bg-muted/40'
                           )}
                         >
@@ -572,7 +572,7 @@ export function DailyRitualDialog({
                               className={cn(
                                 'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
                                 isSelected
-                                  ? 'border-cyan-500 bg-cyan-500 text-white'
+                                  ? 'border-purple-600 bg-purple-600 text-white'
                                   : 'border-muted-foreground/40'
                               )}
                             >
@@ -595,7 +595,7 @@ export function DailyRitualDialog({
                           </div>
 
                           {isSelected && (
-                            <Badge className="bg-cyan-500 hover:bg-cyan-600 text-white text-[10px] py-0 px-2 shrink-0">
+                            <Badge className="bg-purple-600 hover:bg-purple-700 text-white text-[10px] py-0 px-2 shrink-0">
                               Priority Focus
                             </Badge>
                           )}
@@ -621,7 +621,7 @@ export function DailyRitualDialog({
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-cyan-500" />
+                      <Clock className="h-4 w-4 text-purple-500" />
                       Time-Block Your Day
                     </h3>
                     <p className="text-xs text-muted-foreground">
@@ -633,9 +633,9 @@ export function DailyRitualDialog({
                     size="sm"
                     variant="outline"
                     onClick={handleAutoAssignTimeBlocks}
-                    className="text-xs border-cyan-500/30 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
+                    className="text-xs border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
                   >
-                    <Sparkles className="mr-1.5 h-3.5 w-3.5 text-cyan-500" />
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5 text-purple-500" />
                     Auto-Block with AI
                   </Button>
                 </div>
@@ -663,7 +663,7 @@ export function DailyRitualDialog({
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                               Focus #{index + 1}
                             </span>
-                            <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
+                            <span className="text-[11px] text-purple-600 dark:text-purple-400 font-medium">
                               {task.estimatedMinutes ? `${task.estimatedMinutes} min target` : 'Deep Work'}
                             </span>
                           </div>
@@ -685,7 +685,7 @@ export function DailyRitualDialog({
                                     },
                                   }))
                                 }
-                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:ring-1 focus:ring-cyan-500"
+                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:ring-1 focus:ring-purple-500"
                               />
                             </div>
 
@@ -705,7 +705,7 @@ export function DailyRitualDialog({
                                     },
                                   }))
                                 }
-                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:ring-1 focus:ring-cyan-500"
+                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:ring-1 focus:ring-purple-500"
                               />
                             </div>
                           </div>
@@ -745,7 +745,7 @@ export function DailyRitualDialog({
                     <div className="text-xs text-muted-foreground mt-0.5">Tasks Completed Today</div>
                   </div>
                   <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
-                    <div className="text-2xl font-bold text-cyan-500">{totalWorkedMinutes} min</div>
+                    <div className="text-2xl font-bold text-purple-500">{totalWorkedMinutes} min</div>
                     <div className="text-xs text-muted-foreground mt-0.5">Focus Time Logged</div>
                   </div>
                 </div>

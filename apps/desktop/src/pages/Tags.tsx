@@ -17,7 +17,13 @@ import {
 } from "lucide-react";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { toast } from "sonner";
-import { useTags, useCreateTag, useDeleteTag, useUpdateTag, useTasks } from "@/hooks/api";
+import {
+  useTags,
+  useCreateTag,
+  useDeleteTag,
+  useUpdateTag,
+  useTasks,
+} from "@/hooks/api";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useWorkspaces } from "@/lib/shared-hooks";
 import { PageTransition, SlideIn } from "@/components/motion";
@@ -96,7 +102,7 @@ export function Tags() {
     if (allTasks.length === 0) return "0.0";
     const totalApplications = allTasks.reduce(
       (sum: number, task: any) => sum + (task.tags?.length || 0),
-      0
+      0,
     );
     return (totalApplications / allTasks.length).toFixed(1);
   }, [allTasks]);
@@ -112,7 +118,7 @@ export function Tags() {
     if (!tagId) return;
     if (
       confirm(
-        t("Tags.confirmDelete") || "¿Estás seguro de eliminar esta etiqueta?"
+        t("Tags.confirmDelete") || "¿Estás seguro de eliminar esta etiqueta?",
       )
     ) {
       deleteTagMutation.mutate(String(tagId), {
@@ -120,7 +126,7 @@ export function Tags() {
           toast.success(t("Tags.tagDeleted") || "Etiqueta eliminada"),
         onError: (error: any) =>
           toast.error(
-            error.message || t("Tags.deleteError") || "Error al eliminar"
+            error.message || t("Tags.deleteError") || "Error al eliminar",
           ),
       });
     }
@@ -135,7 +141,7 @@ export function Tags() {
     if (!activeWorkspaceId) {
       toast.error(
         t("Tags.selectWorkspaceFirst") ||
-          "Por favor selecciona un espacio de trabajo primero"
+          "Por favor selecciona un espacio de trabajo primero",
       );
       return;
     }
@@ -154,7 +160,7 @@ export function Tags() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-700 text-white shadow-sm shadow-cyan-700/25 shrink-0">
                 <TagIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0">
@@ -162,7 +168,7 @@ export function Tags() {
                   {t("Tags.title") || "Etiquetas"}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <Sparkles className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
                   <span>
                     {t("Tags.subtitle") ||
                       "Organiza y filtra tus tareas con etiquetas personalizadas"}
@@ -179,7 +185,7 @@ export function Tags() {
                     aria-label="Seleccionar espacio de trabajo"
                     value={activeWorkspaceId || ""}
                     onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors cursor-pointer shadow-xs"
+                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-colors cursor-pointer shadow-xs"
                   >
                     {workspaces.map((ws: any) => (
                       <option key={ws.id} value={ws.id}>
@@ -196,7 +202,7 @@ export function Tags() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleOpenCreateDialog}
-                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium bg-cyan-700 hover:bg-cyan-800 text-white shadow-sm shadow-cyan-700/25 transition-all duration-200 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t("Tags.newTag") || "Nueva Etiqueta"}</span>
@@ -225,7 +231,7 @@ export function Tags() {
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Etiquetas
                 </span>
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform duration-300 group-hover:scale-110">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-500 transition-transform duration-300 group-hover:scale-110">
                   <TagIcon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                 </div>
               </div>
@@ -264,7 +270,7 @@ export function Tags() {
               <p className="mt-1 text-xs text-muted-foreground truncate">
                 {allTasks.length > 0
                   ? `${Math.round(
-                      (taggedTasksCount / allTasks.length) * 100
+                      (taggedTasksCount / allTasks.length) * 100,
                     )}% de tus tareas`
                   : "Tareas organizadas"}
               </p>
@@ -343,7 +349,7 @@ export function Tags() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar etiqueta por nombre..."
-                  className="w-full bg-muted/40 border-0 rounded-xl pl-9 pr-8 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
+                  className="w-full bg-muted/40 border-0 rounded-xl pl-9 pr-8 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -493,7 +499,7 @@ export function Tags() {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/80 bg-card/50"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4 shadow-xs">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500 mb-4 shadow-xs">
                 <TagIcon className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-semibold mb-1">
@@ -520,7 +526,7 @@ export function Tags() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleOpenCreateDialog}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-700 hover:bg-cyan-800 text-white shadow-sm shadow-cyan-700/25 transition-all duration-200 cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   <span>{t("Tags.createTag") || "Crear Etiqueta"}</span>
@@ -554,7 +560,7 @@ export function Tags() {
             toast.error(
               error instanceof Error
                 ? error.message
-                : t("Tags.saveError") || "Error al guardar"
+                : t("Tags.saveError") || "Error al guardar",
             );
           }
         }}

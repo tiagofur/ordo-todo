@@ -28,7 +28,9 @@ export function Goals() {
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "at_risk">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "completed" | "at_risk"
+  >("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const objectivesList = useMemo(() => objectives || [], [objectives]);
@@ -37,19 +39,29 @@ export function Goals() {
   const stats = useMemo(() => {
     const total = objectivesList.length;
     const active = objectivesList.filter(
-      (o: any) => o.status !== "COMPLETED" && o.status !== "CANCELLED" && (o.progress ?? 0) < 100
+      (o: any) =>
+        o.status !== "COMPLETED" &&
+        o.status !== "CANCELLED" &&
+        (o.progress ?? 0) < 100,
     ).length;
     const completed = objectivesList.filter(
-      (o: any) => o.status === "COMPLETED" || (o.progress ?? 0) >= 100
+      (o: any) => o.status === "COMPLETED" || (o.progress ?? 0) >= 100,
     ).length;
-    const atRisk = objectivesList.filter((o: any) => o.status === "AT_RISK").length;
+    const atRisk = objectivesList.filter(
+      (o: any) => o.status === "AT_RISK",
+    ).length;
     const avgProgress =
       total > 0
-        ? Math.round(objectivesList.reduce((acc: number, o: any) => acc + (o.progress ?? 0), 0) / total)
+        ? Math.round(
+            objectivesList.reduce(
+              (acc: number, o: any) => acc + (o.progress ?? 0),
+              0,
+            ) / total,
+          )
         : 0;
     const totalKeyResults = objectivesList.reduce(
       (acc: number, o: any) => acc + (o.keyResults?.length || 0),
-      0
+      0,
     );
 
     return { total, active, completed, atRisk, avgProgress, totalKeyResults };
@@ -62,7 +74,7 @@ export function Goals() {
       value: stats.total.toString(),
       subtitle: `${stats.active} activos`,
       icon: Target,
-      color: "#f97316", // Orange
+      color: "#047857", // Emerald (acento de sección)
     },
     {
       title: t("Goals.progress", "Progreso Medio"),
@@ -107,7 +119,9 @@ export function Goals() {
         );
       }
       if (statusFilter === "completed") {
-        return objective.status === "COMPLETED" || (objective.progress ?? 0) >= 100;
+        return (
+          objective.status === "COMPLETED" || (objective.progress ?? 0) >= 100
+        );
       }
       if (statusFilter === "at_risk") {
         return objective.status === "AT_RISK";
@@ -126,7 +140,7 @@ export function Goals() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-sm shadow-orange-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm shadow-emerald-700/25 shrink-0">
                 <Target className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div>
@@ -134,7 +148,10 @@ export function Goals() {
                   {t("Goals.title", "Objetivos (OKRs)")}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
-                  {t("Goals.subtitle", "Establece objetivos ambiciosos y rastrea resultados clave")}
+                  {t(
+                    "Goals.subtitle",
+                    "Establece objetivos ambiciosos y rastrea resultados clave",
+                  )}
                 </p>
               </div>
             </div>
@@ -142,21 +159,25 @@ export function Goals() {
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Live KPI Summary Pill */}
               <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-                <span className="h-2 w-2 rounded-full bg-orange-500" />
+                <span className="h-2 w-2 rounded-full bg-emerald-700" />
                 <span>Total:</span>
                 <span className="font-bold text-foreground">{stats.total}</span>
                 <span className="text-border">|</span>
                 <span>Activos:</span>
-                <span className="font-bold text-foreground">{stats.active}</span>
+                <span className="font-bold text-foreground">
+                  {stats.active}
+                </span>
                 <span className="text-border">|</span>
                 <span>Progreso:</span>
-                <span className="font-bold text-foreground">{stats.avgProgress}%</span>
+                <span className="font-bold text-foreground">
+                  {stats.avgProgress}%
+                </span>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowCreateDialog(true)}
-                className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-orange-500/25 transition-all duration-200 hover:bg-orange-600 hover:scale-[1.02] cursor-pointer"
+                className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t("Goals.createObjective", "Nuevo Objetivo")}</span>
@@ -172,7 +193,11 @@ export function Goals() {
               key={card.title}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.35,
+                delay: index * 0.05,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               whileHover={{
                 y: -4,
                 borderColor: `${card.color}70`,
@@ -192,7 +217,9 @@ export function Goals() {
                   <card.icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-muted-foreground truncate">{card.title}</p>
+                  <p className="text-xs font-medium text-muted-foreground truncate">
+                    {card.title}
+                  </p>
                   <div className="flex items-baseline gap-1.5 mt-0.5">
                     <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground tabular-nums">
                       {card.value}
@@ -219,7 +246,7 @@ export function Goals() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar objetivos..."
-                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all"
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -252,7 +279,7 @@ export function Goals() {
                         "px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                         statusFilter === filter.key
                           ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       {filter.label}
@@ -269,7 +296,7 @@ export function Goals() {
                       "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                       viewMode === "grid"
                         ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                     title="Cuadrícula"
                     aria-label="Cuadrícula"
@@ -284,7 +311,7 @@ export function Goals() {
                       "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                       viewMode === "list"
                         ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                     title="Lista"
                     aria-label="Lista"
@@ -302,7 +329,10 @@ export function Goals() {
         {isLoading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-56 rounded-2xl border border-border/60 bg-card/60 animate-pulse" />
+              <div
+                key={i}
+                className="h-56 rounded-2xl border border-border/60 bg-card/60 animate-pulse"
+              />
             ))}
           </div>
         ) : error ? (
@@ -315,14 +345,17 @@ export function Goals() {
                 {t("Goals.error", "Error al cargar objetivos")}
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-sm">
-                {t("Goals.errorDescription", "No se pudieron cargar los objetivos. Intenta de nuevo.")}
+                {t(
+                  "Goals.errorDescription",
+                  "No se pudieron cargar los objetivos. Intenta de nuevo.",
+                )}
               </p>
             </div>
           </FadeIn>
         ) : objectivesList.length === 0 ? (
           <FadeIn delay={0.1}>
             <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-dashed border-border/70 bg-card/40 p-6">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-500 mb-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4">
                 <Target className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-1">
@@ -331,13 +364,13 @@ export function Goals() {
               <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-6">
                 {t(
                   "Goals.noObjectivesDescription",
-                  "Define tus objetivos para mantenerte enfocado en lo que más importa."
+                  "Define tus objetivos para mantenerte enfocado en lo que más importa.",
                 )}
               </p>
               <button
                 type="button"
                 onClick={() => setShowCreateDialog(true)}
-                className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all cursor-pointer"
+                className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium bg-emerald-700 text-white shadow-sm shadow-emerald-700/25 hover:bg-emerald-800 transition-all cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t("Goals.createObjective", "Nuevo Objetivo")}</span>
@@ -354,7 +387,8 @@ export function Goals() {
                 No se encontraron objetivos
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-4">
-                No hay objetivos que coincidan con la búsqueda o el filtro seleccionado.
+                No hay objetivos que coincidan con la búsqueda o el filtro
+                seleccionado.
               </p>
               <button
                 type="button"
@@ -376,7 +410,10 @@ export function Goals() {
               <AnimatePresence mode="popLayout">
                 {filteredObjectives.map((objective: any, index: number) => {
                   const color = objective.color || "#f97316";
-                  const progress = Math.min(100, Math.max(0, Math.round(objective.progress ?? 0)));
+                  const progress = Math.min(
+                    100,
+                    Math.max(0, Math.round(objective.progress ?? 0)),
+                  );
                   const krCount = objective.keyResults?.length || 0;
 
                   return (
@@ -406,7 +443,10 @@ export function Goals() {
                             />
                             {objective.period && (
                               <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 text-muted-foreground">
-                                {t(`Goals.periods.${objective.period}`, objective.period)}
+                                {t(
+                                  `Goals.periods.${objective.period}`,
+                                  objective.period,
+                                )}
                               </span>
                             )}
                           </div>
@@ -418,12 +458,15 @@ export function Goals() {
                               color: color,
                             }}
                           >
-                            {t(`Goals.status.${objective.status}`, objective.status || "Activo")}
+                            {t(
+                              `Goals.status.${objective.status}`,
+                              objective.status || "Activo",
+                            )}
                           </span>
                         </div>
 
                         {/* Title & Description */}
-                        <h3 className="font-semibold text-base text-foreground tracking-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="font-semibold text-base text-foreground tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
                           {objective.title}
                         </h3>
 
@@ -438,7 +481,10 @@ export function Goals() {
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-3">
                             <Calendar className="h-3.5 w-3.5" />
                             <span>
-                              {new Date(objective.startDate).toLocaleDateString()} -{" "}
+                              {new Date(
+                                objective.startDate,
+                              ).toLocaleDateString()}{" "}
+                              -{" "}
                               {new Date(objective.endDate).toLocaleDateString()}
                             </span>
                           </div>
@@ -452,7 +498,9 @@ export function Goals() {
                             <KeyRound className="h-3 w-3 text-muted-foreground" />
                             <span>{krCount} Key Results</span>
                           </span>
-                          <span className="font-bold text-foreground tabular-nums">{progress}%</span>
+                          <span className="font-bold text-foreground tabular-nums">
+                            {progress}%
+                          </span>
                         </div>
 
                         <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden">
@@ -478,7 +526,10 @@ export function Goals() {
               <AnimatePresence mode="popLayout">
                 {filteredObjectives.map((objective: any, index: number) => {
                   const color = objective.color || "#f97316";
-                  const progress = Math.min(100, Math.max(0, Math.round(objective.progress ?? 0)));
+                  const progress = Math.min(
+                    100,
+                    Math.max(0, Math.round(objective.progress ?? 0)),
+                  );
                   const krCount = objective.keyResults?.length || 0;
 
                   return (
@@ -508,7 +559,7 @@ export function Goals() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-sm sm:text-base text-foreground tracking-tight truncate group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                            <h3 className="font-semibold text-sm sm:text-base text-foreground tracking-tight truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                               {objective.title}
                             </h3>
                             <span
@@ -518,13 +569,21 @@ export function Goals() {
                                 color: color,
                               }}
                             >
-                              {t(`Goals.status.${objective.status}`, objective.status || "Activo")}
+                              {t(
+                                `Goals.status.${objective.status}`,
+                                objective.status || "Activo",
+                              )}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                             {objective.period && (
-                              <span>{t(`Goals.periods.${objective.period}`, objective.period)}</span>
+                              <span>
+                                {t(
+                                  `Goals.periods.${objective.period}`,
+                                  objective.period,
+                                )}
+                              </span>
                             )}
                             <span>•</span>
                             <span>{krCount} Key Results</span>
@@ -532,8 +591,13 @@ export function Goals() {
                               <>
                                 <span className="hidden md:inline">•</span>
                                 <span className="hidden md:inline">
-                                  {new Date(objective.startDate).toLocaleDateString()} -{" "}
-                                  {new Date(objective.endDate).toLocaleDateString()}
+                                  {new Date(
+                                    objective.startDate,
+                                  ).toLocaleDateString()}{" "}
+                                  -{" "}
+                                  {new Date(
+                                    objective.endDate,
+                                  ).toLocaleDateString()}
                                 </span>
                               </>
                             )}
@@ -545,8 +609,12 @@ export function Goals() {
                       <div className="flex items-center gap-4 shrink-0 sm:w-64">
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between text-xs font-semibold">
-                            <span className="text-muted-foreground font-normal">Progreso</span>
-                            <span className="text-foreground tabular-nums">{progress}%</span>
+                            <span className="text-muted-foreground font-normal">
+                              Progreso
+                            </span>
+                            <span className="text-foreground tabular-nums">
+                              {progress}%
+                            </span>
                           </div>
                           <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden">
                             <div
@@ -572,7 +640,10 @@ export function Goals() {
         )}
 
         {/* Create Dialog */}
-        <CreateObjectiveDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+        <CreateObjectiveDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+        />
       </div>
     </PageTransition>
   );

@@ -106,7 +106,7 @@ export function DayPlanSection({ labels }: { labels: DayPlanSectionLabels }) {
         <button
           type="button"
           onClick={() => refetch()}
-          className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-600 cursor-pointer"
+          className="rounded-xl bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 cursor-pointer"
         >
           {labels.retry}
         </button>

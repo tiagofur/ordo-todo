@@ -53,7 +53,9 @@ export function ProjectDetail() {
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [taskSearchQuery, setTaskSearchQuery] = useState("");
-  const [taskStatusFilter, setTaskStatusFilter] = useState<"all" | "todo" | "in_progress" | "completed">("all");
+  const [taskStatusFilter, setTaskStatusFilter] = useState<
+    "all" | "todo" | "in_progress" | "completed"
+  >("all");
 
   const actualId = projectId || id || "";
   const isSlugRoute = !!(slug && projectSlug);
@@ -63,16 +65,21 @@ export function ProjectDetail() {
   const workspaceQuery = useWorkspaceBySlug(username || "", slug || "");
 
   const project = isSlugRoute ? projectBySlugQuery.data : projectByIdQuery.data;
-  const isLoadingProject = isSlugRoute ? projectBySlugQuery.isLoading : projectByIdQuery.isLoading;
+  const isLoadingProject = isSlugRoute
+    ? projectBySlugQuery.isLoading
+    : projectByIdQuery.isLoading;
   const workspaceByIdQuery = useWorkspace(project?.workspaceId || "");
   const workspace = workspaceQuery.data || workspaceByIdQuery.data;
 
   const resolvedProjectId = project?.id || actualId;
 
-  const { data: tasksData, isLoading: isLoadingTasks } = useTasks(resolvedProjectId);
+  const { data: tasksData, isLoading: isLoadingTasks } =
+    useTasks(resolvedProjectId);
   const allTasks = Array.isArray(tasksData) ? tasksData : [];
   const projectTasks = allTasks.filter((t: any) =>
-    resolvedProjectId ? String(t.projectId) === String(resolvedProjectId) : true
+    resolvedProjectId
+      ? String(t.projectId) === String(resolvedProjectId)
+      : true,
   );
 
   const archiveProject = useArchiveProject();
@@ -83,10 +90,18 @@ export function ProjectDetail() {
   const handleArchive = () => {
     if (!project) return;
     const isArchived = !!project.archived;
-    if (confirm(isArchived ? "¿Desarchivar este proyecto?" : "¿Estás seguro de archivar este proyecto?")) {
+    if (
+      confirm(
+        isArchived
+          ? "¿Desarchivar este proyecto?"
+          : "¿Estás seguro de archivar este proyecto?",
+      )
+    ) {
       archiveProject.mutate(project.id, {
         onSuccess: () => {
-          toast.success(isArchived ? "Proyecto desarchivado" : "Proyecto archivado");
+          toast.success(
+            isArchived ? "Proyecto desarchivado" : "Proyecto archivado",
+          );
           if (!isArchived) {
             navigate("/projects");
           }
@@ -100,14 +115,20 @@ export function ProjectDetail() {
     const isCompleted = project.status === "COMPLETED";
     completeProject.mutate(project.id, {
       onSuccess: () => {
-        toast.success(isCompleted ? "Proyecto reabierto" : "Proyecto completado");
+        toast.success(
+          isCompleted ? "Proyecto reabierto" : "Proyecto completado",
+        );
       },
     });
   };
 
   const handleDelete = () => {
     if (!project) return;
-    if (confirm(`¿Eliminar proyecto y sus ${projectTasks.length} tareas? Esta acción no se puede deshacer.`)) {
+    if (
+      confirm(
+        `¿Eliminar proyecto y sus ${projectTasks.length} tareas? Esta acción no se puede deshacer.`,
+      )
+    ) {
       deleteProjectMutation.mutate(project.id, {
         onSuccess: () => {
           toast.success("Proyecto eliminado");
@@ -148,7 +169,10 @@ export function ProjectDetail() {
         <p className="mt-2 text-muted-foreground text-sm">
           El proyecto que buscas no existe o fue eliminado.
         </p>
-        <Button onClick={() => navigate("/projects")} className="mt-4 rounded-xl">
+        <Button
+          onClick={() => navigate("/projects")}
+          className="mt-4 rounded-xl"
+        >
           Volver a Proyectos
         </Button>
       </div>
@@ -156,9 +180,11 @@ export function ProjectDetail() {
   }
 
   const todoTasks = projectTasks.filter((t: any) => t.status === "TODO");
-  const inProgressTasks = projectTasks.filter((t: any) => t.status === "IN_PROGRESS");
+  const inProgressTasks = projectTasks.filter(
+    (t: any) => t.status === "IN_PROGRESS",
+  );
   const completedTasks = projectTasks.filter(
-    (t: any) => t.status === "COMPLETED" || t.status === "DONE"
+    (t: any) => t.status === "COMPLETED" || t.status === "DONE",
   );
 
   const displayColor =
@@ -193,14 +219,19 @@ export function ProjectDetail() {
   });
 
   const filteredTodo = filteredTasks.filter((t: any) => t.status === "TODO");
-  const filteredInProgress = filteredTasks.filter((t: any) => t.status === "IN_PROGRESS");
+  const filteredInProgress = filteredTasks.filter(
+    (t: any) => t.status === "IN_PROGRESS",
+  );
   const filteredCompleted = filteredTasks.filter(
-    (t: any) => t.status === "COMPLETED" || t.status === "DONE"
+    (t: any) => t.status === "COMPLETED" || t.status === "DONE",
   );
 
   const breadcrumbItems = isSlugRoute
     ? [
-        { label: t("Sidebar.workspaces") || "Espacios de trabajo", href: "/workspaces" },
+        {
+          label: t("Sidebar.workspaces") || "Espacios de trabajo",
+          href: "/workspaces",
+        },
         {
           label: workspace?.name || slug || "Workspace",
           href: username ? `/${username}/${slug}` : `/workspaces/${slug}`,
@@ -256,7 +287,13 @@ export function ProjectDetail() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate(isSlugRoute && username ? `/${username}/${slug}` : "/projects")}
+                  onClick={() =>
+                    navigate(
+                      isSlugRoute && username
+                        ? `/${username}/${slug}`
+                        : "/projects",
+                    )
+                  }
                   className="h-8 w-8 rounded-lg -ml-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -288,15 +325,22 @@ export function ProjectDetail() {
 
               <div className="mt-4 flex items-center gap-4 text-sm font-medium text-muted-foreground">
                 <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: displayColor }} />
+                  <div
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: displayColor }}
+                  />
                   <span>
-                    <span className="text-foreground font-bold">{projectTasks.length}</span> tareas
+                    <span className="text-foreground font-bold">
+                      {projectTasks.length}
+                    </span>{" "}
+                    tareas
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="h-2 w-2 rounded-full bg-green-500" />
                   <span className="text-green-600 dark:text-green-400">
-                    <span className="font-bold">{completedCount}</span> completadas
+                    <span className="font-bold">{completedCount}</span>{" "}
+                    completadas
                   </span>
                 </div>
               </div>
@@ -330,12 +374,23 @@ export function ProjectDetail() {
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 p-2 rounded-xl shadow-xl border-border/50">
-                <DropdownMenuItem onClick={handleComplete} className="rounded-lg gap-2 py-2 cursor-pointer">
+              <DropdownMenuContent
+                align="end"
+                className="w-52 p-2 rounded-xl shadow-xl border-border/50"
+              >
+                <DropdownMenuItem
+                  onClick={handleComplete}
+                  className="rounded-lg gap-2 py-2 cursor-pointer"
+                >
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                  {project.status === "COMPLETED" ? "Marcar incompleto" : "Marcar completado"}
+                  {project.status === "COMPLETED"
+                    ? "Marcar incompleto"
+                    : "Marcar completado"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleArchive} className="rounded-lg gap-2 py-2 cursor-pointer">
+                <DropdownMenuItem
+                  onClick={handleArchive}
+                  className="rounded-lg gap-2 py-2 cursor-pointer"
+                >
                   <Archive className="h-4 w-4 text-muted-foreground" />
                   {project.archived ? "Desarchivar" : "Archivar"}
                 </DropdownMenuItem>
@@ -399,7 +454,10 @@ export function ProjectDetail() {
             </span>
             <div
               className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
-              style={{ backgroundColor: `${displayColor}18`, color: displayColor }}
+              style={{
+                backgroundColor: `${displayColor}18`,
+                color: displayColor,
+              }}
             >
               <FolderKanban className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             </div>
@@ -418,7 +476,8 @@ export function ProjectDetail() {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "#f59e0b70";
-            e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(245, 158, 11, 0.2)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 25px -5px rgba(245, 158, 11, 0.2)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = "";
@@ -447,7 +506,8 @@ export function ProjectDetail() {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "#3b82f670";
-            e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(59, 130, 246, 0.2)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 25px -5px rgba(59, 130, 246, 0.2)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = "";
@@ -476,7 +536,8 @@ export function ProjectDetail() {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "#10b98170";
-            e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(16, 185, 129, 0.2)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 25px -5px rgba(16, 185, 129, 0.2)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = "";
@@ -507,7 +568,7 @@ export function ProjectDetail() {
             value={taskSearchQuery}
             onChange={(e) => setTaskSearchQuery(e.target.value)}
             placeholder="Buscar tareas..."
-            className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500 transition-all"
+            className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
           />
           {taskSearchQuery && (
             <button
@@ -527,8 +588,16 @@ export function ProjectDetail() {
               [
                 { key: "all", label: "Todas", count: totalTasks },
                 { key: "todo", label: "Por hacer", count: todoTasks.length },
-                { key: "in_progress", label: "En progreso", count: inProgressTasks.length },
-                { key: "completed", label: "Completadas", count: completedCount },
+                {
+                  key: "in_progress",
+                  label: "En progreso",
+                  count: inProgressTasks.length,
+                },
+                {
+                  key: "completed",
+                  label: "Completadas",
+                  count: completedCount,
+                },
               ] as const
             ).map((filter) => (
               <button
@@ -542,7 +611,7 @@ export function ProjectDetail() {
                   "px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   taskStatusFilter === filter.key
                     ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <span>{filter.label}</span>
@@ -560,7 +629,7 @@ export function ProjectDetail() {
                 "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                 viewMode === "list"
                   ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Lista"
               aria-label="Lista"
@@ -574,7 +643,7 @@ export function ProjectDetail() {
                 "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                 viewMode === "grid"
                   ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Cuadrícula"
               aria-label="Cuadrícula"
@@ -588,7 +657,7 @@ export function ProjectDetail() {
                 "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                 viewMode === "kanban"
                   ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Tablero Kanban"
               aria-label="Tablero Kanban"
@@ -604,7 +673,10 @@ export function ProjectDetail() {
         {isLoadingTasks ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl bg-muted" />
+              <div
+                key={i}
+                className="h-24 animate-pulse rounded-2xl bg-muted"
+              />
             ))}
           </div>
         ) : projectTasks.length === 0 ? (
@@ -634,7 +706,8 @@ export function ProjectDetail() {
               No se encontraron tareas
             </h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-              Ninguna tarea coincide con el término de búsqueda o filtro seleccionado.
+              Ninguna tarea coincide con el término de búsqueda o filtro
+              seleccionado.
             </p>
             <Button
               variant="outline"
@@ -655,13 +728,15 @@ export function ProjectDetail() {
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                   <Circle className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                   <span>Por Hacer</span>
-                  <span className="text-xs font-normal">({filteredTodo.length})</span>
+                  <span className="text-xs font-normal">
+                    ({filteredTodo.length})
+                  </span>
                 </h3>
                 <div
                   className={cn(
                     viewMode === "grid"
                       ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                      : "space-y-2"
+                      : "space-y-2",
                   )}
                 >
                   {filteredTodo.map((task: any, index: number) => (
@@ -684,13 +759,15 @@ export function ProjectDetail() {
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5 text-blue-500" />
                   <span>En Progreso</span>
-                  <span className="text-xs font-normal">({filteredInProgress.length})</span>
+                  <span className="text-xs font-normal">
+                    ({filteredInProgress.length})
+                  </span>
                 </h3>
                 <div
                   className={cn(
                     viewMode === "grid"
                       ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                      : "space-y-2"
+                      : "space-y-2",
                   )}
                 >
                   {filteredInProgress.map((task: any, index: number) => (
@@ -713,13 +790,15 @@ export function ProjectDetail() {
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                   <span>Completadas</span>
-                  <span className="text-xs font-normal">({filteredCompleted.length})</span>
+                  <span className="text-xs font-normal">
+                    ({filteredCompleted.length})
+                  </span>
                 </h3>
                 <div
                   className={cn(
                     viewMode === "grid"
                       ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                      : "space-y-2"
+                      : "space-y-2",
                   )}
                 >
                   {filteredCompleted.map((task: any, index: number) => (
@@ -742,7 +821,7 @@ export function ProjectDetail() {
             className={cn(
               viewMode === "grid"
                 ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                : "space-y-2"
+                : "space-y-2",
             )}
           >
             {filteredTasks.map((task: any, index: number) => (

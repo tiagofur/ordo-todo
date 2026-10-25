@@ -27,9 +27,9 @@ import dynamic from "next/dynamic";
 const CreateTaskDialog = dynamic(
   () =>
     import("@/components/task/create-task-dialog").then(
-      (mod) => mod.CreateTaskDialog
+      (mod) => mod.CreateTaskDialog,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 const CALENDAR_ONBOARDING_KEY = "calendar-onboarding-seen";
@@ -45,7 +45,7 @@ export default function CalendarPage() {
 
   const { data: tasks } = useTasks();
   const { data: projects, isLoading: isLoadingProjects } = useProjects(
-    selectedWorkspaceId || ""
+    selectedWorkspaceId || "",
   );
   const { mutateAsync: createTask } = useCreateTask();
 
@@ -55,18 +55,18 @@ export default function CalendarPage() {
       (task) =>
         task.status !== "COMPLETED" &&
         (isCalendarDateToday(task.scheduledDate) ||
-          isCalendarDateToday(task.dueDate))
+          isCalendarDateToday(task.dueDate)),
     ).length;
     const scheduledTasks = list.filter(
       (task) =>
         task.status !== "COMPLETED" &&
-        !!toCalendarDateString(task.scheduledDate || task.dueDate)
+        !!toCalendarDateString(task.scheduledDate || task.dueDate),
     ).length;
     const unscheduledTasks = list.filter(
       (task) =>
         task.status !== "COMPLETED" &&
         !task.scheduledDate &&
-        !task.scheduledTime
+        !task.scheduledTime,
     ).length;
     return { todayTasks, scheduledTasks, unscheduledTasks };
   }, [tasks]);
@@ -109,7 +109,7 @@ export default function CalendarPage() {
         description: t("onboarding.getstartedDesc"),
       },
     ],
-    [t]
+    [t],
   );
 
   return (
@@ -118,7 +118,7 @@ export default function CalendarPage() {
         {/* Header - Apple Style Unified Pattern */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm shadow-blue-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-sm shadow-purple-600/25 shrink-0">
               <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
@@ -134,9 +134,11 @@ export default function CalendarPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Summary Pills */}
             <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-              <span className="h-2 w-2 rounded-full bg-blue-500" />
+              <span className="h-2 w-2 rounded-full bg-purple-600" />
               <span>{t("today")}:</span>
-              <span className="font-bold text-foreground">{stats.todayTasks}</span>
+              <span className="font-bold text-foreground">
+                {stats.todayTasks}
+              </span>
               <span className="text-border">|</span>
               <span>En calendario:</span>
               <span className="font-bold text-foreground">
@@ -147,7 +149,7 @@ export default function CalendarPage() {
             <button
               type="button"
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-500/25 transition-all duration-200 hover:bg-blue-600 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-purple-600/25 transition-all duration-200 hover:bg-purple-700 hover:scale-[1.02] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>Nueva Tarea</span>
