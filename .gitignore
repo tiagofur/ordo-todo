@@ -76,3 +76,8 @@ nul
 .agents/
 .agent/skills/
 .zcode/
+
+# Copias locales de secretos de producción (VPS .env, claves de Actions).
+# NUNCA se suben: el owner las respalda a mano fuera del repo.
+deploy/secrets/*
+!deploy/secrets/README.md
