@@ -15,7 +15,7 @@ Test runner: Vitest (unit, cuando haya lógica propia) · verificación manual e
 - **Capa de datos compartida** (ya funciona hoy en la app Expo): `@ordo-todo/api-client` (axios), `@ordo-todo/stores`, `@ordo-todo/hooks`, `@ordo-todo/core`, `@ordo-todo/auth-provider`, `@ordo-todo/i18n`. El backend ya tiene CORS allowlist para orígenes Tauri (`tauri://localhost`, `http://tauri.localhost` — ver `apps/backend/src/main.ts`) y deep link OAuth `ordo://auth/callback` (`apps/backend/src/auth/auth.controller.ts`), que usa hoy el desktop (`apps/desktop/src/hooks/useDeepLinks.ts`, `components/auth/OAuthCallbackHandler.tsx`).
 - **Capacidades nativas requeridas** (inventario de la app Expo): notificaciones LOCALES del timer en background (`scheduleNotificationAsync`; el backend NO envía push remotas — no hay SDK de push en backend), biometría (`expo-local-authentication`), haptics, quick actions, OAuth con navegador del sistema + deep link, splash, app icons `dev.creapolis.ordotodo`.
 - **Toolchain local (24-oct-2026)**: NDK 28.2.13676358 + cmdline-tools + licencias instalados; targets Rust `aarch64-linux-android`, `armv7-linux-androideabi`, `i686-linux-android`, `x86_64-linux-android`; JAVA 25 = JBR de Android Studio (`/Applications/Android Studio.app/Contents/jbr/Contents/Home`); AVD `Pixel_10_Pro`. **iOS bloqueado**: solo Command Line Tools, sin Xcode completo → instalar Xcode (acción del owner) para P5/iOS.
-- **App Expo congelada**: `apps/mobile-expo` (`@ordo-todo/mobile-expo`), excluida del test raíz y de CI. Borrar en P5.
+- **App Expo eliminada (25-oct-2026, adelantado de P5 por decisión del owner)**: `apps/mobile-expo` y `packages/ui-mobile` borrados junto con las deps raíz que solo existían por ellos; el lockfile pasa de 3.201 a 2.097 paquetes sin cambios de versión. Las pantallas de referencia quedan en el historial de git (`git show e2920ca4:apps/mobile-expo/...`).
 - Gotchas: dists de paquetes antes de typecheck SI se importan por `main` (aquí se importan por `paths`→`src`, así que no hace falta); el `gen/` nativo no se commitea; primera build Android descarga Gradle+deps (~1-2 GB); el emulador necesita arrancar antes de instalar.
 
 ## Fases
@@ -46,7 +46,7 @@ Pantalla `/timer` sobre el motor compartido `useTimerBackend` de `@ordo-todo/hoo
 
 ### P5 — Release
 
-Iconos/producto finales, signing Android (keystore) + iOS (requiere Xcode del owner), CI de builds (o procesos manuales documentados), TestFlight/Play internal testing, **borrar `apps/mobile-expo`** y con ello cerrar el clúster de vulnerabilidades Expo (baseline audit → 0 fuera de riesgo aceptado). **Aceptación de seguridad (del review del spike)**: CSP restrictiva en `tauri.conf.json` (hoy `null` por el spike), capabilities por-ventana en vez de `"windows": ["*"]`, y revisión de permisos de los plugins activos — sin esto no hay release.
+Iconos/producto finales, signing Android (keystore) + iOS (requiere Xcode del owner), CI de builds (o procesos manuales documentados), TestFlight/Play internal testing. ~~borrar `apps/mobile-expo`~~ (hecho el 25-oct-2026, ver arriba; comprobar que el baseline de audit baja a 0 fuera de riesgo aceptado). **Aceptación de seguridad (del review del spike)**: CSP restrictiva en `tauri.conf.json` (hoy `null` por el spike), capabilities por-ventana en vez de `"windows": ["*"]`, y revisión de permisos de los plugins activos — sin esto no hay release.
 
 ## Riesgos abiertos
 

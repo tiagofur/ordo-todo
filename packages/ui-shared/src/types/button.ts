@@ -29,7 +29,7 @@ export interface StyleableProps {
 
 /**
  * Button component props
- * Used by both @ordo-todo/ui and @ordo-todo/ui-mobile
+ * Used by @ordo-todo/ui
  */
 export interface ButtonProps extends InteractiveProps, StyleableProps {
     /** Button text (alternative to children) */
