@@ -11,6 +11,16 @@ echo "=========================================="
 echo "  Ordo-Todo VPS Setup Script"
 echo "=========================================="
 
+# =============================================================================
+# ⚠️  SOLO PARA UN VPS NUEVO Y VACÍO. En el VPS actual (Plesk, compartido con
+# otros proyectos) este script NO debe ejecutarse: `apt upgrade`, la
+# instalación de Docker y `ufw` romperían el panel y los demás servicios.
+# =============================================================================
+if command -v plesk >/dev/null 2>&1; then
+  echo "ABORTADO: este servidor tiene Plesk. setup-vps.sh es solo para un VPS nuevo sin panel." >&2
+  exit 1
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
