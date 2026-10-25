@@ -25,7 +25,6 @@ export function useStopTimer() {
       apiClient.stopTimer(input),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["timer"] });
-      void qc.invalidateQueries({ queryKey: ["tasks", "today"] });
     },
   });
 }
@@ -52,7 +51,12 @@ export function useTimerStats(params?: {
   endDate?: string;
 }) {
   return useQuery({
-    queryKey: ["timer", "stats", params?.startDate ?? null],
+    queryKey: [
+      "timer",
+      "stats",
+      params?.startDate ?? null,
+      params?.endDate ?? null,
+    ],
     queryFn: () => apiClient.getTimerStats(params),
     staleTime: 60_000,
   });

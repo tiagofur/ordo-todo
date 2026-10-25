@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  defaultShouldDehydrateQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@ordo-todo/auth-provider";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { apiClient } from "./lib/api";
@@ -75,7 +78,17 @@ export default function App() {
   return (
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
+      persistOptions={{
+        persister,
+        maxAge: 1000 * 60 * 60 * 24,
+        // El estado del timer es efímero: una sesión "activa" restaurada de
+        // caché con horas de antigüedad haría que el motor la cerrara como
+        // completada en el primer tick.
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) =>
+            query.queryKey[0] !== "timer" && defaultShouldDehydrateQuery(query),
+        },
+      }}
     >
       <AuthProvider platform="mobile" apiClient={apiClient}>
         <Routes>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Pause,
   Play,
@@ -38,15 +38,35 @@ function startOfTodayISO(): string {
   return now.toISOString();
 }
 
+type Banner = { kind: "ok" | "error"; text: string } | null;
+const BANNER_AUTO_DISMISS_MS = 8_000;
+
 export default function Timer() {
   const qc = useQueryClient();
-  const [message, setMessage] = useState<string | null>(null);
+  const [banner, setBanner] = useState<Banner>(null);
+  const showOk = useCallback(
+    (text: string) => setBanner({ kind: "ok", text }),
+    [],
+  );
+  const showError = useCallback(
+    (text: string) => setBanner({ kind: "error", text }),
+    [],
+  );
+
+  // Se estabiliza dentro del día; una vez por montaje evita recalcular por render.
+  const [todayISO] = useState(startOfTodayISO);
 
   const config = DEFAULT_ENGINE_CONFIG;
-  const notifier = useTimerNotifier(config, setMessage);
+  const notifier = useTimerNotifier(config, showOk);
+
+  useEffect(() => {
+    if (!banner) return;
+    const t = setTimeout(() => setBanner(null), BANNER_AUTO_DISMISS_MS);
+    return () => clearTimeout(t);
+  }, [banner]);
 
   const { data: active } = useActiveTimer();
-  const { data: todayStats } = useTimerStats({ startDate: startOfTodayISO() });
+  const { data: todayStats } = useTimerStats({ startDate: todayISO });
   const { data: lastClosedPage } = useSessionHistory({
     completedOnly: true,
     limit: 1,
@@ -141,9 +161,16 @@ export default function Timer() {
         </span>
       </p>
 
-      {message && (
-        <p className="w-full rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-xs text-emerald-400">
-          {message}
+      {banner && (
+        <p
+          role="status"
+          className={
+            banner.kind === "error"
+              ? "w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-xs text-red-400"
+              : "w-full rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-xs text-emerald-400"
+          }
+        >
+          {banner.text}
         </p>
       )}
 
@@ -154,7 +181,7 @@ export default function Timer() {
             disabled={busy}
             className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white active:bg-emerald-700 disabled:opacity-50"
           >
-            Iniciar focus
+            Iniciar {mode === "WORK" ? "focus" : "descanso"}
           </button>
         )}
         {isRunning && !isPaused && (

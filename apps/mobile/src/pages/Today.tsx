@@ -118,9 +118,10 @@ export default function Today() {
           <button
             onClick={() => void logout()}
             aria-label="Cerrar sesión"
-            className="flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 active:bg-zinc-800"
+            title="Cerrar sesión"
+            className="flex items-center rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-zinc-300 active:bg-zinc-800"
           >
-            <LogOut className="size-4" /> Salir
+            <LogOut className="size-4" />
           </button>
         </div>
       </header>

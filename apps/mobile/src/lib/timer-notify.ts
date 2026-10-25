@@ -8,10 +8,14 @@ import {
 } from "@tauri-apps/plugin-notification";
 import type { TimerBackendMode } from "@ordo-todo/hooks";
 
-/** Id fijo (32-bit) de la única notificación del timer; permite cancelarla sin tocar otras. */
-const TIMER_NOTIFICATION_ID = 7001;
-/** Si la fase se interrumpe a menos de esto del deadline, la alarma se deja al sistema. */
-const DEADLINE_GRACE_MS = 1_000;
+/**
+ * Ids fijos (32-bit) distintos para las dos capas: la publicación inmediata
+ * del fin de fase y la alarma programada. Necesitan ids separados porque
+ * `cancel()` y programar una notificación descartan lo visible con ese id
+ * (Android), y no deben pisarse entre capas.
+ */
+const COMPLETION_NOTIFICATION_ID = 7001;
+const DEADLINE_ALARM_NOTIFICATION_ID = 7002;
 
 export interface TimerNotifier {
   sessionComplete: (mode: TimerBackendMode) => void;
@@ -37,16 +41,18 @@ async function ensurePermission(): Promise<boolean> {
 
 /**
  * Publica la notificación de fin de fase ahora mismo. Antes cancela la alarma
- * pendiente de useDeadlineNotification para que no reposte la misma
- * notificación minutos después (las alarmas son inexactas sin permiso de
- * alarma exacta). Si la alarma ya disparó, cancel() la descarta y se vuelve a
- * publicar: neto, una sola notificación.
+ * pendiente de useDeadlineNotification (capa 7002) para que no reposte
+ * minutos después: las alarmas son inexactas sin permiso de alarma exacta, y
+ * el id de la inmediata (7001) es distinto, así no se pisan.
  */
 async function postCompletionNow(mode: TimerBackendMode) {
   try {
     if (!(await ensurePermission())) return;
-    await cancel([TIMER_NOTIFICATION_ID]).catch(() => undefined);
-    sendNotification({ id: TIMER_NOTIFICATION_ID, ...completionContent(mode) });
+    await cancel([DEADLINE_ALARM_NOTIFICATION_ID]).catch(() => undefined);
+    sendNotification({
+      id: COMPLETION_NOTIFICATION_ID,
+      ...completionContent(mode),
+    });
   } catch {
     // best-effort
   }
@@ -91,12 +97,12 @@ export function useTimerNotifier(
 
 /**
  * Fallback para proceso suspendido o muerto: mantiene una alarma del sistema
- * programada al deadline de la fase corriendo. Depende solo del run-state —
- * nunca de timeLeft (no re-agenda por tick). Adaptación del efecto de la app
- * Expo (ODD 014 T5) con una diferencia clave: `cancel()` de este plugin
- * también descarta la notificación ya entregada, así que solo se cancela
- * cuando la fase se interrumpe antes del deadline (pausa/parada/salto). Si la
- * fase llegó a su fin, quien manda es postCompletionNow (vía sessionComplete).
+ * programada al deadline de la fase corriendo (capa 7002). Depende solo del
+ * run-state — nunca de timeLeft (no re-agenda por tick). En el cleanup solo
+ * cancela si la fase ya NO está activa (pausa/parada/salto): si el efecto se
+ * desmonta con la fase corriendo (navegar fuera de /timer), la alarma se
+ * deja viva — es exactamente la capa que avisa al usuario, y ya no hay JS
+ * que publique la inmediata.
  */
 export function useDeadlineNotification(timer: {
   isRunning: boolean;
@@ -105,26 +111,32 @@ export function useDeadlineNotification(timer: {
   timeLeft: number;
 }) {
   const { isRunning, isPaused, mode, timeLeft } = timer;
-  const fireAtRef = useRef<number | null>(null);
+
+  // Estado de la fase leído por el cleanup del efecto: un desmonte con la
+  // fase activa (unmount) no debe cancelar la alarma.
+  const phaseActiveRef = useRef(isRunning && !isPaused);
+  phaseActiveRef.current = isRunning && !isPaused;
 
   useEffect(() => {
     if (!isRunning || isPaused || mode === "CONTINUOUS" || timeLeft <= 0) {
       return;
     }
 
-    const fireAt = Date.now() + timeLeft * 1000;
     let cancelled = false;
     (async () => {
       try {
         if (!(await ensurePermission()) || cancelled) return;
-        fireAtRef.current = fireAt;
         sendNotification({
-          id: TIMER_NOTIFICATION_ID,
+          id: DEADLINE_ALARM_NOTIFICATION_ID,
           ...completionContent(mode),
           // allowWhileIdle: sin permiso de alarma exacta (Android 12+) el
           // plugin cae a setAndAllowWhileIdle (RTC_WAKEUP); sin este flag
           // usaría set(RTC), que no despierta el dispositivo en Doze.
-          schedule: Schedule.at(new Date(fireAt), false, true),
+          schedule: Schedule.at(
+            new Date(Date.now() + timeLeft * 1000),
+            false,
+            true,
+          ),
         });
       } catch {
         // best-effort: los mensajes en pantalla siguen al completar
@@ -133,12 +145,8 @@ export function useDeadlineNotification(timer: {
 
     return () => {
       cancelled = true;
-      const scheduled = fireAtRef.current;
-      fireAtRef.current = null;
-      // Margen de 1 s: el tick del motor detecta el fin hasta 1 s después del
-      // deadline; dentro de ese margen la alarma ya es del sistema.
-      if (scheduled !== null && Date.now() < scheduled - DEADLINE_GRACE_MS) {
-        cancel([TIMER_NOTIFICATION_ID]).catch(() => undefined);
+      if (!phaseActiveRef.current) {
+        cancel([DEADLINE_ALARM_NOTIFICATION_ID]).catch(() => undefined);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
