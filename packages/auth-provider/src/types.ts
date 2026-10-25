@@ -32,6 +32,13 @@ export interface AuthProviderProps {
   queryClient?: QueryClient;
   /** Optional callback for OAuth login - each platform implements this differently */
   onOAuthLogin?: (provider: OAuthProvider) => Promise<void>;
+  /**
+   * Override for post-login/register/logout navigation. Por defecto es una
+   * redirección dura de documento (window.location.href) con las rutas por
+   * plataforma; un SPA con router propio (p. ej. hash router en la app móvil
+   * Tauri) debe pasar aquí su navigate para no recargar el documento.
+   */
+  onRedirect?: (to: string) => void;
 }
 
 export interface ApiClient {
