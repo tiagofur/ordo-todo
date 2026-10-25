@@ -99,8 +99,8 @@ ordo-todo/
 ├── apps/
 │   ├── web/              # Next.js 16 - Web application
 │   ├── backend/          # NestJS - REST API
-│   ├── mobile/           # React Native + Expo
-│   ├── desktop/          # Electron + React
+│   ├── mobile/           # Tauri 2 + React (Android/iOS)
+│   ├── desktop/          # Tauri 2 + React
 │   └── webpage/          # Next.js - Promotional site (3 languages)
 │
 ├── packages/
@@ -152,24 +152,24 @@ Features:
 - WebSocket notifications
 - AI integration (Gemini)
 
-### Mobile App (Expo)
+### Mobile App (Tauri 2)
 
 ```bash
 cd apps/mobile
-npm run start
-# Scan QR with Expo Go
+npm run dev                  # Vite dev server
+npm run tauri android dev    # Run on an Android emulator/device (see CLAUDE.md for toolchain)
 ```
 
 Features:
-- iOS and Android support
-- Native notifications
-- Offline mode (coming soon)
+- Android support (iOS pending Xcode setup)
+- Shares the desktop React frontend and the monorepo data layer
+- Native notifications via Tauri plugins
 
-### Desktop App (Electron)
+### Desktop App (Tauri 2)
 
 ```bash
 cd apps/desktop
-npm run electron:dev
+npm run tauri:dev
 ```
 
 Features:
@@ -258,8 +258,8 @@ npm run build:linux      # Linux
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | Next.js 16, React 19, TailwindCSS 4, Radix UI |
-| **Mobile** | React Native, Expo SDK 52+ |
-| **Desktop** | Electron, Vite, React |
+| **Mobile** | Tauri 2, React 19, Vite |
+| **Desktop** | Tauri 2, React 19, Vite |
 | **Backend** | NestJS, PostgreSQL 16, Prisma 6 |
 | **State** | Zustand, TanStack Query |
 | **AI** | Google Gemini API |

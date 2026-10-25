@@ -13,11 +13,10 @@
 ├── CLAUDE-CONFIG.md            # ⚙️ Configuration guide
 ├── MCP-SERVERS.md               # 🚀 MCP servers recommendations
 │
-├── agents/                      # 🤖 Elite specialist agents (8)
+├── agents/                      # 🤖 Elite specialist agents (7)
 │   ├── README.md               #    Agent system guide
 │   ├── nestjs-backend.md       #    NestJS backend architect
 │   ├── nextjs-frontend.md      #    Next.js/React frontend architect
-│   ├── react-native-specialist.md  # Mobile specialist
 │   ├── electron-specialist.md      # Desktop specialist
 │   ├── postgres-specialist.md      # Database architect
 │   ├── testing-specialist.md       # Test automation expert
@@ -28,7 +27,7 @@
     ├── rules.md                #    Main rules (architecture, quality, UI/UX)
     ├── backend.md              #    Backend-specific rules (NestJS)
     ├── frontend.md             #    Frontend-specific rules (Next.js)
-    ├── mobile.md               #    Mobile-specific rules (React Native)
+    ├── mobile.md               #    Mobile-specific rules (Tauri 2)
     ├── desktop.md              #    Desktop-specific rules (Electron)
     └── packages.md             #    Shared packages rules
 ```
@@ -53,7 +52,6 @@
 | **[OpenCode Assistant](OPENCODE-PROFILE.md)**                      | Full-stack, coordination, general tasks | Primary assistant, delegates to specialists |
 | **[NestJS Backend](agents/nestjs-backend.md)**                     | REST APIs, controllers, services        | Backend API development                     |
 | **[Next.js Frontend](agents/nextjs-frontend.md)**                  | React components, pages, hooks          | Web UI development                          |
-| **[React Native](agents/react-native-specialist.md)**              | Mobile screens, native modules          | Mobile app development                      |
 | **[Electron](agents/electron-specialist.md)**                      | Desktop features, IPC                   | Desktop app development                     |
 | **[PostgreSQL](agents/postgres-specialist.md)**                    | Database schema, migrations             | Database design                             |
 | **[Testing Specialist](agents/testing-specialist.md)**             | Unit, integration, E2E tests            | Test automation                             |
@@ -240,8 +238,8 @@ ordo-todo/
 ├── apps/
 │   ├── backend/      # NestJS REST API (@ordo-todo/backend)
 │   ├── web/          # Next.js 15 web app (@ordo-todo/web)
-│   ├── mobile/       # React Native + Expo (@ordo-todo/mobile)
-│   └── desktop/      # Electron + Vite (@ordo-todo/desktop)
+│   ├── mobile/       # Tauri 2 + React (@ordo-todo/mobile)
+│   └── desktop/      # Tauri 2 + Vite (@ordo-todo/desktop)
 │
 └── packages/
     ├── core/         # Domain logic, entities, use cases
@@ -264,7 +262,6 @@ ordo-todo/
 | --------------------- | ------------------ | ------------------------------------------- |
 | Create REST API       | NestJS Backend     | `Use the nestjs-backend agent...`           |
 | Build React component | Next.js Frontend   | `Use the nextjs-frontend agent...`          |
-| Create mobile screen  | React Native       | `Use the react-native-specialist agent...`  |
 | Design database table | PostgreSQL         | `Use the postgres-specialist agent...`      |
 | Write tests           | Testing Specialist | `Use the testing-specialist agent...`       |
 | Write documentation   | Documentation      | `Use the documentation-specialist agent...` |

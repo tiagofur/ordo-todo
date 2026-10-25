@@ -40,12 +40,11 @@ This project uses **elite specialist agents** for autonomous development. Each a
 
 1. **[NestJS Backend](.claude/agents/nestjs-backend.md)** - REST APIs, services, controllers (NestJS 11+)
 2. **[Next.js Frontend](.claude/agents/nextjs-frontend.md)** - React components, pages, hooks (Next.js 15+, React 19)
-3. **[React Native](.claude/agents/react-native-specialist.md)** - Mobile screens, native modules
-4. **[Electron](.claude/agents/electron-specialist.md)** - Desktop features, IPC communication
-5. **[PostgreSQL](.claude/agents/postgres-specialist.md)** - Database schema, migrations, optimization
-6. **[Testing Specialist](.claude/agents/testing-specialist.md)** - Unit, integration, E2E tests (100% coverage)
-7. **[Documentation Specialist](.claude/agents/documentation-specialist.md)** - API docs, README, diagrams
-8. **[Refactoring Specialist](.claude/agents/refactoring-specialist.md)** - Code quality, SOLID principles
+3. **[Electron](.claude/agents/electron-specialist.md)** - Desktop features, IPC communication
+4. **[PostgreSQL](.claude/agents/postgres-specialist.md)** - Database schema, migrations, optimization
+5. **[Testing Specialist](.claude/agents/testing-specialist.md)** - Unit, integration, E2E tests (100% coverage)
+6. **[Documentation Specialist](.claude/agents/documentation-specialist.md)** - API docs, README, diagrams
+7. **[Refactoring Specialist](.claude/agents/refactoring-specialist.md)** - Code quality, SOLID principles
 
 **All agents**:
 - ✅ Search for latest versions and best practices
@@ -69,8 +68,8 @@ This project uses **elite specialist agents** for autonomous development. Each a
 **Ordo-Todo** is a modern task organization platform built with **DDD (Domain-Driven Design) + Clean Architecture** in a **Turborepo monorepo**. The project features:
 
 - **Web app** (Next.js 16 + REST API)
-- **Mobile app** (React Native + Expo)
-- **Desktop app** (Electron + React)
+- **Mobile app** (Tauri 2 + React, Android/iOS)
+- **Desktop app** (Tauri 2 + React)
 - **Shared domain core** (packages/core)
 - **Shared database** (packages/db with Prisma)
 - **Shared UI components** (packages/ui) 🆕
@@ -663,15 +662,15 @@ npm run dev
 - tRPC endpoints under `/api/trpc`
 - Supports PWA features
 
-### Mobile (Expo)
-- File-based routing via Expo Router
-- Uses Expo SDK 52+
-- Native features: Haptics, Notifications, Quick Actions
+### Mobile (Tauri 2)
+- Shares the desktop React frontend (Vite + React Router) and the monorepo data layer
+- Native features via Tauri plugins: notifications, deep links, store, opener
+- Android build toolchain and gotchas: see "Mobile (Tauri)" commands above and ODD 020
 
-### Desktop (Electron)
+### Desktop (Tauri 2)
 - Vite for bundling
 - React Router for navigation
-- Electron Builder for packaging
+- Tauri CLI for packaging (`npm run tauri:build`)
 
 ## Workspace Structure
 
