@@ -49,7 +49,10 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         renderNotifications={() => <NotificationPopover />}
         renderSyncStatus={() => <SyncStatusIndicator size="sm" />}
         labels={{
-          searchPlaceholder: t("TopBar.searchPlaceholder", "Buscar con lenguaje natural (IA)"),
+          searchPlaceholder: t(
+            "TopBar.searchPlaceholder",
+            "Buscar con lenguaje natural (IA)",
+          ),
           myAccount: t("TopBar.myAccount", "Mi Cuenta"),
           profile: t("TopBar.profile", "Perfil"),
           settings: t("TopBar.settings", "Configuración"),

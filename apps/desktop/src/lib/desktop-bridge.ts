@@ -63,12 +63,40 @@ class DesktopBridge {
   }
 
   /**
-   * Platform identifier ('macos', 'windows', 'linux', or 'web')
+   * Running as the Tauri mobile app (Android/iOS). Compile-time flag set by
+   * apps/mobile's Vite config; the UA check covers dev servers. iPadOS can
+   * report a Macintosh UA, which is why the flag comes first.
+   */
+  public isMobile(): boolean {
+    if (import.meta.env.VITE_ORDO_PLATFORM === 'mobile') return true;
+    if (typeof navigator === 'undefined') return false;
+    return /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+  }
+
+  /** Native desktop shell: window chrome, tray, global shortcuts, autostart. */
+  public isDesktop(): boolean {
+    return this.isTauri && !this.isMobile();
+  }
+
+  /**
+   * Guard for commands/plugins that only exist in the desktop Rust shell
+   * (window controls, tray, badge, autostart, global shortcuts). On mobile
+   * these would reject with "command not found"; notifications and the
+   * opener work on every Tauri target and keep using `isTauri`.
+   */
+  private get hasDesktopShell(): boolean {
+    return this.isDesktop();
+  }
+
+  /**
+   * Platform identifier ('darwin', 'win32', 'linux', 'android', 'ios' or 'unknown')
    */
   public getPlatform(): string {
     if (typeof navigator !== 'undefined') {
       const ua = navigator.userAgent.toLowerCase();
       const plat = (navigator.platform || '').toLowerCase();
+      if (ua.includes('android')) return 'android';
+      if (/iphone|ipad|ipod/.test(ua) || (this.isMobile() && ua.includes('mac'))) return 'ios';
       if (ua.includes('mac') || plat.includes('mac')) return 'darwin';
       if (ua.includes('win') || plat.includes('win')) return 'win32';
       if (ua.includes('linux') || plat.includes('linux')) return 'linux';
@@ -81,31 +109,31 @@ class DesktopBridge {
   // ==========================================
 
   public async minimize(): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       await getCurrentWindow().minimize();
     }
   }
 
   public async toggleMaximize(): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       await getCurrentWindow().toggleMaximize();
     }
   }
 
   public async close(): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       await getCurrentWindow().close();
     }
   }
 
   public async startDragging(): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       await getCurrentWindow().startDragging();
     }
   }
 
   public async isMaximized(): Promise<boolean> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       return await getCurrentWindow().isMaximized();
     }
     return false;
@@ -117,7 +145,7 @@ class DesktopBridge {
    * with the app minimized or in the background.
    */
   public async focusMainWindow(): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await invoke('focus_main_window');
       } catch (err) {
@@ -135,7 +163,7 @@ class DesktopBridge {
   public onQuickAddTask(callback: () => void): () => void {
     let unlistenTauri: UnlistenFn | null = null;
 
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       listen('quick-add-task', () => {
         callback();
       }).then((unlisten) => {
@@ -155,20 +183,20 @@ class DesktopBridge {
   // ==========================================
 
   public async toggleMiniTimer(): Promise<boolean> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       return await invoke<boolean>('toggle_mini_timer');
     }
     return false;
   }
 
   public async setMiniTimerVisible(visible: boolean): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       await invoke('set_timer_window_visible', { visible });
     }
   }
 
   public async updateTrayTitle(title: string): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await invoke('update_tray_title', { title });
       } catch (err) {
@@ -178,7 +206,7 @@ class DesktopBridge {
   }
 
   public async setBadgeCount(count: number | null): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await invoke('set_badge_count', { count });
       } catch (err) {
@@ -188,7 +216,7 @@ class DesktopBridge {
   }
 
   public async getSystemInfo(): Promise<SystemInfo> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         return await invoke<SystemInfo>('get_system_info');
       } catch {
@@ -251,7 +279,7 @@ class DesktopBridge {
   // ==========================================
 
   public async isAutostartEnabled(): Promise<boolean> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         return await isAutostartEnabled();
       } catch {
@@ -262,7 +290,7 @@ class DesktopBridge {
   }
 
   public async setAutostart(enable: boolean): Promise<boolean> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         if (enable) {
           await enableAutostart();
@@ -283,7 +311,7 @@ class DesktopBridge {
   // ==========================================
 
   public async registerShortcut(shortcut: string, handler: () => void): Promise<boolean> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await registerShortcut(shortcut, (event) => {
           if (event.state === 'Pressed') {
@@ -300,7 +328,7 @@ class DesktopBridge {
   }
 
   public async unregisterShortcut(shortcut: string): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await unregisterShortcut(shortcut);
       } catch (err) {
@@ -314,7 +342,7 @@ class DesktopBridge {
   // ==========================================
 
   public async broadcastTimerState(state: TimerSyncState): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await emit('timer:state-update', state);
       } catch (err) {
@@ -329,7 +357,7 @@ class DesktopBridge {
   public onTimerStateUpdate(callback: (state: TimerSyncState) => void): () => void {
     let unlistenTauri: UnlistenFn | null = null;
 
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       listen<TimerSyncState>('timer:state-update', (event) => {
         callback(event.payload);
       }).then((unlisten) => {
@@ -358,7 +386,7 @@ class DesktopBridge {
   }
 
   public async sendTimerAction(action: TimerAction): Promise<void> {
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       try {
         await emit('timer:action', action);
       } catch (err) {
@@ -373,7 +401,7 @@ class DesktopBridge {
   public onTimerAction(callback: (action: TimerAction) => void): () => void {
     let unlistenTauri: UnlistenFn | null = null;
 
-    if (this.isTauri) {
+    if (this.hasDesktopShell) {
       listen<TimerAction>('timer:action', (event) => {
         callback(event.payload);
       }).then((unlisten) => {

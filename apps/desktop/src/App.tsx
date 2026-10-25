@@ -1,26 +1,13 @@
 import { RouterProvider } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@ordo-todo/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
-import { apiClient, registerQueryClient } from "./lib/api-client";
+import { queryClient } from "./lib/query-client";
 import { sharedApiClient } from "./lib/shared-api-client";
 import { createDesktopOAuthHandler } from "./lib/oauth";
 import { router } from "./routes";
 import "./App.css";
-
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-// Register it with the api client to handle auth errors globally
-registerQueryClient(queryClient);
 
 // Create OAuth handler for desktop
 const oauthHandler = createDesktopOAuthHandler();
@@ -35,8 +22,8 @@ function App() {
       disableTransitionOnChange={false}
     >
       <QueryClientProvider client={queryClient}>
-        <AuthProvider 
-          platform="desktop" 
+        <AuthProvider
+          platform="desktop"
           apiClient={sharedApiClient}
           onOAuthLogin={oauthHandler}
         >

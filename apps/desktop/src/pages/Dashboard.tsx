@@ -528,7 +528,8 @@ export function Dashboard() {
       />
 
       {/* Quick Actions FAB */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+      {/* Sobre la barra inferior en teléfono (md+ usa la posición de desktop) */}
+      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-50">
         <AnimatePresence>
           {showQuickActions && (
             <>

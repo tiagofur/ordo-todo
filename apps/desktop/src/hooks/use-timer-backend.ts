@@ -20,6 +20,7 @@ import {
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask, useTimerStats, useSessionHistory } from "@/hooks/api";
 import { toast } from "sonner";
 import { desktopBridge } from "@/lib/desktop-bridge";
+import { cancelDeadlineAlarm, useDeadlineNotification } from "@/hooks/use-deadline-notification";
 
 // Historical desktop names kept so existing consumers (timer-context)
 // keep working untouched. IDLE is preserved as a type for the floating
@@ -125,6 +126,9 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
 
     const notifyAdapter = useMemo(() => ({
         sessionComplete: (mode: TimerBackendMode) => {
+            // Móvil: la alarma del sistema programada al deadline ya no hace
+            // falta (y repostearía tarde al ser inexacta). No-op en desktop.
+            void cancelDeadlineAlarm();
             // Native notification on every completed phase (new in T2c: the
             // former desktop copy never notified on expiry).
             if (mode === "WORK") {
@@ -178,6 +182,10 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             : null,
         onSessionComplete,
     });
+
+    // Móvil: alarma del sistema al deadline como fallback si el proceso se
+    // suspende (ODD 020 P3). No-op en desktop.
+    useDeadlineNotification(timer);
 
     // Tray title + floating mini-timer sync, preserved from the former
     // desktop copy.
