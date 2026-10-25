@@ -42,9 +42,9 @@ export function Hero() {
           className="absolute bottom-20 left-1/4 w-64 h-64 border-8 border-[#F97316]/10 rounded-full"
         />
         {/* Small accent squares */}
-        <div className="absolute top-1/3 left-20 w-8 h-8 bg-[#06B6D4]" />
-        <div className="absolute bottom-1/4 right-32 w-6 h-6 bg-[#EC4899]" />
-        <div className="absolute top-1/2 right-20 w-4 h-4 bg-[#10B981]" />
+        <div className="absolute top-1/3 left-20 w-8 h-8 bg-[#06B6D4] opacity-20" />
+        <div className="absolute bottom-1/4 right-32 w-6 h-6 bg-[#EC4899] opacity-20" />
+        <div className="absolute top-1/2 right-20 w-4 h-4 bg-[#10B981] opacity-20" />
       </div>
 
       {/* Grid Pattern Overlay */}

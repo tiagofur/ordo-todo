@@ -18,27 +18,30 @@
 /* Configure dark mode to use class strategy only */
 @variant dark (.dark &);
 
-/* Creator OS Dark Theme Variables */
+/* Tokens de tema de la landing (paleta oscura). Tailwind 4 pasa estas
+   variables tal cual a bg-background/bg-card/border-border…, así que deben ser
+   colores completos: una tripleta "240 10% 3.9%" (formato Tailwind 3) es
+   inválida y deja superficies transparentes y bordes por defecto. */
 :root {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 263 70% 50%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 4% 16%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 240 4% 16%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 263 70% 50%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 240 4% 16%;
-  --input: 240 4% 16%;
-  --ring: 263 70% 50%;
+  --background: hsl(240 10% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(240 10% 3.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 10% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(263 70% 50%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(240 4% 16%);
+  --secondary-foreground: hsl(210 40% 98%);
+  --muted: hsl(240 4% 16%);
+  --muted-foreground: hsl(215 20% 65%);
+  --accent: hsl(263 70% 50%);
+  --accent-foreground: hsl(210 40% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(240 4% 16%);
+  --input: hsl(240 4% 16%);
+  --ring: hsl(263 70% 50%);
   --radius: 0.75rem;
 }
 
@@ -77,12 +80,12 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
+  background: var(--muted);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: var(--muted-foreground);
 }
 
 /* Selection color */
