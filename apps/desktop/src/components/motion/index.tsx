@@ -1,5 +1,13 @@
 import { motion, Variants } from "framer-motion";
 import { ReactNode } from "react";
+import { desktopBridge } from "@/lib/desktop-bridge";
+
+/**
+ * En móvil, las animaciones de entrada con `transform` crean capas compuestas
+ * que el WebView de Android no invalida bien al hacer scroll (quedan
+ * "fantasmas" del contenido pintadas encima). Sin transform no hay capa:
+ * animaciones completas en desktop, aparición simple en móvil.
+ */
 
 // Page transition variants
 export const pageVariants: Variants = {
@@ -71,20 +79,20 @@ export const staggerContainer: Variants = {
 
 export const staggerItem: Variants = {
   initial: { opacity: 0, y: 20 },
-  animate: { 
-    opacity: 1, 
+  animate: {
+    opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
 // Card hover animation
 export const cardHover: Variants = {
   rest: { scale: 1, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" },
-  hover: { 
-    scale: 1.02, 
+  hover: {
+    scale: 1.02,
     boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
   tap: { scale: 0.98 },
 };
@@ -102,6 +110,9 @@ interface PageTransitionProps {
 }
 
 export function PageTransition({ children, className }: PageTransitionProps) {
+  if (desktopBridge.isMobile()) {
+    return <div className={className}>{children}</div>;
+  }
   return (
     <motion.div
       initial="initial"
@@ -141,7 +152,15 @@ interface SlideInProps {
   className?: string;
 }
 
-export function SlideIn({ children, direction = "bottom", delay = 0, className }: SlideInProps) {
+export function SlideIn({
+  children,
+  direction = "bottom",
+  delay = 0,
+  className,
+}: SlideInProps) {
+  if (desktopBridge.isMobile()) {
+    return <div className={className}>{children}</div>;
+  }
   const directionOffset = {
     left: { x: -50, y: 0 },
     right: { x: 50, y: 0 },
@@ -179,7 +198,13 @@ export function StaggerList({ children, className }: StaggerListProps) {
   );
 }
 
-export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+export function StaggerItem({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <motion.div variants={staggerItem} className={className}>
       {children}
@@ -193,7 +218,11 @@ interface AnimatedCardProps {
   onClick?: () => void;
 }
 
-export function AnimatedCard({ children, className, onClick }: AnimatedCardProps) {
+export function AnimatedCard({
+  children,
+  className,
+  onClick,
+}: AnimatedCardProps) {
   return (
     <motion.div
       initial="rest"
@@ -215,7 +244,12 @@ interface AnimatedButtonProps {
   disabled?: boolean;
 }
 
-export function AnimatedButton({ children, className, onClick, disabled }: AnimatedButtonProps) {
+export function AnimatedButton({
+  children,
+  className,
+  onClick,
+  disabled,
+}: AnimatedButtonProps) {
   return (
     <motion.button
       initial="rest"
@@ -272,7 +306,11 @@ interface AnimatedCounterProps {
   className?: string;
 }
 
-export function AnimatedCounter({ value, duration = 1, className }: AnimatedCounterProps) {
+export function AnimatedCounter({
+  value,
+  duration = 1,
+  className,
+}: AnimatedCounterProps) {
   return (
     <motion.span
       className={className}
@@ -298,7 +336,11 @@ interface AnimatedProgressProps {
   color?: string;
 }
 
-export function AnimatedProgress({ value, className, color = "bg-primary" }: AnimatedProgressProps) {
+export function AnimatedProgress({
+  value,
+  className,
+  color = "bg-primary",
+}: AnimatedProgressProps) {
   return (
     <div className={`h-2 bg-muted rounded-full overflow-hidden ${className}`}>
       <motion.div
