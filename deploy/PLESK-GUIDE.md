@@ -1,148 +1,60 @@
 # 🚀 Despliegue con Plesk Obsidian
 
-Esta guía te muestra cómo desplegar Ordo-Todo en un VPS con Plesk Obsidian.
+Cómo preparar el VPS con Plesk para que el deploy automático de GitHub Actions
+funcione. La operación del día a día (estado, rollback, backups, rotación de
+secretos) está en [RUNBOOK.md](./RUNBOOK.md).
 
 ## 📋 Requisitos
 
-- ✅ VPS con Plesk Obsidian instalado
-- ✅ Extensión Docker en Plesk
-- ✅ Dominio `ordotodo.app` configurado
+- VPS con Plesk Obsidian y Docker instalado (ya los hay).
+- Dominios `ordotodo.app`, `api.ordotodo.app` y `ordotodo.com` dados de alta en Plesk (ya lo están).
+- Acceso SSH como `root` con clave (sin contraseña).
+
+> El VPS está **compartido** con otros proyectos. Ordo solo usa `/opt/ordo-todo`
+> y los puertos `3001`, `3002` y `3003` en `127.0.0.1`. El `3000` y el `5432`
+> del host pertenecen a otros servicios: no usarlos.
 
 ---
 
-## 1️⃣ Configurar Dominio en Plesk
+## 1️⃣ Dominios y SSL en Plesk
 
-### 1.1 Agregar el dominio principal
+Para cada dominio (`ordotodo.app`, `api.ordotodo.app`, `ordotodo.com`):
 
-1. En Plesk → **Websites & Domains** → **Add Domain**
-2. Domain name: `ordotodo.app`
-3. Hosting type: **No hosting** (usaremos Docker)
-
-### 1.2 Agregar subdominio para API
-
-1. En el dominio `ordotodo.app` → **Add Subdomain**
-2. Subdomain: `api`
-3. Esto crea `api.ordotodo.app`
-
-### 1.3 Configurar SSL
-
-1. En cada dominio/subdominio → **SSL/TLS Certificates**
-2. Click **Install** → **Let's Encrypt**
-3. Marcar: "Redirect from HTTP to HTTPS"
+1. **Websites & Domains** → dominio → *Hosting type*: **No hosting** (sirve Docker).
+2. **SSL/TLS Certificates** → *Install* → **Let's Encrypt**, marcando "Redirect from HTTP to HTTPS" y, en `ordotodo.app`/`ordotodo.com`, el alias `www`.
 
 ---
 
-## 2️⃣ Configurar Docker en Plesk
-
-### 2.1 Verificar extensión Docker
-
-1. Plesk → **Extensions** → Buscar "Docker"
-2. Si no está instalado, instalarlo
-
-### 2.2 Acceder por SSH
-
-En Plesk, ve a **Tools & Settings** → **SSH Keys** para configurar acceso SSH.
-
-O usa la terminal web de Plesk: **Server Management** → **Terminal**
-
-### 2.3 Crear directorio del proyecto
+## 2️⃣ Directorio y `.env`
 
 ```bash
-mkdir -p /opt/ordo-todo/backups
+mkdir -p /opt/ordo-todo/backups /opt/ordo-todo/scripts
 cd /opt/ordo-todo
+curl -fsSL https://raw.githubusercontent.com/tiagofur/ordo-todo/main/deploy/.env.plesk.example -o .env
+nano .env     # rellenar TODOS los CHANGE_ME y los dominios/puertos
+chmod 600 .env
 ```
 
-### 2.4 Descargar archivos de configuración
+Secretos: `openssl rand -base64 64 | tr -d '\n'` (JWT_SECRET, ≥64 caracteres),
+`openssl rand -base64 32` (NEXTAUTH_SECRET), `openssl rand -base64 24 | tr -dc 'a-zA-Z0-9' | head -c 32` (POSTGRES_PASSWORD).
+Guarda una copia del `.env` en tu gestor de contraseñas.
 
-```bash
-# Descargar docker-compose
-curl -O https://raw.githubusercontent.com/tiagofur/ordo-todo/main/deploy/docker-compose.plesk.yml
-
-# Renombrar
-mv docker-compose.plesk.yml docker-compose.yml
-```
-
-### 2.5 Crear archivo .env
-
-```bash
-nano .env
-```
-
-Contenido (reemplaza los valores):
-
-```env
-DOMAIN=ordotodo.app
-GITHUB_REPOSITORY_OWNER=tiagofur
-IMAGE_TAG=latest
-
-# Database
-POSTGRES_USER=ordo_prod
-POSTGRES_PASSWORD=TU_PASSWORD_SEGURO_32_CARACTERES
-POSTGRES_DB=ordo_todo_prod
-
-# JWT Secrets (genera con: openssl rand -base64 64)
-JWT_SECRET=TU_JWT_SECRET
-JWT_REFRESH_SECRET=TU_JWT_REFRESH_SECRET
-JWT_EXPIRATION=15m
-JWT_REFRESH_EXPIRATION=7d
-
-# NextAuth (genera con: openssl rand -base64 32)
-NEXTAUTH_SECRET=TU_NEXTAUTH_SECRET
-
-# AI (opcional)
-GEMINI_API_KEY=
-```
-
-### 2.6 Login a GitHub Container Registry
-
-```bash
-# Necesitas un Personal Access Token de GitHub con permisos 'read:packages'
-echo "TU_GITHUB_TOKEN" | docker login ghcr.io -u TU_USUARIO_GITHUB --password-stdin
-```
-
-### 2.7 Iniciar servicios
-
-```bash
-cd /opt/ordo-todo
-
-# Descargar imágenes
-docker compose pull
-
-# Iniciar PostgreSQL primero
-docker compose up -d postgres
-
-# Esperar 10 segundos
-sleep 10
-
-# Ejecutar migraciones
-docker compose up migrations
-
-# Iniciar todos los servicios
-docker compose up -d
-```
-
-### 2.8 Verificar que todo corra
-
-```bash
-docker compose ps
-docker compose logs -f
-```
+**No descargues el compose a mano**: el deploy copia `deploy/docker-compose.plesk.yml`
+a `/opt/ordo-todo/docker-compose.yml` en cada ejecución. La base de datos es
+`pgvector/pgvector:pg16` (el schema necesita la extensión `vector`).
 
 ---
 
-## 3️⃣ Configurar Reverse Proxy en Plesk
+## 3️⃣ Proxy inverso en Plesk
 
-Plesk necesita enviar el tráfico a los contenedores Docker.
+En cada dominio → **Apache & nginx Settings** → *Additional nginx directives*.
+Cambia solo el puerto; no añadas cabeceras CORS (las pone el backend y, duplicadas, el navegador las rechaza).
 
-### 3.1 Para ordotodo.app (Web Frontend)
-
-1. En Plesk → **Websites & Domains** → `ordotodo.app`
-2. Click en **Apache & nginx Settings**
-3. En **Additional nginx directives**, agregar:
+**`ordotodo.app`** → web (`WEB_PORT`, por defecto **3003**):
 
 ```nginx
 location / {
-    proxy_pass http://127.0.0.1:3000;
+    proxy_pass http://127.0.0.1:3003;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
@@ -154,116 +66,45 @@ location / {
 }
 ```
 
-4. Click **OK** o **Apply**
+**`api.ordotodo.app`** → backend (`API_PORT`, por defecto **3001**): el mismo bloque con `proxy_pass http://127.0.0.1:3001;` y, para subidas de adjuntos, `client_max_body_size 25m;`.
 
-### 3.2 Para api.ordotodo.app (Backend API)
-
-1. En Plesk → **Websites & Domains** → `api.ordotodo.app`
-2. Click en **Apache & nginx Settings**
-3. En **Additional nginx directives**, agregar:
-
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:3001;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-    
-    # CORS headers
-    add_header Access-Control-Allow-Origin "https://ordotodo.app" always;
-    add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
-    add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
-    add_header Access-Control-Allow-Credentials "true" always;
-    
-    # Handle preflight
-    if ($request_method = 'OPTIONS') {
-        return 204;
-    }
-}
-```
-
-4. Click **OK** o **Apply**
+**`ordotodo.com`** → landing (`WEBPAGE_PORT`, por defecto **3002**): el mismo bloque con `proxy_pass http://127.0.0.1:3002;`.
 
 ---
 
-## 4️⃣ Configurar GitHub Actions para Plesk
+## 4️⃣ Clave SSH para GitHub Actions
 
-### 4.1 Crear clave SSH para deploy
-
-En el servidor (via terminal de Plesk o SSH):
+Usa una clave **dedicada** para Ordo (no la de otros proyectos), así se puede revocar sin afectar a nadie:
 
 ```bash
-ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/github_deploy -N ""
-cat ~/.ssh/github_deploy.pub >> ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
-
-# Mostrar clave privada (copiar para GitHub)
-cat ~/.ssh/github_deploy
+ssh-keygen -t ed25519 -C "github-actions-ordo" -f /root/.ssh/github_actions_ordo -N ""
+cat /root/.ssh/github_actions_ordo.pub >> /root/.ssh/authorized_keys
+cat /root/.ssh/github_actions_ordo    # ← contenido para el secret VPS_SSH_KEY
 ```
 
-### 4.2 Configurar Secrets en GitHub
-
-Ve a tu repositorio → Settings → Secrets → Actions:
+Secrets del repositorio (Settings → Secrets and variables → Actions):
 
 | Secret | Valor |
 |--------|-------|
 | `VPS_HOST` | `74.208.234.244` |
 | `VPS_USER` | `root` |
-| `VPS_SSH_KEY` | Contenido de `~/.ssh/github_deploy` |
+| `VPS_SSH_KEY` | clave privada anterior |
 | `VPS_SSH_PORT` | `22` |
 
 ---
 
-## 5️⃣ Actualizar Workflow para Plesk
+## 5️⃣ Primer despliegue y comprobación
 
-El workflow de deploy ya creado funcionará. Solo asegúrate de que el script use `docker-compose.yml` (no `docker-compose.prod.yml`).
-
----
-
-## 6️⃣ Comandos Útiles
-
-### Ver logs
-```bash
-docker compose logs -f
-docker compose logs -f backend
-docker compose logs -f web
-```
-
-### Reiniciar servicios
-```bash
-docker compose restart
-```
-
-### Actualizar manualmente
-```bash
-cd /opt/ordo-todo
-docker compose pull
-docker compose up migrations
-docker compose up -d
-```
-
-### Backup de base de datos
-```bash
-docker compose exec postgres pg_dump -U ordo_prod ordo_todo_prod > backup.sql
-```
+1. Actions → **Deploy** → *Run workflow* (rama `main`). Sigue el log: tests → imágenes → migraciones → arranque → espera a "healthy".
+2. Actions → **Deploy Marketing** → *Run workflow* para la landing.
+3. En el VPS: `cd /opt/ordo-todo && ./scripts/health.sh`.
+4. En el navegador: `https://ordotodo.app` (login), `https://api.ordotodo.app/api/v1/health` (200), `https://ordotodo.com`.
+5. Primer backup: `./scripts/backup-db.sh` y programarlo (RUNBOOK §5).
 
 ---
 
-## 🔧 Troubleshooting
+## 🔧 Problemas típicos
 
-### Error: "Bad Gateway" o "502"
-- Verifica que los contenedores estén corriendo: `docker compose ps`
-- Verifica logs: `docker compose logs backend`
-
-### Error: "Connection refused"
-- Verifica que los puertos estén correctos en nginx
-- Verifica que los contenedores escuchen en los puertos correctos
-
-### SSL no funciona
-- En Plesk, reinstala el certificado Let's Encrypt
-- Verifica que el dominio apunte al servidor correcto
+- **502 Bad Gateway**: el puerto de la directiva nginx no coincide con el de `.env`, o el contenedor no está sano → `./scripts/health.sh`.
+- **`permission denied (publickey)` en el deploy**: la clave de `VPS_SSH_KEY` no está en `/root/.ssh/authorized_keys`.
+- **Migraciones fallan**: el deploy aborta sin arrancar la versión nueva; leer el log del job y ver RUNBOOK §4/§5.

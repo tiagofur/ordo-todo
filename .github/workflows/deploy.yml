@@ -175,7 +175,12 @@ jobs:
           cache-to: type=gha,mode=max
 
   # =============================================================================
-  # Deploy to Production
+  # Deploy to Production — VPS con Plesk, COMPARTIDO con otros proyectos.
+  #
+  # El compose y los scripts viajan desde el repo en cada deploy (fuente de
+  # verdad); en el VPS solo vive el .env. Aquí no se reinicia Docker, no se
+  # tocan puertos ni contenedores ajenos y no se hace `compose down`: compose
+  # recrea solo los servicios cuya imagen cambió.
   # =============================================================================
   deploy:
     name: Deploy to Production
@@ -183,9 +188,30 @@ jobs:
     needs: [build-backend, build-web]
     if: always() && needs.build-backend.result == 'success' && needs.build-web.result == 'success'
     environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
     steps:
+      - name: Checkout deploy files
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: deploy
+          sparse-checkout-cone-mode: true
+
+      - name: Copy compose and scripts to VPS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          source: "deploy/docker-compose.plesk.yml,deploy/scripts/health.sh,deploy/scripts/backup-db.sh,deploy/scripts/rollback.sh"
+          target: /opt/ordo-todo/.incoming
+          strip_components: 1
+          rm: true
+
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         env:
           IMAGE_TAG: ${{ github.sha }}
           GITHUB_USER: ${{ github.actor }}
@@ -198,161 +224,56 @@ jobs:
           envs: IMAGE_TAG,GITHUB_USER,GITHUB_TOKEN
           script: |
             set -euo pipefail
-
             cd /opt/ordo-todo
+            test -f .env || { echo "::error::Falta /opt/ordo-todo/.env (plantilla: deploy/.env.plesk.example)"; exit 1; }
 
-            echo "[$(date)] 🚀 Starting deployment..."
+            echo "[$(date)] 📄 Instalando compose y scripts del repo..."
+            install -m 0644 .incoming/docker-compose.plesk.yml docker-compose.yml
+            mkdir -p scripts backups
+            install -m 0755 .incoming/scripts/*.sh scripts/
+            rm -rf .incoming
+            docker compose config -q
 
-            # Export variables for docker-compose
-            export IMAGE_TAG=$IMAGE_TAG
-            export GITHUB_USER=$GITHUB_USER
-            export GITHUB_TOKEN=$GITHUB_TOKEN
+            echo "[$(date)] 🔐 Login en GHCR..."
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
 
-            # Diagnostic: Check network connectivity
-            echo "[$(date)] 🔍 Diagnostics: Checking network..."
-            echo "DNS Resolution:"
-            nslookup ghcr.io || echo "⚠️ DNS resolution failed"
-            echo "Ping Google DNS:"
-            ping -c 2 8.8.8.8 || echo "⚠️ Cannot ping Google DNS"
-            echo "Current DNS config:"
-            cat /etc/resolv.conf
+            export IMAGE_TAG
+            echo "[$(date)] 📦 Descargando imágenes ${IMAGE_TAG}..."
+            docker compose pull backend web
 
-            # Configure Docker with better network settings
-            echo "[$(date)] 🔧 Configuring Docker..."
-            sudo mkdir -p /etc/docker
-            echo '{
-              "max-concurrent-downloads": 3,
-              "max-download-attempts": 5,
-              "dns": ["8.8.8.8", "8.8.4.4", "1.1.1.1"],
-              "log-driver": "json-file",
-              "log-opts": {"max-size": "10m", "max-file": "3"}
-            }' | sudo tee /etc/docker/daemon.json
-
-            # Restart Docker to apply changes
-            echo "[$(date)] 🔄 Restarting Docker..."
-            sudo systemctl restart docker
-            sleep 5
-
-            # Verify Docker is running
-            sudo systemctl status docker --no-pager || {
-              echo "❌ Docker failed to start!"
-              sudo journalctl -xeu docker.service --no-pager | tail -20
-              exit 1
-            }
-
-            # Test connectivity to GHCR before attempting login
-            echo "[$(date)] 🌐 Testing GHCR connectivity..."
-            MAX_TEST_RETRIES=3
-            TEST_COUNT=0
-            while [ $TEST_COUNT -lt $MAX_TEST_RETRIES ]; do
-              if curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 https://ghcr.io | grep -q "200\|401\|403\|404"; then
-                echo "✅ GHCR is reachable!"
-                break
-              fi
-              TEST_COUNT=$((TEST_COUNT+1))
-              if [ $TEST_COUNT -lt $MAX_TEST_RETRIES ]; then
-                echo "⚠️ GHCR unreachable, retrying in 5s... (Attempt $TEST_COUNT/$MAX_TEST_RETRIES)"
-                sleep 5
-              else
-                echo "❌ GHCR unreachable after $MAX_TEST_RETRIES attempts"
-                echo "Attempting to continue anyway..."
-              fi
-            done
-
-            # Login to GitHub Container Registry with retry
-            echo "[$(date)] 🔐 Logging into GitHub Container Registry..."
-            MAX_RETRIES=3
-            RETRY_COUNT=0
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if echo "$GITHUB_TOKEN" | timeout 60 docker login ghcr.io -u "$GITHUB_USER" --password-stdin 2>&1; then
-                echo "✅ Login successful!"
-                break
-              fi
-              RETRY_COUNT=$((RETRY_COUNT+1))
-              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                echo "⚠️ Login failed, retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
-                # Try to reset Docker network stack
-                sudo systemctl restart docker
-                sleep 12
-              else
-                echo "❌ Login failed after $MAX_RETRIES attempts"
-                echo "Docker logs:"
-                sudo journalctl -xeu docker.service --no-pager | tail -30
-                exit 1
-              fi
-            done
-            
-            # Stop existing containers to release ports
-            echo "[$(date)] 🛑 Stopping existing containers..."
-            docker compose down --remove-orphans || true
-            
-            # Stop any rogue postgres containers not managed by compose
-            docker ps -a --filter "name=postgres" -q | xargs -r docker stop || true
-            docker ps -a --filter "name=postgres" -q | xargs -r docker rm || true
-            
-            # Kill any processes using our ports (in case system postgres is running)
-            echo "[$(date)] 🔌 Releasing ports..."
-            sudo fuser -k 5432/tcp || true
-            sudo fuser -k 3000/tcp || true
-            sudo fuser -k 3001/tcp || true
-            sleep 2
-
-            # Pull new images with retry
-            echo "[$(date)] 📦 Pulling new images..."
-            MAX_RETRIES=3
-            RETRY_COUNT=0
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if docker compose pull 2>&1; then
-                echo "✅ Pull successful!"
-                break
-              fi
-              RETRY_COUNT=$((RETRY_COUNT+1))
-              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                echo "⚠️ Pull failed, retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
-                sleep 10
-              else
-                echo "❌ Pull failed after $MAX_RETRIES attempts"
-                exit 1
-              fi
-            done
-
-            # Run database migrations
-            echo "[$(date)] 🗄️ Running database migrations..."
+            echo "[$(date)] 🗄️ Base de datos y migraciones..."
             docker compose up -d postgres
-            sleep 5
-            if ! docker compose up migrations --exit-code-from migrations; then
-              echo "[$(date)] ❌ Database migrations failed; not starting the new images against an old schema."
-              echo "Fix the migration and re-run the deploy, or redeploy the previous IMAGE_TAG to restore service."
+            if ! docker compose run --rm migrations; then
+              echo "::error::Las migraciones fallaron; no se arrancan las imágenes nuevas contra un schema viejo."
               exit 1
             fi
-            
-            # Deploy services
-            echo "[$(date)] 🔄 Deploying services..."
+
+            echo "[$(date)] 🚀 Arrancando backend y web..."
             docker compose up -d backend web
-            
-            # Wait for health checks
-            echo "[$(date)] ⏳ Waiting for services to be healthy..."
-            sleep 30
-            
-            # Verify deployment
-            echo "[$(date)] ✅ Verifying deployment..."
+
+            echo "[$(date)] ⏳ Esperando a que estén sanos..."
+            ./scripts/health.sh --wait backend web
+
+            # Deja en .env la versión desplegada: un `docker compose up -d` manual
+            # no cambiará de imagen por accidente.
+            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+
+            echo "[$(date)] 🧹 Limpiando imágenes antiguas de Ordo (solo las nuestras, >7 días)..."
+            docker image prune -af --filter "until=168h" \
+              --filter "label=org.opencontainers.image.source=https://github.com/tiagofur/ordo-todo" || true
+
             docker compose ps
-            
-            # Cleanup old images
-            echo "[$(date)] 🧹 Cleaning up..."
-            docker image prune -af --filter "until=168h" || true
-            
-            echo "[$(date)] ✅ Deployment completed successfully!"
+            echo "[$(date)] ✅ Deploy completado: ${IMAGE_TAG}"
 
       - name: Notify on Success
         if: success()
         run: |
           echo "✅ Deployment successful!"
-          echo "Backend: https://api.ordotodo.app"
+          echo "Backend: https://api.ordotodo.app/api/v1/health"
           echo "Web: https://ordotodo.app"
 
       - name: Notify on Failure
         if: failure()
         run: |
-          echo "❌ Deployment failed!"
-          echo "Check the logs above for details."
+          echo "❌ Deployment failed! Check the logs above."
+          echo "Rollback: Actions → Deploy → Run workflow sobre el commit anterior, o ./scripts/rollback.sh <sha> en el VPS."

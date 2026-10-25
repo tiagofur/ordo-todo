@@ -1,5 +1,11 @@
 # 🚀 Guía de Despliegue - Ordo-Todo
 
+> **Producción real (oct-2026): VPS con Plesk.** La guía vigente es
+> [PLESK-GUIDE.md](./PLESK-GUIDE.md) y la operación diaria está en
+> [RUNBOOK.md](./RUNBOOK.md). Lo que sigue describe la variante alternativa con
+> Traefik para un VPS dedicado y vacío (`docker-compose.prod.yml`); no aplica al
+> servidor actual, que está compartido con otros proyectos.
+
 Esta guía te llevará paso a paso para desplegar Ordo-Todo en tu VPS con IONOS.
 
 ## 📋 Tabla de Contenidos
