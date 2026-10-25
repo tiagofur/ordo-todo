@@ -59,6 +59,8 @@ services:
       # URLs públicas
       FRONTEND_URL: https://${DOMAIN}
       API_URL: ${API_URL:-https://api.${DOMAIN}}
+      # Cookies de sesión compartidas entre ordotodo.app y api.ordotodo.app
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-${DOMAIN}}
       # CORS: app, landing y (opcional) orígenes extra como las apps Tauri,
       # p. ej. CORS_EXTRA_ORIGINS=",tauri://localhost,http://tauri.localhost"
       CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://${MARKETING_DOMAIN:-ordotodo.com},https://www.${MARKETING_DOMAIN:-ordotodo.com}${CORS_EXTRA_ORIGINS:-}
@@ -68,7 +70,8 @@ services:
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
       REGISTRATION_MODE: ${REGISTRATION_MODE:-invite-only}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
-      # OAuth (vacío = proveedor desactivado)
+      # OAuth: NO pueden ir vacíos (passport exige clientID); sin OAuth usar el
+      # relleno "oauth-disabled" (ver .env.plesk.example)
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-https://api.${DOMAIN}/api/v1/auth/google/callback}

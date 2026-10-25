@@ -45,6 +45,12 @@ export class EnvironmentVariables {
   @IsString()
   CORS_ORIGINS: string;
 
+  // Dominio de las cookies de sesión (p. ej. ordotodo.app) para compartirlas
+  // entre la web (dominio raíz) y la API (subdominio). Vacío = solo host.
+  @IsString()
+  @IsOptional()
+  COOKIE_DOMAIN?: string;
+
   @IsString()
   @IsOptional()
   GEMINI_API_KEY?: string;
