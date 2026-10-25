@@ -3,20 +3,31 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "path";
 
-// https://vitejs.dev/config/
+// La app móvil renderiza el MISMO frontend que apps/desktop (ODD 020 P4):
+// `@/*` apunta a la fuente de desktop y este proyecto solo aporta la
+// configuración Tauri móvil y los adaptadores de plataforma (src/).
+const desktopSrc = resolve(__dirname, "../desktop/src");
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 1421,
     strictPort: true,
+    fs: { allow: [resolve(__dirname, "../..")] },
     watch: {
       ignored: ["**/src-tauri/**"],
     },
   },
   envPrefix: ["VITE_", "TAURI_ENV_*"],
+  define: {
+    // Gate de plataforma leído por desktopBridge.isMobile(); constante de
+    // compilación para que el código solo-desktop se elimine del bundle.
+    "import.meta.env.VITE_ORDO_PLATFORM": JSON.stringify("mobile"),
+  },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./src"),
+      "@": desktopSrc,
+      "@ordo-todo/ui": resolve(__dirname, "../../packages/ui/src"),
       "@ordo-todo/api-client": resolve(
         __dirname,
         "../../packages/api-client/src",
@@ -43,6 +54,16 @@ export default defineConfig({
       include: [/packages\/api-client/, /node_modules/],
       transformMixedEsModules: true,
     },
+  },
+  optimizeDeps: {
+    include: [
+      "@ordo-todo/api-client",
+      "@ordo-todo/hooks",
+      "@ordo-todo/core",
+      "@ordo-todo/stores",
+      "@ordo-todo/auth-provider",
+    ],
+    exclude: ["@ordo-todo/ui"],
   },
   base: "./",
 });

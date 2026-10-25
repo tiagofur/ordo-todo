@@ -1,11 +1,12 @@
 {
   "identifier": "default",
-  "description": "Permisos de la app: notificaciones, apertura de enlaces y deep links OAuth",
+  "description": "Permisos de la app: notificaciones, apertura de enlaces, deep links OAuth y almacén de tokens",
   "windows": ["*"],
   "permissions": [
     "core:default",
     "notification:default",
     "opener:default",
-    "deep-link:default"
+    "deep-link:default",
+    "store:default"
   ]
 }

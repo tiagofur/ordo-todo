@@ -6,7 +6,12 @@ import {
   ReactNode,
   useMemo,
 } from "react";
-import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import type {
   UserResponse,
   LoginDto,
@@ -42,8 +47,25 @@ export function AuthProvider({
   onSuccess,
   apiClient,
   onOAuthLogin,
+  onRedirect,
   queryClient: propQueryClient,
 }: AuthProviderProps) {
+  // Tras login/registro/logout. Por defecto, redirección dura por plataforma
+  // (legado de Expo/web); un SPA con router propio pasa `onRedirect`.
+  const redirectAfterAuth = (kind: "dashboard" | "auth") => {
+    if (onRedirect) {
+      onRedirect(kind === "dashboard" ? "/dashboard" : "/auth");
+      return;
+    }
+    if (kind === "dashboard") {
+      window.location.href = "/dashboard";
+    } else if (platform === "mobile") {
+      window.location.href = "/(external)/auth";
+    } else {
+      window.location.href = "/login";
+    }
+  };
+
   let contextQueryClient: QueryClient | undefined;
   try {
     contextQueryClient = useQueryClient();
@@ -68,21 +90,21 @@ export function AuthProvider({
       retry: false,
       enabled: mounted,
     },
-    queryClient
+    queryClient,
   );
 
   const loginMutation = useMutation(
     {
       mutationFn: (data: LoginDto) => apiClient.login(data),
     },
-    queryClient
+    queryClient,
   );
 
   const registerMutation = useMutation(
     {
       mutationFn: (data: RegisterDto) => apiClient.register(data),
     },
-    queryClient
+    queryClient,
   );
 
   const logoutMutation = useMutation(
@@ -96,7 +118,7 @@ export function AuthProvider({
         onError?.(error as Error);
       },
     },
-    queryClient
+    queryClient,
   );
 
   const isUnauthorized = (error as any)?.response?.status === 401;
@@ -106,14 +128,7 @@ export function AuthProvider({
     try {
       await loginMutation.mutateAsync(data);
       onSuccess?.("login");
-
-      if (platform === "web") {
-        window.location.href = "/dashboard";
-      } else if (platform === "mobile") {
-        window.location.href = "/(internal)/dashboard";
-      } else if (platform === "desktop") {
-        window.location.href = "/dashboard";
-      }
+      redirectAfterAuth("dashboard");
     } catch (error) {
       onError?.(error as Error);
       throw error;
@@ -124,14 +139,7 @@ export function AuthProvider({
     try {
       await registerMutation.mutateAsync(data);
       onSuccess?.("register");
-
-      if (platform === "web") {
-        window.location.href = "/dashboard";
-      } else if (platform === "mobile") {
-        window.location.href = "/(internal)/dashboard";
-      } else if (platform === "desktop") {
-        window.location.href = "/dashboard";
-      }
+      redirectAfterAuth("dashboard");
     } catch (error) {
       onError?.(error as Error);
       throw error;
@@ -141,14 +149,7 @@ export function AuthProvider({
   const logout = async () => {
     try {
       await logoutMutation.mutateAsync();
-
-      if (platform === "web") {
-        window.location.href = "/login";
-      } else if (platform === "mobile") {
-        window.location.href = "/(external)/auth";
-      } else if (platform === "desktop") {
-        window.location.href = "/login";
-      }
+      redirectAfterAuth("auth");
     } catch (error) {
       onError?.(error as Error);
       throw error;

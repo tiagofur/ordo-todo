@@ -3,7 +3,7 @@
  * Allows users to skip to main content areas
  */
 
-import { skipLinkTargets } from '@/utils/accessibility';
+import { skipLinkTargets } from "@/utils/accessibility";
 
 interface SkipLink {
   target: string;
@@ -11,9 +11,9 @@ interface SkipLink {
 }
 
 const skipLinks: SkipLink[] = [
-  { target: skipLinkTargets.mainContent, label: 'Skip to main content' },
-  { target: skipLinkTargets.navigation, label: 'Skip to navigation' },
-  { target: skipLinkTargets.taskList, label: 'Skip to task list' },
+  { target: skipLinkTargets.mainContent, label: "Skip to main content" },
+  { target: skipLinkTargets.navigation, label: "Skip to navigation" },
+  { target: skipLinkTargets.taskList, label: "Skip to task list" },
 ];
 
 export function SkipLinks() {

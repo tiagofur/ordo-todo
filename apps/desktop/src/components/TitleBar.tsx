@@ -51,6 +51,10 @@ export default function TitleBar({ isMaximized: propIsMaximized }: TitleBarProps
 
   const isMac = platform === "darwin";
 
+  // Chrome de ventana propio: solo en el shell de desktop. En móvil (y web) el
+  // sistema pone su propia barra; tras los hooks para respetar su orden.
+  if (!desktopBridge.isDesktop()) return null;
+
   return (
     <header
       data-tauri-drag-region
