@@ -35,8 +35,13 @@ export interface AuthProviderProps {
   /**
    * Override for post-login/register/logout navigation. Por defecto es una
    * redirección dura de documento (window.location.href) con las rutas por
-   * plataforma; un SPA con router propio (p. ej. hash router en la app móvil
-   * Tauri) debe pasar aquí su navigate para no recargar el documento.
+   * plataforma ("/dashboard" tras login/registro; "/login" tras logout, o
+   * "/(external)/auth" en mobile legacy); un SPA con router propio (p. ej.
+   * hash router en la app móvil Tauri) debe pasar aquí su navigate para no
+   * recargar el documento. Nota: el default ya no usa las rutas de Expo
+   * Router "/(internal)/…" para platform="mobile" (en RN window.location no
+   * existe y esas asignaciones lanzaban TypeError; la navegación real la
+   * hace el propio Expo al observar `user`).
    */
   onRedirect?: (to: string) => void;
 }

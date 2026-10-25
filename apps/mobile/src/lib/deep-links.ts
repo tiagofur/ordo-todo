@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
-const isAuthCallback = (url: string) => url.startsWith("ordo://auth/callback");
+const isAuthCallback = (url: string) =>
+  url.startsWith("ordo://auth/callback?") || url === "ordo://auth/callback";
 
 /**
  * Escucha el deep link ordo://auth/callback (OAuth) y entrega sus parámetros

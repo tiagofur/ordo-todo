@@ -21,9 +21,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@ordo-todo/ui";
 import { isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
-import { 
-  useTimerStats, 
-  useDailyMetrics, 
+import {
+  useTimerStats,
+  useDailyMetrics,
   useProductivityStreak,
   useTasks,
   useProjects,
@@ -33,13 +33,16 @@ import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
-import { DailyRitualDialog, type RitualMode } from "@/components/planning/daily-ritual-dialog";
-import { 
-  TimerWidget, 
-  ProductivityStreakWidget, 
-  HabitsWidget, 
-  OkrWidget, 
-  AIInsightsWidget 
+import {
+  DailyRitualDialog,
+  type RitualMode,
+} from "@/components/planning/daily-ritual-dialog";
+import {
+  TimerWidget,
+  ProductivityStreakWidget,
+  HabitsWidget,
+  OkrWidget,
+  AIInsightsWidget,
 } from "@/components/dashboard";
 
 type SortOption = "priority" | "duration" | "created";
@@ -71,7 +74,7 @@ export function Dashboard() {
   const startOfDay = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   );
   const endOfDay = new Date(
     today.getFullYear(),
@@ -79,7 +82,7 @@ export function Dashboard() {
     today.getDate(),
     23,
     59,
-    59
+    59,
   );
 
   // Fetch today's timer stats
@@ -102,11 +105,16 @@ export function Dashboard() {
   const todaysTasks = allTasks.filter((task: any) => {
     // Workspace isolation filter
     if (selectedWorkspaceId) {
-      const taskWorkspaceId = task.project?.workspace?.id || task.project?.workspaceId;
+      const taskWorkspaceId =
+        task.project?.workspace?.id || task.project?.workspaceId;
       if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
         return false;
       }
-      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+      if (
+        !taskWorkspaceId &&
+        projects.length > 0 &&
+        !projects.some((p: any) => p.id === task.projectId)
+      ) {
         return false;
       }
     }
@@ -183,7 +191,7 @@ export function Dashboard() {
 
   // Count completed tasks for the toggle label
   const completedCount = todaysTasks.filter(
-    (task: any) => task.status === "COMPLETED"
+    (task: any) => task.status === "COMPLETED",
   ).length;
 
   // Use metrics from backend
@@ -191,7 +199,9 @@ export function Dashboard() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const hoursWorked = stats
+    ? Math.floor((stats.totalMinutesWorked ?? 0) / 60)
+    : 0;
   const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
@@ -273,7 +283,7 @@ export function Dashboard() {
               "group relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border shadow-xs hover:shadow-md cursor-pointer",
               new Date().getHours() >= 17
                 ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20"
-                : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50"
+                : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50",
             )}
           >
             {new Date().getHours() >= 17 ? (
@@ -298,7 +308,11 @@ export function Dashboard() {
             key={card.title}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.35,
+              delay: index * 0.05,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             whileHover={{
               y: -4,
               borderColor: `${card.color}70`,
@@ -347,7 +361,10 @@ export function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <TimerWidget onExpand={() => navigate("/timer")} className="h-full flex-1" />
+          <TimerWidget
+            onExpand={() => navigate("/timer")}
+            className="h-full flex-1"
+          />
         </motion.div>
         <motion.div
           className="h-full flex flex-col"
@@ -385,7 +402,9 @@ export function Dashboard() {
       >
         {/* Header with controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h2 className="text-xl font-semibold">{t("Dashboard.todaysTasks", "Tareas de hoy")}</h2>
+          <h2 className="text-xl font-semibold">
+            {t("Dashboard.todaysTasks", "Tareas de hoy")}
+          </h2>
 
           <div className="flex items-center gap-3">
             {/* View mode toggle */}
@@ -396,7 +415,7 @@ export function Dashboard() {
                   "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "list"
                     ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
                 title="Vista de lista"
               >
@@ -408,7 +427,7 @@ export function Dashboard() {
                   "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "grid"
                     ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
                 title="Vista de cuadrícula"
               >
@@ -424,9 +443,15 @@ export function Dashboard() {
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
               >
-                <option value="priority">{t("Dashboard.sortOptions.priority", "Prioridad")}</option>
-                <option value="duration">{t("Dashboard.sortOptions.duration", "Duración")}</option>
-                <option value="created">{t("Dashboard.sortOptions.created", "Recientes")}</option>
+                <option value="priority">
+                  {t("Dashboard.sortOptions.priority", "Prioridad")}
+                </option>
+                <option value="duration">
+                  {t("Dashboard.sortOptions.duration", "Duración")}
+                </option>
+                <option value="created">
+                  {t("Dashboard.sortOptions.created", "Recientes")}
+                </option>
               </select>
             </div>
 
@@ -437,7 +462,7 @@ export function Dashboard() {
                 "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border cursor-pointer",
                 showCompleted
                   ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-semibold"
-                  : "bg-muted border-border text-muted-foreground hover:bg-muted"
+                  : "bg-muted border-border text-muted-foreground hover:bg-muted",
               )}
             >
               {showCompleted ? (
@@ -446,7 +471,9 @@ export function Dashboard() {
                 <EyeOff className="h-4 w-4" />
               )}
               <span className="hidden sm:inline">
-                {showCompleted ? t("Dashboard.hideCompleted", "Ocultar") : t("Dashboard.showCompleted", "Mostrar completadas")}
+                {showCompleted
+                  ? t("Dashboard.hideCompleted", "Ocultar")
+                  : t("Dashboard.showCompleted", "Mostrar completadas")}
               </span>
               {completedCount > 0 && (
                 <span
@@ -454,7 +481,7 @@ export function Dashboard() {
                     "px-1.5 py-0.5 rounded-full text-xs font-medium",
                     showCompleted
                       ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
                   {completedCount}
@@ -469,13 +496,22 @@ export function Dashboard() {
             <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="mb-2 text-lg font-medium">
               {!showCompleted && completedCount > 0
-                ? t("Dashboard.allTasksCompleted", "Todas las tareas completadas")
+                ? t(
+                    "Dashboard.allTasksCompleted",
+                    "Todas las tareas completadas",
+                  )
                 : t("Dashboard.noTasks", "Sin tareas")}
             </h3>
             <p className="mb-4 text-sm text-muted-foreground">
               {!showCompleted && completedCount > 0
-                ? t("Dashboard.tasksCompletedToday", { count: completedCount, defaultValue:`Tienes ${completedCount} tareas completadas hoy` })
-                : t("Dashboard.noTasksDescription", "No tienes tareas para hoy")}
+                ? t("Dashboard.tasksCompletedToday", {
+                    count: completedCount,
+                    defaultValue: `Tienes ${completedCount} tareas completadas hoy`,
+                  })
+                : t(
+                    "Dashboard.noTasksDescription",
+                    "No tienes tareas para hoy",
+                  )}
             </p>
             {!showCompleted && completedCount > 0 ? (
               <button
@@ -500,7 +536,7 @@ export function Dashboard() {
             className={cn(
               viewMode === "grid"
                 ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-2"
+                : "space-y-2",
             )}
           >
             {sortedTasks.map((task: any, index: number) => (
@@ -528,8 +564,8 @@ export function Dashboard() {
       />
 
       {/* Quick Actions FAB */}
-      {/* Sobre la barra inferior en teléfono (md+ usa la posición de desktop) */}
-      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-50">
+      {/* Sobre la barra inferior en teléfono, incluida su safe-area (md+ usa la posición de desktop) */}
+      <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 z-50">
         <AnimatePresence>
           {showQuickActions && (
             <>
@@ -615,7 +651,7 @@ export function Dashboard() {
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
             "flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 cursor-pointer",
-            showQuickActions ? "rotate-45" : "rotate-0"
+            showQuickActions ? "rotate-45" : "rotate-0",
           )}
         >
           <Plus className="h-7 w-7" />

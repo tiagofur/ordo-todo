@@ -54,7 +54,6 @@ export default defineConfig({
       include: [/packages\/api-client/, /node_modules/],
       transformMixedEsModules: true,
     },
-    chunkSizeWarningLimit: 1000,
   },
   optimizeDeps: {
     include: [
