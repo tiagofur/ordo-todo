@@ -1,14 +1,21 @@
 # =============================================================================
-# Docker Compose for Plesk Deployment
-# Plesk handles SSL and reverse proxy, we just run the containers
+# Ordo — producción en el VPS con Plesk (fuente de verdad: este fichero).
+#
+# Plesk hace TLS y proxy inverso; aquí solo corren los contenedores, todos
+# publicados en 127.0.0.1. El deploy de GitHub Actions copia este fichero a
+# /opt/ordo-todo/docker-compose.yml en cada ejecución: no editarlo en el VPS.
+#
+# El VPS es compartido con otros proyectos: NO publicar 5432 (el Postgres del
+# sistema ya lo usa) y respetar los puertos de los demás (3000, 3050, 3100,
+# 8080, 8085, 8090 están ocupados). Los puertos de Ordo se ajustan en .env.
 # =============================================================================
 
+x-backend-image: &backend-image ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+
 services:
-  # =============================================================================
-  # PostgreSQL Database
-  # =============================================================================
   postgres:
-    image: postgres:16-alpine
+    # pgvector: el schema usa `vector(768)` (migración 20261019_agent_embeddings).
+    image: pgvector/pgvector:pg16
     container_name: ordo-postgres
     restart: unless-stopped
     environment:
@@ -18,19 +25,26 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
-    ports:
-      - "127.0.0.1:5432:5432"  # Only accessible from localhost
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # =============================================================================
-  # Backend (NestJS API)
-  # =============================================================================
+  migrations:
+    image: *backend-image
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: >
+      sh -c "npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma
+             && echo 'Migrations completed successfully!'"
+    restart: "no"
+
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+    image: *backend-image
     container_name: ordo-backend
     restart: unless-stopped
     depends_on:
@@ -39,27 +53,54 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      API_PREFIX: api/v1
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # URLs públicas
+      FRONTEND_URL: https://${DOMAIN}
+      API_URL: ${API_URL:-https://api.${DOMAIN}}
+      # CORS: app, landing y (opcional) orígenes extra como las apps Tauri,
+      # p. ej. CORS_EXTRA_ORIGINS=",tauri://localhost,http://tauri.localhost"
+      CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://${MARKETING_DOMAIN:-ordotodo.com},https://www.${MARKETING_DOMAIN:-ordotodo.com}${CORS_EXTRA_ORIGINS:-}
+      # Auth
       JWT_SECRET: ${JWT_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-15m}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
-      CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://api.${DOMAIN}
+      REGISTRATION_MODE: ${REGISTRATION_MODE:-invite-only}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      # OAuth (vacío = proveedor desactivado)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-https://api.${DOMAIN}/api/v1/auth/google/callback}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-https://api.${DOMAIN}/api/v1/auth/github/callback}
+      # Email (sin SMTP ni Resend los correos solo se registran en el log)
+      EMAIL_FROM: ${EMAIL_FROM:-Ordo <no-reply@${DOMAIN}>}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      # Redis (opcional; sin él, caché y blacklist de refresh tokens en memoria)
+      REDIS_ENABLED: ${REDIS_ENABLED:-false}
+      REDIS_URL: ${REDIS_URL:-}
+      # Integraciones opcionales
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY:-}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-}
     ports:
-      - "127.0.0.1:3001:3001"  # Plesk will proxy to this
+      - "127.0.0.1:${API_PORT:-3001}:3001"
+    volumes:
+      # La app escribe en process.cwd()/uploads y el WORKDIR de la imagen es /app.
+      - backend_uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3001/api/v1/health/live"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    volumes:
-      - backend_uploads:/app/apps/backend/uploads
 
-  # =============================================================================
-  # Web Frontend (Next.js)
-  # =============================================================================
   web:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-web:${IMAGE_TAG:-latest}
     container_name: ordo-web
@@ -68,39 +109,43 @@ services:
       - backend
     environment:
       NODE_ENV: production
+      PORT: 3000
+      # NEXT_PUBLIC_* se hornea en la imagen (build-arg); aquí solo informa.
       NEXT_PUBLIC_API_URL: https://api.${DOMAIN}/api/v1
       NEXTAUTH_URL: https://${DOMAIN}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     ports:
-      - "127.0.0.1:3000:3000"  # Plesk will proxy to this
+      - "127.0.0.1:${WEB_PORT:-3003}:3000"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
-  # =============================================================================
-  # Database Migrations (Run once on deploy)
-  # =============================================================================
-  migrations:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
-    container_name: ordo-migrations
-    depends_on:
-      postgres:
-        condition: service_healthy
+  webpage:
+    # Landing / sitio público (ordotodo.com). Se despliega con deploy-marketing.yml.
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-marketing-web:${MARKETING_IMAGE_TAG:-latest}
+    container_name: ordo-webpage
+    restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    command: >
-      sh -c "
-        npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma &&
-        echo 'Migrations completed successfully!'
-      "
-    restart: "no"
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}/api/v1
+    ports:
+      - "127.0.0.1:${WEBPAGE_PORT:-3002}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
+  # Nombres fijos para que no dependan del nombre del directorio del proyecto.
+  # Para empezar con una BD limpia: POSTGRES_VOLUME=ordo-todo_postgres_data_v2
   postgres_data:
-    driver: local
+    name: ${POSTGRES_VOLUME:-ordo-todo_postgres_data}
   backend_uploads:
-    driver: local
+    name: ${UPLOADS_VOLUME:-ordo-todo_backend_uploads}

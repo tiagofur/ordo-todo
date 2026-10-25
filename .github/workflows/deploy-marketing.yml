@@ -1,6 +1,8 @@
 # =============================================================================
 # Deploy Marketing Website - Ordo-Todo
-# Builds and deploys the marketing website to ordotodo.com
+# Construye la landing (apps/webpage) y la despliega en el VPS como el servicio
+# `webpage` del compose de Ordo (/opt/ordo-todo, puerto 127.0.0.1:3002 →
+# ordotodo.com vía Plesk). Mismo compose que la app; solo se toca ese servicio.
 # =============================================================================
 
 name: Deploy Marketing
@@ -11,7 +13,9 @@ on:
       - main
     paths:
       - 'apps/webpage/**'
+      - 'apps/webpage/Dockerfile'
       - 'packages/ui/**'
+      - 'packages/ui-shared/**'
       - 'packages/styles/**'
       - 'packages/core/**'
       - 'packages/config/**'
@@ -19,20 +23,20 @@ on:
       - 'packages/hooks/**'
       - 'packages/i18n/**'
       - 'packages/stores/**'
+      - 'packages/validations/**'
+      - 'packages/typescript-config/**'
+      - 'package-lock.json'
+      - 'turbo.json'
+      - '.dockerignore'
+      - 'deploy/docker-compose.plesk.yml'
+      - '.github/workflows/deploy-marketing.yml'
   workflow_dispatch:
-    inputs:
-      skip_tests:
-        description: 'Skip tests (emergency deploy)'
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
   packages: write
 
 env:
-  NODE_VERSION: '20'
   REGISTRY: ghcr.io
   MARKETING_WEB_IMAGE: ghcr.io/${{ github.repository_owner }}/ordo-todo-marketing-web
 
@@ -43,8 +47,6 @@ jobs:
   build-marketing-web:
     name: Build Marketing Web Image
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -77,13 +79,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_API_URL=https://api.ordotodo.com
+            NEXT_PUBLIC_API_URL=https://api.ordotodo.app/api/v1
             CACHEBUST=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   # =============================================================================
-  # Deploy Marketing Site to Production
+  # Deploy Marketing Site to Production (mismo VPS/compose que la app)
   # =============================================================================
   deploy-marketing:
     name: Deploy Marketing to Production
@@ -91,11 +93,32 @@ jobs:
     needs: [build-marketing-web]
     if: always() && needs.build-marketing-web.result == 'success'
     environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
     steps:
+      - name: Checkout deploy files
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: deploy
+          sparse-checkout-cone-mode: true
+
+      - name: Copy compose and scripts to VPS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          source: "deploy/docker-compose.plesk.yml,deploy/scripts/health.sh,deploy/scripts/backup-db.sh,deploy/scripts/rollback.sh"
+          target: /opt/ordo-todo/.incoming
+          strip_components: 1
+          rm: true
+
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          MARKETING_IMAGE_TAG: ${{ github.sha }}
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -103,57 +126,42 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT }}
-          envs: IMAGE_TAG,GITHUB_USER,GITHUB_TOKEN
+          envs: MARKETING_IMAGE_TAG,GITHUB_USER,GITHUB_TOKEN
           script: |
             set -euo pipefail
-            
-            cd /opt/ordo-todo-marketing
-            
-            echo "[$(date)] 🚀 Starting marketing site deployment..."
-            
-            # Export variables for docker-compose
-            export IMAGE_TAG=$IMAGE_TAG
-            export GITHUB_USER=$GITHUB_USER
-            export GITHUB_TOKEN=$GITHUB_TOKEN
-            
-            # Login to GitHub Container Registry
+            cd /opt/ordo-todo
+            test -f .env || { echo "::error::Falta /opt/ordo-todo/.env (plantilla: deploy/.env.plesk.example)"; exit 1; }
+
+            echo "[$(date)] 📄 Instalando compose y scripts del repo..."
+            install -m 0644 .incoming/docker-compose.plesk.yml docker-compose.yml
+            mkdir -p scripts backups
+            install -m 0755 .incoming/scripts/*.sh scripts/
+            rm -rf .incoming
+            docker compose config -q
+
+            echo "[$(date)] 🔐 Login en GHCR..."
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
-            
-            # Stop existing containers
-            echo "[$(date)] 🛑 Stopping existing containers..."
-            docker compose -f docker-compose.marketing.yml down --remove-orphans || true
-            
-            # Pull new images
-            echo "[$(date)] 📦 Pulling new images..."
-            docker compose -f docker-compose.marketing.yml pull
-            
-            # Deploy services
-            echo "[$(date)] 🔄 Deploying services..."
-            docker compose -f docker-compose.marketing.yml up -d
-            
-            # Wait for health checks
-            echo "[$(date)] ⏳ Waiting for services to be healthy..."
-            sleep 20
-            
-            # Verify deployment
-            echo "[$(date)] ✅ Verifying deployment..."
-            docker compose -f docker-compose.marketing.yml ps
-            
-            # Cleanup old images
-            echo "[$(date)] 🧹 Cleaning up..."
-            docker image prune -af --filter "until=168h" || true
-            
-            echo "[$(date)] ✅ Marketing site deployment completed!"
+
+            export MARKETING_IMAGE_TAG
+            echo "[$(date)] 📦 Descargando landing ${MARKETING_IMAGE_TAG}..."
+            docker compose pull webpage
+
+            echo "[$(date)] 🚀 Arrancando landing..."
+            docker compose up -d webpage
+            ./scripts/health.sh --wait webpage
+
+            sed -i "s/^MARKETING_IMAGE_TAG=.*/MARKETING_IMAGE_TAG=${MARKETING_IMAGE_TAG}/" .env
+
+            docker image prune -af --filter "until=168h" \
+              --filter "label=org.opencontainers.image.source=https://github.com/tiagofur/ordo-todo" || true
+
+            docker compose ps webpage
+            echo "[$(date)] ✅ Landing desplegada: ${MARKETING_IMAGE_TAG}"
 
       - name: Notify on Success
         if: success()
-        run: |
-          echo "✅ Marketing site deployment successful!"
-          echo "Backend: https://api.ordotodo.com"
-          echo "Web: https://ordotodo.com"
+        run: echo "✅ Landing desplegada en https://ordotodo.com"
 
       - name: Notify on Failure
         if: failure()
-        run: |
-          echo "❌ Marketing site deployment failed!"
-          echo "Check the logs above for details."
+        run: echo "❌ Deploy de la landing fallido; revisa los logs."
