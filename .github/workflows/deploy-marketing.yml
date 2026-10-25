@@ -23,6 +23,11 @@ on:
       - 'packages/hooks/**'
       - 'packages/i18n/**'
       - 'packages/stores/**'
+      - 'packages/validations/**'
+      - 'packages/typescript-config/**'
+      - 'package-lock.json'
+      - 'turbo.json'
+      - '.dockerignore'
       - 'deploy/docker-compose.plesk.yml'
       - '.github/workflows/deploy-marketing.yml'
   workflow_dispatch:

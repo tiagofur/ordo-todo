@@ -11,10 +11,22 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if [ -f .env ]; then set -a; . ./.env; set +a; fi
-API_PORT=${API_PORT:-3001}
-WEB_PORT=${WEB_PORT:-3003}
-WEBPAGE_PORT=${WEBPAGE_PORT:-3002}
+# Lee KEY del .env con la semántica de Compose (sin ejecutarlo: un valor como
+# "Ordo <no-reply@…>" rompería un `source`). Comillas opcionales; en valores sin
+# comillas, " #" empieza un comentario.
+envval() {
+  local raw; raw=$(grep -E "^$1=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+  case $raw in
+    \"*) raw=${raw#\"}; raw=${raw%%\"*} ;;
+    \'*) raw=${raw#\'}; raw=${raw%%\'*} ;;
+    *)   raw=${raw%%[[:space:]]#*}; raw=${raw%"${raw##*[![:space:]]}"} ;;
+  esac
+  printf '%s' "$raw"
+}
+API_PORT=$(envval API_PORT); API_PORT=${API_PORT:-3001}
+WEB_PORT=$(envval WEB_PORT); WEB_PORT=${WEB_PORT:-3003}
+WEBPAGE_PORT=$(envval WEBPAGE_PORT); WEBPAGE_PORT=${WEBPAGE_PORT:-3002}
+HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-$(envval HEALTH_TIMEOUT)}
 
 health_of() {
   docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "ordo-$1" 2>/dev/null || echo missing
@@ -71,5 +83,8 @@ for s in backend web webpage; do
 done
 
 echo; echo "== Backups más recientes =="
-ls -t backups/ordo_*.dump 2>/dev/null | head -3 || true
-[ -z "$(ls backups/ordo_*.dump 2>/dev/null)" ] && echo "(ninguno)"
+if ls backups/ordo_*.dump >/dev/null 2>&1; then
+  ls -t backups/ordo_*.dump | head -3
+else
+  echo "(ninguno)"
+fi

@@ -17,6 +17,7 @@ la salud, volver atrás, hacer backups y rotar secretos **sin recordar comandos*
 Reglas:
 - El **compose se instala desde el repo en cada deploy**: no se edita en el VPS. Lo único que vive solo en el VPS es `/opt/ordo-todo/.env`.
 - Si las migraciones fallan, el deploy **aborta sin arrancar las imágenes nuevas**.
+- Si backend o web no llegan a "healthy" en 150 s, el deploy hace **rollback automático** a la versión anterior (`IMAGE_TAG` previo del `.env`) y el job queda en rojo. Las migraciones no se deshacen (ver §4).
 - El deploy deja en `.env` la versión desplegada (`IMAGE_TAG=<sha>`), así un `docker compose up -d` manual no cambia de imagen por accidente.
 - Los dos workflows comparten el grupo de concurrencia `deploy-production`: nunca corren dos a la vez.
 

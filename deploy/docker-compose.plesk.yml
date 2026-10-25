@@ -33,7 +33,6 @@ services:
 
   migrations:
     image: *backend-image
-    container_name: ordo-migrations
     depends_on:
       postgres:
         condition: service_healthy
