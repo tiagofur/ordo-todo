@@ -1,12 +1,9 @@
-@import "tailwindcss";
-
 /*
- * Tokens mínimos del spike (dark-first). Las fases P1+ traen los tokens
- * completos compartidos con desktop.
+ * Ordo móvil: mismo tema y utilidades que la app desktop (ODD 020 P4). Las
+ * clases usadas por los componentes de desktop se detectan desde su fuente.
  */
-:root {
-  color-scheme: dark;
-}
+@import "../../desktop/src/index.css";
+@source "../../desktop/src";
 
 html,
 body,
@@ -16,14 +13,10 @@ body,
 
 body {
   margin: 0;
-  background-color: #09090b;
-  color: #f4f4f5;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Respetar las safe areas del notch en iOS */
-  padding:
-    env(safe-area-inset-top) env(safe-area-inset-right)
+  /* Safe areas del notch (iOS) y de la barra de gestos */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* Sin "bounce" de scroll del documento: el scroll vive en <main> */
+  overscroll-behavior: none;
 }

@@ -1,38 +1,50 @@
-import { onOpenUrl, getCurrent } from "@tauri-apps/plugin-deep-link";
-import { storeOAuthCallbackTokens } from "./oauth";
+import { useEffect, useRef } from "react";
+import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
-export type DeepLinkCallback = (ok: boolean) => void;
-
-const isAuthCallback = (url: string) =>
-  url.startsWith("ordo://auth/callback?") || url === "ordo://auth/callback";
+const isAuthCallback = (url: string) => url.startsWith("ordo://auth/callback");
 
 /**
- * Registra el manejo del deep link ordo://auth/callback (OAuth). El callback
- * se invoca con true cuando llega un callback con tokens válidos, para que
- * la UI refresque la sesión.
- *
- * getCurrent() cubre el cold start: si la app se abrió POR el deep link
- * (estaba cerrada), el evento onOpenUrl puede no repetirse.
+ * Escucha el deep link ordo://auth/callback (OAuth) y entrega sus parámetros
+ * (access_token, refresh_token, error…). getCurrent() cubre el cold start: si
+ * la app se abrió POR el deep link, el evento onOpenUrl puede no repetirse.
  */
-export async function initDeepLinks(onCallback: DeepLinkCallback) {
-  const handle = async (urls: unknown) => {
-    for (const raw of Array.isArray(urls) ? urls : [urls]) {
-      const url = typeof raw === "string" ? raw : String(raw);
-      if (!isAuthCallback(url)) continue;
+export function useOAuthDeepLinks(
+  onCallback: (params: Record<string, string>) => Promise<unknown>,
+) {
+  const callbackRef = useRef(onCallback);
+  callbackRef.current = onCallback;
 
-      const params = new URLSearchParams(url.slice(url.indexOf("?") + 1));
-      const ok = await storeOAuthCallbackTokens(params);
-      onCallback(ok);
-    }
-  };
+  useEffect(() => {
+    let disposed = false;
+    let unlisten: (() => void) | undefined;
 
-  await onOpenUrl(handle);
+    const handle = async (urls: unknown) => {
+      for (const raw of Array.isArray(urls) ? urls : [urls]) {
+        const url = typeof raw === "string" ? raw : String(raw);
+        if (!isAuthCallback(url)) continue;
+        const query = url.includes("?") ? url.slice(url.indexOf("?") + 1) : "";
+        await callbackRef.current(
+          Object.fromEntries(new URLSearchParams(query)),
+        );
+      }
+    };
 
-  // Cold start: la app pudo abrirse directamente por el deep link.
-  try {
-    const initial = await getCurrent();
-    if (initial) await handle(initial);
-  } catch {
-    // sin deep link inicial
-  }
+    onOpenUrl(handle)
+      .then((stop) => {
+        if (disposed) stop();
+        else unlisten = stop;
+      })
+      .catch(() => undefined);
+
+    getCurrent()
+      .then((initial) => {
+        if (initial && !disposed) void handle(initial);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
+  }, []);
 }
