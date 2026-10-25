@@ -1,31 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, Label } from "@ordo-todo/ui";
-import { 
-  Sparkles, 
-  Flame, 
-  TrendingUp, 
-  Calendar, 
-  BarChart3, 
-  Trash2, 
-  Pause, 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  Label,
+} from "@ordo-todo/ui";
+import {
+  Sparkles,
+  Flame,
+  TrendingUp,
+  Calendar,
+  BarChart3,
+  Trash2,
+  Pause,
   Play,
   Edit3,
   CheckCircle2,
-  X
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { toCalendarDateString } from "@ordo-todo/core";
-import { 
-  useHabit, 
-  useHabitStats, 
-  useUpdateHabit, 
-  useDeleteHabit, 
-  usePauseHabit, 
-  useResumeHabit 
+import {
+  useHabit,
+  useHabitStats,
+  useUpdateHabit,
+  useDeleteHabit,
+  usePauseHabit,
+  useResumeHabit,
 } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/shared/confirm-dialog";
@@ -36,7 +42,11 @@ interface HabitDetailPanelProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPanelProps) {
+export function HabitDetailPanel({
+  habitId,
+  open,
+  onOpenChange,
+}: HabitDetailPanelProps) {
   const t = useTranslations("Habits");
   const { confirm, ConfirmModal } = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
@@ -44,8 +54,10 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
   const [editedDescription, setEditedDescription] = useState("");
 
   const { data: habit, isLoading: isLoadingHabit } = useHabit(habitId || "");
-  const { data: stats, isLoading: isLoadingStats } = useHabitStats(habitId || "");
-  
+  const { data: stats, isLoading: isLoadingStats } = useHabitStats(
+    habitId || "",
+  );
+
   const updateHabit = useUpdateHabit();
   const deleteHabit = useDeleteHabit();
   const pauseHabit = usePauseHabit();
@@ -74,7 +86,11 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       toast.success(t("toast.updated"));
       setIsEditing(false);
     } catch (error: unknown) {
-      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
+      toast.error(
+        t("toast.error", {
+          message: error instanceof Error ? error.message : "Failed to update",
+        }),
+      );
     }
   };
 
@@ -92,7 +108,11 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       toast.success(t("toast.deleted"));
       onOpenChange(false);
     } catch (error: unknown) {
-      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to delete" }));
+      toast.error(
+        t("toast.error", {
+          message: error instanceof Error ? error.message : "Failed to delete",
+        }),
+      );
     }
   };
 
@@ -107,7 +127,11 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
         toast.success(t("toast.paused"));
       }
     } catch (error: unknown) {
-      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
+      toast.error(
+        t("toast.error", {
+          message: error instanceof Error ? error.message : "Failed to update",
+        }),
+      );
     }
   };
 
@@ -119,7 +143,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
     const date = new Date();
     date.setDate(date.getDate() - (29 - i));
     const dateStr = toCalendarDateString(date);
-    const found = calendarData.find((d: any) => toCalendarDateString(d.date) === dateStr);
+    const found = calendarData.find(
+      (d: any) => toCalendarDateString(d.date) === dateStr,
+    );
     return {
       date: dateStr,
       completed: found?.completed || false,
@@ -153,7 +179,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                     <input
                       value={editedName}
                       onChange={(e) => setEditedName(e.target.value)}
-                      className="text-xl font-semibold w-full bg-transparent border-b border-primary focus:outline-none"
+                      className="text-xl font-semibold w-full pr-10 bg-transparent border-b border-primary focus:outline-none"
                       autoFocus
                     />
                   ) : (
@@ -184,7 +210,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
             {/* Description */}
             {(habit.description || isEditing) && (
               <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">{t("form.description")}</Label>
+                <Label className="text-sm text-muted-foreground">
+                  {t("form.description")}
+                </Label>
                 {isEditing ? (
                   <textarea
                     value={editedDescription}
@@ -207,7 +235,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               >
                 <div className="flex items-center gap-2 text-orange-500 mb-2">
                   <Flame className="h-4 w-4" />
-                  <span className="text-xs font-medium">{t("stats.currentStreak")}</span>
+                  <span className="text-xs font-medium">
+                    {t("stats.currentStreak")}
+                  </span>
                 </div>
                 <p className="text-2xl font-bold">{habit.currentStreak || 0}</p>
                 <p className="text-xs text-muted-foreground">días</p>
@@ -221,7 +251,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               >
                 <div className="flex items-center gap-2 text-purple-500 mb-2">
                   <TrendingUp className="h-4 w-4" />
-                  <span className="text-xs font-medium">{t("stats.longestStreak")}</span>
+                  <span className="text-xs font-medium">
+                    {t("stats.longestStreak")}
+                  </span>
                 </div>
                 <p className="text-2xl font-bold">{habit.longestStreak || 0}</p>
                 <p className="text-xs text-muted-foreground">días</p>
@@ -235,9 +267,13 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               >
                 <div className="flex items-center gap-2 text-cyan-500 mb-2">
                   <Calendar className="h-4 w-4" />
-                  <span className="text-xs font-medium">{t("stats.totalCompletions")}</span>
+                  <span className="text-xs font-medium">
+                    {t("stats.totalCompletions")}
+                  </span>
                 </div>
-                <p className="text-2xl font-bold">{stats?.totalCompletions || 0}</p>
+                <p className="text-2xl font-bold">
+                  {stats?.totalCompletions || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">veces</p>
               </motion.div>
 
@@ -249,9 +285,13 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               >
                 <div className="flex items-center gap-2 text-emerald-500 mb-2">
                   <BarChart3 className="h-4 w-4" />
-                  <span className="text-xs font-medium">{t("stats.completionRate")}</span>
+                  <span className="text-xs font-medium">
+                    {t("stats.completionRate")}
+                  </span>
                 </div>
-                <p className="text-2xl font-bold">{stats?.completionRate || 0}%</p>
+                <p className="text-2xl font-bold">
+                  {stats?.completionRate || 0}%
+                </p>
                 <p className="text-xs text-muted-foreground">tasa de éxito</p>
               </motion.div>
             </div>
@@ -264,14 +304,19 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               </h3>
               <div className="grid grid-cols-7 gap-1">
                 {["D", "L", "M", "X", "J", "V", "S"].map((day) => (
-                  <div key={day} className="text-center text-xs text-muted-foreground pb-1">
+                  <div
+                    key={day}
+                    className="text-center text-xs text-muted-foreground pb-1"
+                  >
                     {day}
                   </div>
                 ))}
                 {/* Empty cells for alignment */}
-                {Array.from({ length: last30Days[0]?.dayOfWeek || 0 }).map((_, i) => (
-                  <div key={`empty-${i}`} className="aspect-square" />
-                ))}
+                {Array.from({ length: last30Days[0]?.dayOfWeek || 0 }).map(
+                  (_, i) => (
+                    <div key={`empty-${i}`} className="aspect-square" />
+                  ),
+                )}
                 {last30Days.map((day, i) => (
                   <motion.div
                     key={day.date}
@@ -282,7 +327,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                       "aspect-square rounded-sm transition-colors",
                       day.completed
                         ? "bg-emerald-500"
-                        : "bg-muted hover:bg-muted"
+                        : "bg-muted hover:bg-muted",
                     )}
                     title={day.date}
                   />

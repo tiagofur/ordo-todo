@@ -33,6 +33,7 @@
     }
   },
   "Sidebar": {
+    "aiChat": "AI Chat",
     "today": "Hoje",
     "tasks": "Tarefas",
     "habits": "Hábitos",
@@ -628,15 +629,7 @@
       "anytime": "Qualquer hora"
     },
     "daysOfWeek": {
-      "short": [
-        "D",
-        "S",
-        "T",
-        "Q",
-        "Q",
-        "S",
-        "S"
-      ],
+      "short": ["D", "S", "T", "Q", "Q", "S", "S"],
       "long": [
         "Domingo",
         "Segunda",
@@ -883,7 +876,7 @@
       "create": "Criar Projeto"
     }
   },
-    "AIFeaturesTour": {
+  "AIFeaturesTour": {
     "team": "Equipe",
     "close": "Fechar",
     "personal": "Pessoal",
@@ -933,7 +926,7 @@
       }
     }
   },
-"CreateWorkspaceDialog": {
+  "CreateWorkspaceDialog": {
     "validation": {
       "nameRequired": "Nome é obrigatório"
     },

@@ -37,7 +37,7 @@ export function buildNavSections(t: SidebarT, isAdmin: boolean): NavSection[] {
     {
       items: [
         { name: t("today"), href: "/dashboard", icon: Home, color: "purple" },
-        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "purple" },
+        { name: t("aiChat"), href: "/ai-chat", icon: Bot, color: "purple" },
         {
           name: t("tasks"),
           href: "/tasks",

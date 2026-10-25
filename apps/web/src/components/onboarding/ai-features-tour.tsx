@@ -258,6 +258,13 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
 
   const step = tourSteps[currentStep];
 
+  // Si la lista de pasos se encoge mientras el tour está abierto (p.ej.
+  // isTeamUser se resuelve tarde), ciérralo y libera el turno; sin este
+  // guard el turno queda adquirido y bloquea el resto de tours.
+  useEffect(() => {
+    if (isVisible && !step) closeTour();
+  }, [isVisible, step]);
+
   return (
     <AIFeaturesTourContext.Provider
       value={{ showTour, hasSeenTour, isTeamUser }}
