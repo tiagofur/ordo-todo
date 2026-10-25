@@ -1,11 +1,11 @@
 /**
  * Base URL of the Ordo web app for marketing CTAs (login/register).
  *
- * No verified production domain exists yet (ODD 013 S10: `ordotodo.app`
- * serves an unrelated site, `ordo-todo.com` does not resolve as of
- * 2026-10-21). Until the business provides one, CTAs fall back to the
- * internal `/contact` page instead of linking to a foreign site.
- * Set `NEXT_PUBLIC_APP_URL` (e.g. https://app.example.com) to enable them.
+ * Production: `NEXT_PUBLIC_APP_URL=https://ordotodo.app` (build arg in
+ * apps/webpage/Dockerfile, set by .github/workflows/deploy-marketing.yml).
+ * The app's middleware redirects `/login` and `/register` to the visitor's
+ * locale. When the variable is missing (local dev without .env) the CTAs fall
+ * back to the internal `/contact` page instead of linking to a foreign site.
  */
 export const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
 
