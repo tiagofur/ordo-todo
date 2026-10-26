@@ -617,13 +617,21 @@ export class AuthController {
    * hace que la web servida en el dominio raíz pueda leer las cookies que emite
    * la API desde un subdominio (api.ordotodo.app); sin él, la cookie queda
    * ligada solo al host de la API (válido en local, donde ambos son localhost).
+   *
+   * `lax` (no `strict`): el flujo OAuth de conectores (ChatGPT, Claude…)
+   * llega al API con una navegación top-level GET cross-site, y los
+   * navegadores NO envían cookies `strict` en ese caso — el authorize
+   * nunca veía la sesión aunque el usuario acabara de hacer login.
+   * `lax` permite ese GET top-level y sigue bloqueando CSRF en
+   * POST/fetch cross-site. Mismo criterio que el callback de
+   * Google/GitHub más arriba.
    */
   private authCookieOptions(maxAge: number): CookieOptions {
     const domain = this.configService.get<string>('COOKIE_DOMAIN');
     return {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge,
       path: '/',
       ...(domain ? { domain } : {}),
