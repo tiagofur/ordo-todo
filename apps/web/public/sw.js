@@ -10,9 +10,10 @@ const DYNAMIC_CACHE = "ordo-todo-dynamic-v2";
 const OFFLINE_DB_NAME = "ordo-todo-offline";
 const OFFLINE_DB_VERSION = 1;
 
-// Assets to cache immediately
+// Assets to cache immediately. No "/" here on purpose: install-time
+// HTML would age forever across deploys; the network-first navigate
+// branch below keeps a fresh copy in DYNAMIC_CACHE instead.
 const STATIC_ASSETS = [
-  "/",
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -277,11 +278,15 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() =>
+          // Prefer the fresh copy this branch keeps in DYNAMIC_CACHE:
+          // a global caches.match would hit the oldest cache first.
           caches
-            .match(request)
+            .match(request, { cacheName: DYNAMIC_CACHE })
             .then(
               (cachedResponse) =>
-                cachedResponse || caches.match("/offline.html"),
+                cachedResponse ||
+                caches.match(request) ||
+                caches.match("/offline.html"),
             ),
         )
     );
