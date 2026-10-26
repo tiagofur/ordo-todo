@@ -63,6 +63,9 @@ location / {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_cache_bypass $http_upgrade;
+    proxy_read_timeout 120s;
+    # HSTS (ordotodo.com lo tiene por su ajuste SSL de Plesk; aquí por directiva)
+    add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always;
 }
 ```
 
