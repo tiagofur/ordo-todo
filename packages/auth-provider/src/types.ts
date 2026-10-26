@@ -11,11 +11,22 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: unknown;
-  login: (data: LoginDto) => Promise<void>;
-  register: (data: RegisterDto) => Promise<void>;
+  login: (data: LoginDto, opts?: AuthRedirectOpts) => Promise<void>;
+  register: (data: RegisterDto, opts?: AuthRedirectOpts) => Promise<void>;
   logout: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithGitHub: () => Promise<void>;
+}
+
+/**
+ * Post-auth navigation override. `redirectTo` wins over the default
+ * ("/dashboard") and over `onRedirect`: it carries an already-validated
+ * absolute URL (e.g. the OAuth `next` target rebuilt against the known
+ * API base) that the caller wants the browser to land on. Validation
+ * lives with the caller — never pass raw query input here.
+ */
+export interface AuthRedirectOpts {
+  redirectTo?: string;
 }
 
 export type OAuthProvider = "google" | "github";

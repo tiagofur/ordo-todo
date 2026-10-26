@@ -14,7 +14,9 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { API_CONFIG } from "@/config";
+import { resolvePostLoginTarget } from "@/lib/post-login-target";
 import { useTranslations } from "next-intl";
 import { cn } from "@ordo-todo/ui";
 
@@ -44,6 +46,7 @@ function GoogleIcon({ className }: { className?: string }) {
 export default function SignInPage() {
   const t = useTranslations("Auth.login");
   const { login } = useAuth();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -80,10 +83,14 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      await login({
-        email: formData.email,
-        password: formData.password,
-      });
+      const redirectTo = resolvePostLoginTarget(searchParams.get("next"));
+      await login(
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        redirectTo ? { redirectTo } : undefined,
+      );
 
       toast.success(t("success"));
     } catch (error: any) {
