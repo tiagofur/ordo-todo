@@ -26,3 +26,4 @@ export function apiOriginFromCallback(callbackUrl: string): string | null {
     return null;
   }
 }
+
