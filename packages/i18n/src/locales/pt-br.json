@@ -184,6 +184,19 @@
         "days": "Há {count} dias"
       }
     },
+    "connections": {
+      "title": "Apps conectados",
+      "description": "Aplicativos e agentes (ChatGPT, Claude…) com acesso à sua conta via OAuth.",
+      "empty": "Ainda não há apps conectados. Quando você conectar o Ordo pelo ChatGPT ou outro agente, ele aparecerá aqui.",
+      "connectedOn": "Conectado em {date}",
+      "lastActivity": "Última atividade: {date}",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando…",
+      "disconnectSuccess": "App desconectado. Ele precisará pedir sua permissão novamente para acessar sua conta.",
+      "disconnectError": "Não foi possível desconectar o app.",
+      "loading": "Carregando apps conectados…",
+      "loadError": "Não foi possível carregar os apps conectados."
+    },
     "languageChanged": "Idioma alterado para {lang}",
     "settingsSaved": "Configurações salvas com sucesso",
     "errorSaving": "Erro ao salvar configurações",
@@ -2942,6 +2955,33 @@
     "description": "Desculpe, a página que você procura não existe ou foi movida. Verifique a URL ou volte para a página inicial.",
     "goToDashboard": "Ir para o Dashboard",
     "goToHome": "Voltar ao Início"
+  },
+  "Connect": {
+    "scopes": {
+      "read": "Ler suas tarefas, projetos e notas",
+      "tasksWrite": "Criar e editar tarefas",
+      "projectsWrite": "Criar e editar projetos",
+      "adminWebhooks": "Gerenciar webhooks",
+      "unknown": "Permissão adicional: {scope}"
+    },
+    "authorize": {
+      "title": "{app} quer se conectar à sua conta do Ordo",
+      "subtitle": "Revise as permissões antes de continuar.",
+      "signedInAs": "Conectado como",
+      "permissionsTitle": "{app} poderá:",
+      "revokeHint": "Você pode desconectar este app quando quiser em Configurações → Apps conectados.",
+      "approve": "Permitir",
+      "deny": "Cancelar",
+      "checkingSession": "Verificando sua sessão…",
+      "redirectingToLogin": "Faça login para continuar…",
+      "loadingApp": "Carregando os dados do app…",
+      "fallbackApp": "Um aplicativo externo",
+      "error": {
+        "title": "Não foi possível validar esta solicitação",
+        "body": "O link de conexão está incompleto ou o aplicativo não está registrado. Feche esta aba e tente novamente a partir do app que você quer conectar.",
+        "openApp": "Ir para o Ordo"
+      }
+    }
   },
   "Auth": {
     "login": {

@@ -40,6 +40,8 @@ describe('OAuthService', () => {
     oAuthRefreshToken: {
       create: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      findMany: jest.fn(),
       delete: jest.fn(),
       deleteMany: jest.fn(),
     },
@@ -411,6 +413,183 @@ describe('OAuthService', () => {
           codeChallengeMethod: 'S256',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('consent screen support', () => {
+    const clientRecord = {
+      id: 'client-1',
+      clientId: 'ordo_cl_chatgpt',
+      clientName: 'ChatGPT',
+      redirectUris: ['https://chatgpt.com/aip/abc/oauth/callback'],
+      scopes: [],
+    };
+    const challenge = sha256Base64Url(
+      'verifier-0123456789abcdef-0123456789abcdef',
+    );
+
+    it('validateAuthorizeRequest returns the client and clamped scopes without minting a code', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(clientRecord);
+
+      const result = await service.validateAuthorizeRequest({
+        clientId: 'ordo_cl_chatgpt',
+        redirectUri: 'https://chatgpt.com/aip/abc/oauth/callback',
+        scope: 'read tasks:write bogus:scope',
+        codeChallenge: challenge,
+        codeChallengeMethod: 'S256',
+      });
+
+      expect(result.client.clientId).toBe('ordo_cl_chatgpt');
+      expect(result.grantedScopes).toEqual(['read', 'tasks:write']);
+      expect(
+        mockPrismaService.oAuthAuthorizationCode.create,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('validateAuthorizeRequest rejects an unregistered redirect_uri', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(clientRecord);
+
+      await expect(
+        service.validateAuthorizeRequest({
+          clientId: 'ordo_cl_chatgpt',
+          redirectUri: 'https://evil.test/cb',
+          scope: 'read',
+          codeChallenge: challenge,
+          codeChallengeMethod: 'S256',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('hasActiveGrant only counts unexpired refresh tokens of that user and client', async () => {
+      mockPrismaService.oAuthRefreshToken.findFirst.mockResolvedValue({
+        id: 'rt-1',
+      });
+      await expect(
+        service.hasActiveGrant('user-123', 'ordo_cl_chatgpt'),
+      ).resolves.toBe(true);
+
+      const where =
+        mockPrismaService.oAuthRefreshToken.findFirst.mock.calls[0][0].where;
+      expect(where.userId).toBe('user-123');
+      expect(where.clientId).toBe('ordo_cl_chatgpt');
+      expect(where.expiresAt.gt).toBeInstanceOf(Date);
+
+      mockPrismaService.oAuthRefreshToken.findFirst.mockResolvedValue(null);
+      await expect(
+        service.hasActiveGrant('user-123', 'ordo_cl_chatgpt'),
+      ).resolves.toBe(false);
+    });
+
+    it('buildDeniedRedirect returns access_denied with the state echoed (RFC 6749 §4.1.2.1)', () => {
+      const url = new URL(
+        service.buildDeniedRedirect(
+          'https://chatgpt.com/aip/abc/oauth/callback?keep=1',
+          'xyz',
+        ),
+      );
+      expect(url.origin + url.pathname).toBe(
+        'https://chatgpt.com/aip/abc/oauth/callback',
+      );
+      expect(url.searchParams.get('keep')).toBe('1');
+      expect(url.searchParams.get('error')).toBe('access_denied');
+      expect(url.searchParams.get('state')).toBe('xyz');
+      expect(url.searchParams.has('code')).toBe(false);
+
+      const noState = new URL(
+        service.buildDeniedRedirect('https://chatgpt.com/cb', ''),
+      );
+      expect(noState.searchParams.has('state')).toBe(false);
+    });
+
+    it('getClientInfo exposes the display name and the scopes a grant would carry', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(clientRecord);
+      await expect(
+        service.getClientInfo('ordo_cl_chatgpt', 'read tasks:write bogus'),
+      ).resolves.toEqual({
+        clientId: 'ordo_cl_chatgpt',
+        clientName: 'ChatGPT',
+        grantedScopes: ['read', 'tasks:write'],
+      });
+
+      // Registered-scope client asking outside its ceiling: the screen
+      // gets null instead of a misleading list.
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
+        ...clientRecord,
+        scopes: ['read'],
+      });
+      await expect(
+        service.getClientInfo('ordo_cl_chatgpt', 'tasks:write'),
+      ).resolves.toMatchObject({ grantedScopes: null });
+
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(null);
+      await expect(service.getClientInfo('nope')).resolves.toBeNull();
+    });
+
+    it('listConnections groups live tokens per client, newest activity first', async () => {
+      mockPrismaService.oAuthRefreshToken.findMany.mockResolvedValue([
+        {
+          id: 'rt-1',
+          clientId: 'ordo_cl_chatgpt',
+          scopes: ['read'],
+          createdAt: new Date('2026-10-01T00:00:00Z'),
+        },
+        {
+          id: 'rt-2',
+          clientId: 'ordo_cl_chatgpt',
+          scopes: ['read', 'tasks:write'],
+          createdAt: new Date('2026-10-20T00:00:00Z'),
+        },
+        {
+          id: 'rt-3',
+          clientId: 'ordo_cl_claude',
+          scopes: ['read'],
+          createdAt: new Date('2026-10-25T00:00:00Z'),
+        },
+      ]);
+      mockPrismaService.oAuthClient.findUnique.mockImplementation(
+        async ({ where }: any) =>
+          where.clientId === 'ordo_cl_chatgpt'
+            ? clientRecord
+            : { ...clientRecord, clientId: 'ordo_cl_claude', clientName: '' },
+      );
+
+      const connections = await service.listConnections('user-123');
+
+      const where =
+        mockPrismaService.oAuthRefreshToken.findMany.mock.calls[0][0].where;
+      expect(where.userId).toBe('user-123');
+      expect(where.expiresAt.gt).toBeInstanceOf(Date);
+
+      expect(connections.map((c) => c.clientId)).toEqual([
+        'ordo_cl_claude',
+        'ordo_cl_chatgpt',
+      ]);
+      const chatgpt = connections[1];
+      expect(chatgpt.clientName).toBe('ChatGPT');
+      expect(chatgpt.scopes).toEqual(['read', 'tasks:write']);
+      expect(chatgpt.connectedAt.toISOString()).toBe(
+        '2026-10-01T00:00:00.000Z',
+      );
+      expect(chatgpt.lastRefreshedAt.toISOString()).toBe(
+        '2026-10-20T00:00:00.000Z',
+      );
+      // Nameless client falls back to its id so the row is never blank.
+      expect(connections[0].clientName).toBe('ordo_cl_claude');
+    });
+
+    it('disconnectClient revokes only that user+client pair', async () => {
+      mockPrismaService.oAuthRefreshToken.deleteMany.mockResolvedValue({
+        count: 2,
+      });
+
+      await expect(
+        service.disconnectClient('user-123', 'ordo_cl_chatgpt'),
+      ).resolves.toEqual({ revoked: 2 });
+      expect(
+        mockPrismaService.oAuthRefreshToken.deleteMany,
+      ).toHaveBeenCalledWith({
+        where: { userId: 'user-123', clientId: 'ordo_cl_chatgpt' },
+      });
     });
   });
 

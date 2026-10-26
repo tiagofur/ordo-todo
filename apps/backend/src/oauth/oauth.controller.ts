@@ -2,9 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
+  NotFoundException,
   Post,
   Query,
   Req,
@@ -18,7 +22,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import { OAuthService } from './oauth.service';
+import {
+  OAuthService,
+  type AuthorizeRequestParams,
+  type ValidatedAuthorizeRequest,
+} from './oauth.service';
 import { OAuthGuard } from './oauth.guard';
 import { OAuthAuthorizeGuard } from './oauth-authorize.guard';
 import { Public } from '../common/decorators/public.decorator';
@@ -26,9 +34,25 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { OAuthRevokeDto } from './dto/oauth-revoke.dto';
 
+/**
+ * Authorize-request params forwarded verbatim to the web consent screen
+ * and posted back with the decision. Anything else on the query (e.g.
+ * RFC 8707 `resource`) is dropped so the hop never reflects junk.
+ */
+const AUTHORIZE_FORWARD_PARAMS = [
+  'client_id',
+  'redirect_uri',
+  'scope',
+  'state',
+  'code_challenge',
+  'code_challenge_method',
+] as const;
+
 @ApiTags('OAuth')
 @Controller('oauth')
 export class OAuthController {
+  private readonly logger = new Logger(OAuthController.name);
+
   constructor(private readonly oauthService: OAuthService) {}
 
   private asString(value: unknown): string {
@@ -37,6 +61,69 @@ export class OAuthController {
 
   private asStringOrUndefined(value: unknown): string | undefined {
     return typeof value === 'string' ? value : undefined;
+  }
+
+  private frontendUrl(): string {
+    return process.env.FRONTEND_URL || 'http://localhost:3100';
+  }
+
+  private authorizeParamsFrom(
+    source: Record<string, unknown>,
+  ): AuthorizeRequestParams {
+    return {
+      clientId: this.asString(source.client_id),
+      redirectUri: this.asString(source.redirect_uri),
+      scope: this.asString(source.scope),
+      state: this.asString(source.state),
+      codeChallenge: this.asString(source.code_challenge),
+      codeChallengeMethod: this.asString(source.code_challenge_method),
+    };
+  }
+
+  /**
+   * Web consent screen URL carrying the authorize request. The screen
+   * runs the login hop when needed, shows what the client asks for and
+   * posts the decision back to POST /oauth/authorize.
+   */
+  private connectUrl(
+    source: Record<string, unknown>,
+    extra?: Record<string, string>,
+  ): string {
+    const url = new URL('/connect/authorize', this.frontendUrl());
+    for (const key of AUTHORIZE_FORWARD_PARAMS) {
+      const value = this.asString(source[key]);
+      if (value) url.searchParams.set(key, value);
+    }
+    for (const [key, value] of Object.entries(extra ?? {})) {
+      url.searchParams.set(key, value);
+    }
+    return url.toString();
+  }
+
+  /**
+   * Consent-CSRF defense on top of SameSite=Lax: a decision may only be
+   * posted from our own web origin. Browsers always send Origin on form
+   * POSTs; Referer is the fallback. Requests with neither header are
+   * non-browser and cannot ride the session cookie anyway.
+   */
+  private isTrustedOrigin(req: Request): boolean {
+    let expected: string;
+    try {
+      expected = new URL(this.frontendUrl()).origin;
+    } catch {
+      return false;
+    }
+    const origin = req.get('origin');
+    if (origin) return origin === expected;
+    const referer = req.get('referer');
+    if (referer) {
+      try {
+        return new URL(referer).origin === expected;
+      } catch {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Public()
@@ -79,25 +166,153 @@ export class OAuthController {
   @ApiBearerAuth()
   @Get('authorize')
   @ApiOperation({
-    summary: 'Authorize an OAuth client (logged-in user approves)',
+    summary:
+      'Authorization endpoint: validates the request, then hops to the web consent screen (or reconnects seamlessly)',
   })
   async authorize(
     @CurrentUser() user: RequestUser | undefined,
     @Query() query: Record<string, unknown>,
     @Res() res: Response,
   ): Promise<void> {
-    // OAuthAuthorizeGuard already bounced the tab to the web login.
-    if (!user) return;
+    const params = this.authorizeParamsFrom(query);
+    let validated: ValidatedAuthorizeRequest;
+    try {
+      validated = await this.oauthService.validateAuthorizeRequest(params);
+    } catch (error) {
+      // Never redirect to an unvalidated redirect_uri: the error lands
+      // on our own screen and the user closes the tab.
+      this.logger.warn(
+        `Rejected authorize request for client "${params.clientId}": ${
+          (error as Error).message
+        }`,
+      );
+      res.redirect(this.connectUrl(query, { ordo_error: 'invalid_request' }));
+      return;
+    }
+
+    // Reconnect: the client already holds a live grant for this user, so
+    // consent would only be a formality. Mint and go straight back.
+    if (
+      user &&
+      (await this.oauthService.hasActiveGrant(
+        user.id,
+        validated.client.clientId,
+      ))
+    ) {
+      const { redirectUri } = await this.oauthService.authorize({
+        userId: user.id,
+        ...params,
+      });
+      res.redirect(redirectUri);
+      return;
+    }
+
+    // First connection (or no session): the web consent screen takes
+    // over — it signs the user in if needed and posts the decision back.
+    res.redirect(this.connectUrl(query));
+  }
+
+  @Public()
+  @UseGuards(OAuthAuthorizeGuard)
+  @ApiBearerAuth()
+  @Post('authorize')
+  @ApiOperation({
+    summary:
+      'Consent decision from the web screen: approve mints a code, deny returns access_denied (RFC 6749 §4.1.2.1)',
+  })
+  async authorizeDecision(
+    @CurrentUser() user: RequestUser | undefined,
+    @Body() body: Record<string, unknown>,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    if (!this.isTrustedOrigin(req)) {
+      throw new ForbiddenException('Untrusted origin for consent decision');
+    }
+
+    const params = this.authorizeParamsFrom(body);
+    try {
+      await this.oauthService.validateAuthorizeRequest(params);
+    } catch (error) {
+      this.logger.warn(
+        `Rejected consent decision for client "${params.clientId}": ${
+          (error as Error).message
+        }`,
+      );
+      res.redirect(this.connectUrl(body, { ordo_error: 'invalid_request' }));
+      return;
+    }
+
+    if (!user) {
+      // Session ended while the screen was open: back to it, the login
+      // hop runs again and the decision can be re-posted.
+      res.redirect(this.connectUrl(body));
+      return;
+    }
+
+    const decision = this.asString(body.decision);
+    if (decision === 'deny') {
+      res.redirect(
+        this.oauthService.buildDeniedRedirect(params.redirectUri, params.state),
+      );
+      return;
+    }
+    if (decision !== 'approve') {
+      res.redirect(this.connectUrl(body, { ordo_error: 'invalid_request' }));
+      return;
+    }
+
     const { redirectUri } = await this.oauthService.authorize({
       userId: user.id,
-      clientId: this.asString(query.client_id),
-      redirectUri: this.asString(query.redirect_uri),
-      scope: this.asString(query.scope),
-      state: this.asString(query.state),
-      codeChallenge: this.asString(query.code_challenge),
-      codeChallengeMethod: this.asString(query.code_challenge_method),
+      ...params,
     });
     res.redirect(redirectUri);
+  }
+
+  @Public()
+  @Get('authorize/client')
+  @ApiOperation({
+    summary:
+      'Public client facts for the consent screen (name + scopes a grant would carry)',
+  })
+  async authorizeClient(
+    @Query('client_id') clientId: string | undefined,
+    @Query('scope') scope: string | undefined,
+  ) {
+    const client = await this.oauthService.getClientInfo(
+      this.asString(clientId),
+      this.asStringOrUndefined(scope),
+    );
+    if (!client) {
+      throw new NotFoundException('Unknown OAuth client');
+    }
+    return client;
+  }
+
+  @ApiBearerAuth()
+  @Get('connections')
+  @ApiOperation({
+    summary: 'Apps connected to the current user via OAuth (active grants)',
+  })
+  connections(@CurrentUser() user: RequestUser) {
+    return this.oauthService.listConnections(user.id);
+  }
+
+  @ApiBearerAuth()
+  @Delete('connections')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Disconnect an app: revokes every refresh token of that client',
+  })
+  disconnect(
+    @CurrentUser() user: RequestUser,
+    @Query('client_id') clientId: string | undefined,
+  ) {
+    const id = this.asString(clientId);
+    if (!id) {
+      throw new BadRequestException('client_id is required');
+    }
+    return this.oauthService.disconnectClient(user.id, id);
   }
 
   @Public()

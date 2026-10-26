@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Escolha OAuth e aprove",
-        "description": "Na autenticação, escolha OAuth. Seu navegador vai abrir sua conta Ordo: faça login se precisar e você voltará automaticamente para concluir a conexão."
+        "description": "Na autenticação, escolha OAuth. Seu navegador vai abrir o Ordo: faça login se precisar, revise as permissões na tela de consentimento e toque em Permitir. Você voltará automaticamente para concluir a conexão."
       },
       "4": {
         "title": "Ative o Ordo e teste",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Escolha OAuth e aprove",
-        "description": "Na autenticação, escolha OAuth. Seu navegador vai abrir sua conta Ordo: faça login se precisar e você voltará automaticamente para concluir a conexão."
+        "description": "Na autenticação, escolha OAuth. Seu navegador vai abrir o Ordo: faça login se precisar, revise as permissões na tela de consentimento e toque em Permitir. Você voltará automaticamente para concluir a conexão."
       },
       "4": {
         "title": "Ative o Ordo e teste",

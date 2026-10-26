@@ -4,7 +4,10 @@ import { routing } from './i18n/navigation';
 
 const intlMiddleware = createMiddleware(routing);
 
-const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password'];
+// `/connect` hosts the OAuth consent screen: connector flows (ChatGPT,
+// Claude…) land there from the API with or without a session, and the
+// page itself runs the login hop when needed.
+const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password', '/connect'];
 
 function isTokenValid(token?: string): boolean {
     if (!token) return false;
@@ -78,14 +81,18 @@ export default function middleware(request: NextRequest) {
         return response;
     }
 
-    // 2. Auth Route (Login/Register) & Valid Token -> Dashboard
-    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && hasValidToken) {
+    // 2. Auth Route (Login/Register) & Valid Token -> Dashboard. With a
+    //    `?next=` (OAuth connector hop) the page itself validates the
+    //    target and continues there: bouncing to the dashboard here would
+    //    strand the connector tab inside the app.
+    const isAuthRoute = pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register');
+    if (isAuthRoute && hasValidToken && !request.nextUrl.searchParams.has('next')) {
         return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
     }
 
     // For all other paths, use the intl middleware and clear stale tokens on auth pages
     const response = intlMiddleware(request);
-    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && !hasValidToken && hasAnyToken) {
+    if (isAuthRoute && !hasValidToken && hasAnyToken) {
         response.cookies.delete('access_token');
         response.cookies.delete('refresh_token');
     }

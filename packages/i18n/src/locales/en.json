@@ -184,6 +184,19 @@
         "days": "{count} days ago"
       }
     },
+    "connections": {
+      "title": "Connected apps",
+      "description": "Applications and agents (ChatGPT, Claude…) with OAuth access to your account.",
+      "empty": "No connected apps yet. When you connect Ordo from ChatGPT or another agent, it will show up here.",
+      "connectedOn": "Connected on {date}",
+      "lastActivity": "Last activity: {date}",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…",
+      "disconnectSuccess": "App disconnected. It will have to ask for your permission again to access your account.",
+      "disconnectError": "Couldn't disconnect the app.",
+      "loading": "Loading connected apps…",
+      "loadError": "Couldn't load connected apps."
+    },
     "languageChanged": "Language changed to {lang}",
     "settingsSaved": "Settings saved successfully",
     "errorSaving": "Error saving settings",
@@ -2951,6 +2964,33 @@
     "description": "Sorry, the page you are looking for does not exist or has been moved. Check the URL or go back to the home page.",
     "goToDashboard": "Go to Dashboard",
     "goToHome": "Go to Home"
+  },
+  "Connect": {
+    "scopes": {
+      "read": "Read your tasks, projects and notes",
+      "tasksWrite": "Create and edit tasks",
+      "projectsWrite": "Create and edit projects",
+      "adminWebhooks": "Manage webhooks",
+      "unknown": "Additional permission: {scope}"
+    },
+    "authorize": {
+      "title": "{app} wants to connect to your Ordo account",
+      "subtitle": "Review what it will be able to do before continuing.",
+      "signedInAs": "Signed in as",
+      "permissionsTitle": "{app} will be able to:",
+      "revokeHint": "You can disconnect this app at any time from Settings → Connected apps.",
+      "approve": "Allow",
+      "deny": "Cancel",
+      "checkingSession": "Checking your session…",
+      "redirectingToLogin": "Sign in to continue…",
+      "loadingApp": "Loading app details…",
+      "fallbackApp": "An external application",
+      "error": {
+        "title": "We couldn't validate this request",
+        "body": "The connection link is incomplete or the application isn't registered. Close this tab and try again from the app you want to connect.",
+        "openApp": "Go to Ordo"
+      }
+    }
   },
   "Auth": {
     "login": {
