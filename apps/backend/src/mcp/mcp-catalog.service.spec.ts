@@ -401,7 +401,7 @@ describe('McpCatalogService (against official SDK client)', () => {
 
       expect(mockV1Tasks.get).toHaveBeenCalledWith('user-123', 'task-1');
       expect(mockTimers.start).toHaveBeenCalledWith(
-        { taskId: 'task-1', type: undefined, notes: undefined },
+        { taskId: 'task-1', type: undefined },
         'user-123',
       );
       expect(result.isError).toBeUndefined();
@@ -470,7 +470,7 @@ describe('McpCatalogService (against official SDK client)', () => {
           }),
       );
       expect(mockTimers.stop).toHaveBeenCalledWith(
-        { wasCompleted: true, notes: undefined },
+        { wasCompleted: true },
         'user-123',
       );
 
@@ -488,6 +488,23 @@ describe('McpCatalogService (against official SDK client)', () => {
         { pauseStartedAt: expect.any(Date) },
         'user-123',
       );
+    });
+
+    it('reports stopped:false instead of a phantom session when nothing was running', async () => {
+      mockTimers.stop.mockResolvedValueOnce({
+        id: '',
+        status: 'STOPPED',
+        wasCompleted: undefined,
+        duration: 0,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_stop', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual({ stopped: false });
     });
   });
 

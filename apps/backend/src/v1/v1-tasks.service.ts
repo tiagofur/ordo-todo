@@ -61,17 +61,40 @@ export class V1TasksService {
     return this.tasksService.remove(id);
   }
 
+  /**
+   * Read access = owner, assignee, or member of the workspace that owns
+   * the task's project. This used to only check existence — every
+   * `get` (public v1 + ordo_task_get + the timer pre-check) could read
+   * any task by id until it was fixed (reviewer finding, PR #409).
+   */
   private async assertCanAccess(userId: string, id: string) {
     const task = await this.prisma.task.findUnique({
       where: { id },
       select: {
         id: true,
         ownerId: true,
+        assigneeId: true,
         project: { select: { workspaceId: true } },
       },
     });
     if (!task) {
       throw new NotFoundException('Task not found');
+    }
+    if (task.ownerId !== userId && task.assigneeId !== userId) {
+      const membership = task.project
+        ? await this.prisma.workspaceMember.findUnique({
+            where: {
+              workspaceId_userId: {
+                workspaceId: task.project.workspaceId,
+                userId,
+              },
+            },
+            select: { id: true },
+          })
+        : null;
+      if (!membership) {
+        throw new ForbiddenException('You do not have access to this task');
+      }
     }
     return task;
   }

@@ -19,6 +19,9 @@ describe('V1TasksService', () => {
     task: {
       findUnique: jest.fn(),
     },
+    workspaceMember: {
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
   };
 
   beforeEach(async () => {
@@ -56,9 +59,11 @@ describe('V1TasksService', () => {
   });
 
   describe('get', () => {
-    it('should return the task when the user can access it', async () => {
+    it('should return the task when the user owns it', async () => {
       mockPrismaService.task.findUnique.mockResolvedValue({
         id: 'task-1',
+        ownerId: 'user-123',
+        assigneeId: null,
         project: { workspaceId: 'ws-1' },
       });
       mockTasksService.findOne.mockResolvedValue({ id: 'task-1' });
@@ -66,6 +71,62 @@ describe('V1TasksService', () => {
       const result = await service.get('user-123', 'task-1');
 
       expect(result).toEqual({ id: 'task-1' });
+    });
+
+    it('should allow the assignee even when someone else owns the task', async () => {
+      mockPrismaService.task.findUnique.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'someone-else',
+        assigneeId: 'user-123',
+        project: { workspaceId: 'ws-1' },
+      });
+      mockTasksService.findOne.mockResolvedValue({ id: 'task-1' });
+
+      await expect(service.get('user-123', 'task-1')).resolves.toEqual({
+        id: 'task-1',
+      });
+    });
+
+    it('should allow a workspace member who is neither owner nor assignee', async () => {
+      mockPrismaService.task.findUnique.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'someone-else',
+        assigneeId: null,
+        project: { workspaceId: 'ws-1' },
+      });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        id: 'member-1',
+      });
+      mockTasksService.findOne.mockResolvedValue({ id: 'task-1' });
+
+      await expect(service.get('user-123', 'task-1')).resolves.toEqual({
+        id: 'task-1',
+      });
+      expect(mockPrismaService.workspaceMember.findUnique).toHaveBeenCalledWith(
+        {
+          where: {
+            workspaceId_userId: { workspaceId: 'ws-1', userId: 'user-123' },
+          },
+          select: { id: true },
+        },
+      );
+    });
+
+    it('should throw Forbidden for a stranger outside the workspace', async () => {
+      mockPrismaService.task.findUnique.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'someone-else',
+        assigneeId: null,
+        project: { workspaceId: 'ws-1' },
+      });
+      mockPrismaService.workspaceMember = {
+        findUnique: jest.fn().mockResolvedValue(null),
+      };
+
+      await expect(service.get('intruder', 'task-1')).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(mockTasksService.findOne).not.toHaveBeenCalled();
     });
 
     it('should throw NotFound when the task does not exist', async () => {
@@ -88,7 +149,7 @@ describe('V1TasksService', () => {
       const result = await service.create('user-123', {
         title: 'Via API',
         projectId: 'proj-1',
-      } as never);
+      });
 
       // TasksService.create forces ownerId/assigneeId from userId internally.
       expect(mockTasksService.create).toHaveBeenCalledWith(
@@ -109,7 +170,7 @@ describe('V1TasksService', () => {
       mockTasksService.update.mockResolvedValue({ id: 'task-1' });
       mockTasksService.remove.mockResolvedValue({ id: 'task-1' });
 
-      await service.update('user-123', 'task-1', { title: 'x' } as never);
+      await service.update('user-123', 'task-1', { title: 'x' });
       await service.remove('user-123', 'task-1');
 
       expect(mockPrismaService.task.findUnique).toHaveBeenCalledTimes(2);
@@ -129,7 +190,7 @@ describe('V1TasksService', () => {
       });
 
       await expect(
-        service.update('user-123', 'task-1', { title: 'x' } as never),
+        service.update('user-123', 'task-1', { title: 'x' }),
       ).rejects.toThrow(ForbiddenException);
       await expect(service.remove('user-123', 'task-1')).rejects.toThrow(
         ForbiddenException,

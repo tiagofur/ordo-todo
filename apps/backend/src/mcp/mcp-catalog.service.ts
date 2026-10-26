@@ -751,7 +751,6 @@ export class McpCatalogService implements OnModuleInit {
           type: z
             .enum(['WORK', 'SHORT_BREAK', 'LONG_BREAK', 'CONTINUOUS'])
             .optional(),
-          notes: z.string().optional(),
         }).shape,
       },
       async (args) =>
@@ -765,7 +764,6 @@ export class McpCatalogService implements OnModuleInit {
             {
               taskId: args.taskId,
               type: args.type,
-              notes: args.notes,
             },
             userId,
           );
@@ -783,19 +781,21 @@ export class McpCatalogService implements OnModuleInit {
             .boolean()
             .optional()
             .describe('Whether the tracked work finished the task'),
-          notes: z.string().optional(),
         }).shape,
       },
       async (args) =>
-        this.guarded('ordo_timer_stop', async (userId) =>
-          this.timersService.stop(
-            {
-              wasCompleted: args.wasCompleted,
-              notes: args.notes,
-            },
+        this.guarded('ordo_timer_stop', async (userId) => {
+          const session = await this.timersService.stop(
+            { wasCompleted: args.wasCompleted },
             userId,
-          ),
-        ),
+          );
+          // The service returns a phantom {id: ''} when nothing was
+          // running; make that state explicit for the agent instead.
+          if (session.id === '') {
+            return { stopped: false };
+          }
+          return session;
+        }),
     );
 
     server.registerTool(
