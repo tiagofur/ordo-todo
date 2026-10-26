@@ -29,7 +29,7 @@ provides the real domain + support email.
 
 - **Name**: Ordo
 - **Tagline**: Your tasks, projects and habits — organized by chat.
-- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 18 tools over a remote MCP server with OAuth: search, tasks, projects, comments, habits, objectives, day planning and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Revoke anytime from Ordo settings.
+- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 20 tools over a remote MCP server with OAuth: search, tasks, projects, comments, habits, objectives, day planning and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Revoke anytime from Ordo settings.
 - **Category**: Productivity
 - **Scopes requested**: `read`, `tasks:write`, `projects:write` (+ why: read your work / create-update tasks / manage projects).
 - **Privacy URL**: `https://ordotodo.app/privacy` (verify exists)

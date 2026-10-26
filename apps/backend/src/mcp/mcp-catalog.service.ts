@@ -93,7 +93,8 @@ function matchesDueFilter(
   const time = new Date(due).getTime();
   if (filter.due === 'today')
     return time >= startOfToday.getTime() && time < endOfToday.getTime();
-  // week: due (or planned) between now and the end of the day +6 days.
+  // week: due (or planned) from the start of the UTC day through +7 days
+  // (includes tasks due earlier today).
   const start = startOfToday.getTime();
   return time >= start && time < start + 7 * 86_400_000;
 }
@@ -408,8 +409,14 @@ export class McpCatalogService implements OnModuleInit {
           status: z
             .enum(['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
             .optional(),
-          dueDate: z.string().optional().describe('ISO date or null to clear'),
-          doDate: z.string().optional().describe('ISO date or null to clear'),
+          dueDate: z
+            .string()
+            .optional()
+            .describe('ISO date; empty string clears it'),
+          doDate: z
+            .string()
+            .optional()
+            .describe('ISO date; empty string clears it'),
         }).shape,
       },
       async (args) =>
@@ -483,7 +490,10 @@ export class McpCatalogService implements OnModuleInit {
             this.workspacesService.findAll(userId),
           ]);
           const workspaceNames = new Map(
-            workspaces.map((workspace) => [workspace.id, workspace.name]),
+            workspaces.map((workspace) => [
+              String(workspace.id),
+              workspace.name,
+            ]),
           );
           const enriched = projects
             .filter(
@@ -652,9 +662,10 @@ export class McpCatalogService implements OnModuleInit {
       'ordo_day_plan',
       {
         title: "Today's plan",
-        ...READ_ONLY,
+        // NOT read-only: getDayPlan persists a proposal row when none is
+        // pending, so clients must treat it as potentially state-changing.
         description:
-          'Get my day plan: proposed time blocks, frozen tasks, pending changes and risk alerts.',
+          'Get my day plan: proposed time blocks, frozen tasks, pending changes and risk alerts. May generate a new proposal.',
         inputSchema: z.object({}).shape,
       },
       async () =>
