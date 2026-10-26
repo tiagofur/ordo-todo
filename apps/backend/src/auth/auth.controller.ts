@@ -313,6 +313,9 @@ export class AuthController {
         outcome.user = result.user;
         break;
       } catch (error) {
+        // Solo tiene sentido probar el siguiente candidato con un 401 (token
+        // inválido); cualquier otro error (p. ej. BD caída) se propaga tal cual.
+        if (!(error instanceof UnauthorizedException)) throw error;
         lastError = error;
       }
     }
