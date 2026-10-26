@@ -1145,24 +1145,38 @@ export class McpCatalogService implements OnModuleInit {
       },
       async (args) =>
         this.guarded('ordo_task_assign', async (userId) => {
-          // Access + ownership gates live in v1 update (assertOwner).
           const task = await this.v1Tasks.get(userId, args.taskId);
+          // Ownership first: the v1 update would enforce it anyway, but
+          // failing here (before the membership probe) keeps the error
+          // message from doubling as a membership oracle.
+          if (task.ownerId !== userId) {
+            throw new ForbiddenException('Only the task owner can modify it');
+          }
           if (args.assigneeId !== null) {
             const context = await this.projectContext(userId);
             const workspaceId = context.get(task.projectId)?.workspaceId;
             if (!workspaceId) {
               throw new ForbiddenException('Task has no resolvable workspace');
             }
-            const member = await this.prisma.workspaceMember.findUnique({
-              where: {
-                workspaceId_userId: {
-                  workspaceId,
-                  userId: args.assigneeId,
+            // The workspace owner may not have a workspaceMember row
+            // (legacy rows are repaired lazily) — the service layer
+            // accepts them, so this probe must too.
+            const [member, workspace] = await Promise.all([
+              this.prisma.workspaceMember.findUnique({
+                where: {
+                  workspaceId_userId: {
+                    workspaceId,
+                    userId: args.assigneeId,
+                  },
                 },
-              },
-              select: { id: true },
-            });
-            if (!member) {
+                select: { id: true },
+              }),
+              this.prisma.workspace.findUnique({
+                where: { id: workspaceId },
+                select: { ownerId: true },
+              }),
+            ]);
+            if (!member && workspace?.ownerId !== args.assigneeId) {
               throw new ForbiddenException(
                 'Assignee is not a member of the task workspace',
               );

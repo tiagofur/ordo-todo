@@ -144,6 +144,7 @@ describe('McpCatalogService (against official SDK client)', () => {
   const mockPrisma = {
     user: { findUnique: jest.fn() },
     workspaceMember: { findUnique: jest.fn().mockResolvedValue({ id: 'm-1' }) },
+    workspace: { findUnique: jest.fn().mockResolvedValue(null) },
   };
   const mockNotes = {
     findAll: jest.fn().mockResolvedValue({ data: [], meta: { total: 0 } }),
@@ -838,6 +839,7 @@ describe('McpCatalogService (against official SDK client)', () => {
     it('assigns a task to a member of the task workspace', async () => {
       mockV1Tasks.get.mockResolvedValue({
         id: 'task-1',
+        ownerId: 'user-123',
         projectId: 'proj-1',
       });
       mockV1Projects.list.mockResolvedValue([
@@ -886,9 +888,63 @@ describe('McpCatalogService (against official SDK client)', () => {
       expect(mockV1Tasks.update).not.toHaveBeenCalled();
     });
 
+    it('accepts the workspace owner as assignee even without a member row', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'user-123',
+        projectId: 'proj-1',
+      });
+      mockV1Projects.list.mockResolvedValue([
+        { id: 'proj-1', name: 'Pepinillo', workspaceId: 'ws-1' },
+      ]);
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+      mockPrisma.workspace.findUnique.mockResolvedValueOnce({
+        ownerId: 'user-9',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'user-9' },
+          }),
+      );
+
+      expect(mockV1Tasks.update).toHaveBeenCalledWith('user-123', 'task-1', {
+        assigneeId: 'user-9',
+      });
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('fails non-owners before the membership probe (no membership oracle)', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'someone-else',
+        projectId: 'proj-1',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'user-9' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain(
+        'Only the task owner can modify it',
+      );
+      expect(mockPrisma.workspaceMember.findUnique).not.toHaveBeenCalled();
+      expect(mockV1Tasks.update).not.toHaveBeenCalled();
+    });
+
     it('clears the assignee without a membership check', async () => {
       mockV1Tasks.get.mockResolvedValue({
         id: 'task-1',
+        ownerId: 'user-123',
         projectId: 'proj-1',
       });
       mockV1Tasks.update.mockResolvedValue({
