@@ -15,5 +15,6 @@ import { AIModule } from '../ai/ai.module';
       useClass: PrismaNoteRepository,
     },
   ],
+  exports: [NotesService],
 })
 export class NotesModule {}

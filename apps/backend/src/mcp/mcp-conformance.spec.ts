@@ -15,6 +15,9 @@ import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { TimersService } from '../timers/timers.service';
+import { NotesService } from '../notes/notes.service';
+import { TagsService } from '../tags/tags.service';
+import { MeetingAssistantService } from '../meetings/meeting-assistant.service';
 import { PrismaService } from '../database/prisma.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { AuthEventType } from '../auth/types/auth-event.types';
@@ -72,6 +75,9 @@ describe('MCP permission conformance (S4/S5)', () => {
           provide: TimersService,
           useValue: { getActive: jest.fn().mockResolvedValue(null) },
         },
+        { provide: NotesService, useValue: {} },
+        { provide: TagsService, useValue: {} },
+        { provide: MeetingAssistantService, useValue: {} },
         {
           provide: PrismaService,
           useValue: { user: { findUnique: jest.fn() } },

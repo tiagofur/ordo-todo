@@ -15,6 +15,9 @@ import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { TimersService } from '../timers/timers.service';
+import { NotesService } from '../notes/notes.service';
+import { TagsService } from '../tags/tags.service';
+import { MeetingAssistantService } from '../meetings/meeting-assistant.service';
 import { PrismaService } from '../database/prisma.service';
 import { runWithMcpContext } from './mcp-context';
 
@@ -44,6 +47,16 @@ const EXPECTED_TOOLS = [
   'ordo_timer_stop',
   'ordo_timer_pause',
   'ordo_timer_resume',
+  'ordo_note_list',
+  'ordo_note_get',
+  'ordo_note_create',
+  'ordo_habit_list',
+  'ordo_habit_create',
+  'ordo_tag_list',
+  'ordo_task_tags',
+  'ordo_tag_add_to_task',
+  'ordo_meeting_list',
+  'ordo_comment_list',
 ];
 
 describe('McpCatalogService (against official SDK client)', () => {
@@ -99,6 +112,8 @@ describe('McpCatalogService (against official SDK client)', () => {
   };
   const mockHabits = {
     findForToday: jest.fn().mockResolvedValue([]),
+    findAll: jest.fn().mockResolvedValue([]),
+    create: jest.fn().mockResolvedValue({ id: 'habit-9' }),
     complete: jest.fn().mockResolvedValue({ id: 'habit-1' }),
   };
   const mockObjectives = {
@@ -124,7 +139,22 @@ describe('McpCatalogService (against official SDK client)', () => {
       },
     ]),
   };
-  const mockPrisma = { user: { findUnique: jest.fn() } };
+  const mockPrisma = {
+    user: { findUnique: jest.fn() },
+    workspaceMember: { findUnique: jest.fn().mockResolvedValue({ id: 'm-1' }) },
+  };
+  const mockNotes = {
+    findAll: jest.fn().mockResolvedValue({ data: [], meta: { total: 0 } }),
+    findOne: jest.fn().mockResolvedValue({ id: 'note-1' }),
+    create: jest.fn().mockResolvedValue({ id: 'note-9' }),
+  };
+  const mockTags = {
+    findAll: jest.fn().mockResolvedValue([]),
+    findOne: jest.fn().mockResolvedValue(null),
+    findByTask: jest.fn().mockResolvedValue([]),
+    assignToTask: jest.fn().mockResolvedValue({ ok: true }),
+  };
+  const mockMeetings = { getMeetings: jest.fn().mockResolvedValue([]) };
   const mockTimers = {
     start: jest.fn().mockResolvedValue({ id: 'session-1', taskId: 'task-1' }),
     stop: jest.fn().mockResolvedValue({ id: 'session-1' }),
@@ -146,6 +176,9 @@ describe('McpCatalogService (against official SDK client)', () => {
         { provide: ObjectivesService, useValue: mockObjectives },
         { provide: WorkspacesService, useValue: mockWorkspaces },
         { provide: TimersService, useValue: mockTimers },
+        { provide: NotesService, useValue: mockNotes },
+        { provide: TagsService, useValue: mockTags },
+        { provide: MeetingAssistantService, useValue: mockMeetings },
         { provide: PrismaService, useValue: mockPrisma },
         {
           provide: TasksService,
@@ -505,6 +538,184 @@ describe('McpCatalogService (against official SDK client)', () => {
 
       const payload = JSON.parse(result.content[0].text);
       expect(payload).toEqual({ stopped: false });
+    });
+  });
+
+  // Block D: notes/habits/tags/meetings/comments. The catalog is the
+  // security gate for services that predate user checks.
+  describe('domain tools (block D)', () => {
+    beforeEach(() => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValue({ id: 'm-1' });
+    });
+
+    it('refuses note listing for non-members of the workspace', async () => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_list',
+            arguments: { workspaceId: 'ws-x' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockNotes.findAll).not.toHaveBeenCalled();
+    });
+
+    it('creates a note as the caller after the membership gate', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_create',
+            arguments: { workspaceId: 'ws-1', content: 'Idea' },
+          }),
+      );
+
+      expect(mockNotes.create).toHaveBeenCalledWith(
+        { workspaceId: 'ws-1', content: 'Idea', color: undefined },
+        'user-123',
+      );
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('refuses to tag a task with a tag from a workspace the caller is not in', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-1',
+        workspaceId: 'ws-foreign',
+      });
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-1' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockTags.assignToTask).not.toHaveBeenCalled();
+    });
+
+    it('attaches a tag when task access and membership both hold', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-1',
+        workspaceId: 'ws-1',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-1' },
+          }),
+      );
+
+      expect(mockTags.assignToTask).toHaveBeenCalledWith('tag-1', 'task-1');
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('lists task tags only for tasks the caller can access', async () => {
+      mockV1Tasks.get.mockRejectedValueOnce(
+        new ForbiddenException('You do not have access to this task'),
+      );
+
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_tags',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockTags.findByTask).not.toHaveBeenCalled();
+
+      const allowed = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_tags',
+            arguments: { taskId: 'task-1' },
+          }),
+      );
+      expect(mockTags.findByTask).toHaveBeenCalledWith('task-1');
+      expect(allowed.isError).toBeUndefined();
+    });
+
+    it('lists comments only for tasks the caller can access', async () => {
+      mockV1Comments.listByTask = jest.fn().mockResolvedValue([]);
+      mockV1Tasks.get.mockRejectedValueOnce(
+        new ForbiddenException('You do not have access to this task'),
+      );
+
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_comment_list',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockV1Comments.listByTask).not.toHaveBeenCalled();
+
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_comment_list',
+          arguments: { taskId: 'task-1' },
+        }),
+      );
+      expect(mockV1Comments.listByTask).toHaveBeenCalledWith('task-1');
+    });
+
+    it('routes habit listing/creation and meeting listing through the owner', async () => {
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_habit_list',
+          arguments: { includeArchived: true },
+        }),
+      );
+      expect(mockHabits.findAll).toHaveBeenCalledWith('user-123', true);
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_habit_create',
+            arguments: { name: 'Meditate', frequency: 'DAILY' },
+          }),
+      );
+      expect(mockHabits.create).toHaveBeenCalledWith(
+        {
+          name: 'Meditate',
+          description: undefined,
+          frequency: 'DAILY',
+          targetDaysOfWeek: undefined,
+          targetCount: undefined,
+          timeOfDay: undefined,
+          preferredTime: undefined,
+        },
+        'user-123',
+      );
+
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_meeting_list',
+          arguments: { limit: 5 },
+        }),
+      );
+      expect(mockMeetings.getMeetings).toHaveBeenCalledWith('user-123', {
+        projectId: undefined,
+        limit: 5,
+      });
     });
   });
 
