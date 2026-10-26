@@ -4,9 +4,10 @@ import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { Button } from '@ordo-todo/ui';
 import { motion } from 'framer-motion';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { appLink } from '@/lib/app-url';
+import { BrandMark } from './brand-mark';
 
 export function Navigation() {
   const t = useTranslations('Navigation');
@@ -21,13 +22,9 @@ export function Navigation() {
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="relative">
-            <div className="h-9 w-9 rounded-lg bg-[#06B6D4] flex items-center justify-center shadow-lg shadow-[#06B6D4]/30 group-hover:shadow-[#06B6D4]/50 transition-shadow">
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
-          </div>
-          <span className="text-xl font-bold text-[#06B6D4]">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <BrandMark />
+          <span className="text-xl font-bold tracking-tight text-foreground">
             Ordo Todo
           </span>
         </Link>
@@ -36,10 +33,10 @@ export function Navigation() {
         <nav className="hidden md:flex items-center gap-8">
           <Link 
             href="/" 
-            className="text-sm font-medium text-muted-foreground hover:text-[#06B6D4] transition-colors relative group"
+            className="text-sm font-medium text-muted-foreground hover:text-brand-soft transition-colors relative group"
           >
             {t('home')}
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#06B6D4] group-hover:w-full transition-all duration-300" />
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand group-hover:w-full transition-all duration-300" />
           </Link>
           <Link 
             href="/guide" 
@@ -88,14 +85,14 @@ export function Navigation() {
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <a href={appLink("/login")} target="_blank" rel="noreferrer">
-            <Button variant="ghost" size="sm" className="text-sm font-medium hover:text-[#06B6D4]">
+            <Button variant="ghost" size="sm" className="text-sm font-medium hover:text-brand-soft">
               {t('login')}
             </Button>
           </a>
           <a href={appLink("/register")} target="_blank" rel="noreferrer">
             <Button 
               size="sm" 
-              className="bg-[#06B6D4] hover:bg-[#0891B2] text-white border-0 shadow-lg shadow-[#06B6D4]/25"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 shadow-md shadow-black/30"
             >
               {t('register')}
             </Button>
@@ -122,7 +119,7 @@ export function Navigation() {
           <nav className="container flex flex-col gap-4 py-6 px-4">
             <Link 
               href="/" 
-              className="text-base font-medium py-2 hover:text-[#06B6D4] transition-colors"
+              className="text-base font-medium py-2 hover:text-brand-soft transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t('home')}
@@ -174,7 +171,7 @@ export function Navigation() {
                 <Button variant="outline" className="w-full">{t('login')}</Button>
               </a>
               <a href={appLink("/register")} target="_blank" rel="noreferrer">
-                <Button className="w-full bg-[#06B6D4] hover:bg-[#0891B2] text-white border-0">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-0">
                   {t('register')}
                 </Button>
               </a>
