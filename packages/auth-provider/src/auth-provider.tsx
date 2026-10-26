@@ -57,6 +57,8 @@ export function AuthProvider({
   // `next` de un flujo OAuth) gana sobre ambos.
   const redirectAfterAuth = (kind: "dashboard" | "auth", redirectTo?: string) => {
     if (redirectTo) {
+      // web-only: only the web app passes redirectTo today; a future
+      // native caller must handle it via onRedirect instead.
       window.location.href = redirectTo;
       return;
     }

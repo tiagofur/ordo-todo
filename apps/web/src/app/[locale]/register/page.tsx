@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CheckSquare,
@@ -31,6 +31,7 @@ import {
   resolveRegisterErrorMessage,
 } from "@/lib/registration-invite";
 import { useRegistrationMode } from "@/hooks/use-registration-mode";
+import { resolvePostLoginTarget } from "@/lib/post-login-target";
 
 // Define interface for password checks
 interface PasswordChecks {
@@ -42,7 +43,19 @@ interface PasswordChecks {
 }
 
 export default function SignUpPage() {
+  // useSearchParams() requires a Suspense boundary or the route fails to
+  // prerender at build time.
+  return (
+    <Suspense>
+      <SignUpForm />
+    </Suspense>
+  );
+}
+
+function SignUpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const postLoginTarget = resolvePostLoginTarget(searchParams.get("next"));
   const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -167,13 +180,16 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      await register({
-        name: formData.name,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        ...(inviteOnly ? { inviteCode: formData.inviteCode.trim() } : {}),
-      });
+      await register(
+        {
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          ...(inviteOnly ? { inviteCode: formData.inviteCode.trim() } : {}),
+        },
+        postLoginTarget ? { redirectTo: postLoginTarget } : undefined,
+      );
 
       toast.success("Cuenta creada exitosamente");
       // Redirect is handled by auth context

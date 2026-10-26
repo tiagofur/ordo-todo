@@ -22,6 +22,7 @@ import {
 import type { Response, Request, CookieOptions } from 'express';
 import { AuthService } from './auth.service';
 import { CsrfService } from './csrf.service';
+import { apiOriginFromCallback, isSafeApiNextTarget } from './oauth-next.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -475,9 +476,13 @@ export class AuthController {
       path: '/',
     });
 
-    // Redirect to dashboard (tokens are in cookies, not URL)
+    // Back to the post-login target when the flow started with ?next=
+    // (connector approve via social login), else the dashboard.
     return res.redirect(
-      `${process.env.FRONTEND_URL || 'http://localhost:3100'}/dashboard`,
+      this.socialCallbackTarget(
+        req.query.state,
+        this.configService.get<string>('GOOGLE_CALLBACK_URL') ?? '',
+      ),
     );
   }
 
@@ -542,9 +547,13 @@ export class AuthController {
       path: '/',
     });
 
-    // Redirect to dashboard (tokens are in cookies, not URL)
+    // Back to the post-login target when the flow started with ?next=
+    // (connector approve via social login), else the dashboard.
     return res.redirect(
-      `${process.env.FRONTEND_URL || 'http://localhost:3100'}/dashboard`,
+      this.socialCallbackTarget(
+        req.query.state,
+        this.configService.get<string>('GITHUB_CALLBACK_URL') ?? '',
+      ),
     );
   }
 
@@ -610,6 +619,34 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  /**
+   * Where a social callback lands. Decodes the `web:<base64url(next)>`
+   * state (set by the platform guard from a validated `?next=`), revalidates
+   * it against the allowlist and rebuilds it on OUR API origin — the state
+   * is attacker-forgeable (no store verification), so anything unexpected
+   * falls back to the dashboard. Never redirects a raw state value.
+   */
+  private socialCallbackTarget(state: unknown, callbackUrl: string): string {
+    const dashboard = `${process.env.FRONTEND_URL || 'http://localhost:3100'}/dashboard`;
+    if (typeof state !== 'string' || !state.startsWith('web:')) {
+      return dashboard;
+    }
+    let next: string;
+    try {
+      next = Buffer.from(state.slice(4), 'base64url').toString('utf8');
+    } catch {
+      return dashboard;
+    }
+    if (!isSafeApiNextTarget(next)) {
+      return dashboard;
+    }
+    const origin = apiOriginFromCallback(callbackUrl);
+    if (!origin) {
+      return dashboard;
+    }
+    return `${origin}${next}`;
   }
 
   /**
