@@ -127,6 +127,11 @@ export function AuthProvider({
   const login = async (data: LoginDto) => {
     try {
       await loginMutation.mutateAsync(data);
+      // Refresca el query de usuario (quedó en error del 401 pre-login) para
+      // que el contexto pinte la sesión sin esperar a un refetch azaroso.
+      await queryClient?.invalidateQueries({
+        queryKey: [QUERY_KEY_CURRENT_USER],
+      });
       onSuccess?.("login");
       redirectAfterAuth("dashboard");
     } catch (error) {
@@ -138,6 +143,9 @@ export function AuthProvider({
   const register = async (data: RegisterDto) => {
     try {
       await registerMutation.mutateAsync(data);
+      await queryClient?.invalidateQueries({
+        queryKey: [QUERY_KEY_CURRENT_USER],
+      });
       onSuccess?.("register");
       redirectAfterAuth("dashboard");
     } catch (error) {

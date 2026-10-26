@@ -365,6 +365,20 @@ export class OrdoApiClient {
 
         // Handle 401 Unauthorized errors (token refresh logic)
         if (error.response?.status === 401 && !originalRequest._retry) {
+          // Never refresh/teardown for auth endpoints or without a refresh
+          // token: the unauthenticated /users/me that the login screen fires
+          // must not run the onAuthError logout, or it races an in-flight
+          // login and wipes the tokens it just stored (login 200 → back to
+          // /auth with the form cleared). Same guard the web client got in
+          // 4695fb76/d87ea74e.
+          const requestUrl = originalRequest.url || "";
+          const refreshToken = this.tokenStorage
+            ? await this.tokenStorage.getRefreshToken()
+            : null;
+          if (requestUrl.includes("/auth/") || !refreshToken) {
+            return Promise.reject(error);
+          }
+
           originalRequest._retry = true;
 
           try {
@@ -377,7 +391,7 @@ export class OrdoApiClient {
             // Retry the original request
             return this.axios(originalRequest);
           } catch (refreshError) {
-            // Token refresh failed, call auth error callback
+            // Session existed but the refresh failed: real teardown.
             if (this.onAuthError) {
               await this.onAuthError();
             }
