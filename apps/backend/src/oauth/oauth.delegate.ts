@@ -106,5 +106,11 @@ interface OAuthDelegates {
 }
 
 export function oAuthDelegates(prisma: PrismaService): OAuthDelegates {
-  return prisma as unknown as OAuthDelegates;
+  // PrismaService exposes typed getters for these delegates, so the
+  // structural match is direct (no cast needed).
+  return {
+    oAuthClient: prisma.oAuthClient,
+    oAuthAuthorizationCode: prisma.oAuthAuthorizationCode,
+    oAuthRefreshToken: prisma.oAuthRefreshToken,
+  };
 }

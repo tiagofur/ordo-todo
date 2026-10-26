@@ -121,8 +121,11 @@ async function bootstrap() {
 
   // Global prefix. The public /v1 surface is mounted outside it so its
   // URLs stay version-pinned and stable: /v1/... instead of /api/v1/v1/....
+  // MCP and its RFC 9728/8414 discovery endpoints also live at the origin
+  // root: OAuth clients (Claude, ChatGPT, Cursor…) probe
+  // /.well-known/* on the host itself and the connector URL is /mcp.
   app.setGlobalPrefix(configService.get<string>('API_PREFIX')!, {
-    exclude: ['v1/{*path}'],
+    exclude: ['v1/{*path}', 'mcp', 'mcp/{*path}', '.well-known/{*path}'],
   });
 
   // Swagger API documentation
