@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  UseFilters,
   Req,
   Res,
   UnauthorizedException,
@@ -35,6 +36,7 @@ import {
   GitHubOAuthPlatformGuard,
   GoogleOAuthPlatformGuard,
 } from './guards/oauth-platform.guard';
+import { OAuthCallbackExceptionFilter } from './filters/oauth-callback-exception.filter';
 
 const ACCESS_COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 1 day
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -438,6 +440,7 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
+  @UseFilters(OAuthCallbackExceptionFilter)
   @ApiOperation({
     summary: 'Google OAuth callback',
     description:
@@ -507,6 +510,7 @@ export class AuthController {
   @Public()
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
+  @UseFilters(OAuthCallbackExceptionFilter)
   @ApiOperation({
     summary: 'GitHub OAuth callback',
     description:

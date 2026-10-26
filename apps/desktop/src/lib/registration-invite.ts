@@ -26,9 +26,20 @@ export function extractApiErrorCode(error: unknown): string | undefined {
   return typeof code === "string" ? code : undefined;
 }
 
+/** Reads the server message out of an axios-style error, if any. */
+function extractServerMessage(error: unknown): string | undefined {
+  const message = (
+    error as { response?: { data?: { message?: unknown } } } | null | undefined
+  )?.response?.data?.message;
+  return typeof message === "string" && message.length > 0
+    ? message
+    : undefined;
+}
+
 /**
- * Message for a failed registration: a precise invite message when the
- * backend sent a known code, otherwise the raw error message (or fallback).
+ * Message for a failed registration or login: a precise invite message when
+ * the backend sent a known code, else the server message, else the fallback.
+ * (Never the generic axios "Request failed with status code …".)
  */
 export function resolveRegisterErrorMessage(
   error: unknown,
@@ -36,7 +47,7 @@ export function resolveRegisterErrorMessage(
 ): string {
   const code = extractApiErrorCode(error);
   if (code && INVITE_ERROR_MESSAGES[code]) return INVITE_ERROR_MESSAGES[code];
-  return error instanceof Error && error.message ? error.message : fallback;
+  return extractServerMessage(error) ?? fallback;
 }
 
 /** True when the gate applies and the user left the code empty. */

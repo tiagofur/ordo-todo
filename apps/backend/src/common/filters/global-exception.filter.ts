@@ -38,6 +38,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let error = 'Internal Server Error';
+    let code: string | undefined;
 
     // Handle HttpException
     if (exception instanceof HttpException) {
@@ -49,6 +50,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const responseObj = response as Record<string, unknown>;
         message = (responseObj.message as string) || message;
         error = (responseObj.error as string) || error;
+        // Preserve machine-readable codes (ODD 019 INVITE_*, etc.) so the
+        // frontend can map them to precise messages.
+        if (typeof responseObj.code === 'string') {
+          code = responseObj.code;
+        }
       }
     }
     // Handle Prisma Exceptions
@@ -96,6 +102,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message,
       error,
+      ...(code ? { code } : {}),
     };
 
     // Log the error

@@ -2978,7 +2978,9 @@
         "invalidEmail": "Please enter a valid email address",
         "invalidCredentials": "Invalid email or password",
         "googleFailed": "Could not sign in with Google",
-        "githubFailed": "Could not sign in with GitHub"
+        "githubFailed": "Could not sign in with GitHub",
+        "inviteOnly": "Social sign-up requires an invite code. Create your account with a code first.",
+        "oauthFailed": "Could not complete social sign-in. Please try again."
       },
       "success": "Signed in successfully"
     },

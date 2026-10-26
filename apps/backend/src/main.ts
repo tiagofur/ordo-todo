@@ -39,9 +39,10 @@ async function bootstrap() {
   }
 
   // CORS - MUST be configured before helmet and other middleware
-  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '').split(
-    ',',
-  );
+  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)

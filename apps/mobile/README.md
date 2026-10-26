@@ -18,7 +18,7 @@ La URL de la API se hornea en `vite build` desde `VITE_API_URL`:
 Comprobar la URL horneada tras `npm run build`:
 
 ```bash
-grep -o 'https\?://[^"]*/api/v1' dist/assets/*.js | sort -u
+grep -rho "https\?://[^\"' ]*/api/v1" dist/assets/*.js | sort -u
 ```
 
 ## Compilar el APK
@@ -70,9 +70,10 @@ desconocidas" cuando Android lo pida).
   publicar. El release firmado con keystore es trabajo de ODD 020 P5.
 - Producción está en `REGISTRATION_MODE=invite-only`: el registro pide
   código de invitación (formato `ORDO-XXXX-XXXX`, se crean en /admin).
-- OAuth social está desactivado en producción (`oauth-disabled`): el
-  login es email/contraseña. Los botones Google/GitHub solo funcionarán
-  cuando se configure OAuth en el servidor.
+- OAuth social no está configurado en el servidor de producción: el
+  login es email/contraseña. Los botones Google/GitHub abren el flujo
+  pero el proveedor lo rechazará hasta que se configuren las
+  credenciales OAuth en el backend.
 - El WebView móvil usa Bearer del JSON de login/register/refresh, no
   cookies (las `Set-Cookie` de la API son third-party para
   `https://tauri.localhost` y no se persisten).

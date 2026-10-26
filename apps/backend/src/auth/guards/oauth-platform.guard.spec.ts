@@ -26,10 +26,36 @@ describe('OAuthPlatformGuard', () => {
     ).toEqual({ state: 'desktop' });
   });
 
+  it('propagates platform=mobile as OAuth state (google)', () => {
+    const guard = new GoogleOAuthPlatformGuard();
+    expect(
+      guard.getAuthenticateOptions(createContext({ platform: 'mobile' })),
+    ).toEqual({ state: 'mobile' });
+  });
+
+  it('propagates platform=mobile as OAuth state (github)', () => {
+    const guard = new GitHubOAuthPlatformGuard();
+    expect(
+      guard.getAuthenticateOptions(createContext({ platform: 'mobile' })),
+    ).toEqual({ state: 'mobile' });
+  });
+
   it('returns no options without platform query', () => {
     const google = new GoogleOAuthPlatformGuard();
     const github = new GitHubOAuthPlatformGuard();
     expect(google.getAuthenticateOptions(createContext({}))).toBeUndefined();
     expect(github.getAuthenticateOptions(createContext({}))).toBeUndefined();
+  });
+
+  it('ignores unknown platform values', () => {
+    const guard = new GoogleOAuthPlatformGuard();
+    expect(
+      guard.getAuthenticateOptions(createContext({ platform: 'evil' })),
+    ).toBeUndefined();
+    expect(
+      guard.getAuthenticateOptions(
+        createContext({ platform: ['desktop'] as unknown as string }),
+      ),
+    ).toBeUndefined();
   });
 });

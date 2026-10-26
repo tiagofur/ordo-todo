@@ -13,10 +13,17 @@ import { AuthGuard } from '@nestjs/passport';
  * NullStore cuando no hay sesión), igual que el flujo aceptado de desktop.
  * PKCE (PkceService) es la mejora pendiente para atar tokens al flujo.
  */
+const KNOWN_PLATFORMS = new Set(['desktop', 'mobile', 'web']);
+
 function platformAuthenticateOptions(context: ExecutionContext) {
   const request = context.switchToHttp().getRequest();
   const platform = request?.query?.platform;
-  return platform ? { state: String(platform) } : undefined;
+  // Allowlist: unknown values are ignored so arbitrary input never
+  // round-trips through the provider's `state`.
+  if (typeof platform !== 'string' || !KNOWN_PLATFORMS.has(platform)) {
+    return undefined;
+  }
+  return { state: platform };
 }
 
 @Injectable()
