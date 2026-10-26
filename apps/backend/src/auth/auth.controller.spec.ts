@@ -222,7 +222,10 @@ describe('AuthController', () => {
         },
       };
 
-      const result = await controller.logout({ id: 'user-123' } as any, mockRequest as any);
+      const result = await controller.logout(
+        { id: 'user-123' } as any,
+        mockRequest as any,
+      );
 
       expect(result).toEqual({
         message: 'Logout successful',
@@ -234,7 +237,10 @@ describe('AuthController', () => {
         headers: {},
       };
 
-      const result = await controller.logout({ id: 'user-123' } as any, mockRequest as any);
+      const result = await controller.logout(
+        { id: 'user-123' } as any,
+        mockRequest as any,
+      );
 
       expect(result).toEqual({
         message: 'Logout successful',
@@ -276,6 +282,37 @@ describe('AuthController', () => {
         UnauthorizedException,
       );
     });
+
+    it('should try the body token when the cookie holds a stale one', async () => {
+      const req = { cookies: { refresh_token: 'stale-cookie-token' } };
+      const refreshTokenDto = { refreshToken: 'fresh-body-token' };
+
+      (authService.refresh as jest.Mock).mockImplementation(
+        async (token: string) => {
+          if (token === 'stale-cookie-token') {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+          }
+          return {
+            accessToken: 'new-access-token',
+            refreshToken: 'new-refresh-token',
+            user: { id: 'user-1' },
+          };
+        },
+      );
+
+      const result = await controller.refresh(refreshTokenDto, req as any);
+
+      expect(authService.refresh).toHaveBeenNthCalledWith(
+        1,
+        'fresh-body-token',
+      );
+      expect(authService.refresh).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
+        user: { id: 'user-1' },
+      });
+    });
   });
 
   describe('POST /auth/check-username', () => {
@@ -289,7 +326,9 @@ describe('AuthController', () => {
 
       const result = await controller.checkUsername(body);
 
-      expect(authService.checkUsernameAvailability).toHaveBeenCalledWith('newuser');
+      expect(authService.checkUsernameAvailability).toHaveBeenCalledWith(
+        'newuser',
+      );
       expect(result).toEqual({
         available: true,
         message: 'Username is available',
@@ -306,7 +345,9 @@ describe('AuthController', () => {
 
       const result = await controller.checkUsername(body);
 
-      expect(authService.checkUsernameAvailability).toHaveBeenCalledWith('existinguser');
+      expect(authService.checkUsernameAvailability).toHaveBeenCalledWith(
+        'existinguser',
+      );
       expect(result).toEqual({
         available: false,
         message: 'Username is already taken',
