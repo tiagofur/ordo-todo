@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
@@ -176,36 +176,31 @@ function ConnectAuthorize() {
   const accountLabel = user.email || user.name || "";
   const initial = (user.name || user.email || "?").trim().charAt(0).toUpperCase();
 
-  // The form posts top-level so the tab itself follows the API's 302
-  // back to the requesting app (or its access_denied on cancel).
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    const submitter = (event.nativeEvent as SubmitEvent).submitter;
-    const decision =
-      submitter instanceof HTMLButtonElement && submitter.value === "deny"
-        ? "deny"
-        : "approve";
-    setSubmitting(decision);
-  };
+  // Each decision posts its own top-level form, with the decision in the
+  // ACTION query (?decision=…) so it survives any submit path — the tab
+  // itself follows the API's 302 back to the requesting app (or its
+  // access_denied on cancel). Relying on submit-button name/value proved
+  // fragile: a submit without a recognized submitter lost the decision.
+  const authorizeAction = (decision: Decision) =>
+    `${API_CONFIG.baseURL}/oauth/authorize?decision=${decision}`;
+  const hiddenAuthorizeInputs = (
+    <>
+      {AUTHORIZE_PARAMS.map((key) =>
+        request.params[key] ? (
+          <input
+            key={key}
+            type="hidden"
+            name={key}
+            value={request.params[key]}
+          />
+        ) : null,
+      )}
+    </>
+  );
 
   return (
     <ConnectShell>
-      <form
-        method="POST"
-        action={`${API_CONFIG.baseURL}/oauth/authorize`}
-        onSubmit={handleSubmit}
-        className="rounded-2xl border border-border bg-card p-8 shadow-sm"
-      >
-        {AUTHORIZE_PARAMS.map((key) =>
-          request.params[key] ? (
-            <input
-              key={key}
-              type="hidden"
-              name={key}
-              value={request.params[key]}
-            />
-          ) : null,
-        )}
-
+      <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 flex items-center justify-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ad46ff] text-white shadow-lg shadow-[#ad46ff]/30">
             <CheckSquare className="h-6 w-6 stroke-[2.2]" />
@@ -263,38 +258,51 @@ function ConnectAuthorize() {
           <span>{t("revokeHint")}</span>
         </p>
 
-        {/* Approve is first in DOM order so Enter submits it; the visual
-            order (Cancel left, Approve right) comes from `order-*`. */}
+        {/* Two independent forms: the decision rides each action's query
+            (?decision=…), so every submit path carries it. Visual order is
+            DOM order (Cancel left, Approve right). */}
         <div className="mt-6 flex gap-3">
-          <Button
-            type="submit"
-            name="decision"
-            value="approve"
-            className="order-2 flex-1"
-            disabled={submitting !== null}
-            aria-busy={submitting === "approve"}
+          <form
+            method="POST"
+            action={authorizeAction("deny")}
+            onSubmit={() => setSubmitting("deny")}
+            className="flex-1"
           >
-            {submitting === "approve" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {t("approve")}
-          </Button>
-          <Button
-            type="submit"
-            name="decision"
-            value="deny"
-            variant="outline"
-            className="order-1 flex-1"
-            disabled={submitting !== null}
-            aria-busy={submitting === "deny"}
+            {hiddenAuthorizeInputs}
+            <Button
+              type="submit"
+              variant="outline"
+              className="w-full"
+              disabled={submitting !== null}
+              aria-busy={submitting === "deny"}
+            >
+              {submitting === "deny" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {t("deny")}
+            </Button>
+          </form>
+          <form
+            method="POST"
+            action={authorizeAction("approve")}
+            onSubmit={() => setSubmitting("approve")}
+            className="flex-1"
           >
-            {submitting === "deny" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {t("deny")}
-          </Button>
+            {hiddenAuthorizeInputs}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={submitting !== null}
+              aria-busy={submitting === "approve"}
+            >
+              {submitting === "approve" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {t("approve")}
+            </Button>
+          </form>
         </div>
-      </form>
+      </div>
     </ConnectShell>
   );
 }
