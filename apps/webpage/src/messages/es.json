@@ -1415,18 +1415,18 @@
     "how_title": "Dos formas de conectar",
     "how_text": "Elige la que prefieras. Ambas usan la misma conexión segura: Ordo solo muestra a tu asistente lo que tú puedes ver.",
     "oneclick_title": "Conexión en 1 clic",
-    "oneclick_text": "Para todo el mundo. Menos de 60 segundos, sin copiar nada, sin pantallas raras.",
+    "oneclick_text": "Para todo el mundo: crea un conector en tu asistente, pega la URL de Ordo y autoriza en el navegador.",
     "manual_title": "Configuración manual",
     "manual_text": "Para desarrolladores y herramientas de terminal. Bloques listos para copiar y pegar.",
     "clients_title": "Elige tu asistente",
     "clients": {
       "chatgpt": {
         "title": "ChatGPT",
-        "description": "Conecta Ordo como aplicación desde el directorio"
+        "description": "Añade Ordo como conector personalizado en ChatGPT"
       },
       "claude": {
         "title": "Claude",
-        "description": "Añade Ordo como conector en web o escritorio"
+        "description": "Añade Ordo como conector personalizado en claude.ai"
       },
       "hermes": {
         "title": "Hermes",
@@ -1447,30 +1447,30 @@
     "badge": "ChatGPT",
     "title": "Conectar Ordo a ChatGPT",
     "subtitle": "Pide a ChatGPT que organice tu día, cree tareas o resuma tu semana, con tus datos reales de Ordo.",
-    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_title": "Conexión asistida",
     "oneclick_text": "No necesitas copiar nada ni entender nada técnico. Solo sigue estos pasos:",
     "steps": {
       "1": {
-        "title": "Abre el directorio de aplicaciones",
-        "description": "En ChatGPT, ve a Configuración y luego a Aplicaciones conectadas. Pulsa Añadir aplicación."
+        "title": "Abre los conectores de ChatGPT",
+        "description": "En ChatGPT, entra en Configuración → Conectores. Si no ves la opción de crear, activa el modo desarrollador en Conectores → Ajustes avanzados (planes de pago)."
       },
       "2": {
-        "title": "Busca Ordo",
-        "description": "Escribe Ordo en el buscador y elige la aplicación oficial Ordo Todo."
+        "title": "Crea un conector personalizado",
+        "description": "Pulsa Crear (o Añadir servidor MCP personalizado). Ponle de nombre Ordo y pega esta URL: https://api.ordotodo.app/mcp"
       },
       "3": {
-        "title": "Pulsa Conectar y aprueba",
-        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+        "title": "Elige OAuth y aprueba",
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y pulsa Autorizar."
       },
       "4": {
-        "title": "Vuelve a ChatGPT y prueba",
-        "description": "Escribe algo como ¿qué tareas tengo hoy? ChatGPT responderá con tus datos reales de Ordo."
+        "title": "Activa Ordo y prueba",
+        "description": "En una conversación, activa Ordo en el menú de aplicaciones (icono +) y escribe: ¿qué tareas tengo hoy? Responderá con tus datos reales."
       }
     },
     "manual_title": "Configuración manual (Codex y terminal)",
     "manual_text": "Si usas Codex o prefieres configurarlo a mano, añade este bloque a tu archivo ~/.codex/config.toml:",
     "config_title": "Bloque de configuración",
-    "config_code": "[mcp_servers.ordo]\nurl = \"https://TU-DOMINIO-ORDO/mcp\"\n# Al primer uso, Codex abrirá el navegador para que apruebes con tu cuenta de Ordo.",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://api.ordotodo.app/mcp\"\n# Al primer uso, Codex abrirá el navegador para que apruebes con tu cuenta de Ordo.",
     "verify_text": "Guarda el archivo, reinicia Codex y pide: lista mis proyectos de Ordo. Si responde con tus proyectos reales, está conectado.",
     "verify_code": "Codex › ¿qué tareas vencen esta semana?",
     "trouble_title": "Si algo falla",
@@ -1480,8 +1480,8 @@
         "fix": "Cierra la pestaña, asegúrate de haber iniciado sesión en Ordo en ese navegador e inténtalo de nuevo desde ChatGPT."
       },
       "2": {
-        "title": "ChatGPT dice que no encuentra Ordo",
-        "fix": "Vuelve a Configuración, Aplicaciones conectadas y comprueba que Ordo aparece como conectada. Si no, repite el paso 2."
+        "title": "ChatGPT no usa tus datos de Ordo",
+        "fix": "Comprueba en Configuración → Conectores que Ordo aparece como conectada y que está activada en la conversación actual. Si no, vuelve a crearla con la URL exacta."
       },
       "3": {
         "title": "Codex no muestra las herramientas de Ordo",
@@ -1495,30 +1495,30 @@
     "badge": "Claude",
     "title": "Conectar Ordo a Claude",
     "subtitle": "Delega en Claude tu planificación: que lea tus tareas, proponga el plan del día y lo ejecute contigo.",
-    "oneclick_title": "Conexión en 1 clic",
-    "oneclick_text": "Funciona igual en la web de Claude, en la app de escritorio y en Claude Code:",
+    "oneclick_title": "Conexión asistida",
+    "oneclick_text": "En claude.ai y en la app de escritorio:",
     "steps": {
       "1": {
-        "title": "Abre los conectores",
-        "description": "En Claude, ve a Configuración y luego a Conectores. Pulsa Añadir conector."
+        "title": "Abre los conectores de Claude",
+        "description": "En claude.ai, ve a Personalizar → Conectores y pulsa Añadir → Añadir conector personalizado."
       },
       "2": {
-        "title": "Busca Ordo",
-        "description": "Escribe Ordo en el buscador y elige el conector oficial."
+        "title": "Pega la URL de Ordo",
+        "description": "Nombre: Ordo. URL del servidor remoto: https://api.ordotodo.app/mcp"
       },
       "3": {
-        "title": "Pulsa Conectar y aprueba",
-        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+        "title": "Elige OAuth y aprueba",
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y pulsa Autorizar."
       },
       "4": {
-        "title": "Vuelve a Claude y prueba",
-        "description": "Escribe algo como organízame el día. Claude leerá tus tareas y te propondrá un plan."
+        "title": "Activa Ordo y prueba",
+        "description": "En una conversación, activa Ordo en el menú de herramientas y pide: organízame el día. Claude leerá tus tareas y te propondrá un plan."
       }
     },
     "manual_title": "Configuración manual (Claude Code y terminal)",
     "manual_text": "Si usas la terminal, conecta Ordo con un solo comando:",
     "config_title": "Comando de conexión",
-    "config_code": "claude mcp add --transport http ordo https://TU-DOMINIO-ORDO/mcp\n# Después ejecuta /mcp dentro de Claude Code y aprueba en el navegador.",
+    "config_code": "claude mcp add --transport http ordo https://api.ordotodo.app/mcp\n# Después ejecuta /mcp dentro de Claude Code y aprueba en el navegador.",
     "verify_text": "Pide: muéstrame mis objetivos del trimestre. Si Claude responde con tus objetivos reales, está conectado.",
     "verify_code": "Claude Code › /mcp  (debe mostrar ordo como conectado)",
     "trouble_title": "Si algo falla",
@@ -1566,7 +1566,7 @@
     "manual_title": "Configuración manual (archivo YAML)",
     "manual_text": "Si ejecutas Hermes desde terminal, añade esto a tu archivo ~/.hermes/config.yaml:",
     "config_title": "Bloque de configuración",
-    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://TU-DOMINIO-ORDO/mcp\n      auth: oauth  # Hermes abrirá el navegador al primer uso",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://api.ordotodo.app/mcp\n      auth: oauth  # Hermes abrirá el navegador al primer uso",
     "verify_text": "Reinicia Hermes y pregúntale por tus tareas de hoy. Si responde con datos reales, está conectado.",
     "verify_code": "Hermes › ¿qué hábitos me quedan hoy?",
     "trouble_title": "Si algo falla",
@@ -1612,7 +1612,7 @@
     "manual_title": "Configuración manual (terminal)",
     "manual_text": "Si gestionas OpenClaw por terminal, añade el servidor remoto con este comando:",
     "config_title": "Comando de conexión",
-    "config_code": "openclaw mcp add ordo https://TU-DOMINIO-ORDO/mcp --auth oauth\n# Después aprueba en el navegador cuando OpenClaw te lo pida.",
+    "config_code": "openclaw mcp add ordo https://api.ordotodo.app/mcp --auth oauth\n# Después aprueba en el navegador cuando OpenClaw te lo pida.",
     "verify_text": "Pídele a tu asistente tu resumen del día. Si incluye tus tareas reales de Ordo, está conectado.",
     "verify_code": "Tú › organiza mi día con Ordo",
     "trouble_title": "Si algo falla",

@@ -1415,18 +1415,18 @@
     "how_title": "Two ways to connect",
     "how_text": "Pick whichever you prefer. Both use the same secure connection: Ordo only shows your assistant what you can see.",
     "oneclick_title": "1-click connection",
-    "oneclick_text": "For everyone. Under 60 seconds, nothing to copy, no strange screens.",
+    "oneclick_text": "For everyone: create a connector in your assistant, paste the Ordo URL and authorize in the browser.",
     "manual_title": "Manual setup",
     "manual_text": "For developers and terminal tools. Ready-to-copy blocks.",
     "clients_title": "Pick your assistant",
     "clients": {
       "chatgpt": {
         "title": "ChatGPT",
-        "description": "Connect Ordo as an app from the directory"
+        "description": "Add Ordo as a custom connector in ChatGPT"
       },
       "claude": {
         "title": "Claude",
-        "description": "Add Ordo as a connector on web or desktop"
+        "description": "Add Ordo as a custom connector on claude.ai"
       },
       "hermes": {
         "title": "Hermes",
@@ -1447,30 +1447,30 @@
     "badge": "ChatGPT",
     "title": "Connect Ordo to ChatGPT",
     "subtitle": "Ask ChatGPT to organize your day, create tasks or summarize your week, with your real Ordo data.",
-    "oneclick_title": "1-click connection",
+    "oneclick_title": "Guided connection",
     "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
     "steps": {
       "1": {
-        "title": "Open the app directory",
-        "description": "In ChatGPT, go to Settings, then Connected apps. Press Add app."
+        "title": "Open ChatGPT connectors",
+        "description": "In ChatGPT, go to Settings → Connectors. If you do not see a create option, enable Developer mode under Connectors → Advanced settings (paid plans)."
       },
       "2": {
-        "title": "Search for Ordo",
-        "description": "Type Ordo in the search box and pick the official Ordo Todo app."
+        "title": "Create a custom connector",
+        "description": "Press Create (or Add custom MCP server). Name it Ordo and paste this URL: https://api.ordotodo.app/mcp"
       },
       "3": {
-        "title": "Press Connect and approve",
-        "description": "Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+        "title": "Choose OAuth and approve",
+        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and press Authorize."
       },
       "4": {
-        "title": "Go back to ChatGPT and try it",
-        "description": "Type something like what tasks do I have today? ChatGPT will answer with your real Ordo data."
+        "title": "Enable Ordo and try it",
+        "description": "In a conversation, enable Ordo from the apps menu (+ icon) and type: what tasks do I have today? It will answer with your real data."
       }
     },
     "manual_title": "Manual setup (Codex and terminal)",
     "manual_text": "If you use Codex or prefer to set it up by hand, add this block to your ~/.codex/config.toml file:",
     "config_title": "Configuration block",
-    "config_code": "[mcp_servers.ordo]\nurl = \"https://TU-DOMINIO-ORDO/mcp\"\n# On first use, Codex will open the browser so you approve with your Ordo account.",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://api.ordotodo.app/mcp\"\n# On first use, Codex will open the browser so you approve with your Ordo account.",
     "verify_text": "Save the file, restart Codex and ask: list my Ordo projects. If it answers with your real projects, it is connected.",
     "verify_code": "Codex › which tasks are due this week?",
     "trouble_title": "If something fails",
@@ -1480,8 +1480,8 @@
         "fix": "Close the tab, make sure you are signed in to Ordo in that browser, and try again from ChatGPT."
       },
       "2": {
-        "title": "ChatGPT says it cannot find Ordo",
-        "fix": "Go back to Settings, Connected apps and check that Ordo shows as connected. If not, repeat step 2."
+        "title": "ChatGPT is not using your Ordo data",
+        "fix": "Check under Settings → Connectors that Ordo shows as connected and is enabled in the current conversation. Otherwise, create it again with the exact URL."
       },
       "3": {
         "title": "Codex does not show Ordo tools",
@@ -1495,30 +1495,30 @@
     "badge": "Claude",
     "title": "Connect Ordo to Claude",
     "subtitle": "Let Claude handle your planning: read your tasks, propose the day plan and execute it with you.",
-    "oneclick_title": "1-click connection",
-    "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
+    "oneclick_title": "Guided connection",
+    "oneclick_text": "Works the same on claude.ai and in the desktop app:",
     "steps": {
       "1": {
-        "title": "Open connectors",
-        "description": "In Claude, go to Settings, then Connectors. Press Add connector."
+        "title": "Open Claude connectors",
+        "description": "On claude.ai, go to Customize → Connectors and press Add → Add custom connector."
       },
       "2": {
-        "title": "Search for Ordo",
-        "description": "Type Ordo in the search box and pick the official connector."
+        "title": "Paste the Ordo URL",
+        "description": "Name: Ordo. Remote MCP server URL: https://api.ordotodo.app/mcp"
       },
       "3": {
-        "title": "Press Connect and approve",
-        "description": "Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+        "title": "Choose OAuth and approve",
+        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and press Authorize."
       },
       "4": {
-        "title": "Go back to Claude and try it",
-        "description": "Type something like organize my day. Claude will read your tasks and propose a plan."
+        "title": "Enable Ordo and try it",
+        "description": "In a conversation, enable Ordo from the tools menu and ask: organize my day. Claude will read your tasks and propose a plan."
       }
     },
     "manual_title": "Manual setup (Claude Code and terminal)",
     "manual_text": "If you use the terminal, connect Ordo with a single command:",
     "config_title": "Connection command",
-    "config_code": "claude mcp add --transport http ordo https://TU-DOMINIO-ORDO/mcp\n# Then run /mcp inside Claude Code and approve in the browser.",
+    "config_code": "claude mcp add --transport http ordo https://api.ordotodo.app/mcp\n# Then run /mcp inside Claude Code and approve in the browser.",
     "verify_text": "Ask: show me this quarter's objectives. If Claude answers with your real objectives, it is connected.",
     "verify_code": "Claude Code › /mcp  (must show ordo as connected)",
     "trouble_title": "If something fails",
@@ -1566,7 +1566,7 @@
     "manual_title": "Manual setup (YAML file)",
     "manual_text": "If you run Hermes from the terminal, add this to your ~/.hermes/config.yaml file:",
     "config_title": "Configuration block",
-    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://TU-DOMINIO-ORDO/mcp\n      auth: oauth  # Hermes will open the browser on first use",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://api.ordotodo.app/mcp\n      auth: oauth  # Hermes will open the browser on first use",
     "verify_text": "Restart Hermes and ask about today's tasks. If it answers with real data, it is connected.",
     "verify_code": "Hermes › which habits are left today?",
     "trouble_title": "If something fails",
@@ -1612,7 +1612,7 @@
     "manual_title": "Manual setup (terminal)",
     "manual_text": "If you manage OpenClaw from the terminal, add the remote server with this command:",
     "config_title": "Connection command",
-    "config_code": "openclaw mcp add ordo https://TU-DOMINIO-ORDO/mcp --auth oauth\n# Then approve in the browser when OpenClaw asks you to.",
+    "config_code": "openclaw mcp add ordo https://api.ordotodo.app/mcp --auth oauth\n# Then approve in the browser when OpenClaw asks you to.",
     "verify_text": "Ask your assistant for the day summary. If it includes your real Ordo tasks, it is connected.",
     "verify_code": "You › organize my day with Ordo",
     "trouble_title": "If something fails",
