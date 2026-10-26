@@ -271,6 +271,7 @@ describe('OAuthController', () => {
         controller.authorizeDecision(
           user,
           { ...body, decision: 'approve' },
+          {},
           req({ origin: 'https://evil.test' }) as never,
           res() as never,
         ),
@@ -288,6 +289,7 @@ describe('OAuthController', () => {
         controller.authorizeDecision(
           user,
           { ...body, decision: 'approve' },
+          {},
           req({ origin: 'https://www.app.ordo.test' }) as never,
           res() as never,
         ),
@@ -304,12 +306,14 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'approve' },
+        {},
         req({ referer: `${FRONTEND}/es/connect/authorize?x=1` }) as never,
         res() as never,
       );
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'approve' },
+        {},
         req({}) as never,
         res() as never,
       );
@@ -320,6 +324,7 @@ describe('OAuthController', () => {
         controller.authorizeDecision(
           user,
           { ...body, decision: 'approve' },
+          {},
           req({ referer: 'https://evil.test/' }) as never,
           res() as never,
         ),
@@ -337,6 +342,7 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'approve' },
+        {},
         trusted() as never,
         response as never,
       );
@@ -349,6 +355,41 @@ describe('OAuthController', () => {
       );
     });
 
+    it('carries the decision in the form action query (submit-path agnostic)', async () => {
+      mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
+      mockOAuthService.authorize.mockResolvedValue({
+        redirectUri: 'https://chatgpt.com/cb?code=q1',
+      });
+      const approved = res();
+      await controller.authorizeDecision(
+        user,
+        body,
+        { decision: 'approve' },
+        trusted() as never,
+        approved as never,
+      );
+      expect(oauthService.authorize).toHaveBeenCalledTimes(1);
+      expect(approved.redirect).toHaveBeenCalledWith(
+        'https://chatgpt.com/cb?code=q1',
+      );
+
+      mockOAuthService.buildDeniedRedirect.mockReturnValue(
+        'https://chatgpt.com/cb?error=access_denied',
+      );
+      const denied = res();
+      await controller.authorizeDecision(
+        user,
+        body,
+        { decision: 'deny' },
+        trusted() as never,
+        denied as never,
+      );
+      expect(denied.redirect).toHaveBeenCalledWith(
+        'https://chatgpt.com/cb?error=access_denied',
+      );
+      expect(oauthService.authorize).toHaveBeenCalledTimes(1);
+    });
+
     it('deny redirects to the client with access_denied and never mints', async () => {
       mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
       mockOAuthService.buildDeniedRedirect.mockReturnValue(
@@ -359,6 +400,7 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'deny' },
+        {},
         trusted() as never,
         response as never,
       );
@@ -380,6 +422,7 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         undefined,
         { ...body, decision: 'approve' },
+        {},
         trusted() as never,
         response as never,
       );
@@ -404,6 +447,7 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'maybe' },
+        {},
         trusted() as never,
         unknown as never,
       );
@@ -418,6 +462,7 @@ describe('OAuthController', () => {
       await controller.authorizeDecision(
         user,
         { ...body, decision: 'approve' },
+        {},
         trusted() as never,
         invalid as never,
       );

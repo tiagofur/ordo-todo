@@ -256,6 +256,7 @@ export class OAuthController {
   async authorizeDecision(
     @CurrentUser() user: RequestUser | undefined,
     @Body() body: Record<string, unknown>,
+    @Query() query: Record<string, unknown>,
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
@@ -283,15 +284,25 @@ export class OAuthController {
       return;
     }
 
-    const decision = this.asString(body.decision);
+    // The consent screen carries the decision in the form action's query
+    // (?decision=approve|deny) so it survives ANY submit path (submitter
+    // buttons are not reliable); the body value is still honored for
+    // direct API clients.
+    const decision =
+      this.asString(body.decision) || this.asString(query.decision);
+    if (decision !== 'approve' && decision !== 'deny') {
+      this.logger.warn(
+        `Consent decision unrecognized (client "${params.clientId}"): body=${JSON.stringify(
+          body.decision,
+        )} query=${JSON.stringify(query.decision)}`,
+      );
+      res.redirect(this.connectUrl(body, { ordo_error: 'invalid_request' }));
+      return;
+    }
     if (decision === 'deny') {
       res.redirect(
         this.oauthService.buildDeniedRedirect(params.redirectUri, params.state),
       );
-      return;
-    }
-    if (decision !== 'approve') {
-      res.redirect(this.connectUrl(body, { ordo_error: 'invalid_request' }));
       return;
     }
 
