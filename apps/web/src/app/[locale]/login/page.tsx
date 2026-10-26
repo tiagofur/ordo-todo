@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
   CheckSquare,
@@ -45,6 +46,7 @@ export default function SignInPage() {
   const t = useTranslations("Auth.login");
   const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Red de seguridad: el middleware ya redirige a /dashboard cuando ve la
   // cookie de sesión, pero si la sesión existe solo en el almacenamiento local
@@ -63,6 +65,19 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
   );
+
+  // OAuth failures redirect back here with ?error=… (see the backend
+  // OAuthCallbackExceptionFilter): surface them as a toast once.
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (!error) return;
+    const key =
+      error === "registration_invite_only"
+        ? "errors.inviteOnly"
+        : "errors.oauthFailed";
+    toast.error(t(key));
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, t]);
 
   const handleFieldChange = (field: "email" | "password", value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

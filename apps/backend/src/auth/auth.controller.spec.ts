@@ -354,4 +354,85 @@ describe('AuthController', () => {
       });
     });
   });
+
+  describe('GET /auth/google/callback', () => {
+    const tokens = {
+      accessToken: 'access-123',
+      refreshToken: 'refresh-123',
+      user: { id: 'user-1' },
+    };
+
+    const callbackReq = (state?: unknown) =>
+      ({
+        user: tokens,
+        query: state === undefined ? {} : { state },
+      }) as any;
+
+    const callbackRes = () =>
+      ({
+        redirect: jest.fn(),
+        cookie: jest.fn(),
+      }) as any;
+
+    it('redirects to the deep link for state=desktop', async () => {
+      const res = callbackRes();
+      await controller.googleAuthCallback(callbackReq('desktop'), res);
+      expect(res.redirect).toHaveBeenCalledWith(
+        'ordo://auth/callback?access_token=access-123&refresh_token=refresh-123',
+      );
+      expect(res.cookie).not.toHaveBeenCalled();
+    });
+
+    it('redirects to the deep link for state=mobile', async () => {
+      const res = callbackRes();
+      await controller.googleAuthCallback(callbackReq('mobile'), res);
+      expect(res.redirect).toHaveBeenCalledWith(
+        'ordo://auth/callback?access_token=access-123&refresh_token=refresh-123',
+      );
+      expect(res.cookie).not.toHaveBeenCalled();
+    });
+
+    it('sets cookies and redirects to web when state is missing or unknown', async () => {
+      for (const state of [undefined, 'web', 'evil', ['desktop']]) {
+        const res = callbackRes();
+        await controller.googleAuthCallback(callbackReq(state), res);
+        expect(res.cookie).toHaveBeenCalledTimes(2);
+        expect(res.redirect).toHaveBeenCalledWith(
+          expect.stringContaining('/dashboard'),
+        );
+      }
+    });
+  });
+
+  describe('GET /auth/github/callback', () => {
+    const tokens = {
+      accessToken: 'access-123',
+      refreshToken: 'refresh-123',
+      user: { id: 'user-1' },
+    };
+
+    it('redirects to the deep link for state=mobile', async () => {
+      const res = { redirect: jest.fn(), cookie: jest.fn() } as any;
+      await controller.githubAuthCallback(
+        { user: tokens, query: { state: 'mobile' } } as any,
+        res,
+      );
+      expect(res.redirect).toHaveBeenCalledWith(
+        'ordo://auth/callback?access_token=access-123&refresh_token=refresh-123',
+      );
+      expect(res.cookie).not.toHaveBeenCalled();
+    });
+
+    it('sets cookies and redirects to web when state is missing', async () => {
+      const res = { redirect: jest.fn(), cookie: jest.fn() } as any;
+      await controller.githubAuthCallback(
+        { user: tokens, query: {} } as any,
+        res,
+      );
+      expect(res.cookie).toHaveBeenCalledTimes(2);
+      expect(res.redirect).toHaveBeenCalledWith(
+        expect.stringContaining('/dashboard'),
+      );
+    });
+  });
 });

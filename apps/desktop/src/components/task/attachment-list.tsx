@@ -1,4 +1,14 @@
-import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye, X } from "lucide-react";
+import {
+  Download,
+  Trash2,
+  File,
+  Image as ImageIcon,
+  FileText,
+  Film,
+  Music,
+  Eye,
+  X,
+} from "lucide-react";
 import { useDeleteAttachment } from "@/hooks/api";
 import { toast } from "sonner";
 import { cn, Button, Dialog, DialogContent, DialogTitle } from "@ordo-todo/ui";
@@ -33,11 +43,16 @@ const FILE_ICONS = {
   default: File,
 };
 
-export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps) {
+export function AttachmentList({
+  taskId,
+  attachments = [],
+}: AttachmentListProps) {
   const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
   const deleteAttachment = useDeleteAttachment();
-  const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
+  const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(
+    null,
+  );
 
   const getFileType = (mimeType: string): keyof typeof FILE_ICONS => {
     if (mimeType.startsWith("image/")) return "image";
@@ -60,14 +75,15 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const getFullUrl = (url: string) => {
     // If URL is relative, prepend backend URL
     if (url.startsWith("/")) {
       // Get backend base URL from environment or default
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3101/api/v1";
       const backendBaseUrl = apiUrl.replace("/api/v1", "");
       return backendBaseUrl + url;
     }
@@ -82,18 +98,24 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success(t('AttachmentList.toast.downloading', { filename: attachment.filename }));
+    toast.success(
+      t("AttachmentList.toast.downloading", { filename: attachment.filename }),
+    );
   };
 
   const handleDelete = (attachment: Attachment) => {
-    if (confirm(t('AttachmentList.confirmDelete', { filename: attachment.filename }))) {
+    if (
+      confirm(
+        t("AttachmentList.confirmDelete", { filename: attachment.filename }),
+      )
+    ) {
       deleteAttachment.mutate(String(attachment.id), {
         onSuccess: () => {
-          toast.success(t('AttachmentList.toast.deleted'));
+          toast.success(t("AttachmentList.toast.deleted"));
         },
         onError: (error: any) => {
-          toast.error(error.message || t('AttachmentList.toast.deleteError'));
-        }
+          toast.error(error.message || t("AttachmentList.toast.deleteError"));
+        },
       });
     }
   };
@@ -113,7 +135,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
   if (attachments.length === 0) {
     return (
       <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
-        {t('AttachmentList.empty')}
+        {t("AttachmentList.empty")}
       </div>
     );
   }
@@ -123,10 +145,13 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">
-          {t('AttachmentList.title')} ({attachments.length})
+          {t("AttachmentList.title")} ({attachments.length})
         </p>
         <p className="text-xs text-muted-foreground">
-          {formatFileSize(attachments.reduce((acc, att) => acc + att.filesize, 0))} {t('AttachmentList.total')}
+          {formatFileSize(
+            attachments.reduce((acc, att) => acc + att.filesize, 0),
+          )}{" "}
+          {t("AttachmentList.total")}
         </p>
       </div>
 
@@ -135,14 +160,15 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
         {attachments.map((attachment) => {
           const fileType = getFileType(attachment.mimeType);
           const FileIcon = FILE_ICONS[fileType];
-          const canPreview = isImage(attachment.mimeType) || isPDF(attachment.mimeType);
+          const canPreview =
+            isImage(attachment.mimeType) || isPDF(attachment.mimeType);
 
           return (
             <div
               key={attachment.id}
               className={cn(
                 "group relative rounded-lg border p-3 transition-all",
-                "hover:bg-accent/50 hover:shadow-md"
+                "hover:bg-accent/50 hover:shadow-md",
               )}
             >
               {/* Image Preview */}
@@ -176,7 +202,10 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
 
                 {/* Details */}
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-sm font-medium truncate" title={attachment.filename}>
+                  <p
+                    className="text-sm font-medium truncate"
+                    title={attachment.filename}
+                  >
                     {attachment.filename}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -187,13 +216,16 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                         typeof attachment.uploadedAt === "string"
                           ? new Date(attachment.uploadedAt)
                           : attachment.uploadedAt,
-                        { addSuffix: true, locale: locale === 'es' ? es : enUS }
+                        {
+                          addSuffix: true,
+                          locale: locale === "es" ? es : enUS,
+                        },
                       )}
                     </span>
                   </div>
                   {attachment.uploadedBy && (
                     <p className="text-xs text-muted-foreground">
-                      {t('AttachmentList.by')} {attachment.uploadedBy.name}
+                      {t("AttachmentList.by")} {attachment.uploadedBy.name}
                     </p>
                   )}
                 </div>
@@ -206,7 +238,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                       size="icon"
                       className="h-7 w-7"
                       onClick={() => handlePreview(attachment)}
-                      title={t('AttachmentList.tooltips.preview')}
+                      title={t("AttachmentList.tooltips.preview")}
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
@@ -216,7 +248,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                     size="icon"
                     className="h-7 w-7"
                     onClick={() => handleDownload(attachment)}
-                    title={t('AttachmentList.tooltips.download')}
+                    title={t("AttachmentList.tooltips.download")}
                   >
                     <Download className="h-3 w-3" />
                   </Button>
@@ -225,7 +257,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                     size="icon"
                     className="h-7 w-7 text-destructive"
                     onClick={() => handleDelete(attachment)}
-                    title={t('AttachmentList.tooltips.delete')}
+                    title={t("AttachmentList.tooltips.delete")}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -236,9 +268,14 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
         })}
       </div>
 
-      <Dialog open={!!previewAttachment} onOpenChange={(open) => !open && setPreviewAttachment(null)}>
+      <Dialog
+        open={!!previewAttachment}
+        onOpenChange={(open) => !open && setPreviewAttachment(null)}
+      >
         <DialogContent className="!max-w-none w-screen h-screen p-0 overflow-hidden bg-background/95 backdrop-blur-sm border-none shadow-none">
-          <DialogTitle className="sr-only">{previewAttachment?.filename}</DialogTitle>
+          <DialogTitle className="sr-only">
+            {previewAttachment?.filename}
+          </DialogTitle>
           {previewAttachment && (
             <div className="relative w-full h-full flex items-center justify-center">
               {/* Close button */}
@@ -260,7 +297,9 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
 
               {/* Filename overlay */}
               <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-6 py-3 rounded-full border shadow-lg z-10">
-                <p className="text-sm font-medium">{previewAttachment.filename}</p>
+                <p className="text-sm font-medium">
+                  {previewAttachment.filename}
+                </p>
               </div>
             </div>
           )}

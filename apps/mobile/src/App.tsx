@@ -1,6 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { AuthProvider } from "@ordo-todo/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { queryClient } from "@/lib/query-client";
@@ -16,13 +16,26 @@ import { router } from "@/routes";
 /**
  * Escucha del deep link ordo://auth/callback (OAuth del navegador del
  * sistema). Los tokens se guardan con el mismo mecanismo que desktop
- * (plugin store) y se refrescan las queries para recargar la sesión.
+ * (plugin store), se recarga la sesión y se navega al dashboard. El
+ * listener vive fuera del RouterProvider, así que navega por hash como
+ * el onRedirect de AuthProvider.
  */
 function MobileOAuthLinks() {
   const qc = useQueryClient();
   useOAuthDeepLinks(async (params) => {
-    const ok = await storeOAuthTokens(parseOAuthCallback(params));
-    if (ok) await qc.invalidateQueries();
+    const data = parseOAuthCallback(params);
+    if (data.error) {
+      toast.error(`Error de OAuth: ${data.error}`);
+      return false;
+    }
+    const ok = await storeOAuthTokens(data);
+    if (ok) {
+      await qc.invalidateQueries({ queryKey: ["currentUser"] });
+      toast.success("Sesión iniciada correctamente");
+      window.location.hash = "/dashboard";
+    } else {
+      toast.error("No se pudo completar el inicio de sesión");
+    }
     return ok;
   });
   return null;
