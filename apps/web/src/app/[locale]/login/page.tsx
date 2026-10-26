@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { useState, useEffect } from "react";
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   CheckSquare,
   Mail,
@@ -43,7 +43,16 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function SignInPage() {
   const t = useTranslations("Auth.login");
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // Red de seguridad: el middleware ya redirige a /dashboard cuando ve la
+  // cookie de sesión, pero si la sesión existe solo en el almacenamiento local
+  // (p. ej. otra pestaña), no tiene sentido mostrar el formulario.
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) router.replace("/dashboard");
+  }, [isAuthenticated, isAuthLoading, router]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -51,7 +60,9 @@ export default function SignInPage() {
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
   const handleFieldChange = (field: "email" | "password", value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -130,9 +141,7 @@ export default function SignInPage() {
           <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {t("title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         {/* Main Form Card */}
@@ -140,7 +149,10 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Email Input */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-foreground"
+              >
                 {t("emailLabel")}
               </label>
               <div className="relative group">
@@ -160,13 +172,17 @@ export default function SignInPage() {
                     "h-11 w-full rounded-xl border bg-background pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2",
                     errors.email
                       ? "border-destructive text-destructive focus:border-destructive focus:ring-destructive/20"
-                      : "border-input text-foreground focus:border-primary focus:ring-primary/20"
+                      : "border-input text-foreground focus:border-primary focus:ring-primary/20",
                   )}
                   placeholder={t("emailPlaceholder")}
                 />
               </div>
               {errors.email && (
-                <p id="email-error" className="text-xs font-medium text-destructive mt-1" role="alert">
+                <p
+                  id="email-error"
+                  className="text-xs font-medium text-destructive mt-1"
+                  role="alert"
+                >
                   {errors.email}
                 </p>
               )}
@@ -198,21 +214,27 @@ export default function SignInPage() {
                   autoComplete="current-password"
                   required
                   value={formData.password}
-                  onChange={(e) => handleFieldChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("password", e.target.value)
+                  }
                   aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
+                  }
                   className={cn(
                     "h-11 w-full rounded-xl border bg-background pl-10 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2",
                     errors.password
                       ? "border-destructive text-destructive focus:border-destructive focus:ring-destructive/20"
-                      : "border-input text-foreground focus:border-primary focus:ring-primary/20"
+                      : "border-input text-foreground focus:border-primary focus:ring-primary/20",
                   )}
                   placeholder={t("passwordPlaceholder")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Ver contraseña"
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {showPassword ? (
@@ -223,7 +245,11 @@ export default function SignInPage() {
                 </button>
               </div>
               {errors.password && (
-                <p id="password-error" className="text-xs font-medium text-destructive mt-1" role="alert">
+                <p
+                  id="password-error"
+                  className="text-xs font-medium text-destructive mt-1"
+                  role="alert"
+                >
                   {errors.password}
                 </p>
               )}

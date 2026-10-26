@@ -617,13 +617,19 @@ export class AuthController {
    * hace que la web servida en el dominio raíz pueda leer las cookies que emite
    * la API desde un subdominio (api.ordotodo.app); sin él, la cookie queda
    * ligada solo al host de la API (válido en local, donde ambos son localhost).
+   *
+   * `sameSite: 'lax'` (OWASP para cookies de sesión): las cookies viajan en la
+   * navegación normal con clic —p. ej. landing → app en pestaña nueva—, así el
+   * middleware de la app ve la sesión y redirige al dashboard. Con 'strict' no
+   * se enviaban en ninguna navegación cross-site y el login se mostraba aunque
+   * hubiera sesión.
    */
   private authCookieOptions(maxAge: number): CookieOptions {
     const domain = this.configService.get<string>('COOKIE_DOMAIN');
     return {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge,
       path: '/',
       ...(domain ? { domain } : {}),
