@@ -1050,6 +1050,10 @@ export class McpCatalogService implements OnModuleInit {
           if (!tag) {
             throw new ForbiddenException('Tag not found');
           }
+          if (!tag.workspaceId) {
+            // Legacy/global tags have no workspace to be a member of.
+            throw new ForbiddenException('Tag is not workspace-scoped');
+          }
           await this.assertWorkspaceMember(userId, tag.workspaceId);
           return this.tagsService.assignToTask(args.tagId, args.taskId);
         }),
@@ -1062,7 +1066,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'List meetings',
         description:
-          'List my recent meetings, newest first (summary, transcript availability, linked project).',
+          'List my recent meetings, newest first (title, date, duration, transcript availability, linked project).',
         ...READ_ONLY,
         inputSchema: z.object({
           projectId: z.string().optional(),
@@ -1070,12 +1074,24 @@ export class McpCatalogService implements OnModuleInit {
         }).shape,
       },
       async (args) =>
-        this.guarded('ordo_meeting_list', (userId) =>
-          this.meetingsService.getMeetings(userId, {
+        this.guarded('ordo_meeting_list', async (userId) => {
+          const meetings = await this.meetingsService.getMeetings(userId, {
             projectId: args.projectId,
             limit: args.limit ?? 10,
-          }),
-        ),
+          });
+          // Records carry full transcripts and analysis; agents only
+          // need the index (they can ask for details per meeting later).
+          return {
+            meetings: meetings.map((meeting) => ({
+              id: meeting.id,
+              title: meeting.title,
+              date: meeting.date,
+              durationMinutes: meeting.duration,
+              hasTranscript: Boolean(meeting.transcript),
+              projectId: meeting.projectId ?? null,
+            })),
+          };
+        }),
     );
   }
 }

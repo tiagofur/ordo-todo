@@ -163,7 +163,7 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_tag_list` | `read` | `workspaceId`* | List workspace tags (membership required) |
 | `ordo_task_tags` | `read` | `taskId`* | Tags attached to a task (task access required) |
 | `ordo_tag_add_to_task` | `tasks:write` | `taskId`*, `tagId`* | Attach a tag (task access + tag-workspace membership) |
-| `ordo_meeting_list` | `read` | `projectId?`, `limit?` (1–50) | My recent meetings, newest first |
+| `ordo_meeting_list` | `read` | `projectId?`, `limit?` (1–50) | My recent meetings, newest first (lean records: no transcripts) |
 | `ordo_comment_list` | `read` | `taskId`* | Comments of a task (task access required) |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 

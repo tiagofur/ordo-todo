@@ -581,6 +581,66 @@ describe('McpCatalogService (against official SDK client)', () => {
       expect(result.isError).toBeUndefined();
     });
 
+    it('refuses to tag a task with a legacy tag that has no workspace', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-legacy',
+        workspaceId: null,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-legacy' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain('workspace-scoped');
+      expect(mockTags.assignToTask).not.toHaveBeenCalled();
+    });
+
+    it('note_get delegates authorization to the core use case (author or member)', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_get',
+            arguments: { id: 'note-1' },
+          }),
+      );
+
+      expect(mockNotes.findOne).toHaveBeenCalledWith('note-1', 'user-123');
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('tag_list requires workspace membership before listing', async () => {
+      const allowed = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_list',
+            arguments: { workspaceId: 'ws-1' },
+          }),
+      );
+      expect(mockTags.findAll).toHaveBeenCalledWith('ws-1');
+      expect(allowed.isError).toBeUndefined();
+
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_list',
+            arguments: { workspaceId: 'ws-2' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockTags.findAll).toHaveBeenCalledTimes(1);
+    });
+
     it('refuses to tag a task with a tag from a workspace the caller is not in', async () => {
       mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
       mockTags.findOne.mockResolvedValue({
