@@ -21,6 +21,7 @@ import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 import { PrismaService } from '../database/prisma.service';
 
 function text(data: unknown) {
@@ -39,6 +40,62 @@ function toolError(message: string, extra?: Record<string, unknown>) {
       },
     ],
   };
+}
+
+/**
+ * MCP tool annotations: let clients classify calls before running them
+ * (ChatGPT asks for less confirmation on reads and more on destructive
+ * operations). Mutating-but-reversible tools (create/update/complete)
+ * keep the spec defaults.
+ */
+const READ_ONLY = { annotations: { readOnlyHint: true } } as const;
+const DESTRUCTIVE = {
+  annotations: { readOnlyHint: false, destructiveHint: true },
+} as const;
+
+/** UTC-day boundaries for the due filters (prod runs UTC; see specs). */
+function utcDayBounds(reference = new Date()) {
+  const startOfToday = new Date(
+    Date.UTC(
+      reference.getUTCFullYear(),
+      reference.getUTCMonth(),
+      reference.getUTCDate(),
+    ),
+  );
+  return {
+    startOfToday,
+    endOfToday: new Date(startOfToday.getTime() + 86_400_000),
+  };
+}
+
+interface TaskDueFilter {
+  due?: 'today' | 'overdue' | 'week';
+}
+
+function matchesDueFilter(
+  task: { dueDate?: Date | null; doDate?: Date | null; status?: string },
+  filter: TaskDueFilter,
+  now = new Date(),
+): boolean {
+  if (!filter.due) return true;
+  const { startOfToday, endOfToday } = utcDayBounds(now);
+  const due = task.dueDate ?? task.doDate ?? null;
+  if (filter.due === 'overdue') {
+    return (
+      task.status !== 'COMPLETED' &&
+      task.status !== 'CANCELLED' &&
+      task.dueDate !== null &&
+      task.dueDate !== undefined &&
+      task.dueDate.getTime() < startOfToday.getTime()
+    );
+  }
+  if (!due) return false;
+  const time = new Date(due).getTime();
+  if (filter.due === 'today')
+    return time >= startOfToday.getTime() && time < endOfToday.getTime();
+  // week: due (or planned) between now and the end of the day +6 days.
+  const start = startOfToday.getTime();
+  return time >= start && time < start + 7 * 86_400_000;
 }
 
 /**
@@ -62,6 +119,7 @@ export class McpCatalogService implements OnModuleInit {
     'ordo_task_create',
     'ordo_task_update',
     'ordo_task_complete',
+    'ordo_task_delete',
     'ordo_project_create',
     'ordo_project_update',
     'ordo_comment_add',
@@ -82,6 +140,7 @@ export class McpCatalogService implements OnModuleInit {
     private readonly searchService: SemanticSearchService,
     private readonly habitsService: HabitsService,
     private readonly objectivesService: ObjectivesService,
+    private readonly workspacesService: WorkspacesService,
     private readonly prisma: PrismaService,
     @Optional()
     @Inject(AuthAuditService)
@@ -91,6 +150,7 @@ export class McpCatalogService implements OnModuleInit {
   onModuleInit(): void {
     const server = this.protocol.getServer();
     this.registerSearchTools(server);
+    this.registerWorkspaceTools(server);
     this.registerTaskTools(server);
     this.registerProjectTools(server);
     this.registerCommentTools(server);
@@ -98,7 +158,7 @@ export class McpCatalogService implements OnModuleInit {
     this.registerObjectiveTools(server);
     this.registerUserTools(server);
     this.registerDayPlanTools(server);
-    this.logger.log('MCP catalog registered (17 domain tools)');
+    this.logger.log('MCP catalog registered (19 domain tools)');
   }
 
   private requireScope(tool: string, scopes: string[]): void {
@@ -146,6 +206,41 @@ export class McpCatalogService implements OnModuleInit {
     }
   }
 
+  /**
+   * projectId → { name, workspaceId, workspaceName } for every project
+   * the token owner can see. One round-trip per call, reused by the
+   * task/project tools so agents always see human-readable names and
+   * can disambiguate same-named projects across workspaces.
+   */
+  private async projectContext(
+    userId: string,
+  ): Promise<
+    Map<
+      string,
+      { name: string; workspaceId: string; workspaceName: string | null }
+    >
+  > {
+    const [projects, workspaces] = await Promise.all([
+      this.v1Projects.list(userId),
+      this.workspacesService.findAll(userId),
+    ]);
+    // Workspace entity ids are loosely typed upstream; every caller here
+    // (and every project.workspaceId) is a DB cuid string.
+    const workspaceNames = new Map(
+      workspaces.map((workspace) => [String(workspace.id), workspace.name]),
+    );
+    return new Map(
+      projects.map((project) => [
+        String(project.id),
+        {
+          name: project.name,
+          workspaceId: project.workspaceId,
+          workspaceName: workspaceNames.get(project.workspaceId) ?? null,
+        },
+      ]),
+    );
+  }
+
   private registerSearchTools(server: McpServer): void {
     server.registerTool(
       'ordo_search',
@@ -153,6 +248,7 @@ export class McpCatalogService implements OnModuleInit {
         title: 'Search Ordo',
         description:
           'Semantic search across tasks, projects and habits. Returns matching items with titles and ids.',
+        ...READ_ONLY,
         inputSchema: z.object({
           query: z.string().min(1).describe('Natural language query'),
           limit: z.number().int().min(1).max(50).optional(),
@@ -171,22 +267,92 @@ export class McpCatalogService implements OnModuleInit {
     );
   }
 
+  private registerWorkspaceTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_workspace_list',
+      {
+        title: 'List workspaces',
+        description:
+          'List my workspaces (id, name, slug, tier, member count). Call this before creating projects or disambiguating same-named projects.',
+        ...READ_ONLY,
+        inputSchema: z.object({}).shape,
+      },
+      async () =>
+        this.guarded('ordo_workspace_list', async (userId) => {
+          const workspaces = await this.workspacesService.findAll(userId);
+          return {
+            workspaces: workspaces.map((workspace) => ({
+              id: workspace.id,
+              name: workspace.name,
+              slug: workspace.slug,
+              tier: workspace.tier,
+              isArchived: workspace.isArchived,
+              memberCount: workspace.stats?.memberCount ?? 1,
+            })),
+          };
+        }),
+    );
+  }
+
   private registerTaskTools(server: McpServer): void {
     server.registerTool(
       'ordo_task_list',
       {
         title: 'List tasks',
-        description: 'List my tasks, optionally filtered by project.',
+        description:
+          'List my tasks with project and workspace names. Filters: due (today/overdue/week, UTC days), status, priority, project, workspace.',
+        ...READ_ONLY,
         inputSchema: z.object({
           projectId: z.string().optional(),
+          workspaceId: z.string().optional(),
+          due: z.enum(['today', 'overdue', 'week']).optional(),
+          status: z
+            .enum(['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
+            .optional(),
+          priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+          assignedToMe: z.boolean().optional(),
+          includeCompleted: z.boolean().optional(),
         }).shape,
       },
       async (args) =>
-        this.guarded('ordo_task_list', (userId) =>
-          this.v1Tasks.list(userId, {
-            projectId: args.projectId,
-          }),
-        ),
+        this.guarded('ordo_task_list', async (userId) => {
+          const [tasks, context] = await Promise.all([
+            this.v1Tasks.list(userId, {
+              projectId: args.projectId,
+              assignedToMe: args.assignedToMe,
+            }),
+            this.projectContext(userId),
+          ]);
+          const enriched = tasks
+            .filter((task) => {
+              if (args.workspaceId) {
+                const ctx = context.get(task.projectId);
+                if (ctx?.workspaceId !== args.workspaceId) return false;
+              }
+              if (args.priority && task.priority !== args.priority) {
+                return false;
+              }
+              if (args.status) {
+                if (task.status !== args.status) return false;
+              } else if (
+                !args.includeCompleted &&
+                (task.status === 'COMPLETED' || task.status === 'CANCELLED')
+              ) {
+                return false;
+              }
+              return matchesDueFilter(task, args);
+            })
+            .map((task) => {
+              const ctx = context.get(task.projectId);
+              return {
+                ...task,
+                projectName: ctx?.name ?? null,
+                workspaceId: ctx?.workspaceId ?? null,
+                workspaceName: ctx?.workspaceName ?? null,
+              };
+            });
+          return { tasks: enriched, totalCount: enriched.length };
+        }),
     );
 
     server.registerTool(
@@ -210,7 +376,7 @@ export class McpCatalogService implements OnModuleInit {
             description: args.description,
             priority: args.priority,
             dueDate: args.dueDate ? new Date(args.dueDate) : undefined,
-          } as never),
+          }),
         ),
     );
 
@@ -219,6 +385,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'Get task',
         description: 'Get a task by id.',
+        ...READ_ONLY,
         inputSchema: z.object({ id: z.string().min(1) }).shape,
       },
       async (args) =>
@@ -232,12 +399,17 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'Update task',
         description:
-          'Update a task I own (title, description, priority, dates).',
+          'Update a task I own (title, description, priority, status, due date, planned date).',
         inputSchema: z.object({
           id: z.string().min(1),
           title: z.string().optional(),
           description: z.string().optional(),
           priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+          status: z
+            .enum(['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
+            .optional(),
+          dueDate: z.string().optional().describe('ISO date or null to clear'),
+          doDate: z.string().optional().describe('ISO date or null to clear'),
         }).shape,
       },
       async (args) =>
@@ -246,7 +418,20 @@ export class McpCatalogService implements OnModuleInit {
             title: args.title,
             description: args.description,
             priority: args.priority,
-          } as never),
+            status: args.status,
+            dueDate:
+              args.dueDate === undefined
+                ? undefined
+                : args.dueDate === null || args.dueDate === ''
+                  ? null
+                  : new Date(args.dueDate),
+            doDate:
+              args.doDate === undefined
+                ? undefined
+                : args.doDate === null || args.doDate === ''
+                  ? null
+                  : new Date(args.doDate),
+          }),
         ),
     );
 
@@ -262,6 +447,21 @@ export class McpCatalogService implements OnModuleInit {
           this.tasksService.complete(args.id, userId),
         ),
     );
+
+    server.registerTool(
+      'ordo_task_delete',
+      {
+        title: 'Delete task',
+        description:
+          'Permanently delete a task I own. Prefer ordo_task_complete when the work is done.',
+        ...DESTRUCTIVE,
+        inputSchema: z.object({ id: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_task_delete', (userId) =>
+          this.v1Tasks.remove(userId, args.id),
+        ),
+    );
   }
 
   private registerProjectTools(server: McpServer): void {
@@ -269,13 +469,33 @@ export class McpCatalogService implements OnModuleInit {
       'ordo_project_list',
       {
         title: 'List projects',
-        description: 'List my projects.',
-        inputSchema: z.object({}).shape,
+        description:
+          'List my projects with their workspace id and name (disambiguates same-named projects across workspaces).',
+        ...READ_ONLY,
+        inputSchema: z.object({
+          workspaceId: z.string().optional(),
+        }).shape,
       },
-      async () =>
-        this.guarded('ordo_project_list', (userId) =>
-          this.v1Projects.list(userId),
-        ),
+      async (args) =>
+        this.guarded('ordo_project_list', async (userId) => {
+          const [projects, workspaces] = await Promise.all([
+            this.v1Projects.list(userId),
+            this.workspacesService.findAll(userId),
+          ]);
+          const workspaceNames = new Map(
+            workspaces.map((workspace) => [workspace.id, workspace.name]),
+          );
+          const enriched = projects
+            .filter(
+              (project) =>
+                !args.workspaceId || project.workspaceId === args.workspaceId,
+            )
+            .map((project) => ({
+              ...project,
+              workspaceName: workspaceNames.get(project.workspaceId) ?? null,
+            }));
+          return { projects: enriched, totalCount: enriched.length };
+        }),
     );
 
     server.registerTool(
@@ -295,7 +515,7 @@ export class McpCatalogService implements OnModuleInit {
             name: args.name,
             workspaceId: args.workspaceId,
             description: args.description,
-          } as never),
+          }),
         ),
     );
 
@@ -304,6 +524,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'Get project',
         description: 'Get a project by id.',
+        ...READ_ONLY,
         inputSchema: z.object({ id: z.string().min(1) }).shape,
       },
       async (args) =>
@@ -328,7 +549,7 @@ export class McpCatalogService implements OnModuleInit {
           this.v1Projects.update(userId, args.id, {
             name: args.name,
             description: args.description,
-          } as never),
+          }),
         ),
     );
   }
@@ -349,7 +570,7 @@ export class McpCatalogService implements OnModuleInit {
           this.v1Comments.create(userId, {
             taskId: args.taskId,
             content: args.content,
-          } as never),
+          }),
         ),
     );
   }
@@ -360,6 +581,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: "Today's habits",
         description: 'List habits scheduled for today with completion status.',
+        ...READ_ONLY,
         inputSchema: z.object({}).shape,
       },
       async () =>
@@ -391,6 +613,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'Objective progress',
         description: 'Current OKR period summary: totals, completed, at risk.',
+        ...READ_ONLY,
         inputSchema: z.object({}).shape,
       },
       async () =>
@@ -406,6 +629,7 @@ export class McpCatalogService implements OnModuleInit {
       {
         title: 'Who am I',
         description: 'Identity of the token owner.',
+        ...READ_ONLY,
         inputSchema: z.object({}).shape,
       },
       async () =>
@@ -428,6 +652,7 @@ export class McpCatalogService implements OnModuleInit {
       'ordo_day_plan',
       {
         title: "Today's plan",
+        ...READ_ONLY,
         description:
           'Get my day plan: proposed time blocks, frozen tasks, pending changes and risk alerts.',
         inputSchema: z.object({}).shape,
