@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
   CheckSquare,
@@ -15,7 +14,9 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { API_CONFIG } from "@/config";
+import { resolvePostLoginTarget } from "@/lib/post-login-target";
 import { useTranslations } from "next-intl";
 import { cn } from "@ordo-todo/ui";
 
@@ -43,6 +44,16 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function SignInPage() {
+  // useSearchParams() requires a Suspense boundary or the route fails to
+  // prerender ("should be wrapped in a suspense boundary" at build time).
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
+  );
+}
+
+function SignInForm() {
   const t = useTranslations("Auth.login");
   const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
@@ -55,6 +66,9 @@ export default function SignInPage() {
     if (!isAuthLoading && isAuthenticated) router.replace("/dashboard");
   }, [isAuthenticated, isAuthLoading, router]);
 
+  // Validated once: absolute API URL or null. Drives both the password
+  // login (via redirectTo) and the social buttons (via OAuth state).
+  const postLoginTarget = resolvePostLoginTarget(searchParams.get("next"));
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -106,10 +120,14 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      await login({
-        email: formData.email,
-        password: formData.password,
-      });
+      const redirectTo = resolvePostLoginTarget(searchParams.get("next"));
+      await login(
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        redirectTo ? { redirectTo } : undefined,
+      );
 
       toast.success(t("success"));
     } catch (error: any) {
@@ -124,9 +142,20 @@ export default function SignInPage() {
     }
   };
 
+  // Social login leaves the SPA: `next` travels as a query param and the
+  // backend platform guard carries it through the OAuth `state`, so the
+  // callback can return to the post-login target too. Same validation
+  // as resolvePostLoginTarget (only /api/... paths; host is ours).
+  const socialUrl = (provider: "google" | "github") => {
+    const base = `${API_CONFIG.baseURL}/auth/${provider}`;
+    const next = searchParams.get("next");
+    if (!next || !resolvePostLoginTarget(next)) return base;
+    return `${base}?next=${encodeURIComponent(next)}`;
+  };
+
   const handleGoogleSignIn = () => {
     try {
-      window.location.href = `${API_CONFIG.baseURL}/auth/google`;
+      window.location.href = socialUrl("google");
     } catch {
       toast.error(t("errors.googleFailed"));
     }
@@ -134,7 +163,7 @@ export default function SignInPage() {
 
   const handleGitHubSignIn = () => {
     try {
-      window.location.href = `${API_CONFIG.baseURL}/auth/github`;
+      window.location.href = socialUrl("github");
     } catch {
       toast.error(t("errors.githubFailed"));
     }

@@ -20,6 +20,7 @@ import type {
 import type {
   AuthContextType,
   AuthProviderProps,
+  AuthRedirectOpts,
   PlatformType,
   ApiClient,
 } from "./types.js";
@@ -52,7 +53,15 @@ export function AuthProvider({
 }: AuthProviderProps) {
   // Tras login/registro/logout. Por defecto, redirección dura por plataforma
   // (legado de Expo/web); un SPA con router propio pasa `onRedirect`.
-  const redirectAfterAuth = (kind: "dashboard" | "auth") => {
+  // `redirectTo` (URL absoluta ya validada por el llamante, p. ej. el
+  // `next` de un flujo OAuth) gana sobre ambos.
+  const redirectAfterAuth = (kind: "dashboard" | "auth", redirectTo?: string) => {
+    if (redirectTo) {
+      // web-only: only the web app passes redirectTo today; a future
+      // native caller must handle it via onRedirect instead.
+      window.location.href = redirectTo;
+      return;
+    }
     if (onRedirect) {
       onRedirect(kind === "dashboard" ? "/dashboard" : "/auth");
       return;
@@ -124,22 +133,22 @@ export function AuthProvider({
   const isUnauthorized = (error as any)?.response?.status === 401;
   const user = isUnauthorized ? null : currentUserData || null;
 
-  const login = async (data: LoginDto) => {
+  const login = async (data: LoginDto, opts?: AuthRedirectOpts) => {
     try {
       await loginMutation.mutateAsync(data);
       onSuccess?.("login");
-      redirectAfterAuth("dashboard");
+      redirectAfterAuth("dashboard", opts?.redirectTo);
     } catch (error) {
       onError?.(error as Error);
       throw error;
     }
   };
 
-  const register = async (data: RegisterDto) => {
+  const register = async (data: RegisterDto, opts?: AuthRedirectOpts) => {
     try {
       await registerMutation.mutateAsync(data);
       onSuccess?.("register");
-      redirectAfterAuth("dashboard");
+      redirectAfterAuth("dashboard", opts?.redirectTo);
     } catch (error) {
       onError?.(error as Error);
       throw error;

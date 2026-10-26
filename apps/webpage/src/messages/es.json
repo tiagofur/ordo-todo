@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y el navegador volverá solo a ChatGPT."
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y volverás automáticamente para completar la conexión."
       },
       "4": {
         "title": "Activa Ordo y prueba",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y el navegador volverá solo a Claude."
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y volverás automáticamente para completar la conexión."
       },
       "4": {
         "title": "Activa Ordo y prueba",
