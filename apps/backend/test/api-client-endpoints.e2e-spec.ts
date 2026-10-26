@@ -120,8 +120,13 @@ describe('API Client Endpoints (e2e)', () => {
           .get('/auth/google/callback')
           .query({ code: 'test_code_12345' })
           .expect((res) => {
-            // May return 401, 400, or 500 (provider network fail) with invalid code, but should not return 404
-            expect([400, 401, 500]).toContain(res.status);
+            // With an invalid code the provider call fails and the OAuth
+            // callback filter redirects back to login with ?error=…, but the
+            // raw 400/401/500 are also acceptable (filter bypass in tests).
+            expect([302, 400, 401, 500]).toContain(res.status);
+            if (res.status === 302) {
+              expect(res.headers.location).toContain('/login?error=');
+            }
           });
 
         // Endpoint should exist (not 404)
@@ -152,8 +157,13 @@ describe('API Client Endpoints (e2e)', () => {
           .get('/auth/github/callback')
           .query({ code: 'test_code_67890' })
           .expect((res) => {
-            // May return 401, 400, or 500 (provider network fail) with invalid code, but should not return 404
-            expect([400, 401, 500]).toContain(res.status);
+            // With an invalid code the provider call fails and the OAuth
+            // callback filter redirects back to login with ?error=…, but the
+            // raw 400/401/500 are also acceptable (filter bypass in tests).
+            expect([302, 400, 401, 500]).toContain(res.status);
+            if (res.status === 302) {
+              expect(res.headers.location).toContain('/login?error=');
+            }
           });
 
         // Endpoint should exist (not 404)
