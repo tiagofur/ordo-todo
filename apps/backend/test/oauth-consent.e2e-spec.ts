@@ -115,4 +115,25 @@ describe('OAuth consent decision (e2e)', () => {
       .expect(403);
     expect(findClient).not.toHaveBeenCalled();
   });
+
+  it('accepts the decision from the action query with no decision field in the body (wire format of the consent screen)', async () => {
+    const formWithoutDecision = new URLSearchParams(form());
+    formWithoutDecision.delete('decision');
+
+    const res = await request(app.getHttpServer())
+      .post('/oauth/authorize?decision=approve')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .set('Origin', frontendOrigin)
+      .send(formWithoutDecision.toString())
+      .expect(302);
+
+    // Same unknown-client landing as the body-decision case: the query
+    // decision was accepted past the decision gate (no ordo_error about
+    // the decision), validation still rejects the unknown client.
+    const loc = new URL(res.headers.location);
+    expect(loc.searchParams.get('ordo_error')).toBe('invalid_request');
+    expect(findClient).toHaveBeenCalledWith({
+      where: { clientId: 'ordo_cl_formtest' },
+    });
+  });
 });
