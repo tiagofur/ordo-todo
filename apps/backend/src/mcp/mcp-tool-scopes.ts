@@ -8,11 +8,13 @@
  */
 export const MCP_TOOL_SCOPES: Record<string, string> = {
   ordo_search: 'read',
+  ordo_workspace_list: 'read',
   ordo_task_list: 'read',
   ordo_task_create: 'tasks:write',
   ordo_task_get: 'read',
   ordo_task_update: 'tasks:write',
   ordo_task_complete: 'tasks:write',
+  ordo_task_delete: 'tasks:write',
   ordo_project_list: 'read',
   ordo_project_create: 'projects:write',
   ordo_project_get: 'read',

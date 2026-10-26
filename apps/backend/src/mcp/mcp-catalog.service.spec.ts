@@ -12,16 +12,19 @@ import { V1CommentsService } from '../v1/v1-comments.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 import { PrismaService } from '../database/prisma.service';
 import { runWithMcpContext } from './mcp-context';
 
 const EXPECTED_TOOLS = [
   'ordo_search',
+  'ordo_workspace_list',
   'ordo_task_list',
   'ordo_task_create',
   'ordo_task_get',
   'ordo_task_update',
   'ordo_task_complete',
+  'ordo_task_delete',
   'ordo_project_list',
   'ordo_project_create',
   'ordo_project_get',
@@ -94,6 +97,26 @@ describe('McpCatalogService (against official SDK client)', () => {
   const mockObjectives = {
     getDashboardSummary: jest.fn().mockResolvedValue({ objectives: [] }),
   };
+  const mockWorkspaces = {
+    findAll: jest.fn().mockResolvedValue([
+      {
+        id: 'ws-1',
+        name: 'Creapolis',
+        slug: 'creapolis',
+        tier: 'FREE',
+        isArchived: false,
+        stats: { memberCount: 3 },
+      },
+      {
+        id: 'ws-2',
+        name: 'Personal',
+        slug: 'personal',
+        tier: 'FREE',
+        isArchived: false,
+        stats: { memberCount: 1 },
+      },
+    ]),
+  };
   const mockPrisma = { user: { findUnique: jest.fn() } };
 
   beforeEach(async () => {
@@ -107,6 +130,7 @@ describe('McpCatalogService (against official SDK client)', () => {
         { provide: SemanticSearchService, useValue: mockSearch },
         { provide: HabitsService, useValue: mockHabits },
         { provide: ObjectivesService, useValue: mockObjectives },
+        { provide: WorkspacesService, useValue: mockWorkspaces },
         { provide: PrismaService, useValue: mockPrisma },
         {
           provide: TasksService,
@@ -164,6 +188,181 @@ describe('McpCatalogService (against official SDK client)', () => {
     expect(result.content).toEqual(
       expect.arrayContaining([expect.objectContaining({ type: 'text' })]),
     );
+  });
+
+  // Agent-context tools: workspace disambiguation + readable names.
+  describe('workspace disambiguation', () => {
+    beforeEach(() => {
+      mockV1Projects.list.mockResolvedValue([
+        {
+          id: 'proj-1',
+          name: 'Pepinillo',
+          workspaceId: 'ws-1',
+        },
+        {
+          id: 'proj-2',
+          name: 'Pepinillo',
+          workspaceId: 'ws-2',
+        },
+      ]);
+      mockV1Tasks.list.mockResolvedValue([
+        {
+          id: 'task-1',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'HIGH',
+          dueDate: new Date('2026-10-26T10:00:00.000Z'),
+        },
+        {
+          id: 'task-2',
+          projectId: 'proj-2',
+          status: 'COMPLETED',
+          priority: 'LOW',
+          dueDate: new Date('2026-10-26T10:00:00.000Z'),
+        },
+      ]);
+    });
+
+    it('lists workspaces with the fields agents need to disambiguate', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_workspace_list', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(mockWorkspaces.findAll).toHaveBeenCalledWith('user-123');
+      expect(payload.workspaces).toEqual([
+        expect.objectContaining({
+          id: 'ws-1',
+          name: 'Creapolis',
+          memberCount: 3,
+        }),
+        expect.objectContaining({
+          id: 'ws-2',
+          name: 'Personal',
+          memberCount: 1,
+        }),
+      ]);
+    });
+
+    it('enriches tasks with project and workspace names and hides completed by default', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_task_list', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload.totalCount).toBe(1);
+      expect(payload.tasks[0]).toEqual(
+        expect.objectContaining({
+          id: 'task-1',
+          projectName: 'Pepinillo',
+          workspaceId: 'ws-1',
+          workspaceName: 'Creapolis',
+        }),
+      );
+    });
+
+    it('disambiguates same-named projects by workspace filter', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_project_list',
+            arguments: { workspaceId: 'ws-2' },
+          }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload.totalCount).toBe(1);
+      expect(payload.projects[0]).toEqual(
+        expect.objectContaining({
+          id: 'proj-2',
+          name: 'Pepinillo',
+          workspaceName: 'Personal',
+        }),
+      );
+    });
+
+    it('keeps only tasks due today when due=today (UTC day)', async () => {
+      mockV1Tasks.list.mockResolvedValue([
+        {
+          id: 'due-today',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: new Date('2026-10-26T23:59:00.000Z'),
+        },
+        {
+          id: 'due-later',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: new Date('2026-11-01T10:00:00.000Z'),
+        },
+        {
+          id: 'planned-today',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: null,
+          doDate: new Date('2026-10-26T08:00:00.000Z'),
+        },
+      ]);
+
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-10-26T12:00:00.000Z'));
+      try {
+        const result = await runWithMcpContext(
+          { userId: 'user-123', scopes: ['read'] },
+          () =>
+            client.callTool({
+              name: 'ordo_task_list',
+              arguments: { due: 'today' },
+            }),
+        );
+
+        const payload = JSON.parse(result.content[0].text);
+        expect(payload.tasks.map((t: { id: string }) => t.id).sort()).toEqual([
+          'due-today',
+          'planned-today',
+        ]);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+  });
+
+  it('deletes a task the token owner owns', async () => {
+    mockV1Tasks.remove = jest.fn().mockResolvedValue({ id: 'task-1' });
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['tasks:write'] },
+      () =>
+        client.callTool({
+          name: 'ordo_task_delete',
+          arguments: { id: 'task-1' },
+        }),
+    );
+
+    expect(mockV1Tasks.remove).toHaveBeenCalledWith('user-123', 'task-1');
+    expect(result.isError).toBeUndefined();
+  });
+
+  it('exposes tool annotations so clients can pre-classify calls', async () => {
+    const { tools } = await client.listTools();
+    const byName = new Map(tools.map((tool) => [tool.name, tool]));
+
+    expect(byName.get('ordo_task_list')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_workspace_list')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_task_delete')?.annotations).toMatchObject({
+      readOnlyHint: false,
+      destructiveHint: true,
+    });
+    expect(byName.get('ordo_task_create')?.annotations).toBeUndefined();
   });
 
   it('should reject tool calls outside an authenticated context', async () => {
