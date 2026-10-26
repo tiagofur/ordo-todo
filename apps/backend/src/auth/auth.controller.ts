@@ -622,7 +622,10 @@ export class AuthController {
    * navegación normal con clic —p. ej. landing → app en pestaña nueva—, así el
    * middleware de la app ve la sesión y redirige al dashboard. Con 'strict' no
    * se enviaban en ninguna navegación cross-site y el login se mostraba aunque
-   * hubiera sesión.
+   * hubiera sesión. Lo mismo vale para el flujo OAuth de conectores (ChatGPT,
+   * Claude…): llega al API con un GET top-level cross-site y el authorize
+   * necesita ver la sesión. `lax` sigue bloqueando CSRF en POST/fetch
+   * cross-site. Mismo criterio que el callback de Google/GitHub más arriba.
    */
   private authCookieOptions(maxAge: number): CookieOptions {
     const domain = this.configService.get<string>('COOKIE_DOMAIN');
