@@ -42,7 +42,7 @@ export class LoggingInterceptor implements NestInterceptor {
     // A guard may have already answered (e.g. OAuthAuthorizeGuard's
     // redirect to login): touching headers then throws
     // ERR_HTTP_HEADERS_SENT and masks the real response with a 500.
-    if (!response.headersSent) {
+    if (!response?.headersSent) {
       response.setHeader('x-request-id', requestId);
       response.setHeader('x-correlation-id', correlationId);
     }

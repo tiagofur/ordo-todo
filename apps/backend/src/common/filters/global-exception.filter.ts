@@ -23,7 +23,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     // A guard or interceptor may have already answered (e.g. the OAuth
     // authorize redirect to login): replying again throws
     // ERR_HTTP_HEADERS_SENT and masks the real response with a 500.
+    // Still log it — post-commit errors are rare and the log is the
+    // only trace left.
     if (res?.headersSent) {
+      this.logger.warn(
+        `Exception after response committed: ${exception instanceof Error ? exception.message : exception}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
       return;
     }
 

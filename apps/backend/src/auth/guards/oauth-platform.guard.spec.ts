@@ -32,4 +32,38 @@ describe('OAuthPlatformGuard', () => {
     expect(google.getAuthenticateOptions(createContext({}))).toBeUndefined();
     expect(github.getAuthenticateOptions(createContext({}))).toBeUndefined();
   });
+
+  it('carries a validated ?next= as web:<base64url> state', () => {
+    const guard = new GoogleOAuthPlatformGuard();
+    const next = '/api/v1/oauth/authorize?client_id=x';
+    const opts = guard.getAuthenticateOptions(createContext({ next })) as {
+      state: string;
+    };
+    expect(opts.state).toMatch(/^web:/);
+    const decoded = Buffer.from(opts.state.slice(4), 'base64url').toString(
+      'utf8',
+    );
+    expect(decoded).toBe(next);
+  });
+
+  it('drops an unsafe ?next= instead of carrying it', () => {
+    const guard = new GitHubOAuthPlatformGuard();
+    expect(
+      guard.getAuthenticateOptions(
+        createContext({ next: 'https://evil.test/phish' }),
+      ),
+    ).toBeUndefined();
+    expect(
+      guard.getAuthenticateOptions(createContext({ next: '/dashboard' })),
+    ).toBeUndefined();
+  });
+
+  it('prefers platform over next when both are present', () => {
+    const guard = new GoogleOAuthPlatformGuard();
+    expect(
+      guard.getAuthenticateOptions(
+        createContext({ platform: 'desktop', next: '/api/v1/x' }),
+      ),
+    ).toEqual({ state: 'desktop' });
+  });
 });

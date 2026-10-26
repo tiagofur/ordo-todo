@@ -14,6 +14,14 @@ export function resolvePostLoginTarget(next: string | null): string | null {
   if (!next || !next.startsWith("/api/") || next.startsWith("//")) {
     return null;
   }
+  if (next.includes("//")) {
+    return null;
+  }
+  // Hygiene: backslashes and control chars never belong in a target.
+  // eslint-disable-next-line no-control-regex
+  if (/[\\\x00-\x1f\x7f]/.test(next)) {
+    return null;
+  }
   let apiOrigin: string;
   try {
     apiOrigin = new URL(API_CONFIG.baseURL).origin;

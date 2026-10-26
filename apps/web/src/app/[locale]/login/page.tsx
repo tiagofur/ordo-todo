@@ -129,9 +129,20 @@ function SignInForm() {
     }
   };
 
+  // Social login leaves the SPA: `next` travels as a query param and the
+  // backend platform guard carries it through the OAuth `state`, so the
+  // callback can return to the post-login target too. Same validation
+  // as resolvePostLoginTarget (only /api/... paths; host is ours).
+  const socialUrl = (provider: "google" | "github") => {
+    const base = `${API_CONFIG.baseURL}/auth/${provider}`;
+    const next = searchParams.get("next");
+    if (!next || !resolvePostLoginTarget(next)) return base;
+    return `${base}?next=${encodeURIComponent(next)}`;
+  };
+
   const handleGoogleSignIn = () => {
     try {
-      window.location.href = `${API_CONFIG.baseURL}/auth/google`;
+      window.location.href = socialUrl("google");
     } catch {
       toast.error(t("errors.googleFailed"));
     }
@@ -139,7 +150,7 @@ function SignInForm() {
 
   const handleGitHubSignIn = () => {
     try {
-      window.location.href = `${API_CONFIG.baseURL}/auth/github`;
+      window.location.href = socialUrl("github");
     } catch {
       toast.error(t("errors.githubFailed"));
     }
