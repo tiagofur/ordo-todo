@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
+        "description": "Under authentication, choose OAuth. Your browser will open Ordo: sign in if needed, review the permissions on the consent screen and press Allow. You will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
+        "description": "Under authentication, choose OAuth. Your browser will open Ordo: sign in if needed, review the permissions on the consent screen and press Allow. You will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",

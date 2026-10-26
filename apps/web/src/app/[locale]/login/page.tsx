@@ -59,16 +59,24 @@ function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Red de seguridad: el middleware ya redirige a /dashboard cuando ve la
-  // cookie de sesión, pero si la sesión existe solo en el almacenamiento local
-  // (p. ej. otra pestaña), no tiene sentido mostrar el formulario.
-  useEffect(() => {
-    if (!isAuthLoading && isAuthenticated) router.replace("/dashboard");
-  }, [isAuthenticated, isAuthLoading, router]);
-
   // Validated once: absolute API URL or null. Drives both the password
   // login (via redirectTo) and the social buttons (via OAuth state).
   const postLoginTarget = resolvePostLoginTarget(searchParams.get("next"));
+
+  // Red de seguridad: el middleware ya redirige a /dashboard cuando ve la
+  // cookie de sesión, pero si la sesión existe solo en el almacenamiento local
+  // (p. ej. otra pestaña), no tiene sentido mostrar el formulario. Con un
+  // `next` válido (flujo de conexión OAuth) la sesión existente debe
+  // continuar hacia ese destino, no hacia el dashboard.
+  useEffect(() => {
+    if (isAuthLoading || !isAuthenticated) return;
+    if (postLoginTarget) {
+      window.location.href = postLoginTarget;
+      return;
+    }
+    router.replace("/dashboard");
+  }, [isAuthenticated, isAuthLoading, postLoginTarget, router]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);

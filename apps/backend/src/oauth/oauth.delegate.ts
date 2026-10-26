@@ -93,9 +93,20 @@ interface DelegateRefreshToken {
   findUnique(args: {
     where: { id: string };
   }): Promise<OAuthRefreshTokenRecord | null>;
+  findFirst(args: {
+    where: { userId: string; clientId: string; expiresAt: { gt: Date } };
+  }): Promise<OAuthRefreshTokenRecord | null>;
+  findMany(args: {
+    where: {
+      userId?: string;
+      clientId?: string;
+      tokenPrefix?: string;
+      expiresAt?: { gt: Date };
+    };
+  }): Promise<OAuthRefreshTokenRecord[]>;
   delete(args: { where: { id: string } }): Promise<OAuthRefreshTokenRecord>;
   deleteMany(args: {
-    where: { clientId?: string; id?: string };
+    where: { userId?: string; clientId?: string; id?: string };
   }): Promise<{ count: number }>;
 }
 

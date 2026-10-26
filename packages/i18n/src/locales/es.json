@@ -184,6 +184,20 @@
         "days": "Hace {count} días"
       }
     },
+    "connections": {
+      "title": "Apps conectadas",
+      "description": "Aplicaciones y agentes (ChatGPT, Claude…) con acceso a tu cuenta mediante OAuth.",
+      "empty": "Todavía no hay apps conectadas. Cuando conectes Ordo desde ChatGPT u otro agente, aparecerá aquí.",
+      "connectedOn": "Conectada el {date}",
+      "lastActivity": "Última actividad: {date}",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando…",
+      "disconnectSuccess": "App desconectada. Tendrá que pedirte permiso de nuevo para acceder.",
+      "disconnectError": "No se pudo desconectar la app.",
+      "note": "Al desconectar una app, su acceso puede seguir activo hasta 1 hora hasta que caduque su último token.",
+      "loading": "Cargando apps conectadas…",
+      "loadError": "No se pudieron cargar las apps conectadas."
+    },
     "languageChanged": "Idioma cambiado a {lang}",
     "settingsSaved": "Ajustes guardados correctamente",
     "errorSaving": "Error al guardar los ajustes",
@@ -2951,6 +2965,33 @@
     "description": "Lo sentimos, la página que buscas no existe o ha sido movida. Verifica la URL o vuelve al inicio.",
     "goToDashboard": "Ir al Dashboard",
     "goToHome": "Volver al Inicio"
+  },
+  "Connect": {
+    "scopes": {
+      "read": "Leer tus tareas, proyectos y notas",
+      "tasksWrite": "Crear y editar tareas",
+      "projectsWrite": "Crear y editar proyectos",
+      "adminWebhooks": "Administrar webhooks",
+      "unknown": "Permiso adicional: {scope}"
+    },
+    "authorize": {
+      "title": "{app} quiere conectarse a tu cuenta de Ordo",
+      "subtitle": "Revisa los permisos que tendrá antes de continuar.",
+      "signedInAs": "Conectado como",
+      "permissionsTitle": "{app} podrá:",
+      "revokeHint": "Puedes desconectar esta app cuando quieras desde Ajustes → Apps conectadas.",
+      "approve": "Permitir",
+      "deny": "Cancelar",
+      "checkingSession": "Comprobando tu sesión…",
+      "redirectingToLogin": "Inicia sesión para continuar…",
+      "loadingApp": "Cargando los datos de la app…",
+      "fallbackApp": "Una aplicación externa",
+      "error": {
+        "title": "No pudimos validar esta solicitud",
+        "body": "El enlace de conexión está incompleto o la aplicación no está registrada. Cierra esta pestaña y vuelve a intentarlo desde la app que quieres conectar.",
+        "openApp": "Ir a Ordo"
+      }
+    }
   },
   "Auth": {
     "login": {

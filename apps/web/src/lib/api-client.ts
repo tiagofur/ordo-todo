@@ -263,6 +263,20 @@ export const invalidateCsrfToken = () => {
 let isRefreshing = false;
 let refreshPromise: Promise<AuthResponse> | null = null;
 
+/**
+ * Pages that own their navigation after a dead session: login/register
+ * already show the form, and the OAuth consent screen (/connect) sends
+ * the user to login carrying the connector `next`. The interceptor must
+ * not hard-redirect to a bare /login from them.
+ */
+function handlesOwn401(): boolean {
+  if (typeof window === "undefined") return true;
+  const { pathname } = window.location;
+  return ["/login", "/register", "/connect/"].some((segment) =>
+    pathname.includes(segment),
+  );
+}
+
 async function handleTokenRefresh(): Promise<AuthResponse> {
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
@@ -412,14 +426,12 @@ axiosInstance.interceptors.response.use(
             .catch(() => {
               // Ignore errors during logout - user session expired anyway
             });
-          // Redirect to login page only if not already on an authentication page
-          if (typeof window !== "undefined") {
-            const isAuthPage =
-              window.location.pathname.includes("/login") ||
-              window.location.pathname.includes("/register");
-            if (!isAuthPage) {
-              window.location.href = "/login";
-            }
+          // Redirect to login unless the page runs its own post-401
+          // navigation (auth pages show the form; /connect sends the
+          // user to login carrying the OAuth `next` — a blind jump here
+          // would drop that context).
+          if (!handlesOwn401()) {
+            window.location.href = "/login";
           }
           return Promise.reject(refreshError);
         }
@@ -430,14 +442,8 @@ axiosInstance.interceptors.response.use(
           .catch(() => {
             // Ignore errors during logout
           });
-        // Redirect to login page only if not already on an authentication page
-        if (typeof window !== "undefined") {
-          const isAuthPage =
-            window.location.pathname.includes("/login") ||
-            window.location.pathname.includes("/register");
-          if (!isAuthPage) {
-            window.location.href = "/login";
-          }
+        if (!handlesOwn401()) {
+          window.location.href = "/login";
         }
       }
     }
@@ -1303,6 +1309,21 @@ export const apiClient = {
   revokeAllOtherSessions: (): Promise<void> =>
     axiosInstance.delete("/sessions/others/all").then((res) => res.data),
 
+  // OAuth connections (apps/agents connected via the consent screen)
+  getOAuthClientInfo: (
+    clientId: string,
+    scope?: string,
+  ): Promise<OAuthClientInfo> =>
+    axiosInstance
+      .get("/oauth/authorize/client", { params: { client_id: clientId, scope } })
+      .then((res) => res.data),
+  getOAuthConnections: (): Promise<OAuthConnection[]> =>
+    axiosInstance.get("/oauth/connections").then((res) => res.data),
+  disconnectOAuthClient: (clientId: string): Promise<{ revoked: number }> =>
+    axiosInstance
+      .delete("/oauth/connections", { params: { client_id: clientId } })
+      .then((res) => res.data),
+
   // Gamification
   getGamificationProfile: (): Promise<{
     xp: number;
@@ -1458,6 +1479,23 @@ export interface GetAdminUsersParams {
 
 export interface GrantProDto {
   days?: number | null;
+}
+
+/** Public facts the OAuth consent screen shows about the requesting app. */
+export interface OAuthClientInfo {
+  clientId: string;
+  clientName: string;
+  /** Scopes a grant would carry; null when the request would be rejected. */
+  grantedScopes: string[] | null;
+}
+
+/** An app/agent holding a live OAuth grant for the current user. */
+export interface OAuthConnection {
+  clientId: string;
+  clientName: string;
+  scopes: string[];
+  connectedAt: string;
+  lastRefreshedAt: string;
 }
 // Export apiClient as default for convenient importing
 export default apiClient;
