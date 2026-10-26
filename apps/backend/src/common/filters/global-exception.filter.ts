@@ -18,6 +18,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
+    const res = ctx.getResponse();
+
+    // A guard or interceptor may have already answered (e.g. the OAuth
+    // authorize redirect to login): replying again throws
+    // ERR_HTTP_HEADERS_SENT and masks the real response with a 500.
+    if (res?.headersSent) {
+      return;
+    }
 
     console.log(
       '🔍 [GlobalExceptionFilter] Exception caught:',
