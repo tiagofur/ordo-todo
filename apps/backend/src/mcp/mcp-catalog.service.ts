@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -23,6 +24,9 @@ import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { TimersService } from '../timers/timers.service';
+import { NotesService } from '../notes/notes.service';
+import { TagsService } from '../tags/tags.service';
+import { MeetingAssistantService } from '../meetings/meeting-assistant.service';
 import { PrismaService } from '../database/prisma.service';
 
 function text(data: unknown) {
@@ -131,6 +135,9 @@ export class McpCatalogService implements OnModuleInit {
     'ordo_timer_stop',
     'ordo_timer_pause',
     'ordo_timer_resume',
+    'ordo_note_create',
+    'ordo_habit_create',
+    'ordo_tag_add_to_task',
   ]);
 
   constructor(
@@ -148,6 +155,9 @@ export class McpCatalogService implements OnModuleInit {
     private readonly objectivesService: ObjectivesService,
     private readonly workspacesService: WorkspacesService,
     private readonly timersService: TimersService,
+    private readonly notesService: NotesService,
+    private readonly tagsService: TagsService,
+    private readonly meetingsService: MeetingAssistantService,
     private readonly prisma: PrismaService,
     @Optional()
     @Inject(AuthAuditService)
@@ -166,7 +176,28 @@ export class McpCatalogService implements OnModuleInit {
     this.registerUserTools(server);
     this.registerDayPlanTools(server);
     this.registerTimerTools(server);
-    this.logger.log('MCP catalog registered (24 domain tools)');
+    this.registerNoteTools(server);
+    this.registerTagTools(server);
+    this.registerMeetingTools(server);
+    this.logger.log('MCP catalog registered (34 domain tools)');
+  }
+
+  /**
+   * Workspace membership gate for the workspace-scoped services (notes,
+   * tags) whose own layer predates user checks. TagsService and the tag
+   * repository take no userId at all, so the catalog is the gate.
+   */
+  private async assertWorkspaceMember(
+    userId: string,
+    workspaceId: string,
+  ): Promise<void> {
+    const member = await this.prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+      select: { id: true },
+    });
+    if (!member) {
+      throw new ForbiddenException('Not a member of this workspace');
+    }
   }
 
   private requireScope(tool: string, scopes: string[]): void {
@@ -573,6 +604,22 @@ export class McpCatalogService implements OnModuleInit {
 
   private registerCommentTools(server: McpServer): void {
     server.registerTool(
+      'ordo_comment_list',
+      {
+        title: 'List comments',
+        description: 'List the comments of a task I can access, oldest first.',
+        ...READ_ONLY,
+        inputSchema: z.object({ taskId: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_comment_list', async (userId) => {
+          // CommentsService predates user checks; the task gate is here.
+          await this.v1Tasks.get(userId, args.taskId);
+          return { comments: await this.v1Comments.listByTask(args.taskId) };
+        }),
+    );
+
+    server.registerTool(
       'ordo_comment_add',
       {
         title: 'Add comment',
@@ -604,6 +651,62 @@ export class McpCatalogService implements OnModuleInit {
       async () =>
         this.guarded('ordo_habit_today', (userId) =>
           this.habitsService.findForToday(userId),
+        ),
+    );
+
+    server.registerTool(
+      'ordo_habit_list',
+      {
+        title: 'List habits',
+        description:
+          'List all my habits with schedule and active/paused state.',
+        ...READ_ONLY,
+        inputSchema: z.object({
+          includeArchived: z.boolean().optional(),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_habit_list', (userId) =>
+          this.habitsService.findAll(userId, args.includeArchived ?? false),
+        ),
+    );
+
+    server.registerTool(
+      'ordo_habit_create',
+      {
+        title: 'Create habit',
+        description: 'Create a habit for the token owner.',
+        inputSchema: z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          frequency: z
+            .enum(['DAILY', 'WEEKLY', 'SPECIFIC_DAYS', 'MONTHLY'])
+            .optional(),
+          targetDaysOfWeek: z
+            .array(z.number().int().min(0).max(6))
+            .optional()
+            .describe('0=Sunday … 6=Saturday, for SPECIFIC_DAYS'),
+          targetCount: z.number().int().min(1).optional(),
+          timeOfDay: z
+            .enum(['MORNING', 'AFTERNOON', 'EVENING', 'ANYTIME'])
+            .optional(),
+          preferredTime: z.string().optional().describe('HH:mm'),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_habit_create', (userId) =>
+          this.habitsService.create(
+            {
+              name: args.name,
+              description: args.description,
+              frequency: args.frequency,
+              targetDaysOfWeek: args.targetDaysOfWeek,
+              targetCount: args.targetCount,
+              timeOfDay: args.timeOfDay,
+              preferredTime: args.preferredTime,
+            },
+            userId,
+          ),
         ),
     );
 
@@ -822,6 +925,173 @@ export class McpCatalogService implements OnModuleInit {
         this.guarded('ordo_timer_resume', (userId) =>
           this.timersService.resume({ pauseStartedAt: new Date() }, userId),
         ),
+    );
+  }
+
+  /**
+   * Sticky notes. The service is workspace-scoped and takes the caller's
+   * userId for authorship; the catalog adds the membership gate because
+   * the note repository itself trusts its caller.
+   */
+  private registerNoteTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_note_list',
+      {
+        title: 'List notes',
+        description: 'Search and list the sticky notes of a workspace.',
+        ...READ_ONLY,
+        inputSchema: z.object({
+          workspaceId: z.string().min(1),
+          search: z.string().optional().describe('Full-text search in content'),
+          limit: z.number().int().min(1).max(100).optional(),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_note_list', async (userId) => {
+          await this.assertWorkspaceMember(userId, args.workspaceId);
+          return this.notesService.findAll(args.workspaceId, userId, {
+            workspaceId: args.workspaceId,
+            search: args.search,
+            limit: args.limit,
+          });
+        }),
+    );
+
+    server.registerTool(
+      'ordo_note_get',
+      {
+        title: 'Get note',
+        description: 'Get a note by id (author or workspace member).',
+        ...READ_ONLY,
+        inputSchema: z.object({ id: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_note_get', (userId) =>
+          this.notesService.findOne(args.id, userId),
+        ),
+    );
+
+    server.registerTool(
+      'ordo_note_create',
+      {
+        title: 'Create note',
+        description: 'Create a sticky note in a workspace I belong to.',
+        inputSchema: z.object({
+          workspaceId: z.string().min(1),
+          content: z.string().min(1),
+          color: z.string().optional(),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_note_create', async (userId) => {
+          await this.assertWorkspaceMember(userId, args.workspaceId);
+          return this.notesService.create(
+            {
+              workspaceId: args.workspaceId,
+              content: args.content,
+              color: args.color,
+            },
+            userId,
+          );
+        }),
+    );
+  }
+
+  /**
+   * Tags. TagsService takes no userId anywhere, so every tool gates
+   * here: workspace tools via membership, task tools via task access,
+   * and the tag itself must live in a workspace the caller belongs to.
+   */
+  private registerTagTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_tag_list',
+      {
+        title: 'List tags',
+        description: 'List the tags of a workspace I belong to.',
+        ...READ_ONLY,
+        inputSchema: z.object({ workspaceId: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_tag_list', async (userId) => {
+          await this.assertWorkspaceMember(userId, args.workspaceId);
+          return { tags: await this.tagsService.findAll(args.workspaceId) };
+        }),
+    );
+
+    server.registerTool(
+      'ordo_task_tags',
+      {
+        title: 'Task tags',
+        description: 'List the tags currently attached to a task.',
+        ...READ_ONLY,
+        inputSchema: z.object({ taskId: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_task_tags', async (userId) => {
+          await this.v1Tasks.get(userId, args.taskId);
+          return { tags: await this.tagsService.findByTask(args.taskId) };
+        }),
+    );
+
+    server.registerTool(
+      'ordo_tag_add_to_task',
+      {
+        title: 'Tag task',
+        description: 'Attach an existing tag to a task I can access.',
+        inputSchema: z.object({
+          taskId: z.string().min(1),
+          tagId: z.string().min(1),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_tag_add_to_task', async (userId) => {
+          await this.v1Tasks.get(userId, args.taskId);
+          const tag = await this.tagsService.findOne(args.tagId);
+          if (!tag) {
+            throw new ForbiddenException('Tag not found');
+          }
+          if (!tag.workspaceId) {
+            // Legacy/global tags have no workspace to be a member of.
+            throw new ForbiddenException('Tag is not workspace-scoped');
+          }
+          await this.assertWorkspaceMember(userId, tag.workspaceId);
+          return this.tagsService.assignToTask(args.tagId, args.taskId);
+        }),
+    );
+  }
+
+  private registerMeetingTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_meeting_list',
+      {
+        title: 'List meetings',
+        description:
+          'List my recent meetings, newest first (title, date, duration, transcript availability, linked project).',
+        ...READ_ONLY,
+        inputSchema: z.object({
+          projectId: z.string().optional(),
+          limit: z.number().int().min(1).max(50).optional(),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_meeting_list', async (userId) => {
+          const meetings = await this.meetingsService.getMeetings(userId, {
+            projectId: args.projectId,
+            limit: args.limit ?? 10,
+          });
+          // Records carry full transcripts and analysis; agents only
+          // need the index (they can ask for details per meeting later).
+          return {
+            meetings: meetings.map((meeting) => ({
+              id: meeting.id,
+              title: meeting.title,
+              date: meeting.date,
+              durationMinutes: meeting.duration,
+              hasTranscript: Boolean(meeting.transcript),
+              projectId: meeting.projectId ?? null,
+            })),
+          };
+        }),
     );
   }
 }

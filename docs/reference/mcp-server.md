@@ -126,7 +126,7 @@ Available scopes: `read`, `tasks:write`, `projects:write`,
 
 ## Tool catalog
 
-25 tools. Reads need `read`; mutations need the write scope shown.
+35 tools. Reads need `read`; mutations need the write scope shown.
 All tools scope operations to the token owner (see Permissions).
 
 | Tool | Scope | Arguments | Does |
@@ -155,6 +155,16 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_timer_stop` | `tasks:write` | `wasCompleted?` | Stop the active session (`{stopped:false}` when nothing is running) |
 | `ordo_timer_pause` | `tasks:write` | — | Pause the active session |
 | `ordo_timer_resume` | `tasks:write` | — | Resume a paused session |
+| `ordo_note_list` | `read` | `workspaceId`*, `search?`, `limit?` (1–100) | Search/list workspace notes (membership required) |
+| `ordo_note_get` | `read` | `id`* | Get a note (author or member) |
+| `ordo_note_create` | `tasks:write` | `workspaceId`*, `content`*, `color?` | Create a sticky note (author = caller) |
+| `ordo_habit_list` | `read` | `includeArchived?` | All habits with schedule and state |
+| `ordo_habit_create` | `tasks:write` | `name`*, `description?`, `frequency?`, `targetDaysOfWeek?`, `targetCount?`, `timeOfDay?`, `preferredTime?` | Create a habit (owner = caller) |
+| `ordo_tag_list` | `read` | `workspaceId`* | List workspace tags (membership required) |
+| `ordo_task_tags` | `read` | `taskId`* | Tags attached to a task (task access required) |
+| `ordo_tag_add_to_task` | `tasks:write` | `taskId`*, `tagId`* | Attach a tag (task access + tag-workspace membership) |
+| `ordo_meeting_list` | `read` | `projectId?`, `limit?` (1–50) | My recent meetings, newest first (lean records: no transcripts) |
+| `ordo_comment_list` | `read` | `taskId`* | Comments of a task (task access required) |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):
