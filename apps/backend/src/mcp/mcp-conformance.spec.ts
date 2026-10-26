@@ -14,6 +14,7 @@ import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TimersService } from '../timers/timers.service';
 import { PrismaService } from '../database/prisma.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { AuthEventType } from '../auth/types/auth-event.types';
@@ -66,6 +67,10 @@ describe('MCP permission conformance (S4/S5)', () => {
         {
           provide: WorkspacesService,
           useValue: { findAll: jest.fn().mockResolvedValue([]) },
+        },
+        {
+          provide: TimersService,
+          useValue: { getActive: jest.fn().mockResolvedValue(null) },
         },
         {
           provide: PrismaService,

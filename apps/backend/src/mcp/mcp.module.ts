@@ -8,6 +8,7 @@ import { SearchModule } from '../search/search.module';
 import { HabitsModule } from '../habits/habits.module';
 import { ObjectivesModule } from '../objectives/objectives.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
+import { TimersModule } from '../timers/timers.module';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { McpController } from './mcp.controller';
 import { McpWellKnownController } from './mcp-well-known.controller';
@@ -30,6 +31,8 @@ import { McpAuthGuard } from './mcp-auth.guard';
     ObjectivesModule,
     // ordo_workspace_list + workspace names on task/project listings.
     WorkspacesModule,
+    // Timer tools (start/stop/pause/resume/active).
+    TimersModule,
   ],
   controllers: [McpController, McpWellKnownController],
   providers: [

@@ -22,6 +22,7 @@ import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TimersService } from '../timers/timers.service';
 import { PrismaService } from '../database/prisma.service';
 
 function text(data: unknown) {
@@ -126,6 +127,10 @@ export class McpCatalogService implements OnModuleInit {
     'ordo_comment_add',
     'ordo_habit_complete',
     'ordo_day_plan_apply',
+    'ordo_timer_start',
+    'ordo_timer_stop',
+    'ordo_timer_pause',
+    'ordo_timer_resume',
   ]);
 
   constructor(
@@ -142,6 +147,7 @@ export class McpCatalogService implements OnModuleInit {
     private readonly habitsService: HabitsService,
     private readonly objectivesService: ObjectivesService,
     private readonly workspacesService: WorkspacesService,
+    private readonly timersService: TimersService,
     private readonly prisma: PrismaService,
     @Optional()
     @Inject(AuthAuditService)
@@ -159,7 +165,8 @@ export class McpCatalogService implements OnModuleInit {
     this.registerObjectiveTools(server);
     this.registerUserTools(server);
     this.registerDayPlanTools(server);
-    this.logger.log('MCP catalog registered (19 domain tools)');
+    this.registerTimerTools(server);
+    this.logger.log('MCP catalog registered (24 domain tools)');
   }
 
   private requireScope(tool: string, scopes: string[]): void {
@@ -691,6 +698,129 @@ export class McpCatalogService implements OnModuleInit {
       async (args) =>
         this.guarded('ordo_day_plan_apply', (userId) =>
           this.dayPlanService.apply(userId, args.proposalId),
+        ),
+    );
+  }
+
+  /**
+   * Time-tracking tools. Start auto-switches any previous active session
+   * (the core use case marks it interrupted); the taskId pre-check is
+   * mandatory because StartTimerUseCase trusts its caller and would
+   * otherwise flip a foreign task to IN_PROGRESS.
+   */
+  private registerTimerTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_timer_active',
+      {
+        title: 'Active timer',
+        description:
+          'Get the currently running timer session (task, type, elapsed seconds, paused) or confirm none is running.',
+        ...READ_ONLY,
+        inputSchema: z.object({}).shape,
+      },
+      async () =>
+        this.guarded('ordo_timer_active', async (userId) => {
+          const session = await this.timersService.getActive(userId);
+          if (!session) {
+            return { active: false };
+          }
+          let taskTitle: string | null = null;
+          if (session.taskId) {
+            try {
+              const task = await this.v1Tasks.get(userId, session.taskId);
+              taskTitle = task.title;
+            } catch {
+              taskTitle = null;
+            }
+          }
+          return { active: true, taskTitle, ...session };
+        }),
+    );
+
+    server.registerTool(
+      'ordo_timer_start',
+      {
+        title: 'Start timer',
+        description:
+          'Start tracking time for a task (or free work without taskId). Stops any previous active session as interrupted.',
+        inputSchema: z.object({
+          taskId: z
+            .string()
+            .optional()
+            .describe('Task to track; must be one the caller can access'),
+          type: z
+            .enum(['WORK', 'SHORT_BREAK', 'LONG_BREAK', 'CONTINUOUS'])
+            .optional(),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_timer_start', async (userId) => {
+          if (args.taskId) {
+            // Ownership gate: the underlying use case would accept any
+            // task id and flip it to IN_PROGRESS.
+            await this.v1Tasks.get(userId, args.taskId);
+          }
+          return this.timersService.start(
+            {
+              taskId: args.taskId,
+              type: args.type,
+            },
+            userId,
+          );
+        }),
+    );
+
+    server.registerTool(
+      'ordo_timer_stop',
+      {
+        title: 'Stop timer',
+        description:
+          'Stop the active timer session and record it in the history.',
+        inputSchema: z.object({
+          wasCompleted: z
+            .boolean()
+            .optional()
+            .describe('Whether the tracked work finished the task'),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_timer_stop', async (userId) => {
+          const session = await this.timersService.stop(
+            { wasCompleted: args.wasCompleted },
+            userId,
+          );
+          // The service returns a phantom {id: ''} when nothing was
+          // running; make that state explicit for the agent instead.
+          if (session.id === '') {
+            return { stopped: false };
+          }
+          return session;
+        }),
+    );
+
+    server.registerTool(
+      'ordo_timer_pause',
+      {
+        title: 'Pause timer',
+        description: 'Pause the active timer session.',
+        inputSchema: z.object({}).shape,
+      },
+      async () =>
+        this.guarded('ordo_timer_pause', (userId) =>
+          this.timersService.pause({}, userId),
+        ),
+    );
+
+    server.registerTool(
+      'ordo_timer_resume',
+      {
+        title: 'Resume timer',
+        description: 'Resume a paused timer session.',
+        inputSchema: z.object({}).shape,
+      },
+      async () =>
+        this.guarded('ordo_timer_resume', (userId) =>
+          this.timersService.resume({ pauseStartedAt: new Date() }, userId),
         ),
     );
   }
