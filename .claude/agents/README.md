@@ -62,20 +62,7 @@ Agents don't consider tasks complete until:
 - **Use when**: Building UI components, pages, features, hooks
 - **Autonomy**: Writes code → tests → stories → validates accessibility → repeats
 
-### 3. **React Native Specialist** ([react-native-specialist.md](./react-native-specialist.md))
-**Elite mobile specialist for cross-platform apps**
-
-- **Expertise**: React Native, Expo, iOS/Android native modules
-- **Stack**: TypeScript, Expo Router, Reanimated, FlashList
-- **Responsibilities**:
-  - Build smooth 60fps mobile UIs
-  - Handle platform-specific code (iOS/Android)
-  - Optimize list performance (FlashList)
-  - Implement proper navigation patterns
-- **Use when**: Building mobile features, screens, native modules
-- **Maintains**: Performance first, platform awareness
-
-### 4. **Electron Specialist** ([electron-specialist.md](./electron-specialist.md))
+### 3. **Electron Specialist** ([electron-specialist.md](./electron-specialist.md))
 **Elite desktop specialist for cross-platform apps**
 
 - **Expertise**: Electron, IPC communication, native OS integration
@@ -88,7 +75,7 @@ Agents don't consider tasks complete until:
 - **Use when**: Building desktop features, IPC handlers, native integration
 - **Maintains**: Security first, proper process model
 
-### 5. **PostgreSQL Specialist** ([postgres-specialist.md](./postgres-specialist.md))
+### 4. **PostgreSQL Specialist** ([postgres-specialist.md](./postgres-specialist.md))
 **Elite database architect for PostgreSQL/Prisma**
 
 - **Expertise**: PostgreSQL 16, Prisma 6, schema design, optimization
@@ -101,7 +88,7 @@ Agents don't consider tasks complete until:
 - **Use when**: Designing tables, relationships, indexes, migrations
 - **Maintains**: Data integrity, performance, scalability
 
-### 6. **Testing Specialist** ([testing-specialist.md](./testing-specialist.md))
+### 5. **Testing Specialist** ([testing-specialist.md](./testing-specialist.md))
 **Elite test automation specialist with full autonomy**
 
 - **Expertise**: Vitest, Jest, Playwright, Testing Library
@@ -115,7 +102,7 @@ Agents don't consider tasks complete until:
 - **Use when**: Writing tests, improving coverage, fixing flaky tests
 - **Autonomy**: Writes tests → runs → fixes → validates → repeats until 100% passing
 
-### 7. **Documentation Specialist** ([documentation-specialist.md](./documentation-specialist.md))
+### 6. **Documentation Specialist** ([documentation-specialist.md](./documentation-specialist.md))
 **Elite technical writer for comprehensive documentation**
 
 - **Expertise**: README, API docs, architecture diagrams, guides
@@ -129,7 +116,7 @@ Agents don't consider tasks complete until:
 - **Use when**: Documenting features, APIs, architecture, code
 - **Autonomy**: Analyzes → plans → writes → validates → refines
 
-### 8. **Refactoring Specialist** ([refactoring-specialist.md](./refactoring-specialist.md))
+### 7. **Refactoring Specialist** ([refactoring-specialist.md](./refactoring-specialist.md))
 **Elite code quality specialist for clean code**
 
 - **Expertise**: SOLID principles, design patterns, code smells
@@ -151,7 +138,6 @@ Agents don't consider tasks complete until:
 |------|-------|---------|
 | Create REST API endpoint | NestJS Backend | `Use the nestjs-backend agent` |
 | Build React component | Next.js Frontend | `Use the nextjs-frontend agent` |
-| Create mobile screen | React Native | `Use the react-native-specialist agent` |
 | Design database table | PostgreSQL | `Use the postgres-specialist agent` |
 | Write tests | Testing Specialist | `Use the testing-specialist agent` |
 | Write documentation | Documentation Specialist | `Use the documentation-specialist agent` |
@@ -267,7 +253,7 @@ Agents automatically search for:
 |-------|----------|---------|---------------|----------|--------|
 | NestJS Backend | Node.js | ✅ Comprehensive | ✅ Swagger + JSDoc | ⭐⭐⭐⭐⭐ | ✅ Active |
 | Next.js Frontend | Web | ✅ Unit + E2E | ✅ Storybook + JSDoc | ⭐⭐⭐⭐⭐ | ✅ Active |
-| React Native | iOS/Android | ✅ Component | ⚠️ Basic | ⭐⭐⭐⭐ | ✅ Active |
+| Mobile (Tauri 2) | Android/iOS | ⚠️ Basic | ✅ ODD 020 | ⭐⭐⭐ | 🚧 Rebuild in progress (no dedicated agent; see rules/mobile.md) |
 | Electron | Desktop | ⚠️ Basic | ⚠️ Basic | ⭐⭐⭐⭐ | ✅ Active |
 | PostgreSQL | Database | ⚠️ Migration tests | ✅ Schema docs | ⭐⭐⭐⭐ | ✅ Active |
 | Testing Specialist | All | ⭐⭐⭐⭐⭐ | ⚠️ Test patterns | ⭐⭐⭐⭐⭐ | ✅ Active |

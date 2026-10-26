@@ -32,8 +32,10 @@ COPY . .
 
 ARG CACHEBUST=1
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-RUN echo "Building marketing web with API URL: $NEXT_PUBLIC_API_URL"
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+RUN echo "Building marketing web with API URL: $NEXT_PUBLIC_API_URL and APP URL: $NEXT_PUBLIC_APP_URL"
 
 RUN DATABASE_URL=postgresql://localhost npx prisma generate --schema=packages/db/prisma/schema.prisma
 RUN npx turbo run build --filter=@ordo-todo/webpage

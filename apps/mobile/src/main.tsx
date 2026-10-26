@@ -1,15 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
+import "@/i18n"; // mismo i18n que desktop (idioma por localStorage/navigator)
 
-// P2: router activo (Hoy / Nueva tarea / Detalle). El botón atrás de Android
-// navega el historial del webview (lo maneja wry).
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <App />
   </StrictMode>,
 );

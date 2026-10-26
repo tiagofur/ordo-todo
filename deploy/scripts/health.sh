@@ -11,13 +11,32 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if [ -f .env ]; then set -a; . ./.env; set +a; fi
-API_PORT=${API_PORT:-3001}
-WEB_PORT=${WEB_PORT:-3003}
-WEBPAGE_PORT=${WEBPAGE_PORT:-3002}
+# Lee KEY del .env con la semántica de Compose (sin ejecutarlo: un valor como
+# "Ordo <no-reply@…>" rompería un `source`). Comillas opcionales; en valores sin
+# comillas, " #" empieza un comentario.
+envval() {
+  local raw; raw=$(grep -E "^$1=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+  case $raw in
+    \"*) raw=${raw#\"}; raw=${raw%%\"*} ;;
+    \'*) raw=${raw#\'}; raw=${raw%%\'*} ;;
+    *)   raw=${raw%%[[:space:]]#*}; raw=${raw%"${raw##*[![:space:]]}"} ;;
+  esac
+  printf '%s' "$raw"
+}
+API_PORT=$(envval API_PORT); API_PORT=${API_PORT:-3001}
+WEB_PORT=$(envval WEB_PORT); WEB_PORT=${WEB_PORT:-3003}
+WEBPAGE_PORT=$(envval WEBPAGE_PORT); WEBPAGE_PORT=${WEBPAGE_PORT:-3002}
+HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-$(envval HEALTH_TIMEOUT)}
 
 health_of() {
-  docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "ordo-$1" 2>/dev/null || echo missing
+  local st
+  st=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "ordo-$1" 2>/dev/null) || st=""
+  printf '%s' "${st:-missing}"
+}
+restarts_of() {
+  local n
+  n=$(docker inspect --format '{{.RestartCount}}' "ordo-$1" 2>/dev/null) || n=""
+  printf '%s' "${n:--}"
 }
 
 if [ "${1:-}" = "--wait" ]; then
@@ -46,8 +65,7 @@ docker compose ps --format 'table {{.Name}}\t{{.Status}}\t{{.Ports}}' 2>/dev/nul
 
 echo; echo "== Salud y reinicios =="
 for s in postgres backend web webpage; do
-  printf '%-9s %-10s reinicios=%s\n' "$s" "$(health_of "$s")" \
-    "$(docker inspect --format '{{.RestartCount}}' "ordo-$s" 2>/dev/null || echo -)"
+  printf '%-9s %-10s reinicios=%s\n' "$s" "$(health_of "$s")" "$(restarts_of "$s")"
 done
 
 echo; echo "== Endpoints (127.0.0.1, lo que ve Plesk) =="
@@ -71,5 +89,8 @@ for s in backend web webpage; do
 done
 
 echo; echo "== Backups más recientes =="
-ls -t backups/ordo_*.dump 2>/dev/null | head -3 || true
-[ -z "$(ls backups/ordo_*.dump 2>/dev/null)" ] && echo "(ninguno)"
+if ls backups/ordo_*.dump >/dev/null 2>&1; then
+  ls -t backups/ordo_*.dump | head -3
+else
+  echo "(ninguno)"
+fi

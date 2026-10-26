@@ -29,7 +29,7 @@ build
 
 # Dist folders (generated on demand: npx turbo run build)
 # Workspace packages are NOT committed anymore. Local dev and CI build them
-# with turbo. (La app Expo legacy en apps/mobile-expo está congelada.)
+# with turbo.
 dist
 
 # tmp
@@ -76,3 +76,8 @@ nul
 .agents/
 .agent/skills/
 .zcode/
+
+# Copias locales de secretos de producción (VPS .env, claves de Actions).
+# NUNCA se suben: el owner las respalda a mano fuera del repo.
+deploy/secrets/*
+!deploy/secrets/README.md

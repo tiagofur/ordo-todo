@@ -19,7 +19,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import type { Response, Request } from 'express';
+import type { Response, Request, CookieOptions } from 'express';
 import { AuthService } from './auth.service';
 import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
@@ -35,6 +35,9 @@ import {
   GitHubOAuthPlatformGuard,
   GoogleOAuthPlatformGuard,
 } from './guards/oauth-platform.guard';
+
+const ACCESS_COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 1 day
+const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -124,21 +127,17 @@ export class AuthController {
       : await this.authService.register(registerDto);
 
     // Set httpOnly cookies for security (XSS protection)
-    res?.cookie?.('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      path: '/',
-    });
+    res?.cookie?.(
+      'access_token',
+      accessToken,
+      this.authCookieOptions(ACCESS_COOKIE_MAX_AGE_MS),
+    );
 
-    res?.cookie?.('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    });
+    res?.cookie?.(
+      'refresh_token',
+      refreshToken,
+      this.authCookieOptions(REFRESH_COOKIE_MAX_AGE_MS),
+    );
 
     return { user, accessToken, refreshToken };
   }
@@ -183,21 +182,17 @@ export class AuthController {
       : await this.authService.login(loginDto);
 
     // Set httpOnly cookies for security (XSS protection)
-    res?.cookie?.('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      path: '/',
-    });
+    res?.cookie?.(
+      'access_token',
+      accessToken,
+      this.authCookieOptions(ACCESS_COOKIE_MAX_AGE_MS),
+    );
 
-    res?.cookie?.('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    });
+    res?.cookie?.(
+      'refresh_token',
+      refreshToken,
+      this.authCookieOptions(REFRESH_COOKIE_MAX_AGE_MS),
+    );
 
     return { user, accessToken, refreshToken };
   }
@@ -239,8 +234,8 @@ export class AuthController {
     }
 
     // Always clear httpOnly cookies regardless of token validity
-    res?.clearCookie?.('access_token', { path: '/' });
-    res?.clearCookie?.('refresh_token', { path: '/' });
+    res?.clearCookie?.('access_token', this.clearAuthCookieOptions());
+    res?.clearCookie?.('refresh_token', this.clearAuthCookieOptions());
 
     return { message: 'Logout successful' };
   }
@@ -293,21 +288,17 @@ export class AuthController {
     } = await this.authService.refresh(refreshToken);
 
     // Set httpOnly cookies for new tokens
-    res?.cookie?.('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      path: '/',
-    });
+    res?.cookie?.(
+      'access_token',
+      accessToken,
+      this.authCookieOptions(ACCESS_COOKIE_MAX_AGE_MS),
+    );
 
-    res?.cookie?.('refresh_token', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    });
+    res?.cookie?.(
+      'refresh_token',
+      newRefreshToken,
+      this.authCookieOptions(REFRESH_COOKIE_MAX_AGE_MS),
+    );
 
     return { user, accessToken, refreshToken: newRefreshToken };
   }
@@ -573,5 +564,28 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  /**
+   * Opciones de las cookies de sesión. `COOKIE_DOMAIN` (p. ej. `ordotodo.app`)
+   * hace que la web servida en el dominio raíz pueda leer las cookies que emite
+   * la API desde un subdominio (api.ordotodo.app); sin él, la cookie queda
+   * ligada solo al host de la API (válido en local, donde ambos son localhost).
+   */
+  private authCookieOptions(maxAge: number): CookieOptions {
+    const domain = this.configService.get<string>('COOKIE_DOMAIN');
+    return {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge,
+      path: '/',
+      ...(domain ? { domain } : {}),
+    };
+  }
+
+  private clearAuthCookieOptions(): CookieOptions {
+    const domain = this.configService.get<string>('COOKIE_DOMAIN');
+    return { path: '/', ...(domain ? { domain } : {}) };
   }
 }

@@ -183,7 +183,7 @@ export function MobileSidebar({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="left"
-        className="w-[280px] max-w-[85vw] p-0 pb-[env(safe-area-inset-bottom,0px)]"
+        className="w-[280px] max-w-[85vw] p-0 pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]"
       >
         <SheetTitle className="sr-only">{t.appName} Navigation Menu</SheetTitle>
         <div className="flex h-full flex-col">

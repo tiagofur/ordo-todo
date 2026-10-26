@@ -33,15 +33,15 @@ services:
 
   migrations:
     image: *backend-image
-    container_name: ordo-migrations
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    command: >
-      sh -c "npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma
-             && echo 'Migrations completed successfully!'"
+    # Prisma 7 toma la URL de prisma.config.ts (en packages/db), no del schema:
+    # hay que ejecutar desde ese directorio.
+    working_dir: /app/packages/db
+    command: ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
     restart: "no"
 
   backend:
@@ -59,6 +59,8 @@ services:
       # URLs públicas
       FRONTEND_URL: https://${DOMAIN}
       API_URL: ${API_URL:-https://api.${DOMAIN}}
+      # Cookies de sesión compartidas entre ordotodo.app y api.ordotodo.app
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-${DOMAIN}}
       # CORS: app, landing y (opcional) orígenes extra como las apps Tauri,
       # p. ej. CORS_EXTRA_ORIGINS=",tauri://localhost,http://tauri.localhost"
       CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://${MARKETING_DOMAIN:-ordotodo.com},https://www.${MARKETING_DOMAIN:-ordotodo.com}${CORS_EXTRA_ORIGINS:-}
@@ -68,7 +70,8 @@ services:
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
       REGISTRATION_MODE: ${REGISTRATION_MODE:-invite-only}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
-      # OAuth (vacío = proveedor desactivado)
+      # OAuth: NO pueden ir vacíos (passport exige clientID); sin OAuth usar el
+      # relleno "oauth-disabled" (ver .env.plesk.example)
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-https://api.${DOMAIN}/api/v1/auth/google/callback}
@@ -134,6 +137,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       NEXT_PUBLIC_API_URL: https://api.${DOMAIN}/api/v1
+      NEXT_PUBLIC_APP_URL: https://${DOMAIN}
     ports:
       - "127.0.0.1:${WEBPAGE_PORT:-3002}:3000"
     healthcheck:

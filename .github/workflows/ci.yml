@@ -373,7 +373,7 @@ jobs:
               run: npm run build:vite
 
     # =============================================================================
-    # Mobile (React Native + Expo)
+    # Mobile (Tauri 2 + React)
     # =============================================================================
     mobile:
         name: Mobile Type Check

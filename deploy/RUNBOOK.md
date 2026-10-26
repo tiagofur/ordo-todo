@@ -17,6 +17,7 @@ la salud, volver atrás, hacer backups y rotar secretos **sin recordar comandos*
 Reglas:
 - El **compose se instala desde el repo en cada deploy**: no se edita en el VPS. Lo único que vive solo en el VPS es `/opt/ordo-todo/.env`.
 - Si las migraciones fallan, el deploy **aborta sin arrancar las imágenes nuevas**.
+- Si backend o web no llegan a "healthy" en 150 s, el deploy hace **rollback automático** a la versión anterior (`IMAGE_TAG` previo del `.env`) y el job queda en rojo. Las migraciones no se deshacen (ver §4).
 - El deploy deja en `.env` la versión desplegada (`IMAGE_TAG=<sha>`), así un `docker compose up -d` manual no cambia de imagen por accidente.
 - Los dos workflows comparten el grupo de concurrencia `deploy-production`: nunca corren dos a la vez.
 
@@ -48,6 +49,7 @@ Desde fuera: `https://api.ordotodo.app/api/v1/health` (público) debe devolver 2
 3. **Plesk**: `ordotodo.app` → proxy a `127.0.0.1:3003` (hoy apunta al 3000, que es de otro proyecto), `api.ordotodo.app` → `3001` (ya está), `ordotodo.com` → `3002` (añadir). Sin cabeceras CORS en nginx: las pone el backend.
 4. **Clave de deploy**: `VPS_SSH_KEY` en GitHub debe corresponder a una clave en `/root/.ssh/authorized_keys`. Si hay dudas, generar una nueva dedicada (`github-actions-ordo`) y actualizar el secret.
 5. Lanzar **Deploy** a mano desde Actions y seguir el log. Al terminar: `./scripts/health.sh`, abrir `https://ordotodo.app`, iniciar sesión, enviar una invitación de prueba.
+   - **Primera cuenta (admin) con base de datos vacía**: en modo `invite-only` nadie puede registrarse y crear códigos exige ser admin (la cabecera `x-admin-api-key` NO sirve en `/admin/*`: el guard JWT global responde 401 antes). Solución: poner `REGISTRATION_MODE=open` en `.env`, `docker compose up -d backend`, registrarse en `/es/register` con un correo de `ADMIN_EMAILS`, y volver a `invite-only` + `docker compose up -d backend`. A partir de ahí los códigos se crean en `/admin/codes`.
 6. Hacer el **primer backup** (§5) y probar que restaura.
 
 ## 4. Volver atrás (rollback)

@@ -8,6 +8,12 @@ export function ProtectedRoute() {
   const { data: user, isLoading } = useCurrentUser({ enabled: hasToken });
   const location = useLocation();
 
+  // Sin token no hay nada que cargar: a /auth. (Antes quedaba enabled:false →
+  // query pending para siempre → esta pantalla en loading eterno.)
+  if (!hasToken) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
   // Show loading spinner while checking auth
   if (isLoading) {
     return (

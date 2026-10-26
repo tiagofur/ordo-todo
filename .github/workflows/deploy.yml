@@ -237,8 +237,9 @@ jobs:
             echo "[$(date)] 🔐 Login en GHCR..."
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
 
+            PREV_TAG=$(grep -E '^IMAGE_TAG=' .env | tail -1 | cut -d= -f2- | sed 's/[[:space:]]*#.*//; s/"//g')
             export IMAGE_TAG
-            echo "[$(date)] 📦 Descargando imágenes ${IMAGE_TAG}..."
+            echo "[$(date)] 📦 Descargando imágenes ${IMAGE_TAG} (desplegada ahora: ${PREV_TAG:-?})..."
             docker compose pull backend web
 
             echo "[$(date)] 🗄️ Base de datos y migraciones..."
@@ -252,7 +253,13 @@ jobs:
             docker compose up -d backend web
 
             echo "[$(date)] ⏳ Esperando a que estén sanos..."
-            ./scripts/health.sh --wait backend web
+            if ! ./scripts/health.sh --wait backend web; then
+              if [ -n "${PREV_TAG}" ] && [ "${PREV_TAG}" != latest ] && [ "${PREV_TAG}" != "${IMAGE_TAG}" ]; then
+                echo "::warning::backend/web no están sanos con ${IMAGE_TAG}; rollback automático a ${PREV_TAG} (las migraciones NO se deshacen)."
+                ./scripts/rollback.sh "${PREV_TAG}" || echo "::error::El rollback automático también falló; intervención manual (RUNBOOK §4)."
+              fi
+              exit 1
+            fi
 
             # Deja en .env la versión desplegada: un `docker compose up -d` manual
             # no cambiará de imagen por accidente.

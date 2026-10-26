@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Home,
   CheckSquare,
@@ -20,26 +20,19 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
-import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
 import { CreateWorkspaceDialog } from "../workspace/CreateWorkspaceDialog";
 import { TimerWidget } from "../timer/timer-widget";
 import { desktopBridge } from "@/lib/desktop-bridge";
 
-export function Sidebar() {
+/** Secciones de navegación compartidas por la sidebar fija y el cajón móvil. */
+export function useNavSections(): NavSection[] {
   const { t } = (useTranslation as any)();
-  const location = useLocation();
-  const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
-  const [platform] = useState<string>(() => desktopBridge.getPlatform());
-
-  // macOS: add padding for traffic lights (48px)
-  // Windows/Linux: add padding for custom TitleBar (40px)
-  const topPadding = platform === "darwin" ? "pt-12" : "pt-10";
 
   // Sistema de color (decisión del owner, oct 2026): el color codifica la
   // sección — purple = trabajo diario, emerald = planificación, orange =
   // equipo y enfoque, cyan = rendimiento — y red se reserva para la Papelera.
-  const navSections: NavSection[] = [
+  return [
     {
       items: [
         {
@@ -151,19 +144,29 @@ export function Sidebar() {
       ],
     },
   ];
+}
 
-  const isMac =
-    desktopBridge.getPlatform() === "darwin" ||
-    (typeof navigator !== "undefined" &&
-      navigator.userAgent.toLowerCase().includes("mac"));
+interface SidebarProps {
+  /** Visibilidad por breakpoint; por defecto solo desde `md` (tablet y desktop). */
+  className?: string;
+}
+
+export function Sidebar({
+  className = "hidden md:block pt-[env(safe-area-inset-top)]",
+}: SidebarProps) {
+  const { t } = (useTranslation as any)();
+  const location = useLocation();
+  const navSections = useNavSections();
+  const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 
   return (
     <>
       <SidebarUI
-        className="block"
+        className={className}
         pathname={location.pathname}
         navSections={navSections}
-        safeAreaTop={true}
+        // Hueco para los semáforos de macOS / TitleBar propia: solo en desktop.
+        safeAreaTop={desktopBridge.isDesktop()}
         renderLink={({ href, className, children }) => (
           <Link to={href} className={className}>
             {children}
