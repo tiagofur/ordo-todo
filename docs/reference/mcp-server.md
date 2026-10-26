@@ -126,7 +126,7 @@ Available scopes: `read`, `tasks:write`, `projects:write`,
 
 ## Tool catalog
 
-20 tools. Reads need `read`; mutations need the write scope shown.
+25 tools. Reads need `read`; mutations need the write scope shown.
 All tools scope operations to the token owner (see Permissions).
 
 | Tool | Scope | Arguments | Does |
@@ -150,6 +150,11 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_objective_progress` | `read` | — | Current OKR period summary |
 | `ordo_me` | `read` | — | Token owner identity |
 | `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes, risk alerts (may generate a new proposal) |
+| `ordo_timer_active` | `read` | — | Currently running session (task title, type, elapsed seconds, paused) or `{active: false}` |
+| `ordo_timer_start` | `tasks:write` | `taskId?`, `type?` (WORK/SHORT_BREAK/LONG_BREAK/CONTINUOUS), `notes?` | Start tracking time (stops any previous session as interrupted; verifies task access) |
+| `ordo_timer_stop` | `tasks:write` | `wasCompleted?`, `notes?` | Stop the active session and record it |
+| `ordo_timer_pause` | `tasks:write` | — | Pause the active session |
+| `ordo_timer_resume` | `tasks:write` | — | Resume a paused session |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):

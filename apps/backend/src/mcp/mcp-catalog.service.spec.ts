@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
@@ -13,6 +14,7 @@ import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TimersService } from '../timers/timers.service';
 import { PrismaService } from '../database/prisma.service';
 import { runWithMcpContext } from './mcp-context';
 
@@ -37,6 +39,11 @@ const EXPECTED_TOOLS = [
   'ordo_ping',
   'ordo_day_plan',
   'ordo_day_plan_apply',
+  'ordo_timer_active',
+  'ordo_timer_start',
+  'ordo_timer_stop',
+  'ordo_timer_pause',
+  'ordo_timer_resume',
 ];
 
 describe('McpCatalogService (against official SDK client)', () => {
@@ -118,6 +125,13 @@ describe('McpCatalogService (against official SDK client)', () => {
     ]),
   };
   const mockPrisma = { user: { findUnique: jest.fn() } };
+  const mockTimers = {
+    start: jest.fn().mockResolvedValue({ id: 'session-1', taskId: 'task-1' }),
+    stop: jest.fn().mockResolvedValue({ id: 'session-1' }),
+    pause: jest.fn().mockResolvedValue({ id: 'session-1', isPaused: true }),
+    resume: jest.fn().mockResolvedValue({ id: 'session-1', isPaused: false }),
+    getActive: jest.fn().mockResolvedValue(null),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -131,6 +145,7 @@ describe('McpCatalogService (against official SDK client)', () => {
         { provide: HabitsService, useValue: mockHabits },
         { provide: ObjectivesService, useValue: mockObjectives },
         { provide: WorkspacesService, useValue: mockWorkspaces },
+        { provide: TimersService, useValue: mockTimers },
         { provide: PrismaService, useValue: mockPrisma },
         {
           provide: TasksService,
@@ -363,6 +378,117 @@ describe('McpCatalogService (against official SDK client)', () => {
       destructiveHint: true,
     });
     expect(byName.get('ordo_task_create')?.annotations).toBeUndefined();
+    expect(byName.get('ordo_timer_active')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_timer_start')?.annotations).toBeUndefined();
+  });
+
+  // Timer tools: the catalog layer is the ownership gate — the core
+  // StartTimerUseCase would accept any task id and flip it IN_PROGRESS.
+  describe('timer tools', () => {
+    it('starts a timer after verifying the task is accessible', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1', title: 'Write spec' });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_start',
+            arguments: { taskId: 'task-1' },
+          }),
+      );
+
+      expect(mockV1Tasks.get).toHaveBeenCalledWith('user-123', 'task-1');
+      expect(mockTimers.start).toHaveBeenCalledWith(
+        { taskId: 'task-1', type: undefined, notes: undefined },
+        'user-123',
+      );
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('refuses to start a timer on a task the caller cannot access', async () => {
+      mockV1Tasks.get.mockRejectedValue(
+        new ForbiddenException('Only the task owner can modify it'),
+      );
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_start',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockTimers.start).not.toHaveBeenCalled();
+    });
+
+    it('reports when no timer is running', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_timer_active', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual({ active: false });
+    });
+
+    it('enriches the active session with the task title', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1', title: 'Write spec' });
+      mockTimers.getActive.mockResolvedValue({
+        id: 'session-1',
+        taskId: 'task-1',
+        elapsedSeconds: 90,
+        isPaused: false,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_timer_active', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual(
+        expect.objectContaining({
+          active: true,
+          taskTitle: 'Write spec',
+          elapsedSeconds: 90,
+          isPaused: false,
+        }),
+      );
+    });
+
+    it('routes stop/pause/resume through the token owner', async () => {
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_stop',
+            arguments: { wasCompleted: true },
+          }),
+      );
+      expect(mockTimers.stop).toHaveBeenCalledWith(
+        { wasCompleted: true, notes: undefined },
+        'user-123',
+      );
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_pause', arguments: {} }),
+      );
+      expect(mockTimers.pause).toHaveBeenCalledWith({}, 'user-123');
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_resume', arguments: {} }),
+      );
+      expect(mockTimers.resume).toHaveBeenCalledWith(
+        { pauseStartedAt: expect.any(Date) },
+        'user-123',
+      );
+    });
   });
 
   it('should reject tool calls outside an authenticated context', async () => {
