@@ -126,7 +126,7 @@ Available scopes: `read`, `tasks:write`, `projects:write`,
 
 ## Tool catalog
 
-35 tools. Reads need `read`; mutations need the write scope shown.
+37 tools. Reads need `read`; mutations need the write scope shown.
 All tools scope operations to the token owner (see Permissions).
 
 | Tool | Scope | Arguments | Does |
@@ -165,6 +165,8 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_tag_add_to_task` | `tasks:write` | `taskId`*, `tagId`* | Attach a tag (task access + tag-workspace membership) |
 | `ordo_meeting_list` | `read` | `projectId?`, `limit?` (1–50) | My recent meetings, newest first (lean records: no transcripts) |
 | `ordo_comment_list` | `read` | `taskId`* | Comments of a task (task access required) |
+| `ordo_workspace_members` | `read` | `workspaceId`* | Members of a workspace I belong to (userId, name, role) |
+| `ordo_task_assign` | `tasks:write` | `taskId`*, `assigneeId`* (member userId or null to clear) | Assign a task I own to a workspace member |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):

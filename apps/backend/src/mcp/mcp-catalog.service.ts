@@ -138,6 +138,7 @@ export class McpCatalogService implements OnModuleInit {
     'ordo_note_create',
     'ordo_habit_create',
     'ordo_tag_add_to_task',
+    'ordo_task_assign',
   ]);
 
   constructor(
@@ -179,7 +180,8 @@ export class McpCatalogService implements OnModuleInit {
     this.registerNoteTools(server);
     this.registerTagTools(server);
     this.registerMeetingTools(server);
-    this.logger.log('MCP catalog registered (34 domain tools)');
+    this.registerTeamTools(server);
+    this.logger.log('MCP catalog registered (36 domain tools)');
   }
 
   /**
@@ -1091,6 +1093,98 @@ export class McpCatalogService implements OnModuleInit {
               projectId: meeting.projectId ?? null,
             })),
           };
+        }),
+    );
+  }
+
+  /**
+   * Team tools. Assignment follows the public v1 contract: only the
+   * task owner changes the assignee, and the assignee must be a member
+   * of the workspace that owns the task's project.
+   */
+  private registerTeamTools(server: McpServer): void {
+    server.registerTool(
+      'ordo_workspace_members',
+      {
+        title: 'Workspace members',
+        description:
+          'List the members of a workspace I belong to (userId, name, role) — the ids ordo_task_assign accepts.',
+        ...READ_ONLY,
+        inputSchema: z.object({ workspaceId: z.string().min(1) }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_workspace_members', async (userId) => {
+          await this.assertWorkspaceMember(userId, args.workspaceId);
+          const members = await this.workspacesService.getMembers(
+            args.workspaceId,
+          );
+          // Emails stay out of the tool payload; the UI shows them but
+          // agents only need id/name/role to route work.
+          return {
+            members: members.map((member) => ({
+              userId: member.userId,
+              name: member.user?.name ?? null,
+              role: member.role,
+            })),
+          };
+        }),
+    );
+
+    server.registerTool(
+      'ordo_task_assign',
+      {
+        title: 'Assign task',
+        description:
+          'Assign a task I own to a workspace member (assigneeId null clears it). Use ordo_workspace_members for ids.',
+        inputSchema: z.object({
+          taskId: z.string().min(1),
+          assigneeId: z
+            .union([z.string().min(1), z.null()])
+            .describe('Member userId, or null to unassign'),
+        }).shape,
+      },
+      async (args) =>
+        this.guarded('ordo_task_assign', async (userId) => {
+          const task = await this.v1Tasks.get(userId, args.taskId);
+          // Ownership first: the v1 update would enforce it anyway, but
+          // failing here (before the membership probe) keeps the error
+          // message from doubling as a membership oracle.
+          if (task.ownerId !== userId) {
+            throw new ForbiddenException('Only the task owner can modify it');
+          }
+          if (args.assigneeId !== null) {
+            const context = await this.projectContext(userId);
+            const workspaceId = context.get(task.projectId)?.workspaceId;
+            if (!workspaceId) {
+              throw new ForbiddenException('Task has no resolvable workspace');
+            }
+            // The workspace owner may not have a workspaceMember row
+            // (legacy rows are repaired lazily) — the service layer
+            // accepts them, so this probe must too.
+            const [member, workspace] = await Promise.all([
+              this.prisma.workspaceMember.findUnique({
+                where: {
+                  workspaceId_userId: {
+                    workspaceId,
+                    userId: args.assigneeId,
+                  },
+                },
+                select: { id: true },
+              }),
+              this.prisma.workspace.findUnique({
+                where: { id: workspaceId },
+                select: { ownerId: true },
+              }),
+            ]);
+            if (!member && workspace?.ownerId !== args.assigneeId) {
+              throw new ForbiddenException(
+                'Assignee is not a member of the task workspace',
+              );
+            }
+          }
+          return this.v1Tasks.update(userId, args.taskId, {
+            assigneeId: args.assigneeId,
+          });
         }),
     );
   }
