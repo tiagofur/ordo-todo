@@ -38,9 +38,14 @@ export class LoggingInterceptor implements NestInterceptor {
     const requestId = request.headers['x-request-id'] || generateUuid();
     const correlationId = request.headers['x-correlation-id'] || generateUuid();
 
-    // Add IDs to response headers (for client correlation)
-    response.setHeader('x-request-id', requestId);
-    response.setHeader('x-correlation-id', correlationId);
+    // Add IDs to response headers (for client correlation).
+    // A guard may have already answered (e.g. OAuthAuthorizeGuard's
+    // redirect to login): touching headers then throws
+    // ERR_HTTP_HEADERS_SENT and masks the real response with a 500.
+    if (!response.headersSent) {
+      response.setHeader('x-request-id', requestId);
+      response.setHeader('x-correlation-id', correlationId);
+    }
 
     // Extract request context
     const method = request.method;
