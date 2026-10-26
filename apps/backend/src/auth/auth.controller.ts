@@ -126,6 +126,10 @@ export class AuthController {
       ? await this.authService.register(registerDto, reqCtx)
       : await this.authService.register(registerDto);
 
+    // Limpia cookies huérfanas de despliegues anteriores (host-only en el
+    // dominio de la API): si no, hacen sombra a las cookies de dominio.
+    this.clearLegacyHostCookies(res);
+
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.(
       'access_token',
@@ -180,6 +184,10 @@ export class AuthController {
     const { accessToken, refreshToken, user } = reqCtx
       ? await this.authService.login(loginDto, reqCtx)
       : await this.authService.login(loginDto);
+
+    // Limpia cookies huérfanas de despliegues anteriores (host-only en el
+    // dominio de la API): si no, hacen sombra a las cookies de dominio.
+    this.clearLegacyHostCookies(res);
 
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.(
@@ -236,6 +244,9 @@ export class AuthController {
     // Always clear httpOnly cookies regardless of token validity
     res?.clearCookie?.('access_token', this.clearAuthCookieOptions());
     res?.clearCookie?.('refresh_token', this.clearAuthCookieOptions());
+    // Y la variante host-only que pudiera quedar de despliegues anteriores
+    res?.clearCookie?.('access_token', { path: '/' });
+    res?.clearCookie?.('refresh_token', { path: '/' });
 
     return { message: 'Logout successful' };
   }
@@ -273,19 +284,51 @@ export class AuthController {
     @Req() req?: Request,
     @Res({ passthrough: true }) res?: Response,
   ) {
-    // Extract refresh token from httpOnly cookie or request body (for mobile/API clients)
-    const refreshToken =
-      req?.cookies?.refresh_token || refreshTokenDto?.refreshToken;
+    // Refresh candidates, in order: body (mobile/API clients) then the httpOnly
+    // cookie. A stale host-only cookie from an earlier deployment can shadow
+    // a newer token, so a `cookie ?? body` pick is not enough — try each.
+    const candidates = [
+      ...new Set(
+        [refreshTokenDto?.refreshToken, req?.cookies?.refresh_token].filter(
+          (t): t is string => typeof t === 'string' && t.length > 0,
+        ),
+      ),
+    ];
 
-    if (!refreshToken) {
+    if (candidates.length === 0) {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    const {
-      accessToken,
-      refreshToken: newRefreshToken,
-      user,
-    } = await this.authService.refresh(refreshToken);
+    const outcome: {
+      accessToken: string;
+      refreshToken: string;
+      user: Awaited<ReturnType<AuthService['refresh']>>['user'] | undefined;
+    } = { accessToken: '', refreshToken: '', user: undefined };
+    let lastError: unknown;
+    for (const candidate of candidates) {
+      try {
+        const result = await this.authService.refresh(candidate);
+        outcome.accessToken = result.accessToken;
+        outcome.refreshToken = result.refreshToken;
+        outcome.user = result.user;
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!outcome.accessToken) {
+      if (lastError instanceof UnauthorizedException) throw lastError;
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    const accessToken = outcome.accessToken;
+    const newRefreshToken = outcome.refreshToken;
+    const user = outcome.user;
+
+    // Limpia cookies huérfanas de despliegues anteriores (host-only en el
+    // dominio de la API): si no, hacen sombra a las cookies de dominio.
+    this.clearLegacyHostCookies(res);
 
     // Set httpOnly cookies for new tokens
     res?.cookie?.(
@@ -582,6 +625,16 @@ export class AuthController {
       path: '/',
       ...(domain ? { domain } : {}),
     };
+  }
+
+  /**
+   * Borra la variante host-only de las cookies de sesión (las emitidas antes
+   * de COOKIE_DOMAIN, que solo valían para el host de la API y pueden hacer
+   * sombra a las de dominio).
+   */
+  private clearLegacyHostCookies(res?: Response): void {
+    res?.clearCookie?.('access_token', { path: '/' });
+    res?.clearCookie?.('refresh_token', { path: '/' });
   }
 
   private clearAuthCookieOptions(): CookieOptions {
