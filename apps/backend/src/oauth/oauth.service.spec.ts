@@ -29,6 +29,7 @@ describe('OAuthService', () => {
       create: jest.fn(),
       findUnique: jest.fn(),
       findMany: jest.fn(),
+      update: jest.fn(),
       deleteMany: jest.fn(),
     },
     oAuthAuthorizationCode: {
@@ -167,7 +168,11 @@ describe('OAuthService', () => {
         client_uri: 'https://claude.ai',
       });
 
-      expect(result.client_id).toBe('https://claude.ai');
+      // client_uri must NOT become the client id: anyone could
+      // re-register a well-known origin and graft callbacks onto the
+      // existing client (code phishing). DCR ids are always minted.
+      expect(result.client_id).toMatch(/^ordo_cl_/);
+      expect(result.client_id).not.toBe('https://claude.ai');
     });
 
     it('should reject DCR redirect URIs that are neither https nor loopback', async () => {
@@ -179,6 +184,57 @@ describe('OAuthService', () => {
       ).rejects.toThrow(BadRequestException);
 
       expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
+    });
+
+    it('should re-register a CIMD client idempotently without widening it', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
+        clientId: 'https://hermes.test',
+        clientName: 'Hermes',
+        redirectUris: ['https://hermes.test/callback'],
+        scopes: ['read'],
+      });
+
+      const result = await service.registerClient(
+        'https://hermes.test/.well-known/oauth-client',
+        {
+          client_name: 'Hermes',
+          redirect_uris: ['https://hermes.test/callback'],
+          scope: 'read',
+        },
+      );
+
+      expect(result.client_id).toBe('https://hermes.test');
+      expect(result.redirect_uris).toEqual(['https://hermes.test/callback']);
+      expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.oAuthClient.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject a re-registration that tries to add redirect URIs or scopes', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
+        clientId: 'https://hermes.test',
+        clientName: 'Hermes',
+        redirectUris: ['https://hermes.test/callback'],
+        scopes: ['read'],
+      });
+
+      await expect(
+        service.registerClient('https://hermes.test/.well-known/oauth-client', {
+          client_name: 'Hermes',
+          redirect_uris: ['https://hermes.test/callback-2'],
+          scope: 'read',
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.registerClient('https://hermes.test/.well-known/oauth-client', {
+          client_name: 'Hermes',
+          redirect_uris: ['https://hermes.test/callback'],
+          scope: 'read tasks:write',
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.oAuthClient.update).not.toHaveBeenCalled();
     });
   });
 
@@ -320,7 +376,7 @@ describe('OAuthService', () => {
       expect(stored.scopes).toEqual(['read', 'tasks:write']);
     });
 
-    it('should grant the full vocabulary when neither client nor request name scopes', async () => {
+    it('should default to read-only when neither client nor request name scopes', async () => {
       mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
         ...clientRecord,
         scopes: [],
@@ -340,12 +396,21 @@ describe('OAuthService', () => {
 
       const stored =
         mockPrismaService.oAuthAuthorizationCode.create.mock.calls[0][0].data;
-      expect(stored.scopes).toEqual([
-        'read',
-        'tasks:write',
-        'projects:write',
-        'admin:webhooks',
-      ]);
+      expect(stored.scopes).toEqual(['read']);
+    });
+
+    it('should reject a missing or too-short code_challenge', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(clientRecord);
+      await expect(
+        service.authorize({
+          userId: 'user-123',
+          clientId: 'https://hermes.test',
+          redirectUri: 'https://hermes.test/callback',
+          scope: 'read',
+          codeChallenge: '',
+          codeChallengeMethod: 'S256',
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -511,6 +576,16 @@ describe('OAuthService', () => {
       expect(mockPrismaService.oAuthRefreshToken.delete).toHaveBeenCalledWith({
         where: { id: 'rt-7' },
       });
+    });
+
+    it('should never mass-revoke: unknown or malformed tokens are a silent no-op', async () => {
+      await service.revoke('https://hermes.test', 'not-even-a-token');
+      await service.revoke('https://hermes.test', 'ordo_rt_wrongtoken00003');
+
+      expect(
+        mockPrismaService.oAuthRefreshToken.deleteMany,
+      ).not.toHaveBeenCalled();
+      expect(mockPrismaService.oAuthRefreshToken.delete).not.toHaveBeenCalled();
     });
   });
 

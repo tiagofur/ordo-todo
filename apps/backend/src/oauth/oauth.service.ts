@@ -114,10 +114,16 @@ export class OAuthService {
     // Two registration flavors, same stored shape:
     // - Client ID Metadata Document: the caller hosts its own metadata
     //   document; client_id is that document's origin and redirect URIs
-    //   must live there too.
+    //   must live there too. Re-registration is idempotent (the id is
+    //   the origin, so it collides by design — and only same-origin
+    //   redirect URIs ever make it in).
     // - RFC 7591 dynamic client registration (what ChatGPT/Claude send):
-    //   no metadata URL, client_id is minted here and any https redirect
-    //   URI is accepted (loopback http allowed for native clients).
+    //   no metadata URL, client_id is ALWAYS minted here and any https
+    //   redirect URI is accepted (loopback http allowed for native
+    //   clients). Deriving the id from client_uri would let anyone
+    //   re-register a well-known origin and graft their own callback
+    //   URLs onto an existing client (OAuth code phishing), so DCR ids
+    //   are strictly per-registration.
     let clientId: string;
     let validatedUris: string[];
     if (metadataUrl) {
@@ -157,9 +163,7 @@ export class OAuthService {
         }
       }
 
-      clientId = metadata.client_uri
-        ? this.parseRedirectUri(metadata.client_uri).origin
-        : `ordo_cl_${randomBytes(12).toString('base64url')}`;
+      clientId = `ordo_cl_${randomBytes(12).toString('base64url')}`;
       validatedUris = metadata.redirect_uris;
     }
 
@@ -168,25 +172,25 @@ export class OAuthService {
       where: { clientId },
     });
     if (existing) {
-      // Re-registration is idempotent: big providers re-run DCR on every
-      // connector setup, and a client_id derived from an origin always
-      // collides. Callback URLs and scopes merge so a rotated callback
-      // keeps working.
-      const merged = await delegates.oAuthClient.update({
-        where: { clientId },
-        data: {
-          redirectUris: [
-            ...new Set([...existing.redirectUris, ...validatedUris]),
-          ],
-          scopes: [...new Set([...existing.scopes, ...requestedScopes])],
-        },
-      });
+      // Strict idempotency (only CIMD collides by design): re-asserting
+      // the same client returns it untouched. Anything that would ADD
+      // redirect URIs or scopes is rejected — a re-registration can
+      // never widen what an existing client_id is allowed to do.
+      const urisAllowed = validatedUris.every((uri) =>
+        existing.redirectUris.includes(uri),
+      );
+      const scopesAllowed = requestedScopes.every((scope) =>
+        existing.scopes.includes(scope),
+      );
+      if (!urisAllowed || !scopesAllowed) {
+        throw new BadRequestException('invalid_client_metadata');
+      }
       this.logger.log(`OAuth client re-registered (idempotent): ${clientId}`);
       return {
-        client_id: merged.clientId,
-        client_name: merged.clientName,
-        redirect_uris: merged.redirectUris,
-        scope: merged.scopes.join(' '),
+        client_id: existing.clientId,
+        client_name: existing.clientName,
+        redirect_uris: existing.redirectUris,
+        scope: existing.scopes.join(' '),
       };
     }
 
@@ -208,6 +212,7 @@ export class OAuthService {
         clientId: created.clientId,
         clientName: created.clientName,
         scopes: created.scopes,
+        redirectUris: created.redirectUris,
       },
     });
 
@@ -240,12 +245,14 @@ export class OAuthService {
     }
 
     if (
+      !params.codeChallenge ||
+      params.codeChallenge.length < 43 ||
       !(OAUTH_CODE_CHALLENGE_METHODS as readonly string[]).includes(
         params.codeChallengeMethod,
       )
     ) {
       throw new BadRequestException(
-        'Only S256 code_challenge_method is supported',
+        'code_challenge (S256, 43+ chars) is required',
       );
     }
 
@@ -253,26 +260,32 @@ export class OAuthService {
       .split(' ')
       .map((scope) => scope.trim())
       .filter(Boolean);
-    // Clients registered via DCR (ChatGPT, Claude…) often send no scope
-    // at registration; without this fallback any requested scope would
-    // fail against an empty grant list.
-    const allowedScopes =
-      client.scopes.length > 0
-        ? client.scopes
-        : (API_TOKEN_SCOPES as readonly string[]);
-    const outOfScope = requestedScopes.filter(
-      (scope) => !allowedScopes.includes(scope),
-    );
-    if (outOfScope.length > 0) {
-      throw new BadRequestException(
-        `Scopes not granted to client: ${outOfScope.join(', ')}`,
+    let grantedScopes: string[];
+    if (client.scopes.length > 0) {
+      // Registered scopes are a hard ceiling (CIMD + internal clients):
+      // asking outside them is a protocol error.
+      const outOfScope = requestedScopes.filter(
+        (scope) => !client.scopes.includes(scope),
       );
+      if (outOfScope.length > 0) {
+        throw new BadRequestException(
+          `Scopes not granted to client: ${outOfScope.join(', ')}`,
+        );
+      }
+      grantedScopes =
+        requestedScopes.length > 0 ? requestedScopes : [...client.scopes];
+    } else {
+      // Open DCR clients (ChatGPT, Claude…): anything they ask for is
+      // clamped to the known vocabulary, and no request defaults to
+      // read-only. There is no consent screen yet — a phishing link
+      // must not mint a full-vocabulary token in one click.
+      grantedScopes = requestedScopes.filter((scope) =>
+        (API_TOKEN_SCOPES as readonly string[]).includes(scope),
+      );
+      if (grantedScopes.length === 0) {
+        grantedScopes = ['read'];
+      }
     }
-    // Approval is the signed-in user's consent itself: a client that
-    // asks for no scope gets the full known vocabulary, so MCP tokens
-    // stay usable instead of failing every tool with insufficient_scope.
-    const grantedScopes: string[] =
-      requestedScopes.length > 0 ? requestedScopes : [...allowedScopes];
 
     const code = randomBytes(32).toString('base64url');
     await oAuthDelegates(this.prisma).oAuthAuthorizationCode.create({
@@ -392,19 +405,20 @@ export class OAuthService {
 
   async revoke(clientId: string, rawToken: string): Promise<void> {
     const delegates = oAuthDelegates(this.prisma);
+    // RFC 7009: unknown or unsupported tokens are ignored silently.
+    // They must never trigger a mass wipe — the endpoint is public and
+    // deleteMany({clientId}) here would let anyone revoke every
+    // session of any client with one bogus request.
     if (!rawToken.startsWith(OAUTH_REFRESH_TOKEN_PREFIX)) {
-      await delegates.oAuthRefreshToken.deleteMany({ where: { clientId } });
       return;
     }
 
     const candidate = await this.findRefreshTokenCandidates(clientId, rawToken);
-    if (candidate) {
-      await delegates.oAuthRefreshToken.delete({ where: { id: candidate.id } });
-      this.logger.log(`OAuth refresh token revoked (client ${clientId})`);
+    if (!candidate) {
       return;
     }
-
-    await delegates.oAuthRefreshToken.deleteMany({ where: { clientId } });
+    await delegates.oAuthRefreshToken.delete({ where: { id: candidate.id } });
+    this.logger.log(`OAuth refresh token revoked (client ${clientId})`);
   }
 
   getAuthorizationServerMetadata(issuer: string): AuthorizationServerMetadata {

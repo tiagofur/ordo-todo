@@ -83,18 +83,23 @@ Client registration accepts both flavors:
 
 - **RFC 7591 dynamic client registration** (what ChatGPT/Claude
   send): `POST /api/v1/oauth/register` with `client_name` +
-  `redirect_uris`; extra RFC 7591 fields are tolerated. `client_id`
-  comes from `client_uri`'s origin when provided, otherwise it is
-  minted. Re-registration is idempotent (merges redirect URIs and
-  scopes).
+  `redirect_uris`; extra RFC 7591 fields are tolerated. The
+  `client_id` is always minted per registration (`ordo_cl_…`) —
+  never derived from `client_uri`, so nobody can graft callback URLs
+  onto an existing client.
 - **Client ID Metadata Document**: send `metadataUrl`; the client id
   is that document's origin and callback URLs must live there.
+  Re-registration is strictly idempotent: it returns the existing
+  client and rejects any request that would add redirect URIs or
+  scopes.
 
 `resource` (RFC 8707) is accepted on authorize/token and tolerated —
-issued tokens do not embed an audience yet. If the client requests no
-scope, the token carries the client's allowed scopes (the full
-vocabulary for DCR clients); scope step-up errors list everything
-missing at once.
+issued tokens do not embed an audience yet. Scope handling: clients
+with registered scopes are capped by them; open DCR clients get
+whatever they request clamped to the known vocabulary, defaulting to
+`read` when they ask for nothing (there is no consent screen yet —
+a phishing link must not mint a write token in one click). Scope
+step-up errors list everything missing at once.
 
 ## Scopes and step-up
 

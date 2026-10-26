@@ -56,13 +56,6 @@ interface DelegateClient {
   findUnique(args: {
     where: { clientId: string };
   }): Promise<OAuthClientRecord | null>;
-  update(args: {
-    where: { clientId: string };
-    data: {
-      redirectUris?: string[];
-      scopes?: string[];
-    };
-  }): Promise<OAuthClientRecord>;
 }
 
 interface DelegateCode {
