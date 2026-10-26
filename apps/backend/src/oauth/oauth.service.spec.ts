@@ -123,6 +123,63 @@ describe('OAuthService', () => {
 
       expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
     });
+
+    it('should register a client via RFC 7591 DCR without a metadata URL', async () => {
+      mockPrismaService.oAuthClient.create.mockImplementation(
+        async ({ data }: any) => ({
+          id: data.clientId,
+          ...data,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      );
+
+      const result = await service.registerClient(undefined, {
+        client_name: 'ChatGPT',
+        redirect_uris: [
+          'https://chatgpt.com/connector_platform/oauth/callback',
+        ],
+        scope: 'read',
+      });
+
+      expect(result.client_id).toMatch(/^ordo_cl_/);
+      expect(result.client_name).toBe('ChatGPT');
+      expect(mockPrismaService.oAuthClient.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            metadataUrl: undefined,
+            redirectUris: [
+              'https://chatgpt.com/connector_platform/oauth/callback',
+            ],
+          }),
+        }),
+      );
+    });
+
+    it('should derive a DCR client_id from client_uri when provided', async () => {
+      mockPrismaService.oAuthClient.create.mockImplementation(
+        async ({ data }: any) => ({ id: data.clientId, ...data }),
+      );
+
+      const result = await service.registerClient(undefined, {
+        client_name: 'Claude',
+        redirect_uris: ['https://claude.ai/api/mcp/auth_callback'],
+        client_uri: 'https://claude.ai',
+      });
+
+      expect(result.client_id).toBe('https://claude.ai');
+    });
+
+    it('should reject DCR redirect URIs that are neither https nor loopback', async () => {
+      await expect(
+        service.registerClient(undefined, {
+          client_name: 'Evil',
+          redirect_uris: ['http://evil.test/callback'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('authorize', () => {
@@ -216,6 +273,79 @@ describe('OAuthService', () => {
           codeChallengeMethod: 'plain',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow any known scope for DCR clients registered without scopes', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
+        ...clientRecord,
+        scopes: [],
+      });
+      mockPrismaService.oAuthAuthorizationCode.create.mockImplementation(
+        async ({ data }: any) => ({ id: 'code-1', ...data }),
+      );
+
+      await expect(
+        service.authorize({
+          userId: 'user-123',
+          clientId: 'https://hermes.test',
+          redirectUri: 'https://hermes.test/callback',
+          scope: 'read tasks:write',
+          codeChallenge: challenge,
+          codeChallengeMethod: 'S256',
+        }),
+      ).resolves.toHaveProperty('redirectUri');
+
+      const stored =
+        mockPrismaService.oAuthAuthorizationCode.create.mock.calls[0][0].data;
+      expect(stored.scopes).toEqual(['read', 'tasks:write']);
+    });
+
+    it('should grant the client scopes when no scope is requested', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue(clientRecord);
+      mockPrismaService.oAuthAuthorizationCode.create.mockImplementation(
+        async ({ data }: any) => ({ id: 'code-1', ...data }),
+      );
+
+      await service.authorize({
+        userId: 'user-123',
+        clientId: 'https://hermes.test',
+        redirectUri: 'https://hermes.test/callback',
+        scope: '',
+        codeChallenge: challenge,
+        codeChallengeMethod: 'S256',
+      });
+
+      const stored =
+        mockPrismaService.oAuthAuthorizationCode.create.mock.calls[0][0].data;
+      expect(stored.scopes).toEqual(['read', 'tasks:write']);
+    });
+
+    it('should grant the full vocabulary when neither client nor request name scopes', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValue({
+        ...clientRecord,
+        scopes: [],
+      });
+      mockPrismaService.oAuthAuthorizationCode.create.mockImplementation(
+        async ({ data }: any) => ({ id: 'code-1', ...data }),
+      );
+
+      await service.authorize({
+        userId: 'user-123',
+        clientId: 'https://hermes.test',
+        redirectUri: 'https://hermes.test/callback',
+        scope: '',
+        codeChallenge: challenge,
+        codeChallengeMethod: 'S256',
+      });
+
+      const stored =
+        mockPrismaService.oAuthAuthorizationCode.create.mock.calls[0][0].data;
+      expect(stored.scopes).toEqual([
+        'read',
+        'tasks:write',
+        'projects:write',
+        'admin:webhooks',
+      ]);
     });
   });
 

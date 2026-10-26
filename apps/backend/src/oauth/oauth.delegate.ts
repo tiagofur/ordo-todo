@@ -56,6 +56,13 @@ interface DelegateClient {
   findUnique(args: {
     where: { clientId: string };
   }): Promise<OAuthClientRecord | null>;
+  update(args: {
+    where: { clientId: string };
+    data: {
+      redirectUris?: string[];
+      scopes?: string[];
+    };
+  }): Promise<OAuthClientRecord>;
 }
 
 interface DelegateCode {
@@ -106,5 +113,11 @@ interface OAuthDelegates {
 }
 
 export function oAuthDelegates(prisma: PrismaService): OAuthDelegates {
-  return prisma as unknown as OAuthDelegates;
+  // PrismaService exposes typed getters for these delegates, so the
+  // structural match is direct (no cast needed).
+  return {
+    oAuthClient: prisma.oAuthClient,
+    oAuthAuthorizationCode: prisma.oAuthAuthorizationCode,
+    oAuthRefreshToken: prisma.oAuthRefreshToken,
+  };
 }

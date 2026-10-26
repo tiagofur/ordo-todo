@@ -96,30 +96,9 @@ export class OAuthService {
   ) {}
 
   async registerClient(
-    metadataUrl: string,
+    metadataUrl: string | undefined,
     metadata: RegisterOAuthClientDto,
   ): Promise<RegisteredOAuthClient> {
-    let origin: string;
-    try {
-      origin = new URL(metadataUrl).origin;
-    } catch {
-      throw new BadRequestException('Invalid metadata URL');
-    }
-
-    for (const redirectUri of metadata.redirect_uris) {
-      let parsed: URL;
-      try {
-        parsed = new URL(redirectUri);
-      } catch {
-        throw new BadRequestException(`Invalid redirect URI: ${redirectUri}`);
-      }
-      if (parsed.protocol !== 'https:' || parsed.origin !== origin) {
-        throw new BadRequestException(
-          `Redirect URI must be https on ${origin}: ${redirectUri}`,
-        );
-      }
-    }
-
     const requestedScopes = (metadata.scope ?? '')
       .split(' ')
       .map((scope) => scope.trim())
@@ -132,12 +111,91 @@ export class OAuthService {
       throw new BadRequestException(`Unknown scopes: ${unknown.join(', ')}`);
     }
 
-    const created = await oAuthDelegates(this.prisma).oAuthClient.create({
+    // Two registration flavors, same stored shape:
+    // - Client ID Metadata Document: the caller hosts its own metadata
+    //   document; client_id is that document's origin and redirect URIs
+    //   must live there too.
+    // - RFC 7591 dynamic client registration (what ChatGPT/Claude send):
+    //   no metadata URL, client_id is minted here and any https redirect
+    //   URI is accepted (loopback http allowed for native clients).
+    let clientId: string;
+    let validatedUris: string[];
+    if (metadataUrl) {
+      let origin: string;
+      try {
+        origin = new URL(metadataUrl).origin;
+      } catch {
+        throw new BadRequestException('Invalid metadata URL');
+      }
+
+      for (const redirectUri of metadata.redirect_uris) {
+        let parsed: URL;
+        try {
+          parsed = new URL(redirectUri);
+        } catch {
+          throw new BadRequestException(`Invalid redirect URI: ${redirectUri}`);
+        }
+        if (parsed.protocol !== 'https:' || parsed.origin !== origin) {
+          throw new BadRequestException(
+            `Redirect URI must be https on ${origin}: ${redirectUri}`,
+          );
+        }
+      }
+
+      clientId = origin;
+      validatedUris = metadata.redirect_uris;
+    } else {
+      for (const redirectUri of metadata.redirect_uris) {
+        const parsed = this.parseRedirectUri(redirectUri);
+        if (
+          parsed.protocol !== 'https:' &&
+          !['127.0.0.1', '[::1]', 'localhost'].includes(parsed.hostname)
+        ) {
+          throw new BadRequestException(
+            `Redirect URI must be https (or http on loopback): ${redirectUri}`,
+          );
+        }
+      }
+
+      clientId = metadata.client_uri
+        ? this.parseRedirectUri(metadata.client_uri).origin
+        : `ordo_cl_${randomBytes(12).toString('base64url')}`;
+      validatedUris = metadata.redirect_uris;
+    }
+
+    const delegates = oAuthDelegates(this.prisma);
+    const existing = await delegates.oAuthClient.findUnique({
+      where: { clientId },
+    });
+    if (existing) {
+      // Re-registration is idempotent: big providers re-run DCR on every
+      // connector setup, and a client_id derived from an origin always
+      // collides. Callback URLs and scopes merge so a rotated callback
+      // keeps working.
+      const merged = await delegates.oAuthClient.update({
+        where: { clientId },
+        data: {
+          redirectUris: [
+            ...new Set([...existing.redirectUris, ...validatedUris]),
+          ],
+          scopes: [...new Set([...existing.scopes, ...requestedScopes])],
+        },
+      });
+      this.logger.log(`OAuth client re-registered (idempotent): ${clientId}`);
+      return {
+        client_id: merged.clientId,
+        client_name: merged.clientName,
+        redirect_uris: merged.redirectUris,
+        scope: merged.scopes.join(' '),
+      };
+    }
+
+    const created = await delegates.oAuthClient.create({
       data: {
-        clientId: origin,
+        clientId,
         clientName: metadata.client_name,
         metadataUrl,
-        redirectUris: metadata.redirect_uris,
+        redirectUris: validatedUris,
         scopes: requestedScopes,
       },
     });
@@ -159,6 +217,14 @@ export class OAuthService {
       redirect_uris: created.redirectUris,
       scope: created.scopes.join(' '),
     };
+  }
+
+  private parseRedirectUri(raw: string): URL {
+    try {
+      return new URL(raw);
+    } catch {
+      throw new BadRequestException(`Invalid URL: ${raw}`);
+    }
   }
 
   async authorize(params: AuthorizeParams): Promise<{ redirectUri: string }> {
@@ -187,14 +253,26 @@ export class OAuthService {
       .split(' ')
       .map((scope) => scope.trim())
       .filter(Boolean);
+    // Clients registered via DCR (ChatGPT, Claude…) often send no scope
+    // at registration; without this fallback any requested scope would
+    // fail against an empty grant list.
+    const allowedScopes =
+      client.scopes.length > 0
+        ? client.scopes
+        : (API_TOKEN_SCOPES as readonly string[]);
     const outOfScope = requestedScopes.filter(
-      (scope) => !client.scopes.includes(scope),
+      (scope) => !allowedScopes.includes(scope),
     );
     if (outOfScope.length > 0) {
       throw new BadRequestException(
         `Scopes not granted to client: ${outOfScope.join(', ')}`,
       );
     }
+    // Approval is the signed-in user's consent itself: a client that
+    // asks for no scope gets the full known vocabulary, so MCP tokens
+    // stay usable instead of failing every tool with insufficient_scope.
+    const grantedScopes: string[] =
+      requestedScopes.length > 0 ? requestedScopes : [...allowedScopes];
 
     const code = randomBytes(32).toString('base64url');
     await oAuthDelegates(this.prisma).oAuthAuthorizationCode.create({
@@ -203,7 +281,7 @@ export class OAuthService {
         userId: params.userId,
         clientId: client.clientId,
         redirectUri: params.redirectUri,
-        scopes: requestedScopes,
+        scopes: grantedScopes,
         codeChallenge: params.codeChallenge,
         codeChallengeMethod: params.codeChallengeMethod,
         expiresAt: new Date(Date.now() + OAUTH_CODE_TTL_MS),

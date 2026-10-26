@@ -62,19 +62,41 @@ describe('OAuthController', () => {
   });
 
   describe('register', () => {
-    it('should delegate client registration to the service', async () => {
+    it('should delegate client registration to the service (CIMD)', async () => {
       mockOAuthService.registerClient.mockResolvedValue({ client_id: 'x' });
 
-      const result = await controller.register(
-        'https://client.test/meta',
-        {} as never,
-      );
+      const result = await controller.register({
+        metadataUrl: 'https://client.test/meta',
+        client_name: 'Client',
+        redirect_uris: ['https://client.test/cb'],
+      });
 
       expect(oauthService.registerClient).toHaveBeenCalledWith(
         'https://client.test/meta',
-        {},
+        {
+          client_name: 'Client',
+          client_uri: undefined,
+          redirect_uris: ['https://client.test/cb'],
+          scope: undefined,
+        },
       );
       expect(result).toEqual({ client_id: 'x' });
+    });
+
+    it('should delegate RFC 7591 DCR without a metadata URL', async () => {
+      mockOAuthService.registerClient.mockResolvedValue({ client_id: 'y' });
+
+      await controller.register({
+        client_name: 'ChatGPT',
+        redirect_uris: ['https://chatgpt.com/cb'],
+        token_endpoint_auth_method: 'none',
+        grant_types: ['authorization_code'],
+      });
+
+      expect(oauthService.registerClient).toHaveBeenCalledWith(
+        undefined,
+        expect.objectContaining({ client_name: 'ChatGPT' }),
+      );
     });
   });
 
@@ -89,7 +111,7 @@ describe('OAuthController', () => {
         client_id: 'x',
         redirect_uri: 'r',
         code_verifier: 'v',
-      } as never);
+      });
 
       expect(oauthService.exchangeCode).toHaveBeenCalledWith({
         code: 'c',
@@ -102,15 +124,15 @@ describe('OAuthController', () => {
         grant_type: 'refresh_token',
         refresh_token: 'rt',
         client_id: 'x',
-      } as never);
+      });
 
       expect(oauthService.refresh).toHaveBeenCalledWith('x', 'rt');
     });
 
     it('should reject unsupported grant types', () => {
-      expect(() =>
-        controller.token({ grant_type: 'password' } as never),
-      ).toThrow('unsupported_grant_type');
+      expect(() => controller.token({ grant_type: 'password' })).toThrow(
+        'unsupported_grant_type',
+      );
     });
   });
 
@@ -118,7 +140,7 @@ describe('OAuthController', () => {
     it('should revoke and return user claims', async () => {
       mockOAuthService.revoke.mockResolvedValue(undefined);
 
-      await controller.revoke({ token: 't', client_id: 'x' } as never);
+      await controller.revoke({ token: 't', client_id: 'x' });
 
       expect(oauthService.revoke).toHaveBeenCalledWith('x', 't');
 
