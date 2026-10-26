@@ -39,15 +39,16 @@ export class V1ProjectsService {
   }
 
   async create(userId: string, dto: CreateProjectDto) {
-    // Same gate as the UI: projects can only be created in workspaces
-    // the caller belongs to (the endpoint used to ignore this too).
+    // UI parity: members create projects (OWNER/ADMIN/MEMBER — the
+    // internal controller denies VIEWERs), and only in workspaces they
+    // belong to. This endpoint ignored the user entirely before #408.
     const member = await this.prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: { workspaceId: dto.workspaceId, userId },
       },
-      select: { id: true },
+      select: { role: true },
     });
-    if (!member) {
+    if (!member || member.role === 'VIEWER') {
       throw new ForbiddenException(
         'You can only create projects in workspaces you belong to',
       );
