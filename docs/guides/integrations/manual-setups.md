@@ -1,6 +1,6 @@
 # Setups manuales por cliente (técnico)
 
-> **Última actualización**: 2026-10-26
+> **Última actualización**: 2026-10-25
 > **Estado**: ✅ Operativo (URL + discovery verificados contra producción
 > tras el deploy de #388; pendiente prueba humana por cliente —
 > registrar en el ODD `## Log`)

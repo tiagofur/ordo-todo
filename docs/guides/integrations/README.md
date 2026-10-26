@@ -1,6 +1,6 @@
 # Guías de conexión con agentes (índice técnico)
 
-> **Última actualización**: 2026-10-26
+> **Última actualización**: 2026-10-25
 > **Autor/Mantenedor**: equipo Ordo
 > **Estado**: ✅ Operativo (URLs de producción verificadas con sondas
 > tras el deploy de #388; prueba humana por cliente pendiente)
