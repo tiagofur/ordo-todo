@@ -446,10 +446,12 @@ export class AuthController {
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
-    // Check if this is a desktop OAuth flow
-    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+    // Native shells (desktop/mobile) round-trip `platform` through the
+    // provider's `state` and expect the ordo:// deep link redirect.
+    const state: string | undefined = req.query.state;
+    const isNative = state === 'desktop' || state === 'mobile';
 
-    if (platform === 'desktop') {
+    if (isNative) {
       // For desktop, redirect to deep link with tokens
       const params = new URLSearchParams({
         access_token: accessToken,
@@ -513,10 +515,12 @@ export class AuthController {
   async githubAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
-    // Check if this is a desktop OAuth flow
-    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+    // Native shells (desktop/mobile) round-trip `platform` through the
+    // provider's `state` and expect the ordo:// deep link redirect.
+    const state: string | undefined = req.query.state;
+    const isNative = state === 'desktop' || state === 'mobile';
 
-    if (platform === 'desktop') {
+    if (isNative) {
       // For desktop, redirect to deep link with tokens
       const params = new URLSearchParams({
         access_token: accessToken,

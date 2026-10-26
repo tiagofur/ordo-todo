@@ -1,14 +1,31 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CheckSquare, Mail, Lock, User, Github, Chrome, ArrowRight,
-  Sparkles, Check, X, Eye, EyeOff
+  CheckSquare,
+  Mail,
+  Lock,
+  User,
+  Github,
+  Chrome,
+  ArrowRight,
+  Sparkles,
+  Check,
+  X,
+  Eye,
+  EyeOff,
+  Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Input, Label, Separator } from "@ordo-todo/ui";
 import TitleBar from "@/components/TitleBar";
+import { apiClient } from "@/lib/api-client";
+import { useRegistrationMode } from "@/hooks/use-registration-mode";
+import {
+  inviteCodeMissing,
+  resolveRegisterErrorMessage,
+} from "@/lib/registration-invite";
 
 // Define interface for password checks
 interface PasswordChecks {
@@ -38,8 +55,13 @@ export function Auth() {
     email: "",
     password: "",
     confirmPassword: "",
-    rememberMe: false
+    inviteCode: "",
+    rememberMe: false,
   });
+
+  // ODD 019: invite gate — fails closed to "invite-only" until the backend
+  // says registration is open.
+  const registrationMode = useRegistrationMode(apiClient);
 
   // Reset form when switching modes
   const toggleMode = () => {
@@ -50,7 +72,8 @@ export function Auth() {
       email: "",
       password: "",
       confirmPassword: "",
-      rememberMe: false
+      inviteCode: "",
+      rememberMe: false,
     });
     setShowPassword(false);
     setShowConfirmPassword(false);
@@ -60,14 +83,21 @@ export function Auth() {
   // Backend requires: 8+ chars, lowercase, uppercase, number, and special char (@$!%*?&)
   const passwordStrength = useMemo(() => {
     const password = formData.password;
-    if (!password) return {
-      score: 0,
-      label: "",
-      color: "",
-      textColor: "",
-      checks: { length: false, lowercase: false, uppercase: false, number: false, special: false } as PasswordChecks,
-      isValid: false
-    };
+    if (!password)
+      return {
+        score: 0,
+        label: "",
+        color: "",
+        textColor: "",
+        checks: {
+          length: false,
+          lowercase: false,
+          uppercase: false,
+          number: false,
+          special: false,
+        } as PasswordChecks,
+        isValid: false,
+      };
 
     // Match exactly the backend's regex validators
     const checks: PasswordChecks = {
@@ -87,12 +117,48 @@ export function Auth() {
     score += checks.special ? 1 : 0;
 
     // All 5 criteria must be met for the password to be valid
-    const isValid = checks.length && checks.lowercase && checks.uppercase && checks.number && checks.special;
+    const isValid =
+      checks.length &&
+      checks.lowercase &&
+      checks.uppercase &&
+      checks.number &&
+      checks.special;
 
-    if (score <= 2) return { score, label: "Débil", color: "bg-red-500", textColor: "text-red-600", checks, isValid };
-    if (score <= 3) return { score, label: "Media", color: "bg-yellow-500", textColor: "text-yellow-600", checks, isValid };
-    if (score <= 4) return { score, label: "Buena", color: "bg-cyan-500", textColor: "text-cyan-600", checks, isValid };
-    return { score, label: "Excelente", color: "bg-green-500", textColor: "text-green-600", checks, isValid };
+    if (score <= 2)
+      return {
+        score,
+        label: "Débil",
+        color: "bg-red-500",
+        textColor: "text-red-600",
+        checks,
+        isValid,
+      };
+    if (score <= 3)
+      return {
+        score,
+        label: "Media",
+        color: "bg-yellow-500",
+        textColor: "text-yellow-600",
+        checks,
+        isValid,
+      };
+    if (score <= 4)
+      return {
+        score,
+        label: "Buena",
+        color: "bg-cyan-500",
+        textColor: "text-cyan-600",
+        checks,
+        isValid,
+      };
+    return {
+      score,
+      label: "Excelente",
+      color: "bg-green-500",
+      textColor: "text-green-600",
+      checks,
+      isValid,
+    };
   }, [formData.password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +169,7 @@ export function Auth() {
       if (isLogin) {
         await login({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
         });
         toast.success("Sesión iniciada exitosamente");
       } else {
@@ -115,7 +181,17 @@ export function Auth() {
         }
         // Password must meet all 5 criteria to match backend validation
         if (!passwordStrength.isValid) {
-          toast.error("La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)");
+          toast.error(
+            "La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)",
+          );
+          setIsLoading(false);
+          return;
+        }
+        // ODD 019: invite gate (invite-only by default in production).
+        if (inviteCodeMissing(registrationMode, formData.inviteCode)) {
+          toast.error(
+            "Necesitas un código de invitación para crear una cuenta",
+          );
           setIsLoading(false);
           return;
         }
@@ -124,14 +200,22 @@ export function Auth() {
           email: formData.email,
           password: formData.password,
           username: formData.username,
-          name: formData.name
+          name: formData.name,
+          ...(registrationMode !== "open"
+            ? { inviteCode: formData.inviteCode.trim() }
+            : {}),
         });
         toast.success("Cuenta creada exitosamente");
       }
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error(error?.message || "Error de autenticación. Verifica tus credenciales.");
+      toast.error(
+        resolveRegisterErrorMessage(
+          error,
+          "Error de autenticación. Verifica tus credenciales.",
+        ),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -155,9 +239,13 @@ export function Auth() {
     }
   };
 
-  const passwordsMatch = formData.password && formData.confirmPassword &&
+  const passwordsMatch =
+    formData.password &&
+    formData.confirmPassword &&
     formData.password === formData.confirmPassword;
-  const passwordsMismatch = formData.password && formData.confirmPassword &&
+  const passwordsMismatch =
+    formData.password &&
+    formData.confirmPassword &&
     formData.password !== formData.confirmPassword;
 
   return (
@@ -213,7 +301,9 @@ export function Auth() {
                 >
                   {/* Name Input */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Nombre Completo</label>
+                    <label className="text-sm font-medium text-foreground">
+                      Nombre Completo
+                    </label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500">
                         <User className="h-5 w-5" />
@@ -222,7 +312,9 @@ export function Auth() {
                         type="text"
                         required={!isLogin}
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
                         className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
                         placeholder="Tu nombre completo"
                       />
@@ -231,7 +323,9 @@ export function Auth() {
 
                   {/* Username Input */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Nombre de Usuario</label>
+                    <label className="text-sm font-medium text-foreground">
+                      Nombre de Usuario
+                    </label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
                         <User className="h-5 w-5" />
@@ -240,7 +334,9 @@ export function Auth() {
                         type="text"
                         required={!isLogin}
                         value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, username: e.target.value })
+                        }
                         className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
                         placeholder="usuario123"
                       />
@@ -264,16 +360,22 @@ export function Auth() {
                   autoComplete={isLogin ? "username" : "email"}
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                  placeholder={isLogin ? "tu@email.com o usuario" : "tu@email.com"}
+                  placeholder={
+                    isLogin ? "tu@email.com o usuario" : "tu@email.com"
+                  }
                 />
               </div>
             </div>
 
             {/* Password Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Contraseña</label>
+              <label className="text-sm font-medium text-foreground">
+                Contraseña
+              </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
                   <Lock className="h-5 w-5" />
@@ -282,16 +384,24 @@ export function Auth() {
                   type={showPassword ? "text" : "password"}
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  placeholder={isLogin ? "Tu contraseña" : "Mínimo 6 caracteres"}
+                  placeholder={
+                    isLogin ? "Tu contraseña" : "Mínimo 6 caracteres"
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
 
@@ -301,31 +411,65 @@ export function Auth() {
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-300 ${passwordStrength.color}`}
-                        style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                        style={{
+                          width: `${(passwordStrength.score / 5) * 100}%`,
+                        }}
                       />
                     </div>
-                    <span className={passwordStrength.textColor}>{passwordStrength.label}</span>
+                    <span className={passwordStrength.textColor}>
+                      {passwordStrength.label}
+                    </span>
                   </div>
                   {/* Password requirements checklist */}
                   <div className="grid grid-cols-2 gap-1 pt-1">
-                    <div className={`flex items-center gap-1 ${passwordStrength.checks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {passwordStrength.checks.length ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                    <div
+                      className={`flex items-center gap-1 ${passwordStrength.checks.length ? "text-green-600" : "text-muted-foreground"}`}
+                    >
+                      {passwordStrength.checks.length ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
                       <span>8+ caracteres</span>
                     </div>
-                    <div className={`flex items-center gap-1 ${passwordStrength.checks.lowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {passwordStrength.checks.lowercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                    <div
+                      className={`flex items-center gap-1 ${passwordStrength.checks.lowercase ? "text-green-600" : "text-muted-foreground"}`}
+                    >
+                      {passwordStrength.checks.lowercase ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
                       <span>Minúscula (a-z)</span>
                     </div>
-                    <div className={`flex items-center gap-1 ${passwordStrength.checks.uppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {passwordStrength.checks.uppercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                    <div
+                      className={`flex items-center gap-1 ${passwordStrength.checks.uppercase ? "text-green-600" : "text-muted-foreground"}`}
+                    >
+                      {passwordStrength.checks.uppercase ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
                       <span>Mayúscula (A-Z)</span>
                     </div>
-                    <div className={`flex items-center gap-1 ${passwordStrength.checks.number ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {passwordStrength.checks.number ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                    <div
+                      className={`flex items-center gap-1 ${passwordStrength.checks.number ? "text-green-600" : "text-muted-foreground"}`}
+                    >
+                      {passwordStrength.checks.number ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
                       <span>Número (0-9)</span>
                     </div>
-                    <div className={`col-span-2 flex items-center gap-1 ${passwordStrength.checks.special ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {passwordStrength.checks.special ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                    <div
+                      className={`col-span-2 flex items-center gap-1 ${passwordStrength.checks.special ? "text-green-600" : "text-muted-foreground"}`}
+                    >
+                      {passwordStrength.checks.special ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
                       <span>Símbolo (@$!%*?&)</span>
                     </div>
                   </div>
@@ -341,29 +485,77 @@ export function Auth() {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-2"
                 >
-                  <label className="text-sm font-medium text-foreground">Confirmar Contraseña</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Confirmar Contraseña
+                  </label>
                   <div className="relative group">
-                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${passwordsMatch ? "text-green-500" : passwordsMismatch ? "text-red-500" : "text-orange-500"}`}>
+                    <div
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${passwordsMatch ? "text-green-500" : passwordsMismatch ? "text-red-500" : "text-orange-500"}`}
+                    >
                       <Lock className="h-5 w-5" />
                     </div>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       required={!isLogin}
                       value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                      className={`h-12 w-full rounded-xl border bg-background pl-11 pr-11 text-sm transition-all focus:outline-none focus:ring-2 ${passwordsMatch
-                        ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
-                        : "border-input focus:border-orange-500 focus:ring-orange-500/20"
-                        }`}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      className={`h-12 w-full rounded-xl border bg-background pl-11 pr-11 text-sm transition-all focus:outline-none focus:ring-2 ${
+                        passwordsMatch
+                          ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                          : "border-input focus:border-orange-500 focus:ring-orange-500/20"
+                      }`}
                       placeholder="Repite tu contraseña"
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
                     </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence mode="popLayout">
+              {!isLogin && registrationMode !== "open" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2"
+                >
+                  <label className="text-sm font-medium text-foreground">
+                    Código de invitación
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500">
+                      <Ticket className="h-5 w-5" />
+                    </div>
+                    <input
+                      type="text"
+                      required={!isLogin}
+                      value={formData.inviteCode}
+                      onChange={(e) =>
+                        setFormData({ ...formData, inviteCode: e.target.value })
+                      }
+                      className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      placeholder="ORDO-XXXX-XXXX"
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
                   </div>
                 </motion.div>
               )}
@@ -376,10 +568,15 @@ export function Auth() {
                   id="remember"
                   type="checkbox"
                   checked={formData.rememberMe}
-                  onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rememberMe: e.target.checked })
+                  }
                   className="h-4 w-4 rounded border-input text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                 />
-                <label htmlFor="remember" className="text-sm font-medium text-muted-foreground cursor-pointer">
+                <label
+                  htmlFor="remember"
+                  className="text-sm font-medium text-muted-foreground cursor-pointer"
+                >
                   Recordarme
                 </label>
               </div>
@@ -387,10 +584,11 @@ export function Auth() {
 
             <Button
               type="submit"
-              className={`w-full h-12 text-lg font-medium transition-all duration-300 ${isLogin
-                ? 'bg-purple-500 hover:bg-purple-600 shadow-purple-500/30'
-                : 'bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/30'
-                } text-white shadow-lg  hover:scale-[1.02]`}
+              className={`w-full h-12 text-lg font-medium transition-all duration-300 ${
+                isLogin
+                  ? "bg-purple-500 hover:bg-purple-600 shadow-purple-500/30"
+                  : "bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/30"
+              } text-white shadow-lg  hover:scale-[1.02]`}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -407,7 +605,9 @@ export function Auth() {
           {/* Divider */}
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-muted-foreground">O continúa con</span>
+            <span className="text-xs font-medium text-muted-foreground">
+              O continúa con
+            </span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
@@ -438,11 +638,18 @@ export function Auth() {
               <button
                 type="button"
                 onClick={toggleMode}
-                className={`inline-flex items-center gap-1 font-semibold transition-colors ${isLogin ? 'text-purple-500 hover:text-purple-600' : 'text-cyan-500 hover:text-cyan-600'
-                  }`}
+                className={`inline-flex items-center gap-1 font-semibold transition-colors ${
+                  isLogin
+                    ? "text-purple-500 hover:text-purple-600"
+                    : "text-cyan-500 hover:text-cyan-600"
+                }`}
               >
                 {isLogin ? "Regístrate gratis" : "Inicia sesión"}
-                {isLogin ? <Sparkles className="h-3 w-3" /> : <ArrowRight className="h-3 w-3" />}
+                {isLogin ? (
+                  <Sparkles className="h-3 w-3" />
+                ) : (
+                  <ArrowRight className="h-3 w-3" />
+                )}
               </button>
             </p>
           </div>
