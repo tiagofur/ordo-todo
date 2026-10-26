@@ -194,6 +194,7 @@
       "disconnecting": "Disconnecting…",
       "disconnectSuccess": "App disconnected. It will have to ask for your permission again to access your account.",
       "disconnectError": "Couldn't disconnect the app.",
+      "note": "After disconnecting an app, its access can stay valid for up to 1 hour until its last token expires.",
       "loading": "Loading connected apps…",
       "loadError": "Couldn't load connected apps."
     },

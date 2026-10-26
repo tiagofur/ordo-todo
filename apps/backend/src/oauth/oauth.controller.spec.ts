@@ -17,7 +17,7 @@ describe('OAuthController', () => {
     registerClient: jest.fn(),
     authorize: jest.fn(),
     validateAuthorizeRequest: jest.fn(),
-    hasActiveGrant: jest.fn(),
+    findLiveGrantScopes: jest.fn(),
     buildDeniedRedirect: jest.fn(),
     getClientInfo: jest.fn(),
     listConnections: jest.fn(),
@@ -183,18 +183,18 @@ describe('OAuthController', () => {
       expect(target.searchParams.get('code_challenge_method')).toBe('S256');
       expect(target.searchParams.has('resource')).toBe(false);
       expect(target.searchParams.has('ordo_error')).toBe(false);
-      expect(oauthService.hasActiveGrant).not.toHaveBeenCalled();
+      expect(oauthService.findLiveGrantScopes).not.toHaveBeenCalled();
       expect(oauthService.authorize).not.toHaveBeenCalled();
     });
 
     it('sends a logged-in user without a live grant to the consent screen', async () => {
       mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
-      mockOAuthService.hasActiveGrant.mockResolvedValue(false);
+      mockOAuthService.findLiveGrantScopes.mockResolvedValue(null);
       const response = res();
 
       await controller.authorize(user, query, response as never);
 
-      expect(oauthService.hasActiveGrant).toHaveBeenCalledWith(
+      expect(oauthService.findLiveGrantScopes).toHaveBeenCalledWith(
         'user-123',
         'ordo_cl_chatgpt',
       );
@@ -202,9 +202,13 @@ describe('OAuthController', () => {
       expect(oauthService.authorize).not.toHaveBeenCalled();
     });
 
-    it('reconnects seamlessly when the client already holds a live grant', async () => {
+    it('reconnects seamlessly when a live grant covers the requested scopes', async () => {
       mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
-      mockOAuthService.hasActiveGrant.mockResolvedValue(true);
+      mockOAuthService.findLiveGrantScopes.mockResolvedValue([
+        'read',
+        'tasks:write',
+        'projects:write',
+      ]);
       mockOAuthService.authorize.mockResolvedValue({
         redirectUri:
           'https://chatgpt.com/aip/abc/oauth/callback?code=c1&state=xyz',
@@ -225,6 +229,18 @@ describe('OAuthController', () => {
       expect(response.redirect).toHaveBeenCalledWith(
         'https://chatgpt.com/aip/abc/oauth/callback?code=c1&state=xyz',
       );
+    });
+
+    it('re-prompts when the request exceeds the live grant (no silent scope upgrades)', async () => {
+      mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
+      // Live grant is read-only, the request asks read + tasks:write.
+      mockOAuthService.findLiveGrantScopes.mockResolvedValue(['read']);
+      const response = res();
+
+      await controller.authorize(user, query, response as never);
+
+      expect(redirectedTo(response).pathname).toBe('/connect/authorize');
+      expect(oauthService.authorize).not.toHaveBeenCalled();
     });
   });
 
@@ -260,6 +276,23 @@ describe('OAuthController', () => {
         ),
       ).rejects.toThrow(ForbiddenException);
       expect(oauthService.validateAuthorizeRequest).not.toHaveBeenCalled();
+    });
+
+    it('accepts the www/apex twin of the frontend origin (301 between hosts must not break the POST)', async () => {
+      mockOAuthService.validateAuthorizeRequest.mockResolvedValue(validated);
+      mockOAuthService.authorize.mockResolvedValue({
+        redirectUri: 'https://chatgpt.com/cb?code=1',
+      });
+
+      await expect(
+        controller.authorizeDecision(
+          user,
+          { ...body, decision: 'approve' },
+          req({ origin: 'https://www.app.ordo.test' }) as never,
+          res() as never,
+        ),
+      ).resolves.toBeUndefined();
+      expect(oauthService.authorize).toHaveBeenCalledTimes(1);
     });
 
     it('accepts the Referer as fallback and headerless (non-browser) requests', async () => {
@@ -353,7 +386,14 @@ describe('OAuthController', () => {
 
       const target = redirectedTo(response);
       expect(target.pathname).toBe('/connect/authorize');
-      expect(target.searchParams.get('state')).toBe('xyz');
+      // The screen must be able to re-run the whole hop: every
+      // authorize param is re-forwarded, not just the state.
+      expect(target.searchParams.get('client_id')).toBe('ordo_cl_chatgpt');
+      expect(target.searchParams.get('redirect_uri')).toBe(
+        'https://chatgpt.com/aip/abc/oauth/callback',
+      );
+      expect(target.searchParams.get('code_challenge')).toBe('c'.repeat(43));
+      expect(target.searchParams.get('scope')).toBe('read');
       expect(target.searchParams.has('ordo_error')).toBe(false);
       expect(oauthService.authorize).not.toHaveBeenCalled();
     });

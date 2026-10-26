@@ -102,27 +102,55 @@ export class OAuthController {
 
   /**
    * Consent-CSRF defense on top of SameSite=Lax: a decision may only be
-   * posted from our own web origin. Browsers always send Origin on form
-   * POSTs; Referer is the fallback. Requests with neither header are
-   * non-browser and cannot ride the session cookie anyway.
+   * posted from one of our own web origins. Browsers always send Origin
+   * on form POSTs; Referer is the fallback. Requests with neither header
+   * are non-browser and cannot ride the session cookie anyway.
+   *
+   * The allowlist covers FRONTEND_URL plus its www/apex twin — deploys
+   * disagree on the canonical host and a 301 between them must not
+   * break the consent POST — and the CORS_ORIGINS list.
    */
-  private isTrustedOrigin(req: Request): boolean {
-    let expected: string;
-    try {
-      expected = new URL(this.frontendUrl()).origin;
-    } catch {
-      return false;
-    }
-    const origin = req.get('origin');
-    if (origin) return origin === expected;
-    const referer = req.get('referer');
-    if (referer) {
+  private trustedOrigins(): Set<string> {
+    const origins = new Set<string>();
+    const add = (raw: string | undefined) => {
+      if (!raw) return;
       try {
-        return new URL(referer).origin === expected;
+        origins.add(new URL(raw).origin);
+      } catch {
+        // Not a URL (e.g. "exp://" style schemes): ignore.
+      }
+    };
+    const frontend = this.frontendUrl();
+    add(frontend);
+    try {
+      const { protocol, hostname } = new URL(frontend);
+      add(
+        hostname.startsWith('www.')
+          ? `${protocol}//${hostname.slice(4)}`
+          : `${protocol}//www.${hostname}`,
+      );
+    } catch {
+      // frontendUrl() already parsed; unreachable in practice.
+    }
+    for (const raw of (process.env.CORS_ORIGINS ?? '').split(',')) {
+      add(raw.trim());
+    }
+    return origins;
+  }
+
+  private isTrustedOrigin(req: Request): boolean {
+    const trusted = this.trustedOrigins();
+    const matches = (header: string) => {
+      try {
+        return trusted.has(new URL(header).origin);
       } catch {
         return false;
       }
-    }
+    };
+    const origin = req.get('origin');
+    if (origin) return matches(origin);
+    const referer = req.get('referer');
+    if (referer) return matches(referer);
     return true;
   }
 
@@ -190,21 +218,26 @@ export class OAuthController {
       return;
     }
 
-    // Reconnect: the client already holds a live grant for this user, so
-    // consent would only be a formality. Mint and go straight back.
-    if (
-      user &&
-      (await this.oauthService.hasActiveGrant(
+    // Reconnect: the client already holds a live grant covering
+    // everything it asks for, so consent would only be a formality.
+    // Mint and go straight back. A broader ask falls through to the
+    // consent screen (no silent scope upgrades).
+    if (user) {
+      const liveScopes = await this.oauthService.findLiveGrantScopes(
         user.id,
         validated.client.clientId,
-      ))
-    ) {
-      const { redirectUri } = await this.oauthService.authorize({
-        userId: user.id,
-        ...params,
-      });
-      res.redirect(redirectUri);
-      return;
+      );
+      const fitsLiveGrant =
+        liveScopes !== null &&
+        validated.grantedScopes.every((scope) => liveScopes.includes(scope));
+      if (fitsLiveGrant) {
+        const { redirectUri } = await this.oauthService.authorize({
+          userId: user.id,
+          ...params,
+        });
+        res.redirect(redirectUri);
+        return;
+      }
     }
 
     // First connection (or no session): the web consent screen takes

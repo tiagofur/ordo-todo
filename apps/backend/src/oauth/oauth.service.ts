@@ -326,18 +326,23 @@ export class OAuthService {
   }
 
   /**
-   * True when the user still holds an unexpired refresh token for this
-   * client — a live connection. Used to skip the consent screen on
-   * reconnect (the client already holds equivalent power; asking again
-   * would only train users to click through).
+   * Union of scopes across the user's unexpired refresh tokens for this
+   * client — the live connection — or null when there is none. Consent
+   * may only be skipped when the incoming request fits inside these
+   * scopes; a broader ask always re-prompts, so a client can never
+   * upgrade its access past what the user actually approved.
    */
-  async hasActiveGrant(userId: string, clientId: string): Promise<boolean> {
-    const token = await oAuthDelegates(this.prisma).oAuthRefreshToken.findFirst(
+  async findLiveGrantScopes(
+    userId: string,
+    clientId: string,
+  ): Promise<string[] | null> {
+    const tokens = await oAuthDelegates(this.prisma).oAuthRefreshToken.findMany(
       {
         where: { userId, clientId, expiresAt: { gt: new Date() } },
       },
     );
-    return token !== null;
+    if (tokens.length === 0) return null;
+    return [...new Set(tokens.flatMap((token) => token.scopes))];
   }
 
   /** RFC 6749 §4.1.2.1: user denied — redirect back with access_denied. */

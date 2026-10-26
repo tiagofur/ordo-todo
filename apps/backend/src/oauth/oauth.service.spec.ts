@@ -460,24 +460,29 @@ describe('OAuthService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('hasActiveGrant only counts unexpired refresh tokens of that user and client', async () => {
-      mockPrismaService.oAuthRefreshToken.findFirst.mockResolvedValue({
-        id: 'rt-1',
-      });
+    it('findLiveGrantScopes unions live tokens per user+client and returns null without one', async () => {
+      mockPrismaService.oAuthRefreshToken.findMany.mockResolvedValue([
+        { id: 'rt-1', scopes: ['read'], expiresAt: new Date() },
+        {
+          id: 'rt-2',
+          scopes: ['read', 'tasks:write'],
+          expiresAt: new Date(),
+        },
+      ]);
       await expect(
-        service.hasActiveGrant('user-123', 'ordo_cl_chatgpt'),
-      ).resolves.toBe(true);
+        service.findLiveGrantScopes('user-123', 'ordo_cl_chatgpt'),
+      ).resolves.toEqual(['read', 'tasks:write']);
 
       const where =
-        mockPrismaService.oAuthRefreshToken.findFirst.mock.calls[0][0].where;
+        mockPrismaService.oAuthRefreshToken.findMany.mock.calls[0][0].where;
       expect(where.userId).toBe('user-123');
       expect(where.clientId).toBe('ordo_cl_chatgpt');
       expect(where.expiresAt.gt).toBeInstanceOf(Date);
 
-      mockPrismaService.oAuthRefreshToken.findFirst.mockResolvedValue(null);
+      mockPrismaService.oAuthRefreshToken.findMany.mockResolvedValue([]);
       await expect(
-        service.hasActiveGrant('user-123', 'ordo_cl_chatgpt'),
-      ).resolves.toBe(false);
+        service.findLiveGrantScopes('user-123', 'ordo_cl_chatgpt'),
+      ).resolves.toBeNull();
     });
 
     it('buildDeniedRedirect returns access_denied with the state echoed (RFC 6749 §4.1.2.1)', () => {

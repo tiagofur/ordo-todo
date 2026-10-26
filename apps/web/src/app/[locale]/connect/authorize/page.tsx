@@ -97,21 +97,29 @@ function ConnectAuthorize() {
   );
   const invalid = !request || searchParams.has("ordo_error");
 
-  // No session: run the login hop. `next` is the API authorize path (the
-  // contract resolvePostLoginTarget accepts on the login page): after
-  // signing in the browser re-enters the authorize endpoint, which sends
-  // it back here with a session.
-  useEffect(() => {
-    if (invalid || isAuthLoading || isAuthenticated || !request) return;
+  // Login-hop target: the API authorize path, the contract the login
+  // page's resolvePostLoginTarget accepts (`/api/...`). Null when the
+  // configured API base has no `/api` path — a broken deploy we surface
+  // as the error state instead of stranding the tab after login.
+  const loginNext = useMemo(() => {
+    if (!request) return null;
     let apiPath: string;
     try {
       apiPath = new URL(API_CONFIG.baseURL).pathname.replace(/\/$/, "");
     } catch {
-      return;
+      return null;
     }
-    const next = `${apiPath}/oauth/authorize?${request.query}`;
-    router.replace(`/login?next=${encodeURIComponent(next)}`);
-  }, [invalid, isAuthLoading, isAuthenticated, request, router]);
+    if (!apiPath.startsWith("/api")) return null;
+    return `${apiPath}/oauth/authorize?${request.query}`;
+  }, [request]);
+
+  // No session: run the login hop; after signing in the browser
+  // re-enters the authorize endpoint, which sends it back here with a
+  // session.
+  useEffect(() => {
+    if (invalid || !loginNext || isAuthLoading || isAuthenticated) return;
+    router.replace(`/login?next=${encodeURIComponent(loginNext)}`);
+  }, [invalid, loginNext, isAuthLoading, isAuthenticated, router]);
 
   const clientInfo = useQuery({
     queryKey: [
@@ -129,7 +137,7 @@ function ConnectAuthorize() {
     staleTime: 60_000,
   });
 
-  if (invalid) {
+  if (invalid || !loginNext) {
     return (
       <ConnectShell>
         <ErrorState title={t("error.title")} body={t("error.body")} cta={t("error.openApp")} />

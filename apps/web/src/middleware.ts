@@ -6,8 +6,9 @@ const intlMiddleware = createMiddleware(routing);
 
 // `/connect` hosts the OAuth consent screen: connector flows (ChatGPT,
 // Claude…) land there from the API with or without a session, and the
-// page itself runs the login hop when needed.
-const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password', '/connect'];
+// page itself runs the login hop when needed. Matched by exact segment
+// (below) so unrelated paths like `/connectwhatever` stay protected.
+const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password'];
 
 function isTokenValid(token?: string): boolean {
     if (!token) return false;
@@ -69,7 +70,10 @@ export default function middleware(request: NextRequest) {
     const pathWithoutLocale = pathname.replace(/^\/(en|es|pt-br)/, '');
 
     // Check if route is public
-    const isPublic = publicPages.some(page => pathWithoutLocale.startsWith(page));
+    const isConnectPage =
+        pathWithoutLocale === '/connect' || pathWithoutLocale.startsWith('/connect/');
+    const isPublic =
+        isConnectPage || publicPages.some(page => pathWithoutLocale.startsWith(page));
 
     // 1. Protected Route & No Valid Token -> Login
     if (!isPublic && !hasValidToken) {

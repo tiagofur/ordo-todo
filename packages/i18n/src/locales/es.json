@@ -194,6 +194,7 @@
       "disconnecting": "Desconectando…",
       "disconnectSuccess": "App desconectada. Tendrá que pedirte permiso de nuevo para acceder.",
       "disconnectError": "No se pudo desconectar la app.",
+      "note": "Al desconectar una app, su acceso puede seguir activo hasta 1 hora hasta que caduque su último token.",
       "loading": "Cargando apps conectadas…",
       "loadError": "No se pudieron cargar las apps conectadas."
     },

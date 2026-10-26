@@ -156,6 +156,8 @@ export function ConnectedAppsSection() {
           </AnimatePresence>
         </div>
       )}
+
+      <p className="mt-4 text-xs text-muted-foreground">{t("note")}</p>
     </div>
   );
 }
