@@ -45,6 +45,28 @@ npm run tauri android build --debug --target aarch64
 
 Sin `--target` compila universal (todas las ABI, más lento y más pesado).
 
+### Iconos de la app (importante tras un `tauri android init`)
+
+La fuente de los iconos es `src-tauri/icons/` (regenerable con
+`npx tauri icon <png-1024>` desde `apps/mobile`). **`tauri android build`
+NO sincroniza los iconos Android en el proyecto generado** (`gen/android/`,
+gitignored): si tras un `init` el launcher muestra el logo por defecto de
+Tauri, copiar a mano antes de compilar:
+
+```bash
+SRC=src-tauri/icons/android DST=src-tauri/gen/android/app/src/main/res
+for d in mipmap-hdpi mipmap-mdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+  cp $SRC/$d/*.png $DST/$d/
+done
+mkdir -p $DST/mipmap-anydpi-v26 && cp $SRC/mipmap-anydpi-v26/*.xml $DST/mipmap-anydpi-v26/
+cp $SRC/values/ic_launcher_background.xml $DST/values/
+```
+
+El fondo del icono adaptativo es el morado de marca `#AD46FF`
+(`ic_launcher_background.xml`); tras cambiarlo, reinstalar el APK
+desinstalando antes (`adb uninstall` + `adb install`) porque el launcher
+cachea el icono con `install -r`.
+
 Variantes contra otros backends (el export manda sobre `.env.production`):
 
 ```bash
