@@ -19,6 +19,9 @@ describe('V1ProjectsService', () => {
     project: {
       findUnique: jest.fn(),
     },
+    workspaceMember: {
+      findUnique: jest.fn().mockResolvedValue({ id: 'm-1' }),
+    },
   };
 
   beforeEach(async () => {
@@ -46,18 +49,85 @@ describe('V1ProjectsService', () => {
     expect(result).toEqual([{ id: 'proj-1' }]);
   });
 
-  it('should get after verifying access', async () => {
-    mockPrismaService.project.findUnique.mockResolvedValue({ id: 'proj-1' });
+  it('should get when the caller owns the project', async () => {
+    mockPrismaService.project.findUnique.mockResolvedValue({
+      id: 'proj-1',
+      ownerId: 'user-123',
+      workspaceId: 'ws-1',
+    });
     mockProjectsService.findOne.mockResolvedValue({ id: 'proj-1' });
 
     await expect(service.get('user-123', 'proj-1')).resolves.toEqual({
       id: 'proj-1',
     });
+  });
 
+  it('should get when the caller is a workspace member', async () => {
+    mockPrismaService.project.findUnique.mockResolvedValue({
+      id: 'proj-1',
+      ownerId: 'someone-else',
+      workspaceId: 'ws-1',
+    });
+    mockProjectsService.findOne.mockResolvedValue({ id: 'proj-1' });
+
+    await expect(service.get('user-123', 'proj-1')).resolves.toEqual({
+      id: 'proj-1',
+    });
+    expect(mockPrismaService.workspaceMember.findUnique).toHaveBeenCalledWith({
+      where: {
+        workspaceId_userId: { workspaceId: 'ws-1', userId: 'user-123' },
+      },
+      select: { id: true },
+    });
+  });
+
+  it('should refuse a stranger outside the workspace on get', async () => {
+    mockPrismaService.project.findUnique.mockResolvedValue({
+      id: 'proj-1',
+      ownerId: 'someone-else',
+      workspaceId: 'ws-1',
+    });
+    mockPrismaService.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+    await expect(service.get('intruder', 'proj-1')).rejects.toThrow(
+      ForbiddenException,
+    );
+    expect(mockProjectsService.findOne).not.toHaveBeenCalled();
+  });
+
+  it('should throw NotFound when the project does not exist', async () => {
     mockPrismaService.project.findUnique.mockResolvedValue(null);
+
     await expect(service.get('user-123', 'missing')).rejects.toThrow(
       NotFoundException,
     );
+  });
+
+  it('should refuse creating projects in workspaces the caller is not in', async () => {
+    mockPrismaService.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+    await expect(
+      service.create('intruder', {
+        name: 'Sneaky',
+        workspaceId: 'ws-foreign',
+      }),
+    ).rejects.toThrow(ForbiddenException);
+    expect(mockProjectsService.create).not.toHaveBeenCalled();
+  });
+
+  it('should create for workspace members with the caller scoped', async () => {
+    mockProjectsService.create.mockResolvedValue({ id: 'proj-9' });
+
+    await expect(
+      service.create('user-123', {
+        name: 'New project',
+        workspaceId: 'ws-1',
+      }),
+    ).resolves.toEqual({ id: 'proj-9' });
+    expect(mockProjectsService.create).toHaveBeenCalledWith({
+      name: 'New project',
+      workspaceId: 'ws-1',
+    });
   });
 
   it('should enforce ownership on update and remove', async () => {
@@ -67,7 +137,7 @@ describe('V1ProjectsService', () => {
     });
 
     await expect(
-      service.update('user-123', 'proj-1', { name: 'x' } as never),
+      service.update('user-123', 'proj-1', { name: 'x' }),
     ).rejects.toThrow(ForbiddenException);
     await expect(service.remove('user-123', 'proj-1')).rejects.toThrow(
       ForbiddenException,
