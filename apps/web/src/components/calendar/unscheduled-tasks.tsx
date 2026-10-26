@@ -55,7 +55,6 @@ export function UnscheduledTasks({
   onCreateTask,
 }: UnscheduledTasksProps) {
   const t = useTranslations("Calendar");
-  const tCommon = useTranslations("common");
   const locale = useLocale();
   const dateLocale = dateLocaleMap[locale] || es;
   const queryClient = useQueryClient();
@@ -93,7 +92,7 @@ export function UnscheduledTasks({
       (task: Task) =>
         !task.scheduledDate &&
         !task.scheduledTime &&
-        task.status !== "COMPLETED"
+        task.status !== "COMPLETED",
     );
   }, [tasks]);
 
@@ -168,7 +167,7 @@ export function UnscheduledTasks({
         }}
         className={cn(
           "flex flex-col rounded-2xl border border-border/60 bg-card shadow-xs overflow-hidden transition-all max-h-[48%] min-h-[210px]",
-          isAgendaDragOver && "ring-2 ring-blue-500 bg-blue-500/[0.04]"
+          isAgendaDragOver && "ring-2 ring-purple-500 bg-purple-500/[0.04]",
         )}
       >
         <div className="px-4 py-3 border-b border-border/60 flex items-center justify-between gap-2 bg-muted/20 shrink-0">
@@ -177,8 +176,8 @@ export function UnscheduledTasks({
               className={cn(
                 "h-8 w-8 rounded-xl flex items-center justify-center font-bold text-xs tabular-nums shrink-0",
                 selectedIsToday
-                  ? "bg-blue-500 text-white shadow-xs shadow-blue-500/25"
-                  : "bg-muted text-foreground"
+                  ? "bg-purple-600 text-white shadow-xs shadow-purple-600/25"
+                  : "bg-muted text-foreground",
               )}
             >
               {format(selectedDate, "d")}
@@ -189,7 +188,7 @@ export function UnscheduledTasks({
                   {format(selectedDate, "EEEE, d MMM", { locale: dateLocale })}
                 </h3>
                 {selectedIsToday && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400">
                     {t("today")}
                   </span>
                 )}
@@ -209,7 +208,7 @@ export function UnscheduledTasks({
               variant="ghost"
               size="sm"
               onClick={() => onSelectDate(new Date())}
-              className="h-7 px-2 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-lg shrink-0"
+              className="h-7 px-2 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg shrink-0"
             >
               {t("today")}
             </Button>
@@ -220,20 +219,21 @@ export function UnscheduledTasks({
           <div className="p-3 space-y-2">
             {selectedDayTasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 px-3 text-center">
-                <div className="h-9 w-9 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mb-2">
+                <div className="h-9 w-9 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center mb-2">
                   <CalendarIcon className="h-4 w-4" />
                 </div>
                 <p className="text-xs font-medium text-foreground">
                   Día despejado
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5 max-w-[210px]">
-                  Arrastra una tarea aquí o usa el botón rápido para asignarla a este día.
+                  Arrastra una tarea aquí o usa el botón rápido para asignarla a
+                  este día.
                 </p>
                 {onCreateTask && (
                   <button
                     type="button"
                     onClick={onCreateTask}
-                    className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                    className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline"
                   >
                     <Plus className="h-3 w-3" />
                     Crear tarea
@@ -252,14 +252,16 @@ export function UnscheduledTasks({
                     onClick={() => onSelectTask?.(task.id)}
                     className={cn(
                       "group flex items-start gap-2.5 p-2.5 rounded-xl border border-border/60 bg-background hover:bg-accent/40 transition-all cursor-pointer",
-                      isCompleted && "opacity-60"
+                      isCompleted && "opacity-60",
                     )}
                   >
                     <button
                       type="button"
                       onClick={(e) => handleToggleComplete(e, task)}
-                      className="mt-0.5 text-muted-foreground hover:text-blue-500 transition-colors shrink-0"
-                      aria-label={isCompleted ? "Reabrir tarea" : "Completar tarea"}
+                      className="mt-0.5 text-muted-foreground hover:text-purple-600 transition-colors shrink-0"
+                      aria-label={
+                        isCompleted ? "Reabrir tarea" : "Completar tarea"
+                      }
                     >
                       {isCompleted ? (
                         <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -277,7 +279,7 @@ export function UnscheduledTasks({
                         <p
                           className={cn(
                             "text-xs font-semibold text-foreground truncate",
-                            isCompleted && "line-through text-muted-foreground"
+                            isCompleted && "line-through text-muted-foreground",
                           )}
                         >
                           {task.title}
@@ -285,7 +287,7 @@ export function UnscheduledTasks({
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground tabular-nums">
                         {task.scheduledTime ? (
-                          <span className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium">
+                          <span className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium">
                             <Clock className="h-2.5 w-2.5" />
                             {task.scheduledTime}
                             {task.scheduledEndTime
@@ -313,7 +315,7 @@ export function UnscheduledTasks({
       {/* SECTION 2: Unscheduled Tasks Tray */}
       <div className="flex-1 flex flex-col rounded-2xl border border-border/60 bg-card shadow-xs overflow-hidden min-h-0">
         <div className="py-3 px-4 border-b border-border/60 flex items-center gap-2 bg-muted/15 shrink-0">
-          <CalendarClock className="h-4 w-4 text-blue-500 shrink-0" />
+          <CalendarClock className="h-4 w-4 text-purple-600 shrink-0" />
           <h3 className="text-xs font-bold tracking-tight text-foreground truncate">
             {t("unscheduledTasks")}
           </h3>
@@ -406,7 +408,7 @@ export function UnscheduledTasks({
                     title={`Programar el ${format(selectedDate, "d MMM", {
                       locale: dateLocale,
                     })}`}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-blue-600 hover:bg-blue-500/10 transition-all shrink-0"
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-purple-600 hover:bg-purple-500/10 transition-all shrink-0"
                   >
                     <CalendarPlus className="h-3.5 w-3.5" />
                   </button>

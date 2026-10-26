@@ -30,7 +30,7 @@ function isTaskDueSoon(task: any): boolean {
   const dueDate = new Date(task.dueDate);
   const now = new Date();
   const diffDays = Math.ceil(
-    (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   );
   return diffDays <= 2 && diffDays >= 0;
 }
@@ -38,7 +38,9 @@ function isTaskDueSoon(task: any): boolean {
 function getTaskQuadrant(task: any): "DO" | "SCHEDULE" | "DELEGATE" | "DELETE" {
   const isUrgent =
     task.isUrgent ??
-    (task.priority === "URGENT" || task.priority === "HIGH" || isTaskDueSoon(task));
+    (task.priority === "URGENT" ||
+      task.priority === "HIGH" ||
+      isTaskDueSoon(task));
   const isImportant =
     task.isImportant ??
     (task.priority === "URGENT" ||
@@ -98,7 +100,7 @@ export function Eisenhower() {
 
   const handleTaskMove = async (
     taskId: string,
-    quadrant: "DO" | "SCHEDULE" | "DELEGATE" | "DELETE"
+    quadrant: "DO" | "SCHEDULE" | "DELEGATE" | "DELETE",
   ) => {
     type TaskPriority = "HIGH" | "MEDIUM" | "LOW" | "URGENT";
     let priority: TaskPriority;
@@ -137,7 +139,7 @@ export function Eisenhower() {
     if (!activeWorkspaceId || projects.length === 0) return allTasks;
     const workspaceProjectIds = new Set(projects.map((p: any) => p.id));
     return allTasks.filter(
-      (t: any) => !t.projectId || workspaceProjectIds.has(t.projectId)
+      (t: any) => !t.projectId || workspaceProjectIds.has(t.projectId),
     );
   }, [allTasks, activeWorkspaceId, projects]);
 
@@ -145,7 +147,7 @@ export function Eisenhower() {
   const pendingTasks = useMemo(() => {
     return workspaceTasks.filter(
       (t: any) =>
-        t.status !== "COMPLETED" && t.status !== "DONE" && !t.completed
+        t.status !== "COMPLETED" && t.status !== "DONE" && !t.completed,
     );
   }, [workspaceTasks]);
 
@@ -168,7 +170,7 @@ export function Eisenhower() {
       result = result.filter(
         (t: any) =>
           t.title?.toLowerCase().includes(q) ||
-          t.project?.name?.toLowerCase().includes(q)
+          t.project?.name?.toLowerCase().includes(q),
       );
     }
 
@@ -207,7 +209,7 @@ export function Eisenhower() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-700 text-white shadow-sm shadow-orange-700/25 shrink-0">
                 <LayoutGrid className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0">
@@ -263,7 +265,7 @@ export function Eisenhower() {
                     aria-label="Seleccionar espacio de trabajo"
                     value={activeWorkspaceId || ""}
                     onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
+                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-colors cursor-pointer shadow-xs"
                   >
                     {workspaces.map((ws: any) => (
                       <option key={ws.id} value={ws.id}>
@@ -285,7 +287,7 @@ export function Eisenhower() {
                 <RefreshCw
                   className={cn(
                     "h-4 w-4 text-muted-foreground",
-                    isRefreshing && "animate-spin text-foreground"
+                    isRefreshing && "animate-spin text-foreground",
                   )}
                 />
                 <span className="hidden sm:inline">Actualizar</span>
@@ -295,7 +297,7 @@ export function Eisenhower() {
               <button
                 type="button"
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-purple-500 text-white px-3.5 sm:px-4 py-2 text-sm font-medium shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02] cursor-pointer"
+                className="flex items-center gap-2 rounded-xl bg-orange-700 text-white px-3.5 sm:px-4 py-2 text-sm font-medium shadow-sm shadow-orange-700/25 transition-all duration-200 hover:bg-orange-800 hover:scale-[1.02] cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>Nueva Tarea</span>
@@ -313,7 +315,7 @@ export function Eisenhower() {
                 "group relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer",
                 quadrantFilter === "DO"
                   ? "border-rose-500/80 ring-2 ring-rose-500/20 bg-rose-500/[0.04]"
-                  : "border-border/60"
+                  : "border-border/60",
               )}
               onClick={() =>
                 setQuadrantFilter((prev) => (prev === "DO" ? "ALL" : "DO"))
@@ -352,11 +354,11 @@ export function Eisenhower() {
                 "group relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer",
                 quadrantFilter === "SCHEDULE"
                   ? "border-blue-500/80 ring-2 ring-blue-500/20 bg-blue-500/[0.04]"
-                  : "border-border/60"
+                  : "border-border/60",
               )}
               onClick={() =>
                 setQuadrantFilter((prev) =>
-                  prev === "SCHEDULE" ? "ALL" : "SCHEDULE"
+                  prev === "SCHEDULE" ? "ALL" : "SCHEDULE",
                 )
               }
               onMouseEnter={(e) => {
@@ -393,11 +395,11 @@ export function Eisenhower() {
                 "group relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer",
                 quadrantFilter === "DELEGATE"
                   ? "border-amber-500/80 ring-2 ring-amber-500/20 bg-amber-500/[0.04]"
-                  : "border-border/60"
+                  : "border-border/60",
               )}
               onClick={() =>
                 setQuadrantFilter((prev) =>
-                  prev === "DELEGATE" ? "ALL" : "DELEGATE"
+                  prev === "DELEGATE" ? "ALL" : "DELEGATE",
                 )
               }
               onMouseEnter={(e) => {
@@ -434,11 +436,11 @@ export function Eisenhower() {
                 "group relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer",
                 quadrantFilter === "DELETE"
                   ? "border-slate-500/80 ring-2 ring-slate-500/20 bg-slate-500/[0.04]"
-                  : "border-border/60"
+                  : "border-border/60",
               )}
               onClick={() =>
                 setQuadrantFilter((prev) =>
-                  prev === "DELETE" ? "ALL" : "DELETE"
+                  prev === "DELETE" ? "ALL" : "DELETE",
                 )
               }
               onMouseEnter={(e) => {
@@ -482,7 +484,7 @@ export function Eisenhower() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar tarea o proyecto..."
-                className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
+                className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all"
               />
               {searchQuery && (
                 <button
@@ -531,7 +533,7 @@ export function Eisenhower() {
                       "px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
                       quadrantFilter === filter.key
                         ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     <span>{filter.label}</span>
@@ -547,23 +549,23 @@ export function Eisenhower() {
 
         {/* Active Filter Notice */}
         {quadrantFilter !== "ALL" && (
-          <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-purple-500/20 bg-purple-500/[0.04] text-xs font-medium text-foreground">
+          <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-orange-500/20 bg-orange-500/[0.04] text-xs font-medium text-foreground">
             <span>
               Filtrando cuadrante:{" "}
               <strong>
                 {quadrantFilter === "DO"
                   ? "Hacer Primero (Urgente e Importante)"
                   : quadrantFilter === "SCHEDULE"
-                  ? "Programar (Importante, No Urgente)"
-                  : quadrantFilter === "DELEGATE"
-                  ? "Delegar (Urgente, No Importante)"
-                  : "Eliminar (Ni Urgente ni Importante)"}
+                    ? "Programar (Importante, No Urgente)"
+                    : quadrantFilter === "DELEGATE"
+                      ? "Delegar (Urgente, No Importante)"
+                      : "Eliminar (Ni Urgente ni Importante)"}
               </strong>
             </span>
             <button
               type="button"
               onClick={() => setQuadrantFilter("ALL")}
-              className="text-purple-600 dark:text-purple-400 hover:underline cursor-pointer font-semibold"
+              className="text-orange-600 dark:text-orange-400 hover:underline cursor-pointer font-semibold"
             >
               Ver todos los cuadrantes
             </button>
@@ -595,7 +597,7 @@ export function Eisenhower() {
         <SlideIn direction="top" delay={0.2}>
           <div className="rounded-2xl border border-border/60 bg-muted/20 p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-foreground">
-              <Sparkles className="h-4 w-4 text-purple-500" />
+              <Sparkles className="h-4 w-4 text-orange-500" />
               <span>¿Cómo funciona el principio de Eisenhower?</span>
             </h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-muted-foreground">

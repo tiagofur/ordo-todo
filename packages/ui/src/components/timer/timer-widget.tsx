@@ -1,8 +1,7 @@
-
-import { Clock, Play } from 'lucide-react';
-import { cn } from '../../utils/index.js';
-import { TomatoIcon } from '../ui/custom-icons.js';
-import type { TimerMode as CoreTimerMode } from '@ordo-todo/core';
+import { Clock, Play } from "lucide-react";
+import { cn } from "../../utils/index.js";
+import { TomatoIcon } from "../ui/custom-icons.js";
+import type { TimerMode as CoreTimerMode } from "@ordo-todo/core";
 
 // Canonical timer phase (ODD 014 T7): single definition in
 // @ordo-todo/core timer.constants; UI only aliases it.
@@ -16,7 +15,7 @@ interface TimerWidgetProps {
   /** Current timer mode */
   mode: TimerMode;
   /** Default mode (POMODORO or CONTINUOUS) */
-  defaultMode?: 'POMODORO' | 'CONTINUOUS';
+  defaultMode?: "POMODORO" | "CONTINUOUS";
   /** Whether this widget is currently active/selected */
   isActive?: boolean;
   /** Click handler - typically navigates to timer page */
@@ -35,22 +34,22 @@ function formatTime(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  
+
   if (hrs > 0) {
-    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
 /**
  * TimerWidget - Compact timer display for sidebar/navigation
- * 
+ *
  * Platform-agnostic component. Navigation and timer state are passed via props.
- * 
+ *
  * @example
  * // In web app with router
  * const { isRunning, timeLeft, mode } = useTimer();
- * 
+ *
  * <TimerWidget
  *   isRunning={isRunning}
  *   timeLeft={timeLeft}
@@ -64,34 +63,35 @@ export function TimerWidget({
   isRunning,
   timeLeft,
   mode,
-  defaultMode = 'POMODORO',
+  defaultMode = "POMODORO",
   isActive = false,
   onClick,
   labels = {},
-  className = '',
+  className = "",
 }: TimerWidgetProps) {
-  const { startTimer = 'Start Timer' } = labels;
+  const { startTimer = "Start Timer" } = labels;
 
   const getThemeClasses = () => {
     if (!isActive && !isRunning) {
-      return 'text-muted-foreground hover:bg-muted/80 hover:text-foreground';
+      return "text-muted-foreground hover:bg-muted/80 hover:text-foreground";
     }
 
-    const colorKey = {
-      WORK: 'red',
-      SHORT_BREAK: 'green-light',
-      LONG_BREAK: 'green-dark',
-      CONTINUOUS: 'blue',
-    }[mode] || 'blue';
+    const colorKey =
+      {
+        WORK: "red",
+        SHORT_BREAK: "green-light",
+        LONG_BREAK: "green-dark",
+        CONTINUOUS: "blue",
+      }[mode] || "blue";
 
     if (isActive) {
       // Replaced shadow transparencies with standard active states or solid borders if necessary
       // For now using solid backgrounds which is consistent with active states
       const activeClasses: Record<string, string> = {
-        red: 'bg-red-500 text-white',
-        'green-light': 'bg-green-400 text-white',
-        'green-dark': 'bg-green-800 text-white',
-        blue: 'bg-blue-500 text-white',
+        red: "bg-red-500 text-white",
+        "green-light": "bg-green-400 text-white",
+        "green-dark": "bg-green-800 text-white",
+        blue: "bg-blue-500 text-white",
       };
       return activeClasses[colorKey];
     }
@@ -99,10 +99,12 @@ export function TimerWidget({
     // isRunning
     // Replaced transparencies like /70 with solid colors
     const runningClasses: Record<string, string> = {
-      red: 'border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900',
-      'green-light': 'border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900',
-      'green-dark': 'border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800',
-      blue: 'border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900',
+      red: "border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900",
+      "green-light":
+        "border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900",
+      "green-dark":
+        "border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800",
+      blue: "border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900",
     };
     return runningClasses[colorKey];
   };
@@ -111,7 +113,7 @@ export function TimerWidget({
     <>
       {isRunning ? (
         <Play className="h-4 w-4" />
-      ) : defaultMode === 'POMODORO' ? (
+      ) : defaultMode === "POMODORO" ? (
         <TomatoIcon className="h-4 w-4" />
       ) : (
         <Clock className="h-4 w-4" />
@@ -131,9 +133,9 @@ export function TimerWidget({
       <button
         onClick={onClick}
         className={cn(
-          'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 w-full',
+          "flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 w-full",
           getThemeClasses(),
-          className
+          className,
         )}
       >
         {content}

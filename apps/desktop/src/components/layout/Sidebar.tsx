@@ -29,6 +29,9 @@ import { desktopBridge } from "@/lib/desktop-bridge";
 export function useNavSections(): NavSection[] {
   const { t } = (useTranslation as any)();
 
+  // Sistema de color (decisión del owner, oct 2026): el color codifica la
+  // sección — purple = trabajo diario, emerald = planificación, orange =
+  // equipo y enfoque, cyan = rendimiento — y red se reserva para la Papelera.
   return [
     {
       items: [
@@ -36,9 +39,14 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.today"),
           href: "/dashboard",
           icon: Home,
-          color: "cyan",
+          color: "purple",
         },
-        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
+        {
+          name: t("Sidebar.aiChat"),
+          href: "/ai-chat",
+          icon: Bot,
+          color: "purple",
+        },
         {
           name: t("Sidebar.tasks"),
           href: "/tasks",
@@ -49,7 +57,7 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.calendar"),
           href: "/calendar",
           icon: Calendar,
-          color: "blue",
+          color: "purple",
         },
       ],
     },
@@ -60,7 +68,7 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.projects"),
           href: "/projects",
           icon: FolderKanban,
-          color: "pink",
+          color: "emerald",
         },
         {
           name: t("Sidebar.habits"),
@@ -72,13 +80,13 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.goals"),
           href: "/goals",
           icon: Target,
-          color: "orange",
+          color: "emerald",
         },
         {
           name: t("Sidebar.notes"),
           href: "/notes",
           icon: StickyNote,
-          color: "yellow",
+          color: "emerald",
         },
       ],
     },
@@ -95,19 +103,19 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.workload"),
           href: "/workload",
           icon: Users,
-          color: "purple",
+          color: "orange",
         },
         {
           name: t("Sidebar.eisenhower"),
           href: "/eisenhower",
           icon: LayoutGrid,
-          color: "purple",
+          color: "orange",
         },
         {
           name: t("Sidebar.meetings"),
           href: "/meetings",
           icon: MessageSquare,
-          color: "purple",
+          color: "orange",
         },
       ],
     },
@@ -124,9 +132,9 @@ export function useNavSections(): NavSection[] {
           name: t("Sidebar.wellbeing"),
           href: "/wellbeing",
           icon: Heart,
-          color: "pink",
+          color: "cyan",
         },
-        { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
+        { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "cyan" },
         {
           name: t("Sidebar.trash"),
           href: "/trash/tasks",

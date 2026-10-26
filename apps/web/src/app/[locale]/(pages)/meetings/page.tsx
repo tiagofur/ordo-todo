@@ -12,7 +12,6 @@ import {
   ChevronDown,
   ArrowRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useWorkspaces } from "@/lib/api-hooks";
@@ -37,7 +36,7 @@ export default function MeetingsPage() {
         {/* Apple Style Unified Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-700 text-white shadow-sm shadow-orange-700/25 shrink-0">
               <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -45,7 +44,7 @@ export default function MeetingsPage() {
                 {t("title")}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+                <Sparkles className="h-3.5 w-3.5 text-orange-600 shrink-0" />
                 <span>{t("subtitle")}</span>
               </p>
             </div>
@@ -59,7 +58,7 @@ export default function MeetingsPage() {
                   aria-label="Seleccionar espacio de trabajo"
                   value={activeWorkspaceId || ""}
                   onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
+                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-600 transition-colors cursor-pointer shadow-xs"
                 >
                   {workspaces.map((ws: any) => (
                     <option key={ws.id} value={ws.id}>
@@ -92,7 +91,7 @@ export default function MeetingsPage() {
               <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t("featureSummaryTitle")}
               </span>
-              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 transition-transform duration-300 group-hover:scale-110">
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 transition-transform duration-300 group-hover:scale-110">
                 <FileText className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>

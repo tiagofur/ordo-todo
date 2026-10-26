@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ArrowRight, X, CheckCircle2 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { Button } from "../ui/button.js";
@@ -33,21 +34,34 @@ export function FeatureOnboarding({
   nextText = "Next",
   getStartedText = "Get Started",
 }: FeatureOnboardingProps) {
-  
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+
+  // Esc cierra el tour (equivale a saltarlo)
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onSkip();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onSkip]);
 
   if (!isOpen || !step) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div
-        className="relative w-full max-w-lg mx-4 bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 slide-in-from-bottom-10"
-      >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={step.title}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+    >
+      <div className="relative w-full max-w-lg mx-4 bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 slide-in-from-bottom-10">
         {/* Close button */}
         <button
           onClick={onSkip}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors z-10"
+          aria-label={skipText}
+          className="absolute top-2 right-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted transition-colors z-10"
         >
           <X className="h-5 w-5 text-muted-foreground" />
         </button>
@@ -89,12 +103,13 @@ export function FeatureOnboarding({
               <div
                 key={index}
                 className={cn(
-                    "h-2 rounded-full transition-all duration-300",
-                    index === currentStep ? "w-6" : "w-2"
+                  "h-2 rounded-full transition-all duration-300",
+                  index === currentStep ? "w-6" : "w-2",
                 )}
                 style={{
-                    backgroundColor: index <= currentStep ? step.color : "var(--muted)",
-                    opacity: index <= currentStep ? 1 : 0.3
+                  backgroundColor:
+                    index <= currentStep ? step.color : "var(--muted)",
+                  opacity: index <= currentStep ? 1 : 0.3,
                 }}
               />
             ))}

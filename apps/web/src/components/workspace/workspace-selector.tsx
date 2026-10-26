@@ -39,6 +39,8 @@ interface WorkspaceSelectorProps {
   isLoading?: boolean;
   onSelect?: (workspace: WorkspaceSelectorItem) => void;
   onCreateClick?: () => void;
+  /** Extra classes para el panel del dropdown (p. ej. max-w dentro de contenedores estrechos) */
+  contentClassName?: string;
   labels?: {
     create?: string;
     search?: string;
@@ -57,11 +59,13 @@ export function WorkspaceSelector({
   isLoading: propIsLoading,
   onSelect: propOnSelect,
   onCreateClick,
+  contentClassName,
   labels = {},
 }: WorkspaceSelectorProps) {
   const tTranslations = useTranslations("WorkspaceSelector");
   const { data: fetchedWorkspaces, isLoading: isFetching } = useWorkspaces();
-  const { selectedWorkspaceId: storeSelectedId, setSelectedWorkspaceId } = useWorkspaceStore();
+  const { selectedWorkspaceId: storeSelectedId, setSelectedWorkspaceId } =
+    useWorkspaceStore();
 
   const workspaces: WorkspaceSelectorItem[] = useMemo(() => {
     if (propWorkspaces) return propWorkspaces;
@@ -79,7 +83,8 @@ export function WorkspaceSelector({
     }));
   }, [propWorkspaces, fetchedWorkspaces]);
 
-  const selectedWorkspaceId = propSelectedId !== undefined ? propSelectedId : storeSelectedId;
+  const selectedWorkspaceId =
+    propSelectedId !== undefined ? propSelectedId : storeSelectedId;
   const isLoading = propIsLoading !== undefined ? propIsLoading : isFetching;
 
   const handleSelectWorkspace = (workspace: WorkspaceSelectorItem) => {
@@ -182,7 +187,13 @@ export function WorkspaceSelector({
           <ChevronsUpDown className="h-4 w-4 text-muted-foreground/70 shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-80 p-0 bg-popover text-popover-foreground border-border shadow-xl rounded-xl">
+      <DropdownMenuContent
+        align="start"
+        className={cn(
+          "w-80 p-0 bg-popover text-popover-foreground border-border shadow-xl rounded-xl",
+          contentClassName,
+        )}
+      >
         {/* Search */}
         <div className="p-3 border-b border-border">
           <div className="relative">
@@ -226,7 +237,9 @@ export function WorkspaceSelector({
                   )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <div className="font-medium truncate text-foreground">{workspace.name}</div>
+                  <div className="font-medium truncate text-foreground">
+                    {workspace.name}
+                  </div>
                   <div className="text-xs text-muted-foreground flex items-center gap-3">
                     <span className="flex items-center gap-1">
                       <FolderKanban className="h-3 w-3" />

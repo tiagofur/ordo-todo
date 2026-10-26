@@ -26,7 +26,14 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from "@ordo-todo/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+} from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
 import { PageTransition, SlideIn } from "@/components/motion";
@@ -106,8 +113,12 @@ export function Wellbeing() {
           ...data,
           warnings: (data.warnings || data.riskFactors || []).map((w: any) =>
             typeof w === "string"
-              ? { message: w, severity: "MODERATE" as const, recommendation: "Mantén una pausa activa" }
-              : w
+              ? {
+                  message: w,
+                  severity: "MODERATE" as const,
+                  recommendation: "Mantén una pausa activa",
+                }
+              : w,
           ),
           aiInsights: data.aiInsights || data.recommendations?.[0] || "",
         });
@@ -120,7 +131,8 @@ export function Wellbeing() {
           averageHoursPerDay:
             data.avgDailyWorkHours ??
             (data.avgSessionDuration ? data.avgSessionDuration / 60 : 0),
-          nightWorkPercentage: data.lateNightPercentage ?? data.nightWorkPercentage ?? 0,
+          nightWorkPercentage:
+            data.lateNightPercentage ?? data.nightWorkPercentage ?? 0,
           weekendWorkPercentage: data.weekendWorkPercentage ?? 0,
           averageBreakMinutes:
             data.avgSessionWithoutBreak ??
@@ -200,8 +212,10 @@ export function Wellbeing() {
   };
 
   const getBatteryIcon = (score: number) => {
-    if (score >= 75) return <BatteryFull className="h-7 w-7 text-emerald-500" />;
-    if (score >= 50) return <BatteryMedium className="h-7 w-7 text-amber-500" />;
+    if (score >= 75)
+      return <BatteryFull className="h-7 w-7 text-emerald-500" />;
+    if (score >= 50)
+      return <BatteryMedium className="h-7 w-7 text-amber-500" />;
     if (score >= 25) return <BatteryLow className="h-7 w-7 text-orange-500" />;
     return <Battery className="h-7 w-7 text-rose-500" />;
   };
@@ -209,10 +223,10 @@ export function Wellbeing() {
   const energyScore = Math.round(weekly?.overallScore ?? 75);
   const riskScore = Math.round(burnout?.riskScore ?? 0);
   const breakMinutes = Math.round(
-    patterns?.avgSessionWithoutBreak ?? patterns?.averageBreakMinutes ?? 0
+    patterns?.avgSessionWithoutBreak ?? patterns?.averageBreakMinutes ?? 0,
   );
   const nightWork = Math.round(
-    patterns?.lateNightPercentage ?? patterns?.nightWorkPercentage ?? 0
+    patterns?.lateNightPercentage ?? patterns?.nightWorkPercentage ?? 0,
   );
 
   return (
@@ -222,17 +236,20 @@ export function Wellbeing() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-700 text-white shadow-sm shadow-cyan-700/25 shrink-0">
                 <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
-                  {t("Sidebar.wellbeing") || t("Wellbeing.title") || "Bienestar"}
+                  {t("Sidebar.wellbeing") ||
+                    t("Wellbeing.title") ||
+                    "Bienestar"}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                  <Sparkles className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
                   <span>
-                    Mantén el equilibrio entre tu productividad y tu salud mental
+                    Mantén el equilibrio entre tu productividad y tu salud
+                    mental
                   </span>
                 </p>
               </div>
@@ -246,7 +263,7 @@ export function Wellbeing() {
                     aria-label="Seleccionar espacio de trabajo"
                     value={activeWorkspaceId || ""}
                     onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-colors cursor-pointer shadow-xs"
+                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-colors cursor-pointer shadow-xs"
                   >
                     {workspaces.map((ws: any) => (
                       <option key={ws.id} value={ws.id}>
@@ -267,7 +284,10 @@ export function Wellbeing() {
                 className="gap-2 rounded-xl border-border/60 hover:bg-muted/50 cursor-pointer shadow-xs"
               >
                 <RefreshCw
-                  className={cn("h-4 w-4 text-rose-500", isRefreshing && "animate-spin")}
+                  className={cn(
+                    "h-4 w-4 text-cyan-500",
+                    isRefreshing && "animate-spin",
+                  )}
                 />
                 <span>Actualizar</span>
               </Button>
@@ -294,7 +314,7 @@ export function Wellbeing() {
               <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Nivel de Energía
               </span>
-              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 transition-transform duration-300 group-hover:scale-110">
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-500 transition-transform duration-300 group-hover:scale-110">
                 <Zap className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>
@@ -309,8 +329,8 @@ export function Wellbeing() {
                     {weekly.trend === "IMPROVING"
                       ? "Mejorando"
                       : weekly.trend === "DECLINING"
-                      ? "En declive"
-                      : "Estable"}
+                        ? "En declive"
+                        : "Estable"}
                   </span>
                 </>
               ) : (
@@ -348,12 +368,12 @@ export function Wellbeing() {
               {burnout?.riskLevel === "LOW"
                 ? "Bajo"
                 : burnout?.riskLevel === "MODERATE"
-                ? "Moderado"
-                : burnout?.riskLevel === "HIGH"
-                ? "Alto"
-                : burnout?.riskLevel === "CRITICAL"
-                ? "Crítico"
-                : "Bajo"}
+                  ? "Moderado"
+                  : burnout?.riskLevel === "HIGH"
+                    ? "Alto"
+                    : burnout?.riskLevel === "CRITICAL"
+                      ? "Crítico"
+                      : "Bajo"}
             </p>
           </div>
 
@@ -434,7 +454,9 @@ export function Wellbeing() {
               {/* Burnout Risk Gauge Card */}
               {burnout && (
                 <Card className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
-                  <div className={cn("h-1.5", getRiskColor(burnout.riskLevel).bg)} />
+                  <div
+                    className={cn("h-1.5", getRiskColor(burnout.riskLevel).bg)}
+                  />
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                       <span className="flex items-center gap-2">
@@ -444,18 +466,18 @@ export function Wellbeing() {
                       <span
                         className={cn(
                           "px-3 py-1 rounded-full text-xs font-semibold",
-                          getRiskColor(burnout.riskLevel).light
+                          getRiskColor(burnout.riskLevel).light,
                         )}
                       >
                         {burnout.riskLevel === "LOW"
                           ? "Bajo"
                           : burnout.riskLevel === "MODERATE"
-                          ? "Moderado"
-                          : burnout.riskLevel === "HIGH"
-                          ? "Alto"
-                          : burnout.riskLevel === "CRITICAL"
-                          ? "Crítico"
-                          : burnout.riskLevel}
+                            ? "Moderado"
+                            : burnout.riskLevel === "HIGH"
+                              ? "Alto"
+                              : burnout.riskLevel === "CRITICAL"
+                                ? "Crítico"
+                                : burnout.riskLevel}
                       </span>
                     </CardTitle>
                   </CardHeader>
@@ -483,12 +505,14 @@ export function Wellbeing() {
                             strokeLinecap="round"
                             className={cn(
                               "transition-all duration-1000 ease-out",
-                              getRiskColor(burnout.riskLevel).text
+                              getRiskColor(burnout.riskLevel).text,
                             )}
                           />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-3xl font-black">{riskScore}</span>
+                          <span className="text-3xl font-black">
+                            {riskScore}
+                          </span>
                           <span className="text-[10px] font-bold uppercase text-muted-foreground">
                             Puntos
                           </span>
@@ -499,25 +523,30 @@ export function Wellbeing() {
                           Factores Detectados
                         </h4>
                         <div className="space-y-1.5">
-                          {(burnout.warnings || []).slice(0, 3).map((w, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center gap-2 text-xs sm:text-sm p-2 rounded-xl bg-muted/40"
-                            >
-                              {w.severity === "SEVERE" ? (
-                                <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0" />
-                              ) : (
-                                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                              )}
-                              <span className="text-muted-foreground font-medium truncate">
-                                {w.message}
-                              </span>
-                            </div>
-                          ))}
-                          {(!burnout.warnings || burnout.warnings.length === 0) && (
+                          {(burnout.warnings || [])
+                            .slice(0, 3)
+                            .map((w, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2 text-xs sm:text-sm p-2 rounded-xl bg-muted/40"
+                              >
+                                {w.severity === "SEVERE" ? (
+                                  <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0" />
+                                ) : (
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                                )}
+                                <span className="text-muted-foreground font-medium truncate">
+                                  {w.message}
+                                </span>
+                              </div>
+                            ))}
+                          {(!burnout.warnings ||
+                            burnout.warnings.length === 0) && (
                             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-medium flex items-center gap-2">
                               <CheckCircle2 className="h-4 w-4" />
-                              <span>No se detectaron sobrecargas recientes</span>
+                              <span>
+                                No se detectaron sobrecargas recientes
+                              </span>
                             </div>
                           )}
                         </div>
@@ -603,16 +632,18 @@ export function Wellbeing() {
                         Pausas Recomendadas
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {recommendations.slice(0, 3).map((rec: any, idx: number) => (
-                          <Badge
-                            key={idx}
-                            variant="secondary"
-                            className="rounded-lg text-xs py-1 px-2.5 gap-1.5 bg-muted/50 border border-border/60"
-                          >
-                            <Coffee className="h-3.5 w-3.5 text-emerald-500" />
-                            <span>{rec.message || rec}</span>
-                          </Badge>
-                        ))}
+                        {recommendations
+                          .slice(0, 3)
+                          .map((rec: any, idx: number) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="rounded-lg text-xs py-1 px-2.5 gap-1.5 bg-muted/50 border border-border/60"
+                            >
+                              <Coffee className="h-3.5 w-3.5 text-emerald-500" />
+                              <span>{rec.message || rec}</span>
+                            </Badge>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -726,8 +757,8 @@ export function Wellbeing() {
                             energyScore >= 80
                               ? "bg-emerald-500"
                               : energyScore >= 50
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
+                                ? "bg-amber-500"
+                                : "bg-rose-500",
                           )}
                           style={{ width: `${energyScore}%` }}
                         />

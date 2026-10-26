@@ -28,7 +28,6 @@ import {
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { notify } from "@/lib/notify";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,7 +105,7 @@ export default function TagsPage() {
     if (allTasks.length === 0) return "0.0";
     const totalApplications = allTasks.reduce(
       (sum: number, task: any) => sum + (task.tags?.length || 0),
-      0
+      0,
     );
     return (totalApplications / allTasks.length).toFixed(1);
   }, [allTasks]);
@@ -140,7 +139,10 @@ export default function TagsPage() {
 
   const handleOpenCreateDialog = () => {
     if (!activeWorkspaceId) {
-      notify.error(t("selectWorkspaceFirst") || "Por favor selecciona un espacio de trabajo primero");
+      notify.error(
+        t("selectWorkspaceFirst") ||
+          "Por favor selecciona un espacio de trabajo primero",
+      );
       return;
     }
     setEditingTag(null);
@@ -157,7 +159,7 @@ export default function TagsPage() {
         {/* Apple Style Unified Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-700 text-white shadow-sm shadow-cyan-700/25 shrink-0">
               <TagIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -165,8 +167,11 @@ export default function TagsPage() {
                 {t("title") || "Etiquetas"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                <span>{t("subtitle") || "Organiza y filtra tus tareas con etiquetas personalizadas"}</span>
+                <Sparkles className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
+                <span>
+                  {t("subtitle") ||
+                    "Organiza y filtra tus tareas con etiquetas personalizadas"}
+                </span>
               </p>
             </div>
           </div>
@@ -179,7 +184,7 @@ export default function TagsPage() {
                   aria-label="Seleccionar espacio de trabajo"
                   value={activeWorkspaceId || ""}
                   onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors cursor-pointer shadow-xs"
+                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-600 transition-colors cursor-pointer shadow-xs"
                 >
                   {workspaces.map((ws: any) => (
                     <option key={ws.id} value={ws.id}>
@@ -196,7 +201,7 @@ export default function TagsPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleOpenCreateDialog}
-              className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium bg-cyan-700 hover:bg-cyan-800 text-white shadow-sm shadow-cyan-700/25 transition-all duration-200 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("newTag") || "Nueva Etiqueta"}</span>
@@ -223,7 +228,7 @@ export default function TagsPage() {
               <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Total Etiquetas
               </span>
-              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform duration-300 group-hover:scale-110">
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 transition-transform duration-300 group-hover:scale-110">
                 <TagIcon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
               </div>
             </div>
@@ -337,7 +342,7 @@ export default function TagsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar etiqueta por nombre..."
-                className="w-full bg-muted/40 border-0 rounded-xl pl-9 pr-8 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
+                className="w-full bg-muted/40 border-0 rounded-xl pl-9 pr-8 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all"
               />
               {searchQuery && (
                 <button
@@ -350,8 +355,15 @@ export default function TagsPage() {
               )}
             </div>
             <div className="text-xs text-muted-foreground px-2">
-              Mostrando <span className="font-semibold text-foreground">{filteredTags.length}</span> de{" "}
-              <span className="font-semibold text-foreground">{tags.length}</span> etiquetas
+              Mostrando{" "}
+              <span className="font-semibold text-foreground">
+                {filteredTags.length}
+              </span>{" "}
+              de{" "}
+              <span className="font-semibold text-foreground">
+                {tags.length}
+              </span>{" "}
+              etiquetas
             </div>
           </div>
         )}
@@ -476,11 +488,13 @@ export default function TagsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/80 bg-card/50"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4 shadow-xs">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-600 mb-4 shadow-xs">
               <TagIcon className="h-7 w-7" />
             </div>
             <h3 className="text-lg font-semibold mb-1">
-              {searchQuery ? "Sin resultados para tu búsqueda" : t("noTags") || "No hay etiquetas"}
+              {searchQuery
+                ? "Sin resultados para tu búsqueda"
+                : t("noTags") || "No hay etiquetas"}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-sm text-sm">
               {searchQuery
@@ -501,7 +515,7 @@ export default function TagsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleOpenCreateDialog}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-700 hover:bg-cyan-800 text-white shadow-sm shadow-cyan-700/25 transition-all duration-200 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t("createTag") || "Crear Etiqueta"}</span>
@@ -548,7 +562,9 @@ export default function TagsPage() {
             setEditingTag(null);
           } catch (error: unknown) {
             notify.error(
-              error instanceof Error ? error.message : t("saveError") || "Error al guardar"
+              error instanceof Error
+                ? error.message
+                : t("saveError") || "Error al guardar",
             );
           }
         }}

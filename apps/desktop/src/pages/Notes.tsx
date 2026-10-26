@@ -16,19 +16,62 @@ import { PageTransition, SlideIn, FadeIn } from "@/components/motion";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@ordo-todo/ui";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { useNotes, useCreateNote, useUpdateNote, useDeleteNote, useWorkspace, useWorkspaces } from "@/hooks/api";
+import {
+  useNotes,
+  useCreateNote,
+  useUpdateNote,
+  useDeleteNote,
+  useWorkspace,
+  useWorkspaces,
+} from "@/hooks/api";
 import { NoteBoard } from "@/components/notes/NoteBoard";
 import { toast } from "sonner";
 import type { Note } from "@ordo-todo/api-client";
 
 // Post-it palette with real Apple / 3M paper tones
 export const NOTE_PALETTE = [
-  { id: "yellow", name: "Amarillo", bg: "#FEF08A", border: "#FDE047", text: "#713F12" },
-  { id: "orange", name: "Naranja", bg: "#FED7AA", border: "#FDBA74", text: "#9A3412" },
-  { id: "pink", name: "Rosa", bg: "#FBCFE8", border: "#F472B6", text: "#9D174D" },
-  { id: "green", name: "Verde", bg: "#BBF7D0", border: "#86EFAC", text: "#166534" },
-  { id: "blue", name: "Azul", bg: "#BAE6FD", border: "#7DD3FC", text: "#075985" },
-  { id: "purple", name: "Morado", bg: "#E9D5FF", border: "#D8B4FE", text: "#6B21A8" },
+  {
+    id: "yellow",
+    name: "Amarillo",
+    bg: "#FEF08A",
+    border: "#FDE047",
+    text: "#713F12",
+  },
+  {
+    id: "orange",
+    name: "Naranja",
+    bg: "#FED7AA",
+    border: "#FDBA74",
+    text: "#9A3412",
+  },
+  {
+    id: "pink",
+    name: "Rosa",
+    bg: "#FBCFE8",
+    border: "#F472B6",
+    text: "#9D174D",
+  },
+  {
+    id: "green",
+    name: "Verde",
+    bg: "#BBF7D0",
+    border: "#86EFAC",
+    text: "#166534",
+  },
+  {
+    id: "blue",
+    name: "Azul",
+    bg: "#BAE6FD",
+    border: "#7DD3FC",
+    text: "#075985",
+  },
+  {
+    id: "purple",
+    name: "Morado",
+    bg: "#E9D5FF",
+    border: "#D8B4FE",
+    text: "#6B21A8",
+  },
 ] as const;
 
 interface NoteCardProps {
@@ -112,7 +155,7 @@ function GridNoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
           <span
             className={cn(
               "text-[10px] font-medium transition-opacity text-neutral-600/70",
-              isSaved ? "opacity-60" : "opacity-100 font-semibold"
+              isSaved ? "opacity-60" : "opacity-100 font-semibold",
             )}
           >
             {isSaved ? "Guardado" : "Escribiendo..."}
@@ -152,7 +195,8 @@ export function Notes() {
   const { data: workspaces = [] } = useWorkspaces();
 
   // Effective workspace ID (auto-fallback if not yet stored)
-  const effectiveWorkspaceId = selectedWorkspaceId || (workspaces as any)[0]?.id || "";
+  const effectiveWorkspaceId =
+    selectedWorkspaceId || (workspaces as any)[0]?.id || "";
 
   useEffect(() => {
     if (!selectedWorkspaceId && (workspaces as any).length > 0) {
@@ -171,13 +215,19 @@ export function Notes() {
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "canvas">("grid");
 
-  const notes: Note[] = useMemo(() => (Array.isArray(notesData) ? notesData : []), [notesData]);
+  const notes: Note[] = useMemo(
+    () => (Array.isArray(notesData) ? notesData : []),
+    [notesData],
+  );
 
   // Live KPI Summary
   const stats = useMemo(() => {
     const total = notes.length;
     const uniqueColors = new Set(notes.map((n) => n.color)).size;
-    const totalChars = notes.reduce((acc, n) => acc + (n.content?.length || 0), 0);
+    const totalChars = notes.reduce(
+      (acc, n) => acc + (n.content?.length || 0),
+      0,
+    );
     return { total, uniqueColors, totalChars };
   }, [notes]);
 
@@ -193,7 +243,8 @@ export function Notes() {
 
       // 2. Color Filter
       if (colorFilter !== "all") {
-        if (note.color?.toLowerCase() !== colorFilter.toLowerCase()) return false;
+        if (note.color?.toLowerCase() !== colorFilter.toLowerCase())
+          return false;
       }
 
       return true;
@@ -205,7 +256,9 @@ export function Notes() {
   const handleAddNote = (colorOverride?: string) => {
     const targetWorkspaceId = effectiveWorkspaceId;
     if (!targetWorkspaceId) {
-      toast.error(t("Notes.noWorkspace", "Selecciona un espacio de trabajo primero."));
+      toast.error(
+        t("Notes.noWorkspace", "Selecciona un espacio de trabajo primero."),
+      );
       return;
     }
 
@@ -226,14 +279,20 @@ export function Notes() {
           toast.success(t("Notes.toast.created", "Nota creada"));
         },
         onError: (err: any) => {
-          const msg = err?.response?.data?.message || err?.message || t("Notes.toast.error", "Error al crear nota");
+          const msg =
+            err?.response?.data?.message ||
+            err?.message ||
+            t("Notes.toast.error", "Error al crear nota");
           toast.error(typeof msg === "string" ? msg : JSON.stringify(msg));
         },
-      }
+      },
     );
   };
 
-  const handleUpdateNote = (id: string, data: { content?: string; color?: string }) => {
+  const handleUpdateNote = (
+    id: string,
+    data: { content?: string; color?: string },
+  ) => {
     updateNote.mutate({ id, data });
   };
 
@@ -252,7 +311,7 @@ export function Notes() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-sm shadow-amber-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm shadow-emerald-700/25 shrink-0">
                 <StickyNote className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div>
@@ -265,7 +324,10 @@ export function Notes() {
                   )}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
-                  {t("Notes.subtitle", "Post-its y recordatorios ágiles para tus ideas sueltas")}
+                  {t(
+                    "Notes.subtitle",
+                    "Post-its y recordatorios ágiles para tus ideas sueltas",
+                  )}
                 </p>
               </div>
             </div>
@@ -274,12 +336,16 @@ export function Notes() {
               {/* Live KPI Summary Pill */}
               {selectedWorkspaceId && (
                 <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-700" />
                   <span>Total:</span>
-                  <span className="font-bold text-foreground">{stats.total}</span>
+                  <span className="font-bold text-foreground">
+                    {stats.total}
+                  </span>
                   <span className="text-border">|</span>
                   <span>Colores:</span>
-                  <span className="font-bold text-foreground">{stats.uniqueColors}</span>
+                  <span className="font-bold text-foreground">
+                    {stats.uniqueColors}
+                  </span>
                 </div>
               )}
 
@@ -288,7 +354,7 @@ export function Notes() {
                 type="button"
                 onClick={() => handleAddNote()}
                 disabled={!selectedWorkspaceId || createNote.isPending}
-                className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-amber-500/25 transition-all duration-200 hover:bg-amber-600 hover:scale-[1.02] cursor-pointer"
+                className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t("Notes.add", "Nueva Nota")}</span>
@@ -301,7 +367,7 @@ export function Notes() {
         {!selectedWorkspaceId ? (
           <FadeIn delay={0.1}>
             <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-card/40">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 mb-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4">
                 <StickyNote className="h-8 w-8" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-1">
@@ -310,7 +376,7 @@ export function Notes() {
               <p className="text-sm text-muted-foreground max-w-sm">
                 {t(
                   "Notes.noWorkspaceDesc",
-                  "Las notas pertenecen a un espacio de trabajo. Por favor selecciona uno en el menú lateral para ver tus notas."
+                  "Las notas pertenecen a un espacio de trabajo. Por favor selecciona uno en el menú lateral para ver tus notas.",
                 )}
               </p>
             </div>
@@ -329,7 +395,7 @@ export function Notes() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Buscar en notas..."
-                      className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
+                      className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
                     />
                     {searchQuery && (
                       <button
@@ -354,7 +420,7 @@ export function Notes() {
                           "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                           colorFilter === "all"
                             ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                       >
                         Todas
@@ -364,12 +430,14 @@ export function Notes() {
                         <button
                           key={p.id}
                           type="button"
-                          onClick={() => setColorFilter(colorFilter === p.bg ? "all" : p.bg)}
+                          onClick={() =>
+                            setColorFilter(colorFilter === p.bg ? "all" : p.bg)
+                          }
                           className={cn(
                             "h-5 w-5 rounded-full border border-black/10 transition-transform cursor-pointer relative",
                             colorFilter === p.bg
                               ? "scale-120 ring-2 ring-primary ring-offset-1"
-                              : "hover:scale-110"
+                              : "hover:scale-110",
                           )}
                           style={{ backgroundColor: p.bg }}
                           title={p.name}
@@ -391,7 +459,7 @@ export function Notes() {
                           "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                           viewMode === "grid"
                             ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                         title="Cuadrícula de Post-its"
                         aria-label="Cuadrícula"
@@ -406,7 +474,7 @@ export function Notes() {
                           "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
                           viewMode === "canvas"
                             ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                         title="Pizarra Libre (Drag & Drop)"
                         aria-label="Pizarra"
@@ -434,15 +502,15 @@ export function Notes() {
               /* Zero Notes Initial State */
               <FadeIn delay={0.1}>
                 <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-dashed border-border/70 bg-card/40 p-6">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 mb-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4">
                     <StickyNote className="h-7 w-7" />
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-1">
                     {t("Notes.noNotes", "Tu tablero de notas está vacío")}
                   </h3>
                   <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-6">
-                    Crea tu primer post-it para recordar ideas rápidas, apuntes de reuniones o
-                    pensamientos sueltos.
+                    Crea tu primer post-it para recordar ideas rápidas, apuntes
+                    de reuniones o pensamientos sueltos.
                   </p>
 
                   {/* Quick color starter buttons */}
@@ -473,7 +541,8 @@ export function Notes() {
                     No se encontraron notas
                   </h3>
                   <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-4">
-                    No hay post-its que coincidan con la búsqueda o el color seleccionado.
+                    No hay post-its que coincidan con la búsqueda o el color
+                    seleccionado.
                   </p>
                   <button
                     type="button"

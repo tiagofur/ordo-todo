@@ -1,31 +1,14 @@
 "use client";
 
-import {
-  Home,
-  CheckSquare,
-  FolderKanban,
-  BarChart3,
-  Briefcase,
-  Calendar,
-  CalendarDays,
-  Download,
-  Sparkles,
-  Sunrise,
-  Target,
-  Users,
-  Bot,
-  StickyNote,
-  LayoutGrid,
-  MessageSquare,
-  Heart,
-  Tags,
-  Trash2,
-  ShieldCheck,
-} from "lucide-react";
+import { Download } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
+import { Sidebar as SidebarUI } from "@ordo-todo/ui";
+import { buildNavSections } from "./nav-config";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
-import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
+import {
+  CreateWorkspaceDialog,
+  type CreateWorkspaceFormData,
+} from "@/components/workspace/create-workspace-dialog";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
@@ -42,79 +25,27 @@ interface DesktopSidebarProps {
 
 export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
   const t = useTranslations("Sidebar");
+  const tCreate = useTranslations("CreateWorkspaceDialog");
   const pathname = usePathname();
   const { isAdmin } = useIsAdmin();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const createWorkspace = useCreateWorkspace();
   const { setSelectedWorkspaceId } = useWorkspaceStore();
 
-  const handleCreateWorkspace = async (data: any) => {
+  const handleCreateWorkspace = async (data: CreateWorkspaceFormData) => {
     try {
       const created = await createWorkspace.mutateAsync(data);
       if (created?.id) {
         setSelectedWorkspaceId(created.id);
       }
-      toast.success("Workspace creado exitosamente");
+      toast.success(tCreate("toast.success"));
       setShowCreateWorkspace(false);
     } catch (error) {
-      toast.error(getErrorMessage(error, "Error al crear workspace"));
+      toast.error(getErrorMessage(error, tCreate("toast.error")));
     }
   };
 
-  const navSections: NavSection[] = [
-    {
-      items: [
-        { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
-        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
-        { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-        { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-        { name: t("dayPlan"), href: "/plan", icon: CalendarDays, color: "cyan" },
-        { name: t("ritual"), href: "/ritual", icon: Sunrise, color: "orange" },
-      ],
-    },
-    {
-      label: t("sectionPlan"),
-      items: [
-        { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-        { name: t("habits"), href: "/habits", icon: Sparkles, color: "emerald" },
-        { name: t("goals"), href: "/goals", icon: Target, color: "orange" },
-        { name: t("notes"), href: "/notes", icon: StickyNote, color: "yellow" },
-      ],
-    },
-    {
-      label: t("sectionTeam"),
-      items: [
-        { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-        { name: t("workload"), href: "/workload", icon: Users, color: "purple" },
-        { name: t("eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
-        { name: t("meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
-      ],
-    },
-    {
-      label: t("sectionInsights"),
-      items: [
-        { name: t("insights"), href: "/insights", icon: BarChart3, color: "cyan" },
-        { name: t("wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
-        { name: t("tags"), href: "/tags", icon: Tags, color: "green" },
-        { name: t("trash"), href: "/trash/tasks", icon: Trash2, color: "red" },
-      ],
-    },
-    ...(isAdmin
-      ? [
-          {
-            label: t("sectionAdmin"),
-            items: [
-              {
-                name: t("admin"),
-                href: "/admin",
-                icon: ShieldCheck,
-                color: "purple" as const,
-              },
-            ],
-          },
-        ]
-      : []),
-  ];
+  const navSections = buildNavSections(t, isAdmin);
 
   return (
     <>
@@ -129,7 +60,9 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
         )}
         renderTimerWidget={() => <TimerWidget />}
         renderWorkspaceSelector={() => (
-          <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
+          <WorkspaceSelector
+            onCreateClick={() => setShowCreateWorkspace(true)}
+          />
         )}
         renderInstallButton={() => <InstallPWAButton />}
         showSettingsButton={false}

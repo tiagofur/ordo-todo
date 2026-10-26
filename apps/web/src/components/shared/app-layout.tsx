@@ -25,8 +25,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showShortcutsHelp, setShowShortcutsHelp } = useKeyboardShortcuts({
     enabled: true,
     onToggleSidebar: () => setSidebarCollapsed((prev) => !prev),
-    onNewTask: () => setQuickAddOpen(true),
-    onSearchOpen: () => setPaletteOpen(true),
+    // El drawer y la paleta/quick-add son overlays z-50: abrir uno cierra el
+    // otro, o la paleta quedaría pintada detrás del drawer.
+    onNewTask: () => {
+      setMobileMenuOpen(false);
+      setQuickAddOpen(true);
+    },
+    onSearchOpen: () => {
+      setMobileMenuOpen(false);
+      setPaletteOpen(true);
+    },
     onNewProject: () => router.push("/projects?action=new"),
   });
 
@@ -39,17 +47,17 @@ export function AppLayout({ children }: AppLayoutProps) {
       <MobileSidebar open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />
 
       {/* Main Content */}
-      <div className={`flex flex-1 flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+      <div
+        className={`flex flex-1 flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}
+      >
         <TopBar onMenuClick={() => setMobileMenuOpen(true)} />
-        <main 
+        <main
           id="main-content"
           role="main"
           aria-label="Contenido principal"
           className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col min-h-0"
         >
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
 
@@ -60,7 +68,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       />
 
       {/* Global Quick-Add (Cmd/Ctrl+N) */}
-      <QuickAddDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+      <QuickAddDialog
+        open={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
+      />
 
       {/* Command Palette (Cmd/Ctrl+K) */}
       <CommandPalette
@@ -71,4 +82,3 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
-

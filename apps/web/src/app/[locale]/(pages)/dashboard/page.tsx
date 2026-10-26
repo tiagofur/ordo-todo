@@ -18,12 +18,14 @@ import {
   FolderPlus,
   Sparkles,
   Target,
-  Zap,
   Rocket,
   Sun,
   Moon,
 } from "lucide-react";
-import { DailyRitualDialog, type RitualMode } from "@/components/planning/daily-ritual-dialog";
+import {
+  DailyRitualDialog,
+  type RitualMode,
+} from "@/components/planning/daily-ritual-dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
@@ -65,45 +67,48 @@ export default function DashboardPage() {
   const t = useTranslations("Dashboard");
   const format = useFormatter();
   const router = useRouter();
-  const accentColor = "#06b6d4"; // Cyan
+  const accentColor = "#9333ea"; // Purple
 
-  const dashboardOnboardingSteps: OnboardingStep[] = useMemo(() => [
-    {
-      id: "welcome",
-      icon: Sparkles,
-      color: "#06b6d4",
-      title: t("onboarding.welcomeTitle"),
-      description: t("onboarding.welcomeDesc"),
-    },
-    {
-      id: "tasks",
-      icon: CheckCircle2,
-      color: "#10b981",
-      title: t("onboarding.tasksTitle"),
-      description: t("onboarding.tasksDesc"),
-    },
-    {
-      id: "timer",
-      icon: Timer,
-      color: "#f59e0b",
-      title: t("onboarding.timerTitle"),
-      description: t("onboarding.timerDesc"),
-    },
-    {
-      id: "habits",
-      icon: Target,
-      color: "#8b5cf6",
-      title: t("onboarding.habitsTitle"),
-      description: t("onboarding.habitsDesc"),
-    },
-    {
-      id: "getstarted",
-      icon: Rocket,
-      color: "#06b6d4",
-      title: t("onboarding.getstartedTitle"),
-      description: t("onboarding.getstartedDesc"),
-    },
-  ], [t]);
+  const dashboardOnboardingSteps: OnboardingStep[] = useMemo(
+    () => [
+      {
+        id: "welcome",
+        icon: Sparkles,
+        color: "#06b6d4",
+        title: t("onboarding.welcomeTitle"),
+        description: t("onboarding.welcomeDesc"),
+      },
+      {
+        id: "tasks",
+        icon: CheckCircle2,
+        color: "#10b981",
+        title: t("onboarding.tasksTitle"),
+        description: t("onboarding.tasksDesc"),
+      },
+      {
+        id: "timer",
+        icon: Timer,
+        color: "#f59e0b",
+        title: t("onboarding.timerTitle"),
+        description: t("onboarding.timerDesc"),
+      },
+      {
+        id: "habits",
+        icon: Target,
+        color: "#8b5cf6",
+        title: t("onboarding.habitsTitle"),
+        description: t("onboarding.habitsDesc"),
+      },
+      {
+        id: "getstarted",
+        icon: Rocket,
+        color: "#06b6d4",
+        title: t("onboarding.getstartedTitle"),
+        description: t("onboarding.getstartedDesc"),
+      },
+    ],
+    [t],
+  );
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -125,13 +130,16 @@ export default function DashboardPage() {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [showDailyRitualDialog, setShowDailyRitualDialog] = useState(false);
   const [dailyRitualMode, setDailyRitualMode] = useState<RitualMode>("morning");
-  
+
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: createProject } = useCreateProject();
 
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: workspaces = [], isLoading: isLoadingWorkspaces } = useWorkspaces();
-  const { data: projects = [], isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
+    useWorkspaces();
+  const { data: projects = [], isLoading: isLoadingProjects } = useProjects(
+    selectedWorkspaceId || "",
+  );
   const { data: workflows = [] } = useWorkflows(selectedWorkspaceId || "");
   const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
@@ -140,7 +148,7 @@ export default function DashboardPage() {
   const startOfDay = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   );
   const endOfDay = new Date(
     today.getFullYear(),
@@ -148,7 +156,7 @@ export default function DashboardPage() {
     today.getDate(),
     23,
     59,
-    59
+    59,
   );
 
   // Fetch today's timer stats
@@ -171,11 +179,17 @@ export default function DashboardPage() {
   const todaysTasks = allTasks.filter((task: Task) => {
     // Workspace isolation filter
     if (selectedWorkspaceId) {
-      const taskWorkspaceId = (task as any).project?.workspace?.id || (task as any).project?.workspaceId;
+      const taskWorkspaceId =
+        (task as any).project?.workspace?.id ||
+        (task as any).project?.workspaceId;
       if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
         return false;
       }
-      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+      if (
+        !taskWorkspaceId &&
+        projects.length > 0 &&
+        !projects.some((p: any) => p.id === task.projectId)
+      ) {
         return false;
       }
     }
@@ -251,7 +265,7 @@ export default function DashboardPage() {
 
   // Count completed tasks for the toggle label
   const completedCount = todaysTasks.filter(
-    (task: Task) => task.status === "COMPLETED"
+    (task: Task) => task.status === "COMPLETED",
   ).length;
 
   // Use metrics from backend
@@ -259,7 +273,9 @@ export default function DashboardPage() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const hoursWorked = stats
+    ? Math.floor((stats.totalMinutesWorked ?? 0) / 60)
+    : 0;
   const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
@@ -312,7 +328,7 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-3.5">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-sm shadow-purple-600/25 shrink-0">
               <Home className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
@@ -342,7 +358,7 @@ export default function DashboardPage() {
                 "group relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border shadow-xs hover:shadow-md cursor-pointer",
                 new Date().getHours() >= 17
                   ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20"
-                  : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50"
+                  : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50",
               )}
             >
               {new Date().getHours() >= 17 ? (
@@ -367,7 +383,11 @@ export default function DashboardPage() {
               key={card.title}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.35,
+                delay: index * 0.05,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               whileHover={{
                 y: -4,
                 borderColor: `${card.color}70`,
@@ -401,7 +421,11 @@ export default function DashboardPage() {
             className="h-full flex flex-col"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.35,
+              delay: 0.15,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
             <ProductivityStreakWidget
               currentStreak={currentStreak}
@@ -425,7 +449,11 @@ export default function DashboardPage() {
             className="h-full flex flex-col"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.35,
+              delay: 0.25,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
             <HabitsWidget className="h-full flex-1" />
           </motion.div>
@@ -467,8 +495,8 @@ export default function DashboardPage() {
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "list"
-                      ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                      : "text-muted-foreground hover:bg-muted"
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 font-semibold"
+                      : "text-muted-foreground hover:bg-muted",
                   )}
                   title={t("viewList")}
                 >
@@ -479,8 +507,8 @@ export default function DashboardPage() {
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "grid"
-                      ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
-                      : "text-muted-foreground hover:bg-muted"
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 font-semibold"
+                      : "text-muted-foreground hover:bg-muted",
                   )}
                   title={t("viewGrid")}
                 >
@@ -494,7 +522,7 @@ export default function DashboardPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   <option value="priority">{t("sortOptions.priority")}</option>
                   <option value="duration">{t("sortOptions.duration")}</option>
@@ -508,8 +536,8 @@ export default function DashboardPage() {
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
                   showCompleted
-                    ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-semibold"
-                    : "bg-muted border-border text-muted-foreground hover:bg-muted"
+                    ? "bg-purple-500/15 border-purple-500/30 text-purple-700 dark:text-purple-300 font-semibold"
+                    : "bg-muted border-border text-muted-foreground hover:bg-muted",
                 )}
               >
                 {showCompleted ? (
@@ -525,8 +553,8 @@ export default function DashboardPage() {
                     className={cn(
                       "px-1.5 py-0.5 rounded-full text-xs font-medium",
                       showCompleted
-                        ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-purple-500/20 text-purple-700 dark:text-purple-300"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     {completedCount}
@@ -560,7 +588,7 @@ export default function DashboardPage() {
               ) : (
                 <button
                   onClick={() => setShowCreateTaskDialog(true)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 hover:bg-cyan-600 transition-all duration-200"
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-purple-600 text-white shadow-sm shadow-purple-600/25 hover:bg-purple-700 transition-all duration-200"
                 >
                   <Plus className="h-4 w-4" />
                   {t("createTask")}
@@ -572,7 +600,7 @@ export default function DashboardPage() {
               className={cn(
                 viewMode === "grid"
                   ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                  : "space-y-2"
+                  : "space-y-2",
               )}
             >
               {sortedTasks.map((task: any, index: number) => (
@@ -628,12 +656,10 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     {t("quickActionButtons.newProject")}
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-pink-500 shadow-sm shadow-pink-500/25"
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-purple-600 shadow-sm shadow-purple-600/25">
                     <FolderPlus className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -650,12 +676,10 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     {t("quickActionButtons.startTimer")}
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-amber-500 shadow-sm shadow-amber-500/25"
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-amber-500 shadow-sm shadow-amber-500/25">
                     <Timer className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -672,12 +696,10 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     {t("quickActionButtons.newTask")}
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-cyan-500 shadow-sm shadow-cyan-500/25"
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-purple-600 shadow-sm shadow-purple-600/25">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -692,8 +714,8 @@ export default function DashboardPage() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300",
-            showQuickActions ? "rotate-45" : "rotate-0"
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-600/30 hover:bg-purple-700 transition-all duration-300",
+            showQuickActions ? "rotate-45" : "rotate-0",
           )}
         >
           <Plus className="h-7 w-7" />
@@ -755,10 +777,10 @@ export default function DashboardPage() {
                 createTask({
                   title: task.title,
                   description: task.description,
-                  priority: (task.priority as TaskPriority) || 'MEDIUM',
+                  priority: (task.priority as TaskPriority) || "MEDIUM",
                   projectId: newProject.id,
-                })
-              )
+                }),
+              ),
             );
           }
 
@@ -781,13 +803,13 @@ export default function DashboardPage() {
       />
 
       {/* Onboarding */}
-        <FeatureOnboarding
-          steps={dashboardOnboardingSteps}
-          storageKey={DASHBOARD_ONBOARDING_KEY}
-          skipText={t("onboarding.skip")}
-          nextText={t("onboarding.next")}
-          getStartedText={t("onboarding.getStarted")}
-        />
+      <FeatureOnboarding
+        steps={dashboardOnboardingSteps}
+        storageKey={DASHBOARD_ONBOARDING_KEY}
+        skipText={t("onboarding.skip")}
+        nextText={t("onboarding.next")}
+        getStartedText={t("onboarding.getStarted")}
+      />
     </AppLayout>
   );
 }

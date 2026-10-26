@@ -23,19 +23,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { useTasks, useUpdateTask } from "@/lib/api-hooks";
 import { Task } from "@ordo-todo/api-client";
 import {
-  parseCalendarDate,
   toCalendarDateString,
   serializeCalendarDateForApi,
 } from "@ordo-todo/core";
 import { cn } from "@/lib/utils";
 import { Button } from "@ordo-todo/ui";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  Calendar as CalendarIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
 import { DragStore } from "@/lib/drag-store";
 import { toast } from "sonner";
 import { ConnectedTaskDetailPanel } from "@/components/task/task-card-compact";
@@ -84,7 +77,6 @@ export function TaskCalendar({
   onSelectTask,
 }: TaskCalendarProps = {}) {
   const t = useTranslations("Calendar");
-  const tCommon = useTranslations("common");
   const locale = useLocale();
   const dateLocale = locales[locale] || es;
   const queryClient = useQueryClient();
@@ -94,8 +86,12 @@ export function TaskCalendar({
 
   const [view, setView] = useState<CalendarViewMode>("month");
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
-  const [internalSelectedDate, setInternalSelectedDate] = useState<Date>(() => new Date());
-  const [internalSelectedTaskId, setInternalSelectedTaskId] = useState<string | null>(null);
+  const [internalSelectedDate, setInternalSelectedDate] = useState<Date>(
+    () => new Date(),
+  );
+  const [internalSelectedTaskId, setInternalSelectedTaskId] = useState<
+    string | null
+  >(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
   const [now, setNow] = useState<Date>(() => new Date());
 
@@ -144,7 +140,10 @@ export function TaskCalendar({
         if (a.scheduledTime && !b.scheduledTime) return -1;
         if (!a.scheduledTime && b.scheduledTime) return 1;
 
-        return (PRIORITY_WEIGHT[b.priority] || 0) - (PRIORITY_WEIGHT[a.priority] || 0);
+        return (
+          (PRIORITY_WEIGHT[b.priority] || 0) -
+          (PRIORITY_WEIGHT[a.priority] || 0)
+        );
       });
       map.set(key, list);
     }
@@ -172,7 +171,7 @@ export function TaskCalendar({
   const weekdayHeaders = useMemo(() => {
     const start = startOfWeek(new Date(), { weekStartsOn: 1 });
     return Array.from({ length: 7 }, (_, i) =>
-      format(addDays(start, i), "EEE", { locale: dateLocale }).replace(".", "")
+      format(addDays(start, i), "EEE", { locale: dateLocale }).replace(".", ""),
     );
   }, [dateLocale]);
 
@@ -221,7 +220,7 @@ export function TaskCalendar({
   const scheduleTaskOnDay = async (
     task: Task,
     targetDay: Date,
-    hour?: number
+    hour?: number,
   ) => {
     const isoDate = serializeCalendarDateForApi(targetDay);
     if (!isoDate) return;
@@ -279,13 +278,13 @@ export function TaskCalendar({
         return `${format(start, "d", { locale: dateLocale })} – ${format(
           end,
           "d MMM yyyy",
-          { locale: dateLocale }
+          { locale: dateLocale },
         )}`;
       }
       return `${format(start, "d MMM", { locale: dateLocale })} – ${format(
         end,
         "d MMM yyyy",
-        { locale: dateLocale }
+        { locale: dateLocale },
       )}`;
     }
     return format(currentDate, "EEEE, d MMMM yyyy", { locale: dateLocale });
@@ -300,7 +299,10 @@ export function TaskCalendar({
         </div>
         <div className="grid grid-cols-7 gap-2 flex-1">
           {Array.from({ length: 35 }).map((_, i) => (
-            <div key={i} className="rounded-xl bg-muted/50 animate-pulse min-h-[84px]" />
+            <div
+              key={i}
+              className="rounded-xl bg-muted/50 animate-pulse min-h-[84px]"
+            />
           ))}
         </div>
       </div>
@@ -337,8 +339,8 @@ export function TaskCalendar({
               className={cn(
                 "h-7 px-3 text-xs font-semibold rounded-lg transition-all",
                 isToday(currentDate) && isToday(selectedDate)
-                  ? "text-blue-600 dark:text-blue-400 bg-background shadow-2xs"
-                  : "text-foreground hover:bg-background hover:shadow-2xs"
+                  ? "text-purple-600 dark:text-purple-400 bg-background shadow-2xs"
+                  : "text-foreground hover:bg-background hover:shadow-2xs",
               )}
             >
               {t("today")}
@@ -371,7 +373,7 @@ export function TaskCalendar({
                 "px-3.5 py-1 text-xs font-semibold rounded-lg transition-all duration-150",
                 view === mode
                   ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {t(mode)}
@@ -390,7 +392,9 @@ export function TaskCalendar({
                 key={dayName + idx}
                 className={cn(
                   "py-2.5 px-3 text-right text-[11px] font-semibold uppercase tracking-wider",
-                  idx >= 5 ? "text-muted-foreground/70" : "text-muted-foreground"
+                  idx >= 5
+                    ? "text-muted-foreground/70"
+                    : "text-muted-foreground",
                 )}
               >
                 {dayName}
@@ -410,7 +414,7 @@ export function TaskCalendar({
               const isDragOver = dragOverKey === dateKey;
 
               const pendingTasksCount = dayTasks.filter(
-                (item) => item.status !== "COMPLETED"
+                (item) => item.status !== "COMPLETED",
               ).length;
 
               return (
@@ -446,18 +450,18 @@ export function TaskCalendar({
                     }
                   }}
                   className={cn(
-                    "group relative flex flex-col p-2 min-h-[96px] transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500",
+                    "group relative flex flex-col p-2 min-h-[96px] transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-purple-500",
                     inMonth
                       ? isWeekend
                         ? "bg-card/95 dark:bg-card/80"
                         : "bg-card"
                       : "bg-muted/25 text-muted-foreground/50",
-                    today && "bg-blue-500/[0.04] dark:bg-blue-500/[0.08]",
+                    today && "bg-purple-500/[0.04] dark:bg-purple-500/[0.08]",
                     selected &&
-                      "ring-2 ring-inset ring-blue-500 bg-blue-500/[0.05] dark:bg-blue-500/[0.10] z-10",
+                      "ring-2 ring-inset ring-purple-500 bg-purple-500/[0.05] dark:bg-purple-500/[0.10] z-10",
                     isDragOver &&
-                      "ring-2 ring-inset ring-blue-500 bg-blue-500/15 z-20",
-                    !selected && !today && "hover:bg-accent/30"
+                      "ring-2 ring-inset ring-purple-500 bg-purple-500/15 z-20",
+                    !selected && !today && "hover:bg-accent/30",
                   )}
                 >
                   {/* Top Bar inside Day Cell: Activity Dots + Day Number */}
@@ -465,7 +469,7 @@ export function TaskCalendar({
                     {/* Left: Task count & priority dots so busy days stand out immediately */}
                     <div className="flex items-center gap-1 min-w-0">
                       {today && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 leading-none">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400 leading-none">
                           {t("today")}
                         </span>
                       )}
@@ -480,14 +484,17 @@ export function TaskCalendar({
                                   backgroundColor:
                                     taskItem.status === "COMPLETED"
                                       ? "#10b981"
-                                      : PRIORITY_DOT_COLORS[taskItem.priority] ||
-                                        PRIORITY_DOT_COLORS.LOW,
+                                      : PRIORITY_DOT_COLORS[
+                                          taskItem.priority
+                                        ] || PRIORITY_DOT_COLORS.LOW,
                                 }}
                               />
                             ))}
                           </div>
                           <span className="text-[10px] font-semibold text-muted-foreground tabular-nums leading-none">
-                            {pendingTasksCount > 0 ? pendingTasksCount : dayTasks.length}
+                            {pendingTasksCount > 0
+                              ? pendingTasksCount
+                              : dayTasks.length}
                           </span>
                         </div>
                       )}
@@ -498,12 +505,12 @@ export function TaskCalendar({
                       className={cn(
                         "h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold tabular-nums transition-transform shrink-0",
                         today
-                          ? "bg-blue-500 text-white font-bold shadow-xs shadow-blue-500/30"
+                          ? "bg-purple-600 text-white font-bold shadow-xs shadow-purple-600/30"
                           : selected
-                          ? "bg-foreground text-background font-bold"
-                          : inMonth
-                          ? "text-foreground group-hover:bg-muted"
-                          : "text-muted-foreground/50"
+                            ? "bg-foreground text-background font-bold"
+                            : inMonth
+                              ? "text-foreground group-hover:bg-muted"
+                              : "text-muted-foreground/50",
                       )}
                     >
                       {format(day, "d")}
@@ -515,7 +522,8 @@ export function TaskCalendar({
                     {dayTasks.slice(0, 3).map((task) => {
                       const isCompleted = task.status === "COMPLETED";
                       const dotColor =
-                        PRIORITY_DOT_COLORS[task.priority] || PRIORITY_DOT_COLORS.LOW;
+                        PRIORITY_DOT_COLORS[task.priority] ||
+                        PRIORITY_DOT_COLORS.LOW;
 
                       return (
                         <div
@@ -529,7 +537,7 @@ export function TaskCalendar({
                           }}
                           className={cn(
                             "group/chip flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] border border-border/60 bg-background/90 hover:bg-accent/60 hover:border-border transition-all cursor-pointer shadow-2xs",
-                            isCompleted && "opacity-60"
+                            isCompleted && "opacity-60",
                           )}
                         >
                           {isCompleted ? (
@@ -548,7 +556,8 @@ export function TaskCalendar({
                           <span
                             className={cn(
                               "font-medium truncate text-foreground",
-                              isCompleted && "line-through text-muted-foreground"
+                              isCompleted &&
+                                "line-through text-muted-foreground",
                             )}
                           >
                             {task.title}
@@ -558,7 +567,7 @@ export function TaskCalendar({
                     })}
 
                     {dayTasks.length > 3 && (
-                      <div className="px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline tabular-nums">
+                      <div className="px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400 hover:underline tabular-nums">
                         +{dayTasks.length - 3} más
                       </div>
                     )}
@@ -577,7 +586,9 @@ export function TaskCalendar({
           <div
             className={cn(
               "grid border-b border-border/60 bg-muted/15 shrink-0",
-              view === "week" ? "grid-cols-[64px_repeat(7,minmax(0,1fr))]" : "grid-cols-[64px_1fr]"
+              view === "week"
+                ? "grid-cols-[64px_repeat(7,minmax(0,1fr))]"
+                : "grid-cols-[64px_1fr]",
             )}
           >
             <div className="p-2 border-r border-border/40 flex items-center justify-center text-[10px] font-semibold text-muted-foreground uppercase">
@@ -596,27 +607,32 @@ export function TaskCalendar({
                   onClick={() => handleSelectDate(day)}
                   className={cn(
                     "py-2.5 px-2 flex flex-col items-center justify-center gap-1 border-r last:border-r-0 border-border/40 transition-colors",
-                    today && "bg-blue-500/[0.04] dark:bg-blue-500/[0.08]",
-                    selected && "bg-blue-500/[0.06]"
+                    today && "bg-purple-500/[0.04] dark:bg-purple-500/[0.08]",
+                    selected && "bg-purple-500/[0.06]",
                   )}
                 >
                   <span
                     className={cn(
                       "text-[11px] font-semibold uppercase tracking-wider",
-                      today ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
+                      today
+                        ? "text-purple-600 dark:text-purple-400"
+                        : "text-muted-foreground",
                     )}
                   >
-                    {format(day, "EEE", { locale: dateLocale }).replace(".", "")}
+                    {format(day, "EEE", { locale: dateLocale }).replace(
+                      ".",
+                      "",
+                    )}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <span
                       className={cn(
                         "h-7 w-7 rounded-full flex items-center justify-center text-sm font-bold tabular-nums",
                         today
-                          ? "bg-blue-500 text-white shadow-xs shadow-blue-500/30"
+                          ? "bg-purple-600 text-white shadow-xs shadow-purple-600/30"
                           : selected
-                          ? "bg-foreground text-background"
-                          : "text-foreground"
+                            ? "bg-foreground text-background"
+                            : "text-foreground",
                       )}
                     >
                       {format(day, "d")}
@@ -636,7 +652,9 @@ export function TaskCalendar({
           <div
             className={cn(
               "grid border-b border-border/60 bg-muted/10 shrink-0",
-              view === "week" ? "grid-cols-[64px_repeat(7,minmax(0,1fr))]" : "grid-cols-[64px_1fr]"
+              view === "week"
+                ? "grid-cols-[64px_repeat(7,minmax(0,1fr))]"
+                : "grid-cols-[64px_1fr]",
             )}
           >
             <div className="p-2 border-r border-border/40 flex items-center justify-center text-[10px] font-medium text-muted-foreground text-center leading-tight">
@@ -645,7 +663,7 @@ export function TaskCalendar({
             {(view === "week" ? weekDays : [currentDate]).map((day) => {
               const dateKey = toCalendarDateString(day);
               const allDayTasks = (tasksByDate.get(dateKey) || []).filter(
-                (taskItem) => !taskItem.scheduledTime
+                (taskItem) => !taskItem.scheduledTime,
               );
               const isDragOver = dragOverKey === `allday-${dateKey}`;
 
@@ -657,7 +675,8 @@ export function TaskCalendar({
                     setDragOverKey(`allday-${dateKey}`);
                   }}
                   onDragLeave={() => {
-                    if (dragOverKey === `allday-${dateKey}`) setDragOverKey(null);
+                    if (dragOverKey === `allday-${dateKey}`)
+                      setDragOverKey(null);
                   }}
                   onDrop={(e) => {
                     e.preventDefault();
@@ -669,13 +688,14 @@ export function TaskCalendar({
                   }}
                   className={cn(
                     "p-1.5 min-h-[42px] border-r last:border-r-0 border-border/40 flex flex-wrap gap-1 content-start transition-colors",
-                    isDragOver && "bg-blue-500/15"
+                    isDragOver && "bg-purple-500/15",
                   )}
                 >
                   {allDayTasks.map((task) => {
                     const isCompleted = task.status === "COMPLETED";
                     const dotColor =
-                      PRIORITY_DOT_COLORS[task.priority] || PRIORITY_DOT_COLORS.LOW;
+                      PRIORITY_DOT_COLORS[task.priority] ||
+                      PRIORITY_DOT_COLORS.LOW;
 
                     return (
                       <div
@@ -688,7 +708,7 @@ export function TaskCalendar({
                         }}
                         className={cn(
                           "flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium border border-border/60 bg-card hover:bg-accent/60 shadow-2xs cursor-pointer max-w-full",
-                          isCompleted && "opacity-60 line-through"
+                          isCompleted && "opacity-60 line-through",
                         )}
                       >
                         <span
@@ -711,7 +731,7 @@ export function TaskCalendar({
                 "grid relative min-h-[952px]",
                 view === "week"
                   ? "grid-cols-[64px_repeat(7,minmax(0,1fr))]"
-                  : "grid-cols-[64px_1fr]"
+                  : "grid-cols-[64px_1fr]",
               )}
             >
               {/* Left Hour Gutter */}
@@ -731,7 +751,7 @@ export function TaskCalendar({
                 const dateKey = toCalendarDateString(day);
                 const today = isToday(day);
                 const timedTasks = (tasksByDate.get(dateKey) || []).filter(
-                  (taskItem) => !!taskItem.scheduledTime
+                  (taskItem) => !!taskItem.scheduledTime,
                 );
 
                 return (
@@ -739,7 +759,7 @@ export function TaskCalendar({
                     key={`timeline-${dateKey}`}
                     className={cn(
                       "relative border-r last:border-r-0 border-border/40",
-                      today && "bg-blue-500/[0.02]"
+                      today && "bg-purple-500/[0.02]",
                     )}
                   >
                     {/* Current Time Indicator Line */}
@@ -748,8 +768,8 @@ export function TaskCalendar({
                         className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
                         style={{ top: `${currentTimeTopPercent}%` }}
                       >
-                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500 -ml-1.5 shadow-xs shadow-blue-500/50" />
-                        <div className="h-[1.5px] w-full bg-blue-500" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-purple-600 -ml-1.5 shadow-xs shadow-purple-600/50" />
+                        <div className="h-[1.5px] w-full bg-purple-600" />
                       </div>
                     )}
 
@@ -769,7 +789,8 @@ export function TaskCalendar({
                           onClick={() => handleSelectDate(day)}
                           onDragOver={(e) => {
                             e.preventDefault();
-                            if (dragOverKey !== slotKey) setDragOverKey(slotKey);
+                            if (dragOverKey !== slotKey)
+                              setDragOverKey(slotKey);
                           }}
                           onDragLeave={() => {
                             if (dragOverKey === slotKey) setDragOverKey(null);
@@ -784,7 +805,9 @@ export function TaskCalendar({
                           }}
                           className={cn(
                             "h-14 border-b border-border/30 p-1 flex flex-col gap-1 transition-colors",
-                            isSlotDragOver ? "bg-blue-500/15" : "hover:bg-accent/20"
+                            isSlotDragOver
+                              ? "bg-purple-500/15"
+                              : "hover:bg-accent/20",
                           )}
                         >
                           {slotTasks.map((task) => {
@@ -797,7 +820,9 @@ export function TaskCalendar({
                               <div
                                 key={task.id}
                                 draggable
-                                onDragStart={(e) => handleTaskDragStart(e, task)}
+                                onDragStart={(e) =>
+                                  handleTaskDragStart(e, task)
+                                }
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleSelectDate(day);
@@ -805,14 +830,14 @@ export function TaskCalendar({
                                 }}
                                 className={cn(
                                   "flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium border border-border/70 bg-card hover:bg-accent/60 shadow-xs cursor-pointer transition-all",
-                                  isCompleted && "opacity-60 line-through"
+                                  isCompleted && "opacity-60 line-through",
                                 )}
                               >
                                 <span
                                   className="h-2 w-2 rounded-full shrink-0"
                                   style={{ backgroundColor: dotColor }}
                                 />
-                                <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 tabular-nums shrink-0">
+                                <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 tabular-nums shrink-0">
                                   {task.scheduledTime}
                                   {task.scheduledEndTime
                                     ? ` – ${task.scheduledEndTime}`

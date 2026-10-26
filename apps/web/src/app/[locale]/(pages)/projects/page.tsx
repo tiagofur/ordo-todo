@@ -2,14 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
-import {
-  FolderKanban,
-  Plus,
-  Search,
-  X,
-  LayoutGrid,
-  List,
-} from "lucide-react";
+import { FolderKanban, Plus, Search, X, LayoutGrid, List } from "lucide-react";
 import {
   useProjects,
   useCreateProject,
@@ -29,9 +22,9 @@ import { cn } from "@/lib/utils";
 const CreateProjectDialog = dynamic(
   () =>
     import("@/components/project/create-project-dialog").then(
-      (mod) => mod.CreateProjectDialog
+      (mod) => mod.CreateProjectDialog,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 type StatusFilter = "all" | "active" | "completed" | "archived";
@@ -55,7 +48,7 @@ export default function ProjectsPage() {
   const { selectedWorkspaceId } = useWorkspaceStore();
 
   const { data: projects, isLoading: isLoadingProjects } = useProjects(
-    selectedWorkspaceId as string
+    selectedWorkspaceId as string,
   );
   const { data: tasks, isLoading: isLoadingTasks } = useTasks();
   const { mutateAsync: createProject } = useCreateProject();
@@ -78,11 +71,11 @@ export default function ProjectsPage() {
 
     for (const p of activeList) {
       const pTasks = (tasks || []).filter(
-        (t: any) => String(t.projectId) === String(p.id)
+        (t: any) => String(t.projectId) === String(p.id),
       );
       const totalT = pTasks.length;
       const compT = pTasks.filter(
-        (t: any) => t.status === "COMPLETED" || t.status === "DONE"
+        (t: any) => t.status === "COMPLETED" || t.status === "DONE",
       ).length;
       if (totalT > 0 && compT === totalT) {
         completed++;
@@ -115,11 +108,11 @@ export default function ProjectsPage() {
       }
 
       const pTasks = (tasks || []).filter(
-        (t: any) => String(t.projectId) === String(project.id)
+        (t: any) => String(t.projectId) === String(project.id),
       );
       const totalT = pTasks.length;
       const compT = pTasks.filter(
-        (t: any) => t.status === "COMPLETED" || t.status === "DONE"
+        (t: any) => t.status === "COMPLETED" || t.status === "DONE",
       ).length;
       const isCompleted = totalT > 0 && compT === totalT;
 
@@ -142,7 +135,7 @@ export default function ProjectsPage() {
         {/* Header - Apple Style Unified Pattern (matching Tasks & Calendar) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-pink-500 text-white shadow-sm shadow-pink-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm shadow-emerald-700/25 shrink-0">
               <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
@@ -158,7 +151,7 @@ export default function ProjectsPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Live Summary Pills */}
             <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-              <span className="h-2 w-2 rounded-full bg-pink-500" />
+              <span className="h-2 w-2 rounded-full bg-emerald-700" />
               <span>Total:</span>
               <span className="font-bold text-foreground">{stats.total}</span>
               <span className="text-border">|</span>
@@ -166,13 +159,15 @@ export default function ProjectsPage() {
               <span className="font-bold text-foreground">{stats.active}</span>
               <span className="text-border">|</span>
               <span>Completados:</span>
-              <span className="font-bold text-foreground">{stats.completed}</span>
+              <span className="font-bold text-foreground">
+                {stats.completed}
+              </span>
             </div>
 
             <button
               type="button"
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl bg-pink-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-pink-500/25 transition-all duration-200 hover:bg-pink-600 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("newProject")}</span>
@@ -181,92 +176,95 @@ export default function ProjectsPage() {
         </div>
 
         {/* Toolbar: Search + Status Filter Tabs + View Mode Toggle */}
-        {selectedWorkspaceId && !isLoading && projects && projects.length > 0 && (
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-            {/* Search Bar - Generous width with min-w to never squish */}
-            <div className="relative w-full lg:w-72 2xl:w-80 min-w-[220px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar proyectos..."
-                className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Status Filter Tabs & View Toggle */}
-            <div className="flex items-center gap-2.5 justify-between lg:justify-end flex-wrap sm:flex-nowrap">
-              <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
-                {(
-                  [
-                    { key: "all", label: "Todos" },
-                    { key: "active", label: "Activos" },
-                    { key: "completed", label: "Completados" },
-                    { key: "archived", label: "Archivados" },
-                  ] as const
-                ).map((filter) => (
+        {selectedWorkspaceId &&
+          !isLoading &&
+          projects &&
+          projects.length > 0 && (
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+              {/* Search Bar - Generous width with min-w to never squish */}
+              <div className="relative w-full lg:w-72 2xl:w-80 min-w-[220px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar proyectos..."
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition-all"
+                />
+                {searchQuery && (
                   <button
-                    key={filter.key}
                     type="button"
-                    onClick={() => setStatusFilter(filter.key)}
-                    className={cn(
-                      "px-3 py-1 text-xs font-semibold rounded-lg transition-all",
-                      statusFilter === filter.key
-                        ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
                   >
-                    {filter.label}
+                    <X className="h-3.5 w-3.5" />
                   </button>
-                ))}
+                )}
               </div>
 
-              {/* View Switcher: Grid vs List */}
-              <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
-                    viewMode === "grid"
-                      ? "bg-background text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Cuadrícula"
-                  aria-label="Cuadrícula"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                  <span className="hidden sm:inline">Cuadrícula</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
-                    viewMode === "list"
-                      ? "bg-background text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Lista"
-                  aria-label="Lista"
-                >
-                  <List className="h-4 w-4" />
-                  <span className="hidden sm:inline">Lista</span>
-                </button>
+              {/* Status Filter Tabs & View Toggle */}
+              <div className="flex items-center gap-2.5 justify-between lg:justify-end flex-wrap sm:flex-nowrap">
+                <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                  {(
+                    [
+                      { key: "all", label: "Todos" },
+                      { key: "active", label: "Activos" },
+                      { key: "completed", label: "Completados" },
+                      { key: "archived", label: "Archivados" },
+                    ] as const
+                  ).map((filter) => (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setStatusFilter(filter.key)}
+                      className={cn(
+                        "px-3 py-1 text-xs font-semibold rounded-lg transition-all",
+                        statusFilter === filter.key
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* View Switcher: Grid vs List */}
+                <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
+                      viewMode === "grid"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                    title="Cuadrícula"
+                    aria-label="Cuadrícula"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span className="hidden sm:inline">Cuadrícula</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
+                      viewMode === "list"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                    title="Lista"
+                    aria-label="Lista"
+                  >
+                    <List className="h-4 w-4" />
+                    <span className="hidden sm:inline">Lista</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Content Body */}
         {!selectedWorkspaceId ? (
@@ -276,7 +274,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-card/40"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
               <FolderKanban className="h-8 w-8" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1">
@@ -381,7 +379,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-card/40"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
               <FolderKanban className="h-8 w-8" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1">
@@ -393,7 +391,7 @@ export default function ProjectsPage() {
             <button
               type="button"
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl bg-pink-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-pink-500/25 transition-all duration-200 hover:bg-pink-600 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("createProject")}</span>
@@ -438,8 +436,8 @@ export default function ProjectsPage() {
                     description: task.description,
                     priority: (task.priority as TaskPriority) || "MEDIUM",
                     projectId: newProject.id,
-                  })
-                )
+                  }),
+                ),
               );
             }
 

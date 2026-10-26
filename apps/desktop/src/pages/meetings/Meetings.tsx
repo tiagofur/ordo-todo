@@ -19,7 +19,13 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { PageTransition, SlideIn } from "@/components/motion";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@ordo-todo/ui";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useWorkspaces } from "@/lib/shared-hooks";
 import { apiClient } from "@/lib/api-client";
@@ -91,7 +97,7 @@ export function Meetings() {
   const [analysis, setAnalysis] = useState<MeetingAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["summary", "actionItems"])
+    new Set(["summary", "actionItems"]),
   );
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [pastMeetings, setPastMeetings] = useState<any[]>([]);
@@ -133,7 +139,11 @@ export function Meetings() {
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
-    if (file.type.includes("text") || file.name.endsWith(".txt") || file.name.endsWith(".md")) {
+    if (
+      file.type.includes("text") ||
+      file.name.endsWith(".txt") ||
+      file.name.endsWith(".md")
+    ) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
@@ -150,7 +160,10 @@ export function Meetings() {
 
   const handleAnalyze = async () => {
     if (!transcript.trim()) {
-      toast.error(t("Meetings.pleaseEnterTranscript") || "Por favor ingresa una transcripción");
+      toast.error(
+        t("Meetings.pleaseEnterTranscript") ||
+          "Por favor ingresa una transcripción",
+      );
       return;
     }
 
@@ -165,7 +178,9 @@ export function Meetings() {
       // Auto-save meeting note to database
       try {
         const titleMatch = transcript.trim().match(/^([^\n]+)/);
-        const title = titleMatch ? titleMatch[1].slice(0, 80) : "Meeting Analysis";
+        const title = titleMatch
+          ? titleMatch[1].slice(0, 80)
+          : "Meeting Analysis";
         await apiClient.saveMeeting({
           title,
           date: new Date().toISOString(),
@@ -181,7 +196,7 @@ export function Meetings() {
       console.error("Failed to analyze meeting:", err);
       setError(
         t("Meetings.analysisError") ||
-          "Error al analizar la transcripción. Inténtalo de nuevo."
+          "Error al analizar la transcripción. Inténtalo de nuevo.",
       );
       toast.error(t("Meetings.errorTitle") || "Error al analizar");
     } finally {
@@ -191,7 +206,9 @@ export function Meetings() {
 
   const handleConvertToTasks = async () => {
     if (!analysis?.actionItems || analysis.actionItems.length === 0) {
-      toast.error(t("Meetings.noActionItems") || "No se encontraron action items");
+      toast.error(
+        t("Meetings.noActionItems") || "No se encontraron action items",
+      );
       return;
     }
 
@@ -211,10 +228,13 @@ export function Meetings() {
       toast.success(
         res?.created
           ? `${res.created} tareas creadas`
-          : t("Meetings.tasksCreated") || "Tareas creadas exitosamente"
+          : t("Meetings.tasksCreated") || "Tareas creadas exitosamente",
       );
     } catch {
-      toast.error(t("Meetings.errorConvertingTasks") || "Error al convertir notas a tareas");
+      toast.error(
+        t("Meetings.errorConvertingTasks") ||
+          "Error al convertir notas a tareas",
+      );
     } finally {
       setIsConverting(false);
     }
@@ -303,7 +323,7 @@ export function Meetings() {
         <SlideIn direction="top">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
             <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25 shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-700 text-white shadow-sm shadow-orange-700/25 shrink-0">
                 <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0">
@@ -311,7 +331,7 @@ export function Meetings() {
                   {t("Meetings.title") || "Asistente de Reuniones"}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+                  <Sparkles className="h-3.5 w-3.5 text-orange-500 shrink-0" />
                   <span>
                     {t("Meetings.subtitle") ||
                       "Analiza transcripciones y extrae action items automáticamente"}
@@ -328,7 +348,7 @@ export function Meetings() {
                     aria-label="Seleccionar espacio de trabajo"
                     value={activeWorkspaceId || ""}
                     onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
+                    className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-colors cursor-pointer shadow-xs"
                   >
                     {workspaces.map((ws: any) => (
                       <option key={ws.id} value={ws.id}>
@@ -363,7 +383,7 @@ export function Meetings() {
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                   {t("Meetings.featureSummaryTitle") || "Resumen Inteligente"}
                 </span>
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 transition-transform duration-300 group-hover:scale-110">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 transition-transform duration-300 group-hover:scale-110">
                   <FileText className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                 </div>
               </div>
@@ -461,7 +481,8 @@ export function Meetings() {
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2.5 text-base sm:text-lg">
                 <MessageSquare className="h-5 w-5 text-violet-500" />
-                {t("Meetings.meetingTranscript") || "Transcripción de la Reunión"}
+                {t("Meetings.meetingTranscript") ||
+                  "Transcripción de la Reunión"}
               </CardTitle>
               {pastMeetings.length > 0 && (
                 <Button
@@ -530,8 +551,7 @@ export function Meetings() {
                   disabled={isAnalyzing}
                 />
                 <div className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded-md backdrop-blur-xs border border-border/50">
-                  {transcript.length}{" "}
-                  {t("Meetings.characters") || "caracteres"}
+                  {transcript.length} {t("Meetings.characters") || "caracteres"}
                 </div>
               </div>
 
@@ -552,11 +572,15 @@ export function Meetings() {
                 >
                   <Upload className="h-4 w-4 text-violet-500 shrink-0" />
                   <span>
-                    {t("Meetings.dragFile") || "O arrastra / sube un archivo .txt aquí"}
+                    {t("Meetings.dragFile") ||
+                      "O arrastra / sube un archivo .txt aquí"}
                   </span>
                 </button>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                   <Button
                     onClick={handleAnalyze}
                     disabled={isAnalyzing || !transcript.trim()}
@@ -651,7 +675,7 @@ export function Meetings() {
                     <div
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-xl border",
-                        getSentimentStyles(analysis.sentiment)
+                        getSentimentStyles(analysis.sentiment),
                       )}
                     >
                       <MessageSquare className="h-5 w-5" />
@@ -823,7 +847,7 @@ export function Meetings() {
                                   <span
                                     className={cn(
                                       "text-xs px-2.5 py-0.5 rounded-md border font-medium",
-                                      getPriorityBadge(item.priority)
+                                      getPriorityBadge(item.priority),
                                     )}
                                   >
                                     {getPriorityLabel(item.priority)}
@@ -859,7 +883,8 @@ export function Meetings() {
                           <ListTodo className="h-4 w-4 mr-2 text-violet-500" />
                           {isConverting
                             ? t("Meetings.converting") || "Convirtiendo..."
-                            : t("Meetings.convertToTasks") || "Convertir a Tareas"}
+                            : t("Meetings.convertToTasks") ||
+                              "Convertir a Tareas"}
                         </Button>
                       </div>
                     </motion.div>
@@ -931,7 +956,9 @@ export function Meetings() {
                                       </span>
                                     )}
                                     {context && (
-                                      <span className="italic">"{context}"</span>
+                                      <span className="italic">
+                                        "{context}"
+                                      </span>
                                     )}
                                   </div>
                                 )}

@@ -13,7 +13,7 @@ export default function DayPlanPage() {
     <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 shrink-0">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-sm shadow-purple-600/25 shrink-0">
             <CalendarDays className="h-5 w-5" />
           </div>
           <div>

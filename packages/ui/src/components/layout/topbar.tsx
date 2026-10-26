@@ -1,6 +1,5 @@
-
-import { type ReactNode } from 'react';
-import { Search, Sparkles, Menu } from 'lucide-react';
+import { type ReactNode } from "react";
+import { Search, Sparkles, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +7,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
-import { Button } from '../ui/button.js';
+} from "../ui/dropdown-menu.js";
+import { Button } from "../ui/button.js";
 
 interface TopBarUser {
   name?: string | null;
@@ -46,14 +45,14 @@ interface TopBarProps {
 }
 
 const DEFAULT_LABELS = {
-  searchPlaceholder: 'Search tasks, projects...',
-  myAccount: 'My Account',
-  profile: 'Profile',
-  settings: 'Settings',
-  logout: 'Log out',
-  aiCopilot: 'Ordo AI Copilot',
-  level: 'Lvl',
-  menu: 'Menu',
+  searchPlaceholder: "Search tasks, projects...",
+  myAccount: "My Account",
+  profile: "Profile",
+  settings: "Settings",
+  logout: "Log out",
+  aiCopilot: "Ordo AI Copilot",
+  level: "Lvl",
+  menu: "Menu",
 };
 
 export function TopBar({
@@ -71,8 +70,8 @@ export function TopBar({
 }: TopBarProps) {
   const t = { ...DEFAULT_LABELS, ...labels };
 
-  const userInitial = user?.name?.[0]?.toUpperCase() || 'U';
-  const userName = user?.name || 'User';
+  const userInitial = user?.name?.[0]?.toUpperCase() || "U";
+  const userName = user?.name || "User";
   const userLevel = user?.level ?? 1;
   const userXp = user?.xp ?? 0;
   const xpProgress = Math.min(100, userXp % 100);
@@ -94,26 +93,26 @@ export function TopBar({
 
       {/* Search */}
       <div className="flex flex-1 items-center gap-2">
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full min-w-0 max-w-md">
           {onSearchClick ? (
             <>
               {/* Clickable search trigger */}
               <button
                 onClick={onSearchClick}
-                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-left text-muted-foreground hidden sm:flex items-center justify-between group"
+                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-left text-muted-foreground hidden lg:flex items-center justify-between whitespace-nowrap group"
               >
-                <span className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  <span>{t.searchPlaceholder}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <Search className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{t.searchPlaceholder}</span>
                 </span>
-                <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                <kbd className="pointer-events-none hidden h-5 shrink-0 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 lg:flex">
                   <span className="text-xs">⌘</span>K
                 </kbd>
               </button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="sm:hidden h-10 w-10 rounded-xl"
+                className="lg:hidden h-10 w-10 rounded-xl"
                 title={t.searchPlaceholder}
                 onClick={onSearchClick}
               >
@@ -128,12 +127,12 @@ export function TopBar({
                 type="search"
                 placeholder={t.searchPlaceholder}
                 onChange={(e) => onSearchChange?.(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-background hidden sm:block"
+                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-background hidden lg:block"
               />
               <Button
                 variant="ghost"
                 size="icon"
-                className="sm:hidden h-10 w-10 rounded-xl"
+                className="lg:hidden h-10 w-10 rounded-xl"
                 title={t.searchPlaceholder}
               >
                 <Search className="h-5 w-5" />
@@ -184,11 +183,14 @@ export function TopBar({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button 
+            <button
               className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label={`Menú de usuario: ${userName}`}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground" aria-hidden="true">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
+                aria-hidden="true"
+              >
                 {userInitial}
               </div>
               <span className="hidden text-sm font-medium md:inline-block">

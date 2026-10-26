@@ -64,7 +64,9 @@ export function Workload() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("ALL");
-  const [workloadData, setWorkloadData] = useState<TeamWorkloadData | null>(null);
+  const [workloadData, setWorkloadData] = useState<TeamWorkloadData | null>(
+    null,
+  );
 
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const { data: workspaces = [] } = useWorkspaces();
@@ -103,13 +105,16 @@ export function Workload() {
         data?.averageWorkload ??
         (members.length > 0
           ? Math.round(
-              members.reduce((acc: number, m: MemberWorkload) => acc + m.workloadScore, 0) /
-                members.length
+              members.reduce(
+                (acc: number, m: MemberWorkload) => acc + m.workloadScore,
+                0,
+              ) / members.length,
             )
           : 0);
 
       const balanceScore =
-        data?.balanceScore ?? (data?.variance !== undefined ? Math.max(0, 100 - data.variance) : 100);
+        data?.balanceScore ??
+        (data?.variance !== undefined ? Math.max(0, 100 - data.variance) : 100);
 
       const redistributionSuggestions: WorkloadSuggestion[] = (
         data?.redistributionSuggestions ||
@@ -251,25 +256,25 @@ export function Workload() {
   const membersList = workloadData?.members || [];
   const totalAssignedTasks = useMemo(
     () => membersList.reduce((acc, m) => acc + (m.assignedTasks || 0), 0),
-    [membersList]
+    [membersList],
   );
   const balanceScore = workloadData?.balanceScore ?? 100;
 
   const lowCount = useMemo(
     () => membersList.filter((m) => m.workloadLevel === "LOW").length,
-    [membersList]
+    [membersList],
   );
   const moderateCount = useMemo(
     () => membersList.filter((m) => m.workloadLevel === "MODERATE").length,
-    [membersList]
+    [membersList],
   );
   const highCount = useMemo(
     () => membersList.filter((m) => m.workloadLevel === "HIGH").length,
-    [membersList]
+    [membersList],
   );
   const overloadedCount = useMemo(
     () => membersList.filter((m) => m.workloadLevel === "OVERLOADED").length,
-    [membersList]
+    [membersList],
   );
 
   const filteredMembers = useMemo(() => {
@@ -311,11 +316,7 @@ export function Workload() {
   }
 
   const balanceColor =
-    balanceScore >= 70
-      ? "#10b981"
-      : balanceScore >= 40
-        ? "#f59e0b"
-        : "#f43f5e";
+    balanceScore >= 70 ? "#10b981" : balanceScore >= 40 ? "#f59e0b" : "#f43f5e";
 
   return (
     <PageTransition>
@@ -323,7 +324,7 @@ export function Workload() {
         {/* Apple Style Unified Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-700 text-white shadow-sm shadow-orange-700/25 shrink-0">
               <Users className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -331,7 +332,8 @@ export function Workload() {
                 {t("Workload.title") || "Carga de Trabajo"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate">
-                {t("Workload.subtitle") || "Visualiza y balancea la carga del equipo"}
+                {t("Workload.subtitle") ||
+                  "Visualiza y balancea la carga del equipo"}
               </p>
             </div>
           </div>
@@ -340,7 +342,7 @@ export function Workload() {
             {/* Live Summary Pills */}
             {workloadData && (
               <div className="hidden lg:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-                <span className="h-2 w-2 rounded-full bg-purple-500" />
+                <span className="h-2 w-2 rounded-full bg-orange-700" />
                 <span>{t("Workload.teamMembers") || "Miembros"}:</span>
                 <span className="font-bold text-foreground">
                   {membersList.length}
@@ -361,10 +363,12 @@ export function Workload() {
             {/* Workspace Selector */}
             <div className="relative inline-flex items-center">
               <select
-                aria-label={t("Workload.selectWorkspace") || "Seleccionar espacio"}
+                aria-label={
+                  t("Workload.selectWorkspace") || "Seleccionar espacio"
+                }
                 value={activeWorkspaceId || ""}
                 onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
+                className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-colors cursor-pointer shadow-xs"
               >
                 {workspaces.map((ws: any) => (
                   <option key={ws.id} value={ws.id}>
@@ -378,14 +382,16 @@ export function Workload() {
             {/* Refresh Button */}
             <button
               type="button"
-              onClick={() => activeWorkspaceId && fetchWorkload(activeWorkspaceId)}
+              onClick={() =>
+                activeWorkspaceId && fetchWorkload(activeWorkspaceId)
+              }
               disabled={isRefreshing}
               className="flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3.5 py-2 text-sm font-medium text-foreground hover:bg-muted/60 transition-all duration-200 shadow-xs disabled:opacity-60 cursor-pointer"
             >
               <RefreshCw
                 className={cn(
                   "h-4 w-4 text-muted-foreground",
-                  isRefreshing && "animate-spin text-foreground"
+                  isRefreshing && "animate-spin text-foreground",
                 )}
               />
               <span className="hidden sm:inline">
@@ -406,9 +412,9 @@ export function Workload() {
                 className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
                 onClick={() => setLevelFilter("ALL")}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#a855f770";
+                  e.currentTarget.style.borderColor = "#f9731670";
                   e.currentTarget.style.boxShadow =
-                    "0 10px 25px -5px rgba(168, 85, 247, 0.2)";
+                    "0 10px 25px -5px rgba(249, 115, 22, 0.2)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "";
@@ -419,7 +425,7 @@ export function Workload() {
                   <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                     {t("Workload.teamMembers") || "Miembros del equipo"}
                   </span>
-                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 transition-transform duration-300 group-hover:scale-110">
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 transition-transform duration-300 group-hover:scale-110">
                     <Users className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                   </div>
                 </div>
@@ -518,10 +524,12 @@ export function Workload() {
             {/* AI Suggestions (Redistribution Recommendations) */}
             {workloadData.redistributionSuggestions &&
               workloadData.redistributionSuggestions.length > 0 && (
-                <div className="rounded-2xl border border-purple-500/20 bg-purple-500/[0.03] p-5 shadow-xs space-y-3">
+                <div className="rounded-2xl border border-orange-500/20 bg-orange-500/[0.03] p-5 shadow-xs space-y-3">
                   <h2 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span>{t("Workload.aiSuggestions") || "Sugerencias de IA"}</span>
+                    <Sparkles className="h-4 w-4 text-orange-500" />
+                    <span>
+                      {t("Workload.aiSuggestions") || "Sugerencias de IA"}
+                    </span>
                   </h2>
                   <div className="grid gap-2.5 sm:grid-cols-2">
                     {workloadData.redistributionSuggestions.map(
@@ -530,32 +538,33 @@ export function Workload() {
                           key={idx}
                           className="flex items-start gap-3 p-3.5 rounded-xl border border-border/60 bg-card hover:bg-muted/30 transition-colors"
                         >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 mt-0.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500 mt-0.5">
                             <Users className="h-4 w-4" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-2">
                               {suggestion.reason || suggestion.message}
                             </p>
-                            {suggestion.fromUserName && suggestion.toUserName && (
-                              <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5 flex-wrap">
-                                <span className="font-semibold text-foreground/90">
-                                  {suggestion.fromUserName}
-                                </span>
-                                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
-                                <span className="font-semibold text-foreground/90">
-                                  {suggestion.toUserName}
-                                </span>
-                                {suggestion.taskCount && (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium text-[11px]">
-                                    ({suggestion.taskCount} tareas)
+                            {suggestion.fromUserName &&
+                              suggestion.toUserName && (
+                                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-semibold text-foreground/90">
+                                    {suggestion.fromUserName}
                                   </span>
-                                )}
-                              </p>
-                            )}
+                                  <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+                                  <span className="font-semibold text-foreground/90">
+                                    {suggestion.toUserName}
+                                  </span>
+                                  {suggestion.taskCount && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium text-[11px]">
+                                      ({suggestion.taskCount} tareas)
+                                    </span>
+                                  )}
+                                </p>
+                              )}
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -571,7 +580,7 @@ export function Workload() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar miembro o email..."
-                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -620,7 +629,7 @@ export function Workload() {
                         "px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
                         levelFilter === filter.key
                           ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       <span>{filter.label}</span>
@@ -642,7 +651,8 @@ export function Workload() {
                     No se encontraron miembros
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                    Ningún miembro del equipo coincide con el criterio de búsqueda o nivel de carga seleccionado.
+                    Ningún miembro del equipo coincide con el criterio de
+                    búsqueda o nivel de carga seleccionado.
                   </p>
                   <button
                     type="button"
@@ -768,7 +778,7 @@ export function Workload() {
                           <div
                             className={cn(
                               "h-full rounded-full transition-all duration-500",
-                              styles.bar
+                              styles.bar,
                             )}
                             style={{
                               width: `${Math.min(member.workloadScore, 100)}%`,
@@ -782,7 +792,7 @@ export function Workload() {
                         <span
                           className={cn(
                             "px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap",
-                            styles.badge
+                            styles.badge,
                           )}
                         >
                           {getStatusLabel(member.workloadLevel)}
@@ -796,14 +806,16 @@ export function Workload() {
           </>
         ) : (
           <div className="rounded-2xl border border-dashed border-border/60 bg-card/50 p-12 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 mx-auto mb-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-500 mx-auto mb-4">
               <Briefcase className="h-7 w-7" />
             </div>
             <h3 className="text-lg font-semibold mb-1 text-foreground">
-              {t("Workload.selectWorkspacePrompt") || "Selecciona un espacio de trabajo"}
+              {t("Workload.selectWorkspacePrompt") ||
+                "Selecciona un espacio de trabajo"}
             </h3>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              {t("Workload.selectWorkspaceDesc") || "Elige un espacio de trabajo para ver la carga de trabajo del equipo"}
+              {t("Workload.selectWorkspaceDesc") ||
+                "Elige un espacio de trabajo para ver la carga de trabajo del equipo"}
             </p>
           </div>
         )}

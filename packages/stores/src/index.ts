@@ -13,3 +13,4 @@ export * from './timer-store.js';
 export * from './sync-store.js';
 export * from './types.js';
 
+export * from './onboarding-store.js';
