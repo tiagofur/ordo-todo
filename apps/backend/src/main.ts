@@ -39,20 +39,23 @@ async function bootstrap() {
   }
 
   // CORS - MUST be configured before helmet and other middleware
-  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '').split(
-    ',',
-  );
+  const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
       // Check if origin is in allowed list or is a local/Tauri origin
+      // (Tauri 2 mobile serves the WebView from https://tauri.localhost)
       if (
         corsOrigins.indexOf(origin) !== -1 ||
         /^http:\/\/localhost(:\d+)?$/.test(origin) ||
         /^tauri:\/\//.test(origin) ||
-        origin === 'http://tauri.localhost'
+        origin === 'http://tauri.localhost' ||
+        origin === 'https://tauri.localhost'
       ) {
         callback(null, true);
       } else {

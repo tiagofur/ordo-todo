@@ -1,4 +1,8 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
 import type { TokenStorage } from "./utils/storage";
 import type {
   // Auth
@@ -160,7 +164,6 @@ import type {
   RitualTimeboxBlockInput,
 } from "./types";
 
-
 /**
  * Retry configuration for failed requests
  */
@@ -214,7 +217,7 @@ export interface RetryConfig {
  */
 export interface ClientConfig {
   /**
-   * Base URL for the API (e.g., 'http://localhost:3001/api/v1')
+   * Base URL for the API (e.g., 'http://localhost:3101/api/v1')
    */
   baseURL: string;
 
@@ -261,7 +264,7 @@ export interface ClientConfig {
  * import { OrdoApiClient, LocalStorageTokenStorage } from '@ordo-todo/api-client';
  *
  * const client = new OrdoApiClient({
- *   baseURL: 'http://localhost:3001/api/v1',
+ *   baseURL: 'http://localhost:3101/api/v1',
  *   tokenStorage: new LocalStorageTokenStorage(),
  * });
  *
@@ -282,7 +285,7 @@ export interface ClientConfig {
  * ```typescript
  * // With retry configuration
  * const client = new OrdoApiClient({
- *   baseURL: 'http://localhost:3001/api/v1',
+ *   baseURL: 'http://localhost:3101/api/v1',
  *   tokenStorage: new LocalStorageTokenStorage(),
  *   retry: {
  *     retries: 3,                    // Retry up to 3 times
@@ -385,7 +388,10 @@ export class OrdoApiClient {
         // Handle retry logic for other errors
         if (this.retryConfig && error.response?.status !== 401) {
           try {
-            return await this.retryRequest(error, originalRequest._retryAttempt ?? 0);
+            return await this.retryRequest(
+              error,
+              originalRequest._retryAttempt ?? 0,
+            );
           } catch (retryError) {
             // Retry failed, reject with original error
             return Promise.reject(error);
@@ -505,10 +511,7 @@ export class OrdoApiClient {
   /**
    * Retry a failed request with exponential backoff
    */
-  private async retryRequest(
-    error: AxiosError,
-    attempt: number
-  ): Promise<any> {
+  private async retryRequest(error: AxiosError, attempt: number): Promise<any> {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
       _retryAttempt?: number;
@@ -614,10 +617,10 @@ export class OrdoApiClient {
   async changePassword(
     data: ChangePasswordDto,
   ): Promise<{ success: boolean; message: string }> {
-    const response = await this.axios.post<{ success: boolean; message: string }>(
-      "/auth/change-password",
-      data,
-    );
+    const response = await this.axios.post<{
+      success: boolean;
+      message: string;
+    }>("/auth/change-password", data);
     return response.data;
   }
 
@@ -628,10 +631,10 @@ export class OrdoApiClient {
   async forgotPassword(
     email: string,
   ): Promise<{ success: boolean; message: string }> {
-    const response = await this.axios.post<{ success: boolean; message: string }>(
-      "/auth/forgot-password",
-      { email },
-    );
+    const response = await this.axios.post<{
+      success: boolean;
+      message: string;
+    }>("/auth/forgot-password", { email });
     return response.data;
   }
 
@@ -660,9 +663,12 @@ export class OrdoApiClient {
    * GET /auth/google/callback?code=xxx
    */
   async googleOAuthCallback(code: string): Promise<AuthResponse> {
-    const response = await this.axios.get<AuthResponse>("/auth/google/callback", {
-      params: { code },
-    });
+    const response = await this.axios.get<AuthResponse>(
+      "/auth/google/callback",
+      {
+        params: { code },
+      },
+    );
 
     // Store tokens if storage is available
     if (this.tokenStorage) {
@@ -720,15 +726,18 @@ export class OrdoApiClient {
       projectId?: string;
       includeCompleted?: boolean;
       limit?: number;
-    }
+    },
   ): Promise<SearchResponse> {
     const params: any = { q: query };
     if (options?.types) params.types = options.types;
     if (options?.projectId) params.projectId = options.projectId;
-    if (options?.includeCompleted !== undefined) params.includeCompleted = options.includeCompleted;
+    if (options?.includeCompleted !== undefined)
+      params.includeCompleted = options.includeCompleted;
     if (options?.limit) params.limit = options.limit;
 
-    const response = await this.axios.get<SearchResponse>("/search", { params });
+    const response = await this.axios.get<SearchResponse>("/search", {
+      params,
+    });
     return response.data;
   }
 
@@ -737,9 +746,12 @@ export class OrdoApiClient {
    * GET /search/suggestions
    */
   async searchSuggestions(query: string): Promise<SuggestionsResponse> {
-    const response = await this.axios.get<SuggestionsResponse>("/search/suggestions", {
-      params: { q: query },
-    });
+    const response = await this.axios.get<SuggestionsResponse>(
+      "/search/suggestions",
+      {
+        params: { q: query },
+      },
+    );
     return response.data;
   }
 
@@ -759,9 +771,12 @@ export class OrdoApiClient {
    * GET /search/quick
    */
   async quickSearch(query: string): Promise<QuickSearchResponse> {
-    const response = await this.axios.get<QuickSearchResponse>("/search/quick", {
-      params: { q: query },
-    });
+    const response = await this.axios.get<QuickSearchResponse>(
+      "/search/quick",
+      {
+        params: { q: query },
+      },
+    );
     return response.data;
   }
 
@@ -779,9 +794,12 @@ export class OrdoApiClient {
    * GET /auth/github/callback?code=xxx
    */
   async githubOAuthCallback(code: string): Promise<AuthResponse> {
-    const response = await this.axios.get<AuthResponse>("/auth/github/callback", {
-      params: { code },
-    });
+    const response = await this.axios.get<AuthResponse>(
+      "/auth/github/callback",
+      {
+        params: { code },
+      },
+    );
 
     // Store tokens if storage is available
     if (this.tokenStorage) {
@@ -901,7 +919,7 @@ export class OrdoApiClient {
    * GET /agent-jobs
    */
   async getAgentJobs(): Promise<AgentJob[]> {
-    const response = await this.axios.get<AgentJob[]>('/agent-jobs');
+    const response = await this.axios.get<AgentJob[]>("/agent-jobs");
     return response.data;
   }
 
@@ -910,7 +928,7 @@ export class OrdoApiClient {
    * POST /agent-jobs
    */
   async createAgentJob(input: CreateAgentJobInput): Promise<AgentJob> {
-    const response = await this.axios.post<AgentJob>('/agent-jobs', input);
+    const response = await this.axios.post<AgentJob>("/agent-jobs", input);
     return response.data;
   }
 
@@ -990,12 +1008,12 @@ export class OrdoApiClient {
     data: Partial<
       Pick<
         SlackTeamMapping,
-        | 'channelId'
-        | 'projectId'
-        | 'dailySummary'
-        | 'summaryHour'
-        | 'focusSync'
-        | 'focusDnd'
+        | "channelId"
+        | "projectId"
+        | "dailySummary"
+        | "summaryHour"
+        | "focusSync"
+        | "focusDnd"
       >
     >,
   ): Promise<SlackTeamMapping> {
@@ -1824,7 +1842,8 @@ export class OrdoApiClient {
    * GET /analytics/streak
    */
   async getProductivityStreak(): Promise<ProductivityStreak> {
-    const response = await this.axios.get<ProductivityStreak>("/analytics/streak");
+    const response =
+      await this.axios.get<ProductivityStreak>("/analytics/streak");
     return response.data;
   }
 
@@ -1888,21 +1907,22 @@ export class OrdoApiClient {
    * Upload a file as an attachment
    * POST /attachments/upload
    */
-  async uploadAttachment(
-    file: File,
-    taskId?: string,
-  ): Promise<Attachment> {
+  async uploadAttachment(file: File, taskId?: string): Promise<Attachment> {
     const formData = new FormData();
     formData.append("file", file);
     if (taskId) {
       formData.append("taskId", taskId);
     }
 
-    const response = await this.axios.post<Attachment>("/attachments/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await this.axios.post<Attachment>(
+      "/attachments/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   }
 
@@ -2787,7 +2807,9 @@ export class OrdoApiClient {
    * GET /ai/burnout/analysis
    */
   async getBurnoutAnalysis(): Promise<BurnoutAnalysis> {
-    const response = await this.axios.get<BurnoutAnalysis>("/ai/burnout/analysis");
+    const response = await this.axios.get<BurnoutAnalysis>(
+      "/ai/burnout/analysis",
+    );
     return response.data;
   }
 
@@ -2805,7 +2827,9 @@ export class OrdoApiClient {
    * GET /ai/burnout/recommendations
    */
   async getRestRecommendations(): Promise<RestRecommendation[]> {
-    const response = await this.axios.get<RestRecommendation[]>("/ai/burnout/recommendations");
+    const response = await this.axios.get<RestRecommendation[]>(
+      "/ai/burnout/recommendations",
+    );
     return response.data;
   }
 
@@ -2814,7 +2838,9 @@ export class OrdoApiClient {
    * GET /ai/burnout/intervention
    */
   async checkBurnoutIntervention(): Promise<BurnoutIntervention> {
-    const response = await this.axios.get<BurnoutIntervention>("/ai/burnout/intervention");
+    const response = await this.axios.get<BurnoutIntervention>(
+      "/ai/burnout/intervention",
+    );
     return response.data;
   }
 
@@ -2823,7 +2849,9 @@ export class OrdoApiClient {
    * GET /ai/burnout/weekly-summary
    */
   async getWeeklyWellbeingSummary(): Promise<WeeklyWellbeingSummary> {
-    const response = await this.axios.get<WeeklyWellbeingSummary>("/ai/burnout/weekly-summary");
+    const response = await this.axios.get<WeeklyWellbeingSummary>(
+      "/ai/burnout/weekly-summary",
+    );
     return response.data;
   }
 
@@ -2834,7 +2862,9 @@ export class OrdoApiClient {
    * GET /workload/workspace/:workspaceId
    */
   async getWorkspaceWorkload(workspaceId: string): Promise<WorkspaceWorkload> {
-    const response = await this.axios.get<WorkspaceWorkload>(`/workload/workspace/${workspaceId}`);
+    const response = await this.axios.get<WorkspaceWorkload>(
+      `/workload/workspace/${workspaceId}`,
+    );
     return response.data;
   }
 
@@ -2842,10 +2872,16 @@ export class OrdoApiClient {
    * Get member workload details
    * GET /workload/member/:userId
    */
-  async getMemberWorkload(userId: string, workspaceId?: string): Promise<MemberWorkload> {
-    const response = await this.axios.get<MemberWorkload>(`/workload/member/${userId}`, {
-      params: { workspaceId },
-    });
+  async getMemberWorkload(
+    userId: string,
+    workspaceId?: string,
+  ): Promise<MemberWorkload> {
+    const response = await this.axios.get<MemberWorkload>(
+      `/workload/member/${userId}`,
+      {
+        params: { workspaceId },
+      },
+    );
     return response.data;
   }
 
@@ -2864,7 +2900,9 @@ export class OrdoApiClient {
    * Get workload suggestions for redistribution
    * GET /workload/suggestions/:workspaceId
    */
-  async getWorkloadSuggestions(workspaceId: string): Promise<WorkloadSuggestion[]> {
+  async getWorkloadSuggestions(
+    workspaceId: string,
+  ): Promise<WorkloadSuggestion[]> {
     const response = await this.axios.get<WorkloadSuggestion[]>(
       `/workload/suggestions/${workspaceId}`,
     );
@@ -2891,7 +2929,11 @@ export class OrdoApiClient {
       params: { workspaceId },
     });
     // Handle paginated response: { data: [...], meta: {...} }
-    if (response.data && response.data.data && Array.isArray(response.data.data)) {
+    if (
+      response.data &&
+      response.data.data &&
+      Array.isArray(response.data.data)
+    ) {
       return response.data.data;
     }
     // Handle direct array response
@@ -3030,4 +3072,3 @@ export class OrdoApiClient {
     return response.data;
   }
 }
-

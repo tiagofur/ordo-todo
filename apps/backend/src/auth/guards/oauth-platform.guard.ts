@@ -22,11 +22,15 @@ import { isSafeApiNextTarget } from '../oauth-next.util';
  * callback solo redirige a paths `/api/...` sobre nuestro propio origen.
  * PKCE (PkceService) es la mejora pendiente para atar tokens al flujo.
  */
+const KNOWN_PLATFORMS = new Set(['desktop', 'mobile', 'web']);
+
 function platformAuthenticateOptions(context: ExecutionContext) {
   const request = context.switchToHttp().getRequest();
   const platform = request?.query?.platform;
-  if (platform) {
-    return { state: String(platform) };
+  // Allowlist: unknown values are ignored so arbitrary input never
+  // round-trips through the provider's `state`.
+  if (typeof platform === 'string' && KNOWN_PLATFORMS.has(platform)) {
+    return { state: platform };
   }
   const next = request?.query?.next;
   if (isSafeApiNextTarget(next)) {

@@ -80,6 +80,19 @@ function SignInForm() {
     {},
   );
 
+  // OAuth failures redirect back here with ?error=… (see the backend
+  // OAuthCallbackExceptionFilter): surface them as a toast once.
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (!error) return;
+    const key =
+      error === "registration_invite_only"
+        ? "errors.inviteOnly"
+        : "errors.oauthFailed";
+    toast.error(t(key));
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, t]);
+
   const handleFieldChange = (field: "email" | "password", value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {

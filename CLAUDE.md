@@ -131,10 +131,13 @@ cd apps/mobile
 npm run dev                    # Vite dev server (puerto 1421)
 npm run build                  # Build del frontend
 npm run tauri android init     # Generar proyecto Android (ya hecho)
-PATH="$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$PATH" \
-  npm run tauri android build --debug --target aarch64   # APK debug
+# APK debug contra producción (URL de .env.production):
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+export PATH="$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$PATH"
+npm run tauri android build --debug --target aarch64
 # NOTA: el cargo del PATH (Homebrew) no tiene std de Android; usar el de
-# rustup primero.
+# rustup primero. Ver apps/mobile/README.md (backends alternos, instalar).
 ```
 
 ## Architecture & Domain Patterns

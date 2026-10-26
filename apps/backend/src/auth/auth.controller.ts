@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  UseFilters,
   Req,
   Res,
   UnauthorizedException,
@@ -36,6 +37,7 @@ import {
   GitHubOAuthPlatformGuard,
   GoogleOAuthPlatformGuard,
 } from './guards/oauth-platform.guard';
+import { OAuthCallbackExceptionFilter } from './filters/oauth-callback-exception.filter';
 
 const ACCESS_COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 1 day
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -439,6 +441,7 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
+  @UseFilters(OAuthCallbackExceptionFilter)
   @ApiOperation({
     summary: 'Google OAuth callback',
     description:
@@ -447,10 +450,12 @@ export class AuthController {
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
-    // Check if this is a desktop OAuth flow
-    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+    // Native shells (desktop/mobile) round-trip `platform` through the
+    // provider's `state` and expect the ordo:// deep link redirect.
+    const state: string | undefined = req.query.state;
+    const isNative = state === 'desktop' || state === 'mobile';
 
-    if (platform === 'desktop') {
+    if (isNative) {
       // For desktop, redirect to deep link with tokens
       const params = new URLSearchParams({
         access_token: accessToken,
@@ -510,6 +515,7 @@ export class AuthController {
   @Public()
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
+  @UseFilters(OAuthCallbackExceptionFilter)
   @ApiOperation({
     summary: 'GitHub OAuth callback',
     description:
@@ -518,10 +524,12 @@ export class AuthController {
   async githubAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
-    // Check if this is a desktop OAuth flow
-    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+    // Native shells (desktop/mobile) round-trip `platform` through the
+    // provider's `state` and expect the ordo:// deep link redirect.
+    const state: string | undefined = req.query.state;
+    const isNative = state === 'desktop' || state === 'mobile';
 
-    if (platform === 'desktop') {
+    if (isNative) {
       // For desktop, redirect to deep link with tokens
       const params = new URLSearchParams({
         access_token: accessToken,

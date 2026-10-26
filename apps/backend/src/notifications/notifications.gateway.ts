@@ -58,9 +58,17 @@ export interface TaskReminderPayload {
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
       const allowedOrigins = getAllowedOrigins();
+      // Same policy as the HTTP CORS in main.ts: exact allowlist match plus
+      // local/Tauri origins (Tauri 2 mobile serves the WebView from
+      // https://tauri.localhost). No prefix matching —
+      // "http://localhost:3000.evil" must not pass.
       if (
         !origin ||
-        allowedOrigins.some((allowed) => origin.startsWith(allowed))
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+        /^tauri:\/\//.test(origin) ||
+        origin === 'http://tauri.localhost' ||
+        origin === 'https://tauri.localhost'
       ) {
         callback(null, true);
       } else {
@@ -89,11 +97,14 @@ export class NotificationsGateway
       const cookieHeader = client.handshake?.headers?.cookie;
       let cookieToken: string | undefined;
       if (cookieHeader) {
-        const cookies = cookieHeader.split(';').reduce((res, c) => {
-          const [key, val] = c.trim().split('=');
-          if (key && val) res[key] = decodeURIComponent(val);
-          return res;
-        }, {} as Record<string, string>);
+        const cookies = cookieHeader.split(';').reduce(
+          (res, c) => {
+            const [key, val] = c.trim().split('=');
+            if (key && val) res[key] = decodeURIComponent(val);
+            return res;
+          },
+          {} as Record<string, string>,
+        );
         cookieToken = cookies['access_token'] || cookies['token'];
       }
 

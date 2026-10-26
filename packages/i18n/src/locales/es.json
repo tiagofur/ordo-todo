@@ -2978,7 +2978,9 @@
         "invalidEmail": "Ingresa un correo electrónico válido",
         "invalidCredentials": "Email o contraseña incorrectos",
         "googleFailed": "No se pudo iniciar sesión con Google",
-        "githubFailed": "No se pudo iniciar sesión con GitHub"
+        "githubFailed": "No se pudo iniciar sesión con GitHub",
+        "inviteOnly": "El registro con redes sociales requiere un código de invitación. Crea tu cuenta con un código primero.",
+        "oauthFailed": "No se pudo completar el inicio de sesión social. Inténtalo de nuevo."
       },
       "success": "Sesión iniciada exitosamente"
     },
