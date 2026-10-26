@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and the browser will return to ChatGPT on its own."
+        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and the browser will return to Claude on its own."
+        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",
