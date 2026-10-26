@@ -86,7 +86,9 @@ export class LoggingInterceptor implements NestInterceptor {
             userId,
             statusCode,
             duration,
-            responseSize: JSON.stringify(data).length,
+            // `data` is undefined for handlers that answer via an
+            // injected @Res (redirects like GET /oauth/authorize).
+            responseSize: JSON.stringify(data ?? null).length,
           });
         },
         error: (error) => {

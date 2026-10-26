@@ -321,4 +321,32 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get inviteRedemption() {
     return this.prisma.inviteRedemption;
   }
+
+  // Public API tokens, OAuth AS + MCP, webhooks (ODD 009/001/019).
+  // Without these the delegates see `undefined` and every flow using
+  // them 500s — unit tests mock the delegates, so only a real DB run
+  // catches it.
+  get apiToken() {
+    return this.prisma.apiToken;
+  }
+
+  get oAuthClient() {
+    return this.prisma.oAuthClient;
+  }
+
+  get oAuthAuthorizationCode() {
+    return this.prisma.oAuthAuthorizationCode;
+  }
+
+  get oAuthRefreshToken() {
+    return this.prisma.oAuthRefreshToken;
+  }
+
+  get webhookSubscription() {
+    return this.prisma.webhookSubscription;
+  }
+
+  get webhookDelivery() {
+    return this.prisma.webhookDelivery;
+  }
 }
