@@ -38,11 +38,16 @@ describe('McpAuthGuard', () => {
     name: 'Ana',
   };
 
-  function mockContext(authorization?: string) {
+  function mockContext(authorization?: string, host?: string) {
     const request: Record<string, unknown> = {
-      get: (header: string) =>
-        header.toLowerCase() === 'authorization' ? authorization : undefined,
+      get: (header: string) => {
+        const normalized = header.toLowerCase();
+        if (normalized === 'authorization') return authorization;
+        if (normalized === 'host') return host;
+        return undefined;
+      },
       headers: { authorization },
+      protocol: 'https',
     };
     const responseHeaders: Record<string, string> = {};
     const response = {
@@ -100,11 +105,17 @@ describe('McpAuthGuard', () => {
     expect(request.mcpScopes).toEqual(['read']);
   });
 
-  it('should throw 401 without a bearer token', async () => {
-    const { context } = mockContext(undefined);
+  it('should throw 401 without a bearer token, with an RFC 9728 challenge', async () => {
+    const { responseHeaders, context } = mockContext(
+      undefined,
+      'api.ordo.test',
+    );
 
     await expect(guard.canActivate(context)).rejects.toThrow(
       UnauthorizedException,
+    );
+    expect(responseHeaders['WWW-Authenticate']).toBe(
+      'Bearer resource_metadata="https://api.ordo.test/.well-known/oauth-protected-resource"',
     );
   });
 

@@ -36,6 +36,15 @@ export class McpAuthGuard implements CanActivate {
     const token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
 
     if (!token) {
+      // RFC 9728 challenge: MCP clients start discovery from this header
+      // when they don't probe the well-known path up front.
+      const host = request.get?.('host') ?? '';
+      const proto = request.protocol ?? 'https';
+      const response = http.getResponse();
+      response.header?.(
+        'WWW-Authenticate',
+        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource"`,
+      );
       throw new UnauthorizedException('Missing bearer token');
     }
 
