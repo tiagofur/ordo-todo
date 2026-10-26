@@ -1,8 +1,9 @@
 # Ordo MCP Server (technical reference)
 
-> **Última actualización**: 2026-10-18
+> **Última actualización**: 2026-10-25
 > **Autor/Mantenedor**: equipo Ordo
-> **Estado**: 🚧 En desarrollo (ODD 001 — servidor MCP remoto)
+> **Estado**: ✅ Operativo (ODD 001 — tras el fix de descubrimiento
+> OAuth en raíz y compatibilidad DCR para conectores reales)
 
 Remote MCP server exposing Ordo to Claude, ChatGPT, Hermes, OpenClaw
 and Cursor over Streamable HTTP with OAuth 2.1. A developer should be
@@ -11,7 +12,7 @@ able to connect a generic MCP client using only this document.
 - ODD spec: `odd/tasks/001-mcp-server.md`
 - Public REST sibling: `docs/reference/api-reference.md` (same
   contracts, same services underneath)
-- Base URLs below assume the API host root (e.g. `https://api.ordo.test`).
+- Base URLs below assume the API host root (e.g. `https://api.ordotodo.app`).
 
 ## 📋 Índice rápido
 
@@ -59,18 +60,41 @@ Missing/invalid/expired/revoked credentials → `401`.
 Discovery (no auth required):
 
 ```bash
-# Protected resource metadata (RFC 9728)
-curl https://api.ordo.test/.well-known/oauth-protected-resource
-# → {"resource": "https://api.ordo.test/mcp",
-#     "authorization_servers": ["https://api.ordo.test"],
+# Protected resource metadata (RFC 9728), at the origin root
+curl https://api.ordotodo.app/.well-known/oauth-protected-resource
+# → {"resource": "https://api.ordotodo.app/mcp",
+#     "authorization_servers": ["https://api.ordotodo.app"],
 #     "scopes_supported": ["read", "tasks:write",
 #       "projects:write", "admin:webhooks"],
 #     "bearer_methods_supported": ["header"],
 #     "resource_signing_alg_values_supported": ["HS256"]}
 
-# Authorization server metadata (RFC 8414, from ODD 009)
-curl https://api.ordo.test/api/v1/oauth/.well-known/oauth-authorization-server
+# Authorization server metadata (RFC 8414). Served at the origin root
+# (what ChatGPT/Claude probe) and mirrored under the API prefix:
+curl https://api.ordotodo.app/.well-known/oauth-authorization-server
+curl https://api.ordotodo.app/api/v1/oauth/.well-known/oauth-authorization-server
 ```
+
+Unauthenticated calls to `/mcp` answer `401` with an RFC 9728
+challenge header pointing at the protected-resource metadata, so
+clients can start discovery from the challenge alone.
+
+Client registration accepts both flavors:
+
+- **RFC 7591 dynamic client registration** (what ChatGPT/Claude
+  send): `POST /api/v1/oauth/register` with `client_name` +
+  `redirect_uris`; extra RFC 7591 fields are tolerated. `client_id`
+  comes from `client_uri`'s origin when provided, otherwise it is
+  minted. Re-registration is idempotent (merges redirect URIs and
+  scopes).
+- **Client ID Metadata Document**: send `metadataUrl`; the client id
+  is that document's origin and callback URLs must live there.
+
+`resource` (RFC 8707) is accepted on authorize/token and tolerated —
+issued tokens do not embed an audience yet. If the client requests no
+scope, the token carries the client's allowed scopes (the full
+vocabulary for DCR clients); scope step-up errors list everything
+missing at once.
 
 ## Scopes and step-up
 
@@ -181,7 +205,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
 const transport = new StreamableHTTPClientTransport(
-  new URL('https://api.ordo.test/mcp'),
+  new URL('https://api.ordotodo.app/mcp'),
   {
     requestInit: {
       headers: { Authorization: `Bearer ${process.env.ORDO_PAT}` },
@@ -202,7 +226,7 @@ const created = await client.callTool({
 ```
 
 For OAuth clients (Claude/ChatGPT/Hermes/OpenClaw): point the
-connector at `https://api.ordo.test/mcp`; discovery via
+connector at `https://api.ordotodo.app/mcp`; discovery via
 `/.well-known/oauth-protected-resource` + the RFC 8414 metadata
 provides the authorization server, scopes and bearer rules, ending
 in the standard browser-approve flow. Per-client 1-click guides live
