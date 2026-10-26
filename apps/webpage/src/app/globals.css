@@ -58,6 +58,12 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
+  /* Marca (paridad con la app): símbolo #AD46FF (icono de escritorio/PWA),
+     texto de marca sobre fondo oscuro #A78BFA (violet-400, AA). Los botones
+     primarios usan --primary (violet-600). */
+  --color-brand: #ad46ff;
+  --color-brand-soft: #a78bfa;
+
   /* Brand Colors - Creator Neon */
   --color-brand-cyan: #22d3ee;
   --color-brand-pink: #f472b6;

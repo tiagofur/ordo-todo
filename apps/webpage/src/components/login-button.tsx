@@ -42,7 +42,7 @@ export function LoginButton({
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-[#06B6D4] flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />
               </div>
             )}

@@ -39,7 +39,7 @@ Abierto: dominios productivos; método de construcción por defecto sin registra
 
 ## Brand Commitments
 
-Observado en código (se preserva salvo que el usuario lo cambie): nombre "Ordo Todo"; primario cyan `#06B6D4` con acentos por sección; logo Sparkles; tarjetas `rounded-2xl`; animaciones framer-motion; tono claro y directo en 3 idiomas.
+Decisión del owner (25-oct-2026): **paridad visual con la app**. Nombre "Ordo Todo"; símbolo = el icono de la app (cuadrado morado `#AD46FF` con check en cuadrado, `BrandMark`), wordmark en el color de texto; primario violeta (`--primary`, violet-600 `#7C3AED`) para CTAs y texto de marca `#A78BFA` sobre fondo oscuro; favicon/apple-icon = los de la app. El cian `#06B6D4` deja de ser la marca y queda como uno de los acentos por sección (cian/rosa/naranja/verde/violeta). Tarjetas `rounded-2xl`; animaciones framer-motion; tono claro y directo en 3 idiomas.
 
 ## Evidence on Hand
 

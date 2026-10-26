@@ -3,7 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
-import { Sparkles, Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
+import { BrandMark } from './brand-mark';
 
 export function Footer() {
   const t = useTranslations('Footer');
@@ -44,15 +45,9 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Column */}
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="inline-flex items-center space-x-2 group">
-              <div className="relative">
-                {/* Solid background square instead of blur */}
-                <div className="absolute inset-0 bg-[#06B6D4] rounded-lg -rotate-6 opacity-20 group-hover:rotate-0 transition-transform" />
-                <div className="relative h-10 w-10 rounded-lg bg-[#06B6D4] flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-              </div>
-              <span className="text-xl font-bold text-[#06B6D4]">
+            <Link href="/" className="inline-flex items-center gap-2.5 group">
+              <BrandMark className="h-10 w-10" iconClassName="h-5 w-5" />
+              <span className="text-xl font-bold tracking-tight text-foreground">
                 Ordo Todo
               </span>
             </Link>
