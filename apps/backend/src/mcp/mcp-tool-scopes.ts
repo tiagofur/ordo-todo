@@ -42,4 +42,6 @@ export const MCP_TOOL_SCOPES: Record<string, string> = {
   ordo_tag_add_to_task: 'tasks:write',
   ordo_meeting_list: 'read',
   ordo_comment_list: 'read',
+  ordo_workspace_members: 'read',
+  ordo_task_assign: 'tasks:write',
 };
