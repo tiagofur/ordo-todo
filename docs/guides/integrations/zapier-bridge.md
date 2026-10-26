@@ -15,10 +15,10 @@ resultado en el ODD `## Log`).
 
 Zap con acción HTTP o app Ordo (cuando exista en ODD 003):
 
-- Crear tarea: `POST https://ordotodo.app/v1/tasks` con
+- Crear tarea: `POST https://api.ordotodo.app/v1/tasks` con
   `Authorization: Bearer ordo_pat_...` (PAT del usuario, scope
   `tasks:write`).
-- Completar tarea: `PATCH https://ordotodo.app/v1/tasks/:id`
+- Completar tarea: `PATCH https://api.ordotodo.app/v1/tasks/:id`
   con `{"status": "COMPLETED"}`.
 
 Contratos completos en `docs/reference/api-reference.md`.

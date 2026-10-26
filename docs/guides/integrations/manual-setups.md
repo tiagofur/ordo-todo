@@ -1,8 +1,9 @@
 # Setups manuales por cliente (técnico)
 
-> **Última actualización**: 2026-10-25
-> **Estado**: ✅ Operativo (URL real verificada contra producción;
-> pendiente prueba humana por cliente — registrar en el ODD `## Log`)
+> **Última actualización**: 2026-10-26
+> **Estado**: ✅ Operativo (URL + discovery verificados contra producción
+> tras el deploy de #388; pendiente prueba humana por cliente —
+> registrar en el ODD `## Log`)
 
 Bloques exactos que aparecen en las guías de usuario, con el comando
 de verificación de cada uno. Check S2: cada bloque probado desde cero

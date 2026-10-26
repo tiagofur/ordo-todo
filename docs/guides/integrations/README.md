@@ -1,9 +1,9 @@
 # Guías de conexión con agentes (índice técnico)
 
-> **Última actualización**: 2026-10-25
+> **Última actualización**: 2026-10-26
 > **Autor/Mantenedor**: equipo Ordo
-> **Estado**: ✅ Operativo (URL real de producción; ODD 002 completada
-> y URLs actualizadas tras el fix de descubrimiento — PR #388)
+> **Estado**: ✅ Operativo (URLs de producción verificadas con sondas
+> tras el deploy de #388; prueba humana por cliente pendiente)
 
 Espejo técnico de las guías de usuario en `apps/webpage/.../guide/connect/`:
 mismos flujos, con endpoints, scopes y comandos exactos para
@@ -12,7 +12,6 @@ desarrolladores. La fuente de verdad del protocolo es
 
 ## 📋 Índice rápido
 
-- [connect-overview.md](./connect-overview.md) — matriz cliente × método + URLs canónicas
 - [manual-setups.md](./manual-setups.md) — bloques copy-paste verificables por cliente
 - [slack-host.md](./slack-host.md) — Ordo como MCP en Slackbot
 - [zapier-bridge.md](./zapier-bridge.md) — puente Zapier (temporal hasta ODD 003)

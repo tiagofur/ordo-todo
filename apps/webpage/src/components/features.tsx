@@ -162,7 +162,7 @@ export function Features() {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
         >
           {[
-            { icon: Target, key: 'mcp_tools', value: '17', color: '#06B6D4' },
+            { icon: Target, key: 'mcp_tools', value: '18', color: '#06B6D4' },
             { icon: Calendar, key: 'calendar', value: '2-way', color: '#EC4899' },
             { icon: Zap, key: 'platforms', value: '3', color: '#10B981' },
             { icon: Shield, key: 'languages', value: '3', color: '#A855F7' },

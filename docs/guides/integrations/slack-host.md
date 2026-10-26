@@ -14,12 +14,12 @@ Check S3: flujo probado con workspace Slack de test (registrar fecha
 
 | Campo | Valor |
 | ----- | ----- |
-| Server URL | `https://ordotodo.app/mcp` |
+| Server URL | `https://api.ordotodo.app/mcp` |
 | Transport | Streamable HTTP |
 | Auth | OAuth 2.0 (browser-approve contra tu cuenta Ordo) |
 
 Discovery: Slackbot puede descubrir autorización vía
-`https://ordotodo.app/.well-known/oauth-protected-resource`
+`https://api.ordotodo.app/.well-known/oauth-protected-resource`
 (RFC 9728) → authorization server en `/api/v1/oauth/*` (RFC 8414).
 
 ## Activación por usuario

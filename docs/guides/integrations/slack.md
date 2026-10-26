@@ -22,11 +22,11 @@ the channel.
 ## Setup
 
 1. **Slack app**: create an app at api.slack.com with:
-   - OAuth redirect URL: `https://ordotodo.app/api/v1/slack/oauth/callback`
-   - Event subscriptions → `https://ordotodo.app/api/v1/slack/events`
+   - OAuth redirect URL: `https://api.ordotodo.app/api/v1/slack/oauth/callback`
+   - Event subscriptions → `https://api.ordotodo.app/api/v1/slack/events`
      (`app_uninstalled`, `tokens_revoked`)
-   - Interactivity → `https://ordotodo.app/api/v1/slack/interactions`
-   - Slash command `/ordo` → `https://ordotodo.app/api/v1/slack/commands`
+   - Interactivity → `https://api.ordotodo.app/api/v1/slack/interactions`
+   - Slash command `/ordo` → `https://api.ordotodo.app/api/v1/slack/commands`
    - Message action "Create task in Ordo" → interactions URL
    - Bot scopes from the table below
 2. **Env**: `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`,

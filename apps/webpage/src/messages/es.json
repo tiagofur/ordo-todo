@@ -160,7 +160,7 @@
       "billing_live_q": "¿El cobro ya está activo?",
       "billing_live_a": "Aún no: todas las funciones son gratis mientras los planes de pago están en beta. Anunciaremos los métodos de pago antes de cobrar nada.",
       "agents_what_q": "¿Mi asistente de IA puede usar Ordo?",
-      "agents_what_a": "Sí: ChatGPT, Claude, Hermes y OpenClaw se conectan en menos de 60 segundos con 17 herramientas. Mira las guías de conexión.",
+      "agents_what_a": "Sí: ChatGPT, Claude, Hermes y OpenClaw se conectan en unos minutos con 18 herramientas. Mira las guías de conexión.",
       "agents_permissions_q": "¿Qué puede ver mi asistente?",
       "agents_permissions_a": "Solo lo que tú puedes ver: cada petición corre con tus permisos y lo no autorizado se deniega.",
       "agents_own_q": "¿Ordo tiene su propio agente?",
@@ -181,7 +181,7 @@
   "Hero": {
     "title": "Tus tareas,",
     "highlight": "donde sea que trabajes",
-    "description": "Ordo Todo organiza tareas, proyectos, hábitos y tiempo de foco en un solo lugar — y tu asistente de IA puede operarlo por ti en menos de 60 segundos.",
+    "description": "Ordo Todo organiza tareas, proyectos, hábitos y tiempo de foco en un solo lugar — y tu asistente de IA puede operarlo por ti en unos minutos.",
     "cta_primary": "Empieza Gratis",
     "cta_secondary": "Conecta Tu Agente",
     "badge": "Funciona con tu asistente de IA",
@@ -278,7 +278,7 @@
     },
     "integrations": {
       "title": "Calendario, Slack y agentes",
-      "description": "Sincronización bidireccional con Google Calendar y Outlook, integración profunda con Slack, 17 herramientas MCP y API pública con webhooks."
+      "description": "Sincronización bidireccional con Google Calendar y Outlook, integración profunda con Slack, 18 herramientas MCP y API pública con webhooks."
     },
     "cta_text": "Mira lo que incluye cada plan",
     "cta_link": "Comparar planes →"
@@ -286,8 +286,8 @@
   "AgentsPage": {
     "badge": "Listo para agentes",
     "title": "Usa Ordo desde tu asistente de IA",
-    "subtitle": "Conecta ChatGPT, Claude, Hermes u OpenClaw en menos de 60 segundos. Tu asistente opera Ordo con tus propios permisos — nada más.",
-    "tools_title": "17 herramientas que tu asistente puede usar",
+    "subtitle": "Conecta ChatGPT, Claude, Hermes u OpenClaw en unos minutos. Tu asistente opera Ordo con tus propios permisos — nada más.",
+    "tools_title": "18 herramientas que tu asistente puede usar",
     "tools": {
       "tasks": {
         "title": "Tareas",
@@ -1283,7 +1283,7 @@
     "facts_title": "Ordo en datos",
     "facts": {
       "platforms": "Apps web, escritorio y móvil",
-      "mcp_tools": "17 herramientas para agentes (MCP)",
+      "mcp_tools": "18 herramientas para agentes (MCP)",
       "languages": "Inglés, español, portugués",
       "trial": "Plan gratuito y prueba Pro de 14 días, sin tarjeta"
     },
@@ -1411,10 +1411,10 @@
   "GuideConnect": {
     "badge": "Conectar tu asistente",
     "title": "Conecta Ordo a tu asistente",
-    "subtitle": "Usa tus tareas, proyectos y hábitos desde ChatGPT, Claude, Hermes u OpenClaw. Sin tecnicismos: busca, conecta, aprueba.",
+    "subtitle": "Usa tus tareas, proyectos y hábitos desde ChatGPT, Claude, Hermes u OpenClaw: crea un conector con la URL de Ordo y autoriza en el navegador.",
     "how_title": "Dos formas de conectar",
     "how_text": "Elige la que prefieras. Ambas usan la misma conexión segura: Ordo solo muestra a tu asistente lo que tú puedes ver.",
-    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_title": "Conexión asistida",
     "oneclick_text": "Para todo el mundo: crea un conector en tu asistente, pega la URL de Ordo y autoriza en el navegador.",
     "manual_title": "Configuración manual",
     "manual_text": "Para desarrolladores y herramientas de terminal. Bloques listos para copiar y pegar.",
@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y pulsa Autorizar."
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y el navegador volverá solo a ChatGPT."
       },
       "4": {
         "title": "Activa Ordo y prueba",
@@ -1496,7 +1496,7 @@
     "title": "Conectar Ordo a Claude",
     "subtitle": "Delega en Claude tu planificación: que lea tus tareas, proponga el plan del día y lo ejecute contigo.",
     "oneclick_title": "Conexión asistida",
-    "oneclick_text": "En claude.ai y en la app de escritorio:",
+    "oneclick_text": "Funciona igual en claude.ai y en la app de escritorio:",
     "steps": {
       "1": {
         "title": "Abre los conectores de Claude",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y pulsa Autorizar."
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y el navegador volverá solo a Claude."
       },
       "4": {
         "title": "Activa Ordo y prueba",
@@ -1543,20 +1543,20 @@
     "badge": "Hermes",
     "title": "Conectar Ordo a Hermes",
     "subtitle": "Tu ayudante personal con memoria ahora conoce tus tareas: pídele que te organice por Telegram, Discord o donde lo uses.",
-    "oneclick_title": "Conexión en 1 clic",
-    "oneclick_text": "Desde la app de Hermes, sin tocar archivos:",
+    "oneclick_title": "Conexión asistida",
+    "oneclick_text": "Añade Ordo a mano en Hermes con la dirección del servidor:",
     "steps": {
       "1": {
         "title": "Abre las conexiones",
         "description": "En Hermes, ve a Ajustes y luego a Conexiones. Pulsa Añadir conexión."
       },
       "2": {
-        "title": "Busca Ordo",
-        "description": "Escribe Ordo en el buscador y elige la conexión oficial."
+        "title": "Crea una conexión manual",
+        "description": "Elige conexión manual y pega la URL del servidor: https://api.ordotodo.app/mcp"
       },
       "3": {
-        "title": "Pulsa Conectar y aprueba",
-        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+        "title": "Elige OAuth y aprueba",
+        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y podrás volver a Hermes."
       },
       "4": {
         "title": "Pídele algo a Hermes",
@@ -1589,20 +1589,20 @@
     "badge": "OpenClaw",
     "title": "Conectar Ordo a OpenClaw",
     "subtitle": "Opera Ordo desde WhatsApp, Telegram o Discord: crea tareas, consulta tu día y recibe resúmenes donde ya hablas.",
-    "oneclick_title": "Conexión en 1 clic",
-    "oneclick_text": "Desde el panel de OpenClaw, sin tocar archivos:",
+    "oneclick_title": "Conexión asistida",
+    "oneclick_text": "Mientras el complemento oficial llega a ClawHub, conecta Ordo a mano:",
     "steps": {
       "1": {
-        "title": "Abre el mercado de complementos",
-        "description": "En tu panel de OpenClaw, ve a Complementos y busca Ordo en ClawHub."
+        "title": "Añade el servidor de Ordo",
+        "description": "En tu panel de OpenClaw, ve a Complementos y añade un servidor manual con la URL https://api.ordotodo.app/mcp"
       },
       "2": {
-        "title": "Instala el complemento de Ordo",
-        "description": "Pulsa Instalar en la ficha oficial de Ordo y espera a que termine."
+        "title": "Conecta tu cuenta y aprueba",
+        "description": "Pulsa Conectar. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y vuelve al panel."
       },
       "3": {
-        "title": "Conecta tu cuenta y aprueba",
-        "description": "Pulsa Conectar. Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+        "title": "Elige qué puede tocar",
+        "description": "OpenClaw pedirá permiso por herramienta (permitir una vez, siempre o denegar). Acepta las que necesites."
       },
       "4": {
         "title": "Háblale a tu asistente",
