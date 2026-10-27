@@ -1602,8 +1602,24 @@ model Subscription {
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
 
+  // ODD 012 T2: billing cycle details synced from Stripe webhooks
+  interval          SubscriptionInterval?
+  seats             Int      @default(1)
+  trialEndsAt       DateTime?
+  currentPeriodStart DateTime?
+  cancelAtPeriodEnd Boolean  @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ODD 012 S3: idempotency of Stripe webhook deliveries by event.id
+model BillingWebhookEvent {
+  id         String   @id // Stripe event ID (evt_...)
+  type       String
+  receivedAt DateTime @default(now())
+
+  @@index([receivedAt])
 }
 
 enum SubscriptionPlan {
@@ -1621,6 +1637,11 @@ enum SubscriptionStatus {
   PAST_DUE
   TRIALING
   UNPAID
+}
+
+enum SubscriptionInterval {
+  MONTH
+  YEAR
 }
 
 // ============ GAMIFICATION ============

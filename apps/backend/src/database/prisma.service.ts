@@ -349,4 +349,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get webhookDelivery() {
     return this.prisma.webhookDelivery;
   }
+
+  // Billing (ODD 012): webhook idempotency ledger
+  get billingWebhookEvent() {
+    return this.prisma.billingWebhookEvent;
+  }
 }
