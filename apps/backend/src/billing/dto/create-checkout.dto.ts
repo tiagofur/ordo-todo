@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsInt, IsOptional, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateCheckoutDto {
   @ApiProperty({
@@ -18,10 +18,11 @@ export class CreateCheckoutDto {
   interval!: 'month' | 'year';
 
   @ApiPropertyOptional({
-    description: 'Asientos (solo Team; mínimo 2, por defecto 2).',
+    description: 'Asientos (solo Team; mínimo 2, máximo 999, por defecto 2).',
   })
   @IsOptional()
   @IsInt()
   @Min(1)
+  @Max(999)
   seats?: number;
 }
