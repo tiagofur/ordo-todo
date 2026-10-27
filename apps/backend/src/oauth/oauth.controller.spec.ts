@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { OAuthController } from './oauth.controller';
 import { OAuthService } from './oauth.service';
@@ -521,17 +522,29 @@ describe('OAuthController', () => {
   });
 
   describe('token', () => {
+    // RFC 6749 §5.2 bodies: Claude's reconnect keys off the `error` field.
+    const res = () => {
+      const r: { status: jest.Mock; json: jest.Mock } = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      return r;
+    };
+
     it('should route authorization_code and refresh_token grants', async () => {
       mockOAuthService.exchangeCode.mockResolvedValue({ access_token: 'a' });
       mockOAuthService.refresh.mockResolvedValue({ access_token: 'b' });
 
-      await controller.token({
-        grant_type: 'authorization_code',
-        code: 'c',
-        client_id: 'x',
-        redirect_uri: 'r',
-        code_verifier: 'v',
-      });
+      await controller.token(
+        {
+          grant_type: 'authorization_code',
+          code: 'c',
+          client_id: 'x',
+          redirect_uri: 'r',
+          code_verifier: 'v',
+        },
+        res() as never,
+      );
 
       expect(oauthService.exchangeCode).toHaveBeenCalledWith({
         code: 'c',
@@ -540,19 +553,63 @@ describe('OAuthController', () => {
         codeVerifier: 'v',
       });
 
-      await controller.token({
-        grant_type: 'refresh_token',
-        refresh_token: 'rt',
-        client_id: 'x',
-      });
+      await controller.token(
+        {
+          grant_type: 'refresh_token',
+          refresh_token: 'rt',
+          client_id: 'x',
+        },
+        res() as never,
+      );
 
       expect(oauthService.refresh).toHaveBeenCalledWith('x', 'rt');
     });
 
-    it('should reject unsupported grant types', () => {
-      expect(() => controller.token({ grant_type: 'password' })).toThrow(
-        'unsupported_grant_type',
+    it('answers invalid_grant on failed exchanges instead of throwing', async () => {
+      mockOAuthService.exchangeCode.mockRejectedValue(
+        new UnauthorizedException('PKCE verification failed'),
       );
+      const exchange = res();
+      await controller.token(
+        {
+          grant_type: 'authorization_code',
+          code: 'c',
+          client_id: 'x',
+          redirect_uri: 'r',
+          code_verifier: 'bad',
+        },
+        exchange as never,
+      );
+      expect(exchange.status).toHaveBeenCalledWith(400);
+      expect(exchange.json).toHaveBeenCalledWith({ error: 'invalid_grant' });
+
+      mockOAuthService.refresh.mockRejectedValue(
+        new UnauthorizedException('Invalid refresh token'),
+      );
+      const refresh = res();
+      await controller.token(
+        { grant_type: 'refresh_token', refresh_token: 'rt', client_id: 'x' },
+        refresh as never,
+      );
+      expect(refresh.status).toHaveBeenCalledWith(400);
+      expect(refresh.json).toHaveBeenCalledWith({ error: 'invalid_grant' });
+    });
+
+    it('answers invalid_request for missing fields and unsupported_grant_type otherwise', async () => {
+      const missing = res();
+      await controller.token(
+        { grant_type: 'authorization_code', code: 'c' },
+        missing as never,
+      );
+      expect(missing.status).toHaveBeenCalledWith(400);
+      expect(missing.json).toHaveBeenCalledWith({ error: 'invalid_request' });
+
+      const unknown = res();
+      await controller.token({ grant_type: 'password' }, unknown as never);
+      expect(unknown.status).toHaveBeenCalledWith(400);
+      expect(unknown.json).toHaveBeenCalledWith({
+        error: 'unsupported_grant_type',
+      });
     });
   });
 

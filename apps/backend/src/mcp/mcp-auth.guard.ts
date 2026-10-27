@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { OAuthGuard } from '../oauth/oauth.guard';
 import { ApiTokenGuard } from '../api-tokens/api-token.guard';
 import { MCP_SCOPES_KEY } from './mcp-scopes.decorator';
+import { MCP_RESOURCE_SCOPES } from './mcp-metadata.service';
 
 /**
  * Authentication + scope enforcement for the MCP endpoint.
@@ -37,13 +38,15 @@ export class McpAuthGuard implements CanActivate {
 
     if (!token) {
       // RFC 9728 challenge: MCP clients start discovery from this header
-      // when they don't probe the well-known path up front.
+      // when they don't probe the well-known path up front. The `scope`
+      // attribute is what Claude requests on /authorize — keep it to the
+      // scopes the MCP tools actually use (admin:webhooks is PAT-only).
       const host = request.get?.('host') ?? '';
       const proto = request.protocol ?? 'https';
       const response = http.getResponse();
       response.header?.(
         'WWW-Authenticate',
-        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource"`,
+        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource", scope="${MCP_RESOURCE_SCOPES.join(' ')}"`,
       );
       throw new UnauthorizedException('Missing bearer token');
     }

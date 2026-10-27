@@ -115,7 +115,7 @@ describe('McpAuthGuard', () => {
       UnauthorizedException,
     );
     expect(responseHeaders['WWW-Authenticate']).toBe(
-      'Bearer resource_metadata="https://api.ordo.test/.well-known/oauth-protected-resource"',
+      'Bearer resource_metadata="https://api.ordo.test/.well-known/oauth-protected-resource", scope="read tasks:write projects:write"',
     );
   });
 
