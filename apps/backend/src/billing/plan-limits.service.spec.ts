@@ -38,6 +38,12 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
   });
 
   describe('getEffectivePlanId (comportamiento real, matriz de estados)', () => {
+    // Fechas fijas en UTC: specs herméticas de zona horaria.
+    const GRACE_FUTURE = new Date('2027-01-01T00:00:00.000Z');
+    const GRACE_PAST = new Date('2026-01-01T00:00:00.000Z');
+    const TRIAL_FUTURE = new Date('2027-01-01T00:00:00.000Z');
+    const TRIAL_PAST = new Date('2026-01-01T00:00:00.000Z');
+
     it.each([
       ['sin fila', null, 'free'],
       [
@@ -51,9 +57,37 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
         'free',
       ],
       ['ACTIVE PRO', { plan: 'PRO', status: 'ACTIVE' }, 'pro'],
-      ['TRIALING TEAM', { plan: 'TEAM', status: 'TRIALING' }, 'team'],
+      [
+        'TRIALING TEAM con trial vigente',
+        { plan: 'TEAM', status: 'TRIALING', trialEndsAt: TRIAL_FUTURE },
+        'team',
+      ],
+      [
+        'TRIALING PRO con trial vencido (antes del barrido)',
+        { plan: 'PRO', status: 'TRIALING', trialEndsAt: TRIAL_PAST },
+        'free',
+      ],
+      [
+        'TRIALING sin trialEndsAt → free (defensivo)',
+        { plan: 'PRO', status: 'TRIALING' },
+        'free',
+      ],
       ['PAST_DUE PRO (T4 gracia)', { plan: 'PRO', status: 'PAST_DUE' }, 'pro'],
-      ['CANCELED PRO (T4 gracia)', { plan: 'PRO', status: 'CANCELED' }, 'pro'],
+      [
+        'CANCELED PRO dentro de la gracia',
+        { plan: 'PRO', status: 'CANCELED', graceEndsAt: GRACE_FUTURE },
+        'pro',
+      ],
+      [
+        'CANCELED PRO con gracia vencida',
+        { plan: 'PRO', status: 'CANCELED', graceEndsAt: GRACE_PAST },
+        'free',
+      ],
+      [
+        'CANCELED PRO sin graceEndsAt',
+        { plan: 'PRO', status: 'CANCELED' },
+        'free',
+      ],
       ['UNPAID PRO (T4 gracia)', { plan: 'PRO', status: 'UNPAID' }, 'pro'],
     ])('%s → %s', async (_name, row, expected) => {
       mockSubscription.findUnique.mockResolvedValue(row);

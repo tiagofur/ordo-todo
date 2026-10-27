@@ -5,6 +5,7 @@ import {
   SubscriptionStatus,
 } from '@prisma/client';
 import Stripe from 'stripe';
+import { GRACE_PERIOD_DAYS } from '@ordo-todo/config';
 import { PrismaService } from '../database/prisma.service';
 import { BillingConfig, StripePriceRef } from './billing.config';
 import { StripeService } from './stripe.service';
@@ -164,13 +165,17 @@ export class BillingWebhookService {
     if (!existing) {
       return;
     }
-    // Plan stays as-is: T4 turns CANCELED into a grace period before dropping
-    // to FREE. Reading/exporting is never blocked by billing.
+    // Plan stays as-is: CANCELED opens a grace period (ODD 012 S5) with the
+    // full plan before the lifecycle sweep drops it to FREE. Reading/
+    // exporting is never blocked by billing.
     await this.prisma.subscription.update({
       where: { id: existing.id },
       data: {
         status: SubscriptionStatus.CANCELED,
         cancelAtPeriodEnd: false,
+        graceEndsAt: new Date(
+          Date.now() + GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
+        ),
       },
     });
   }

@@ -17,12 +17,14 @@ import { JwtSecretRotationService } from './jwt-rotation.service';
 import { AuthAuditService } from './auth-audit.service';
 import { SessionsService } from './sessions.service';
 import { PkceService } from './pkce.service';
+import { BillingModule } from '../billing/billing.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
 import type { StringValue } from 'ms';
 
 @Module({
   imports: [
+    BillingModule,
     PassportModule,
     RepositoriesModule,
     WorkspacesModule,

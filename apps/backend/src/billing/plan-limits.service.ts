@@ -45,13 +45,36 @@ export class PlanLimitsService {
    * The plan that actually governs this user: FREE when they have no
    * subscription row or never completed checkout.
    */
-  async getEffectivePlanId(userId: string): Promise<PlanId> {
+  async getEffectivePlanId(
+    userId: string,
+    now: Date = new Date(),
+  ): Promise<PlanId> {
     const subscription = await this.prisma.subscription.findUnique({
       where: { userId },
-      select: { plan: true, status: true },
+      select: {
+        plan: true,
+        status: true,
+        graceEndsAt: true,
+        trialEndsAt: true,
+      },
     });
     if (!subscription || NEVER_PAID_STATUSES.includes(subscription.status)) {
       return 'free';
+    }
+    // Trial vencido antes de que pase el barrido horario: ya es Free.
+    if (
+      subscription.status === SubscriptionStatus.TRIALING &&
+      (!subscription.trialEndsAt || subscription.trialEndsAt <= now)
+    ) {
+      return 'free';
+    }
+    // Gracia de cancelación (ODD 012 S5): plan completo hasta graceEndsAt.
+    if (subscription.status === SubscriptionStatus.CANCELED) {
+      const inGrace =
+        subscription.graceEndsAt != null && subscription.graceEndsAt > now;
+      if (!inGrace) {
+        return 'free';
+      }
     }
     return subscription.plan.toLowerCase() as PlanId;
   }

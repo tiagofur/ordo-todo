@@ -364,10 +364,19 @@ describe('BillingWebhookService (ODD 012 S3)', () => {
       );
 
       expect(result).toBe('processed');
-      expect(mockSubscriptionModel.update).toHaveBeenCalledWith({
+      const deletionCall = mockSubscriptionModel.update.mock.calls[0][0];
+      expect(deletionCall).toEqual({
         where: { id: 'row1' },
-        data: { status: SubscriptionStatus.CANCELED, cancelAtPeriodEnd: false },
+        data: {
+          status: SubscriptionStatus.CANCELED,
+          cancelAtPeriodEnd: false,
+          graceEndsAt: expect.any(Date),
+        },
       });
+      // gracia = GRACE_PERIOD_DAYS (14) desde la cancelación (±10 s)
+      const grace = (deletionCall.data.graceEndsAt as Date).getTime();
+      const expected = Date.now() + 14 * 24 * 60 * 60 * 1000;
+      expect(Math.abs(grace - expected)).toBeLessThan(10_000);
     });
 
     it('does nothing for an unknown Stripe subscription', async () => {

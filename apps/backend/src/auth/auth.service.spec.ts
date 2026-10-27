@@ -12,6 +12,7 @@ import { User, InviteCode } from '@ordo-todo/core';
 import { AuthService } from './auth.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
+import { PlanLifecycleService } from '../billing/plan-lifecycle.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -155,6 +156,12 @@ describe('AuthService', () => {
             sendWelcome: jest.fn().mockResolvedValue({ success: true }),
           },
         },
+        {
+          provide: PlanLifecycleService,
+          useValue: {
+            startTrialForNewUser: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
@@ -192,8 +199,9 @@ describe('AuthService', () => {
         'draft',
       );
       mockUserRepository.findByEmail
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(mockCreatedUser);
+        .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
+        .mockResolvedValueOnce(mockCreatedUser) // trial hook (ODD 012 S5)
+        .mockResolvedValueOnce(mockCreatedUser); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
 
@@ -291,6 +299,7 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail
         .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
         .mockResolvedValueOnce(user) // redemption lookup
+        .mockResolvedValueOnce(user) // trial hook (ODD 012 S5)
         .mockResolvedValueOnce(user); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
@@ -397,8 +406,9 @@ describe('AuthService', () => {
       registrationMode = 'open';
       const user = createdUser();
       mockUserRepository.findByEmail
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(user);
+        .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
+        .mockResolvedValueOnce(user) // trial hook (ODD 012 S5)
+        .mockResolvedValueOnce(user); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
 
