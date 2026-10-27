@@ -37,13 +37,15 @@ export class McpAuthGuard implements CanActivate {
 
     if (!token) {
       // RFC 9728 challenge: MCP clients start discovery from this header
-      // when they don't probe the well-known path up front.
+      // when they don't probe the well-known path up front. The `scope`
+      // attribute is what Claude requests on /authorize — keep it to the
+      // scopes the MCP tools actually use (admin:webhooks is PAT-only).
       const host = request.get?.('host') ?? '';
       const proto = request.protocol ?? 'https';
       const response = http.getResponse();
       response.header?.(
         'WWW-Authenticate',
-        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource"`,
+        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource", scope="read tasks:write projects:write"`,
       );
       throw new UnauthorizedException('Missing bearer token');
     }

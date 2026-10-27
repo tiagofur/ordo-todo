@@ -359,14 +359,25 @@ export class OAuthController {
     return this.oauthService.disconnectClient(user.id, id);
   }
 
+  /**
+   * Token errors follow RFC 6749 §5.2 exactly (`{"error":"invalid_grant"}`
+   * on HTTP 400): Claude's reconnect logic keys off the `error` field —
+   * the NestJS default body ({message, statusCode}) reads as a custom
+   * error and breaks automatic reconnection (Anthropic connector docs).
+   */
   @Public()
   @Post('token')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Exchange code or refresh token (RFC 6749)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Token response.' })
-  token(@Body() raw: Record<string, unknown>) {
+  async token(
+    @Body() raw: Record<string, unknown>,
+    @Res() res: Response,
+  ): Promise<void> {
     const str = (key: string) => this.asString(raw?.[key]);
     const grantType = str('grant_type');
+    const oauthError = (error: string) => {
+      res.status(HttpStatus.BAD_REQUEST).json({ error });
+    };
 
     if (grantType === 'authorization_code') {
       const code = str('code');
@@ -374,26 +385,46 @@ export class OAuthController {
       const redirectUri = str('redirect_uri');
       const codeVerifier = str('code_verifier');
       if (!code || !clientId || !redirectUri || !codeVerifier) {
-        throw new BadRequestException('invalid_request');
+        oauthError('invalid_request');
+        return;
       }
-      return this.oauthService.exchangeCode({
-        code,
-        clientId,
-        redirectUri,
-        codeVerifier,
-      });
+      try {
+        res.json(
+          await this.oauthService.exchangeCode({
+            code,
+            clientId,
+            redirectUri,
+            codeVerifier,
+          }),
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Token exchange failed (${(error as Error).message}) — answering invalid_grant`,
+        );
+        oauthError('invalid_grant');
+      }
+      return;
     }
 
     if (grantType === 'refresh_token') {
       const refreshToken = str('refresh_token');
       const clientId = str('client_id');
       if (!refreshToken || !clientId) {
-        throw new BadRequestException('invalid_request');
+        oauthError('invalid_request');
+        return;
       }
-      return this.oauthService.refresh(clientId, refreshToken);
+      try {
+        res.json(await this.oauthService.refresh(clientId, refreshToken));
+      } catch (error) {
+        this.logger.warn(
+          `Refresh failed (${(error as Error).message}) — answering invalid_grant`,
+        );
+        oauthError('invalid_grant');
+      }
+      return;
     }
 
-    throw new BadRequestException('unsupported_grant_type');
+    oauthError('unsupported_grant_type');
   }
 
   @Public()
