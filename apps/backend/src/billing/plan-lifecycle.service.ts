@@ -120,16 +120,27 @@ export class PlanLifecycleService {
         1,
         Math.ceil((sub.trialEndsAt!.getTime() - now.getTime()) / DAY_MS),
       );
+      const name = escapeHtml(sub.user.name ?? '');
       try {
-        await this.emailService.sendEmail({
+        // sendEmail NO lanza ante fallos de transporte: devuelve
+        // { success: false } — hay que revisar el resultado para no marcar
+        // el recordatorio como enviado cuando SMTP falló.
+        const result = await this.emailService.sendEmail({
           to: sub.user.email,
           subject: `Tu prueba de Ordo Pro termina en ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}`,
-          text: `Hola ${sub.user.name ?? ''}: tu prueba de Ordo Pro termina el ${sub.trialEndsAt!.toISOString().slice(0, 10)}. Después pasarás al plan Free (tus datos siempre estarán accesibles). Puedes suscribirte cuando quieras para mantener Pro.`,
-          html: `<p>Hola ${sub.user.name ?? ''}:</p><p>Tu prueba de <strong>Ordo Pro</strong> termina el <strong>${sub.trialEndsAt!.toISOString().slice(0, 10)}</strong> (${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}).</p><p>Después pasarás al plan Free — tus datos siempre estarán accesibles. Puedes suscribirte cuando quieras para mantener Pro.</p>`,
+          text: `Hola ${name}: tu prueba de Ordo Pro termina el ${sub.trialEndsAt!.toISOString().slice(0, 10)}. Después pasarás al plan Free (tus datos siempre estarán accesibles). Puedes suscribirte cuando quieras para mantener Pro.`,
+          html: `<p>Hola ${name}:</p><p>Tu prueba de <strong>Ordo Pro</strong> termina el <strong>${sub.trialEndsAt!.toISOString().slice(0, 10)}</strong> (${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}).</p><p>Después pasarás al plan Free — tus datos siempre estarán accesibles. Puedes suscribirte cuando quieras para mantener Pro.</p>`,
         });
+        if (!result.success) {
+          // Sin marcar: el próximo barrido reintenta el envío.
+          this.logger.warn(
+            `No se pudo enviar el recordatorio de trial a ${sub.user.email}: ${result.error}`,
+          );
+          continue;
+        }
         sent += 1;
       } catch (error) {
-        // Sin marcar: el próximo barrido reintenta el envío.
+        // Por si algún error escapara del EmailService: mismo trato.
         this.logger.warn(
           `No se pudo enviar el recordatorio de trial a ${sub.user.email}: ${(error as Error).message}`,
         );
@@ -146,6 +157,9 @@ export class PlanLifecycleService {
   /** Barrido horario: expira trials, cierra gracias y envía recordatorios. */
   @Cron(CronExpression.EVERY_HOUR)
   async runLifecycleSweeps(): Promise<void> {
+    // Nota de despliegue: el barrido asume UNA instancia del backend
+    // (estado actual). Con varias réplicas habría que deduplicar el envío
+    // del recordatorio (lock/advisory) para evitar dobles.
     for (const [name, sweep] of [
       ['expireEndedTrials', () => this.expireEndedTrials()],
       ['endExpiredGracePeriods', () => this.endExpiredGracePeriods()],
@@ -158,4 +172,13 @@ export class PlanLifecycleService {
       }
     }
   }
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

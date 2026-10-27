@@ -224,6 +224,38 @@ describe('AuthService', () => {
       });
     });
 
+    it('el trial fallando NO rompe el registro (ODD 012 S5)', async () => {
+      const trialUser = new User(
+        {
+          id: 'user-trial',
+          email: registerDto.email,
+          username: registerDto.username,
+          name: registerDto.name,
+          password: validHash,
+        },
+        'draft',
+      );
+      mockUserRepository.findByEmail
+        .mockResolvedValueOnce(null) // duplicate check
+        .mockResolvedValueOnce(trialUser) // trial hook
+        .mockResolvedValueOnce(trialUser); // login lookup
+      mockCryptoProvider.encrypt.mockResolvedValue(validHash);
+      mockCryptoProvider.compare.mockResolvedValue(true);
+      const lifecycle = (
+        service as unknown as {
+          planLifecycle: { startTrialForNewUser: jest.Mock };
+        }
+      ).planLifecycle;
+      lifecycle.startTrialForNewUser.mockRejectedValueOnce(
+        new Error('trial down'),
+      );
+
+      const result = await service.register(registerDto);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(lifecycle.startTrialForNewUser).toHaveBeenCalledWith(trialUser.id);
+    });
+
     it('should throw ConflictException when email already exists', async () => {
       const existingUser = new User(
         {

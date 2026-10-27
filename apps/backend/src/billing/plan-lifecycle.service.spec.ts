@@ -22,6 +22,9 @@ describe('PlanLifecycleService (ODD 012 S5/T4) — timeline trial→cobro→grac
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // sendEmail del EmailService real nunca lanza: devuelve {success} —
+    // los mocks lo reproducen así salvo prueba explícita de throw.
+    mockSendEmail.mockResolvedValue({ success: true });
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlanLifecycleService,
@@ -73,6 +76,7 @@ describe('PlanLifecycleService (ODD 012 S5/T4) — timeline trial→cobro→grac
         sub(new Date(T0.getTime() + 2 * DAY)),
       ]);
       mockSubscription.update.mockResolvedValue({});
+      mockSendEmail.mockResolvedValue({ success: true });
 
       const sent = await service.sendTrialEndingReminders(T0);
 
@@ -110,11 +114,23 @@ describe('PlanLifecycleService (ODD 012 S5/T4) — timeline trial→cobro→grac
       );
     });
 
-    it('email fallido → no marca (el siguiente barrido reintenta)', async () => {
+    it('resultado success:false (fallo real de sendEmail) → no marca (el siguiente barrido reintenta)', async () => {
       mockSubscription.findMany.mockResolvedValue([
         sub(new Date(T0.getTime() + 2 * DAY)),
       ]);
-      mockSendEmail.mockRejectedValueOnce(new Error('smtp down'));
+      mockSendEmail.mockResolvedValue({ success: false, error: 'smtp down' });
+
+      const sent = await service.sendTrialEndingReminders(T0);
+
+      expect(sent).toBe(0);
+      expect(mockSubscription.update).not.toHaveBeenCalled();
+    });
+
+    it('sendEmail lanzando (error inesperado) → tampoco marca', async () => {
+      mockSubscription.findMany.mockResolvedValue([
+        sub(new Date(T0.getTime() + 2 * DAY)),
+      ]);
+      mockSendEmail.mockRejectedValueOnce(new Error('boom'));
 
       const sent = await service.sendTrialEndingReminders(T0);
 
@@ -192,7 +208,7 @@ describe('PlanLifecycleService (ODD 012 S5/T4) — timeline trial→cobro→grac
       const t11 = new Date(T0.getTime() + 11 * DAY);
       mockSubscription.findMany.mockResolvedValue([subRow(trialEndsAt)]);
       mockSubscription.update.mockResolvedValue({});
-      mockSendEmail.mockResolvedValue({});
+      mockSendEmail.mockResolvedValue({ success: true });
       expect(await service.sendTrialEndingReminders(t11)).toBe(1);
 
       // 3) T0+14h+1h: el barrido expira el trial → FREE/CANCELED

@@ -260,18 +260,30 @@ export class BillingWebhookService {
     const existing = await this.prisma.subscription.findUnique({
       where: { userId },
     });
+    // Gracia (ODD 012 S5): al quedar CANCELED abre 14 días con el plan
+    // completo. Una cancelación que llegue por subscription.updated (y no
+    // por deleted) también debe otorgarla; re-suscribirse durante la
+    // gracia la limpia para que la UI no la muestre a un usuario ACTIVE.
+    const graceEndsAt =
+      status === SubscriptionStatus.CANCELED
+        ? (existing?.graceEndsAt ??
+          new Date(Date.now() + GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000))
+        : null;
+
     if (existing) {
       await this.prisma.subscription.update({
         where: { id: existing.id },
         data: {
           ...data,
           plan: plan ?? existing.plan,
+          graceEndsAt,
         },
       });
     } else {
       await this.prisma.subscription.create({
         data: {
           ...data,
+          graceEndsAt,
           userId,
           plan: plan ?? SubscriptionPlan.FREE,
           status: status ?? SubscriptionStatus.INCOMPLETE,
