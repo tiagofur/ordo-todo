@@ -1609,6 +1609,10 @@ model Subscription {
   currentPeriodStart DateTime?
   cancelAtPeriodEnd Boolean  @default(false)
 
+  // ODD 012 T4/S5: grace period after cancellation + trial reminder dedup
+  graceEndsAt         DateTime?
+  trialReminderSentAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

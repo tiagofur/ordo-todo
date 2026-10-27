@@ -315,6 +315,54 @@ describe('BillingWebhookService (ODD 012 S3)', () => {
       });
     });
 
+    it('otorga gracia (+14d) cuando la cancelación llega por subscription.updated', async () => {
+      mockWebhookEvent.create.mockResolvedValue({});
+      mockSubscriptionModel.findUnique.mockResolvedValue({
+        id: 'row1',
+        userId: 'u1',
+        plan: 'PRO',
+      });
+      mockSubscriptionModel.update.mockResolvedValue({});
+
+      await service.processEvent(
+        event(
+          'customer.subscription.updated',
+          stripeSubscription({ status: 'canceled' }),
+        ),
+      );
+
+      const call = mockSubscriptionModel.update.mock.calls[0][0];
+      expect(call.data.status).toBe(SubscriptionStatus.CANCELED);
+      expect(call.data.graceEndsAt).toEqual(expect.any(Date));
+      const grace = call.data.graceEndsAt.getTime();
+      expect(
+        Math.abs(grace - (Date.now() + 14 * 24 * 60 * 60 * 1000)),
+      ).toBeLessThan(10_000);
+    });
+
+    it('re-suscribirse durante la gracia limpia graceEndsAt (ACTIVE no muestra gracia)', async () => {
+      mockWebhookEvent.create.mockResolvedValue({});
+      mockSubscriptionModel.findUnique.mockResolvedValue({
+        id: 'row1',
+        userId: 'u1',
+        plan: 'PRO',
+        graceEndsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      });
+      mockSubscriptionModel.update.mockResolvedValue({});
+
+      await service.processEvent(
+        event('customer.subscription.updated', stripeSubscription()),
+      );
+
+      expect(mockSubscriptionModel.update).toHaveBeenCalledWith({
+        where: { id: 'row1' },
+        data: expect.objectContaining({
+          status: SubscriptionStatus.ACTIVE,
+          graceEndsAt: null,
+        }),
+      });
+    });
+
     it('keeps the existing plan when neither the price map nor the metadata name one', async () => {
       mockWebhookEvent.create.mockResolvedValue({});
       mockSubscriptionModel.findUnique.mockResolvedValue({
@@ -364,10 +412,19 @@ describe('BillingWebhookService (ODD 012 S3)', () => {
       );
 
       expect(result).toBe('processed');
-      expect(mockSubscriptionModel.update).toHaveBeenCalledWith({
+      const deletionCall = mockSubscriptionModel.update.mock.calls[0][0];
+      expect(deletionCall).toEqual({
         where: { id: 'row1' },
-        data: { status: SubscriptionStatus.CANCELED, cancelAtPeriodEnd: false },
+        data: {
+          status: SubscriptionStatus.CANCELED,
+          cancelAtPeriodEnd: false,
+          graceEndsAt: expect.any(Date),
+        },
       });
+      // gracia = GRACE_PERIOD_DAYS (14) desde la cancelación (±10 s)
+      const grace = (deletionCall.data.graceEndsAt as Date).getTime();
+      const expected = Date.now() + 14 * 24 * 60 * 60 * 1000;
+      expect(Math.abs(grace - expected)).toBeLessThan(10_000);
     });
 
     it('does nothing for an unknown Stripe subscription', async () => {

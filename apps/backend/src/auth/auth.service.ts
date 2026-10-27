@@ -34,6 +34,7 @@ import { OAuthDto } from './dto/oauth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { EmailService } from '../email/email.service';
+import { PlanLifecycleService } from '../billing/plan-lifecycle.service';
 import type { StringValue } from 'ms';
 import { AuthAuditService } from './auth-audit.service';
 
@@ -54,6 +55,7 @@ export class AuthService {
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly authAuditService: AuthAuditService,
     private readonly emailService: EmailService,
+    private readonly planLifecycle: PlanLifecycleService,
   ) {}
 
   async register(
@@ -77,6 +79,22 @@ export class AuthService {
         email: registerDto.email,
         password: registerDto.password,
       });
+
+      // ODD 012 S5: trial de Pro sin tarjeta para toda cuenta nueva. Un
+      // fallo aquí no puede bloquear el registro.
+      try {
+        const created = await this.userRepository.findByEmail(
+          registerDto.email,
+          false,
+        );
+        if (created) {
+          await this.planLifecycle.startTrialForNewUser(created.id);
+        }
+      } catch (error) {
+        this.logger.warn(
+          `No se pudo iniciar el trial para ${registerDto.email}: ${(error as Error).message}`,
+        );
+      }
 
       if (consumedInvite) {
         const created = await this.userRepository.findByEmail(
@@ -521,6 +539,15 @@ export class AuthService {
           provider,
           providerId,
         });
+
+        // ODD 012 S5: trial de Pro sin tarjeta también para cuentas OAuth.
+        try {
+          await this.planLifecycle.startTrialForNewUser(user.id);
+        } catch (error) {
+          this.logger.warn(
+            `No se pudo iniciar el trial para ${email}: ${(error as Error).message}`,
+          );
+        }
 
         // Create default workspace for new user
         try {

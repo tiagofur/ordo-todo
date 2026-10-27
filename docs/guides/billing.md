@@ -55,6 +55,18 @@ Notas: la papelera de workspaces no cuenta para el límite (como los proyectos, 
 
 **Fuera de alcance de T3 (follow-ups)**: seats (bloquear invitaciones por asientos pagados del Team), enforcement de `advancedAi` diferenciado del ledger, downgrade automático post-gracia (T4).
 
+## Trial y gracia (ODD 012 S5, T4)
+
+Timeline completo gestionado por `apps/backend/src/billing/plan-lifecycle.service.ts` (barrido horario, @Cron):
+
+1. **Registro** (email u OAuth) → fila `Subscription { plan: PRO, status: TRIALING, trialEndsAt: +14d }` — **sin tarjeta**, idempotente (si un checkout ya creó la fila, no se toca). El trial incluye los LÍMITES de Pro (proyectos, workspaces, storage); la IA sigue regida por el ledger de créditos (100 de bienvenida de ODD 004).
+2. **Recordatorio** a 3 días del fin (una sola vez, `trialReminderSentAt`; si el email falla, el siguiente barrido reintenta).
+3. **Expiración del trial** → `plan: FREE, status: CANCELED` (datos siempre accesibles; puede suscribirse cuando quiera). El enforcement también trata un trial vencido como Free aunque el barrido no haya pasado aún.
+4. **Suscripción y cancelación** → el webhook pone `CANCELED` + `graceEndsAt = +14 días` con el plan completo durante la gracia.
+5. **Fin de gracia** → `plan: FREE` (leer/exportar jamás se bloquea).
+
+El estado completo viaja en `GET /billing/subscription` (`trialEndsAt`, `graceEndsAt`) para la UI (T5). Nota de negocio: si se quiere que el trial incluya los 500 créditos mensuales de Pro, es un cambio pequeño en `startTrialForNewUser` — hoy el trial es de LÍMITES, no de créditos.
+
 ## Créditos de IA (modelo cerrado 2026-10-26)
 
 - Unidad: el ledger existente de ODD 004 S6 (`ask=1`, `tool=2`, `report=5`).

@@ -33,6 +33,7 @@ export interface SubscriptionStateDto {
   seats: number;
   cancelAtPeriodEnd: boolean;
   trialEndsAt: Date | null;
+  graceEndsAt: Date | null;
   currentPeriodStart: Date | null;
   currentPeriodEnd: Date | null;
   hasStripeCustomer: boolean;
@@ -170,6 +171,7 @@ export class BillingService {
         seats: 1,
         cancelAtPeriodEnd: false,
         trialEndsAt: null,
+        graceEndsAt: null,
         currentPeriodStart: null,
         currentPeriodEnd: null,
         hasStripeCustomer: false,
@@ -182,6 +184,7 @@ export class BillingService {
       seats: subscription.seats,
       cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
       trialEndsAt: subscription.trialEndsAt,
+      graceEndsAt: subscription.graceEndsAt,
       currentPeriodStart: subscription.currentPeriodStart,
       currentPeriodEnd: subscription.stripeCurrentPeriodEnd,
       hasStripeCustomer: Boolean(subscription.stripeCustomerId),

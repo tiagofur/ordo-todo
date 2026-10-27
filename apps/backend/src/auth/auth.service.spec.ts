@@ -12,6 +12,7 @@ import { User, InviteCode } from '@ordo-todo/core';
 import { AuthService } from './auth.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
+import { PlanLifecycleService } from '../billing/plan-lifecycle.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -155,6 +156,12 @@ describe('AuthService', () => {
             sendWelcome: jest.fn().mockResolvedValue({ success: true }),
           },
         },
+        {
+          provide: PlanLifecycleService,
+          useValue: {
+            startTrialForNewUser: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
@@ -192,8 +199,9 @@ describe('AuthService', () => {
         'draft',
       );
       mockUserRepository.findByEmail
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(mockCreatedUser);
+        .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
+        .mockResolvedValueOnce(mockCreatedUser) // trial hook (ODD 012 S5)
+        .mockResolvedValueOnce(mockCreatedUser); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
 
@@ -214,6 +222,38 @@ describe('AuthService', () => {
         username: mockCreatedUser.username,
         name: mockCreatedUser.name,
       });
+    });
+
+    it('el trial fallando NO rompe el registro (ODD 012 S5)', async () => {
+      const trialUser = new User(
+        {
+          id: 'user-trial',
+          email: registerDto.email,
+          username: registerDto.username,
+          name: registerDto.name,
+          password: validHash,
+        },
+        'draft',
+      );
+      mockUserRepository.findByEmail
+        .mockResolvedValueOnce(null) // duplicate check
+        .mockResolvedValueOnce(trialUser) // trial hook
+        .mockResolvedValueOnce(trialUser); // login lookup
+      mockCryptoProvider.encrypt.mockResolvedValue(validHash);
+      mockCryptoProvider.compare.mockResolvedValue(true);
+      const lifecycle = (
+        service as unknown as {
+          planLifecycle: { startTrialForNewUser: jest.Mock };
+        }
+      ).planLifecycle;
+      lifecycle.startTrialForNewUser.mockRejectedValueOnce(
+        new Error('trial down'),
+      );
+
+      const result = await service.register(registerDto);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(lifecycle.startTrialForNewUser).toHaveBeenCalledWith(trialUser.id);
     });
 
     it('should throw ConflictException when email already exists', async () => {
@@ -291,6 +331,7 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail
         .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
         .mockResolvedValueOnce(user) // redemption lookup
+        .mockResolvedValueOnce(user) // trial hook (ODD 012 S5)
         .mockResolvedValueOnce(user); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
@@ -397,8 +438,9 @@ describe('AuthService', () => {
       registrationMode = 'open';
       const user = createdUser();
       mockUserRepository.findByEmail
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(user);
+        .mockResolvedValueOnce(null) // duplicate check inside RegisterUser
+        .mockResolvedValueOnce(user) // trial hook (ODD 012 S5)
+        .mockResolvedValueOnce(user); // login lookup
       mockCryptoProvider.encrypt.mockResolvedValue(validHash);
       mockCryptoProvider.compare.mockResolvedValue(true);
 

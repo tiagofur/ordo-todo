@@ -3,6 +3,7 @@ import { BillingConfig } from './billing.config';
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
 import { PlanLimitsService } from './plan-limits.service';
+import { PlanLifecycleService } from './plan-lifecycle.service';
 import { BillingWebhookService } from './billing-webhook.service';
 import { StripeService } from './stripe.service';
 
@@ -14,7 +15,8 @@ import { StripeService } from './stripe.service';
     BillingService,
     BillingWebhookService,
     PlanLimitsService,
+    PlanLifecycleService,
   ],
-  exports: [BillingService, PlanLimitsService],
+  exports: [BillingService, PlanLimitsService, PlanLifecycleService],
 })
 export class BillingModule {}
