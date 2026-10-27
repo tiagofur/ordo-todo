@@ -47,7 +47,7 @@ export class RoadmapService {
 
   async updateStatus(id: string, dto: UpdateRoadmapItemStatusDto) {
     await this.findOne(id);
-    return this.roadmapRepository.updateItem(id, { status: dto.status as any });
+    return this.roadmapRepository.updateItem(id, { status: dto.status });
   }
 
   async delete(id: string) {

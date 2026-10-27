@@ -40,7 +40,7 @@ describe('RoadmapService', () => {
       createVote: jest.fn(),
       deleteVote: jest.fn(),
       hasUserVoted: jest.fn(),
-    } as any;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -152,7 +152,7 @@ describe('RoadmapService', () => {
         mockItem.updateStatus('PLANNED'),
       );
 
-      await service.updateStatus('item-1', { status: 'PLANNED' as any });
+      await service.updateStatus('item-1', { status: 'PLANNED' });
 
       expect(roadmapRepository.updateItem).toHaveBeenCalledWith('item-1', {
         status: 'PLANNED',

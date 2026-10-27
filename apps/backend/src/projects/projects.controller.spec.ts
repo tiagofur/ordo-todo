@@ -11,6 +11,7 @@ import {
 
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { PrismaService } from '../database/prisma.service';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 
 describe('ProjectsController', () => {
   let controller: ProjectsController;
@@ -25,6 +26,14 @@ describe('ProjectsController', () => {
         { provide: 'RedisService', useValue: {} },
         { provide: WorkspacesService, useValue: {} },
         { provide: PrismaService, useValue: {} },
+        {
+          provide: PlanLimitsService,
+          useValue: {
+            assertWithinWorkspaceLimit: jest.fn(),
+            assertWithinProjectLimit: jest.fn(),
+            assertWithinTaskStorageLimit: jest.fn(),
+          },
+        },
       ],
     })
       .overrideGuard(ProjectGuard)
