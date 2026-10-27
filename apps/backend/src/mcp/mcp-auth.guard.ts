@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { OAuthGuard } from '../oauth/oauth.guard';
 import { ApiTokenGuard } from '../api-tokens/api-token.guard';
 import { MCP_SCOPES_KEY } from './mcp-scopes.decorator';
+import { MCP_RESOURCE_SCOPES } from './mcp-metadata.service';
 
 /**
  * Authentication + scope enforcement for the MCP endpoint.
@@ -45,7 +46,7 @@ export class McpAuthGuard implements CanActivate {
       const response = http.getResponse();
       response.header?.(
         'WWW-Authenticate',
-        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource", scope="read tasks:write projects:write"`,
+        `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource", scope="${MCP_RESOURCE_SCOPES.join(' ')}"`,
       );
       throw new UnauthorizedException('Missing bearer token');
     }

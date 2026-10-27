@@ -65,7 +65,7 @@ curl https://api.ordotodo.app/.well-known/oauth-protected-resource
 # → {"resource": "https://api.ordotodo.app/mcp",
 #     "authorization_servers": ["https://api.ordotodo.app"],
 #     "scopes_supported": ["read", "tasks:write",
-#       "projects:write", "admin:webhooks"],
+#       "projects:write"],
 #     "bearer_methods_supported": ["header"],
 #     "resource_signing_alg_values_supported": ["HS256"]}
 

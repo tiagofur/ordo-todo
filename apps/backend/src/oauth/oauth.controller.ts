@@ -14,6 +14,7 @@ import {
   Req,
   Res,
   UseGuards,
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -398,6 +399,9 @@ export class OAuthController {
           }),
         );
       } catch (error) {
+        // Infrastructure faults (DB outage…) must stay 5xx for retries;
+        // only client-fault protocol errors answer invalid_grant.
+        if (!(error instanceof HttpException)) throw error;
         this.logger.warn(
           `Token exchange failed (${(error as Error).message}) — answering invalid_grant`,
         );
@@ -416,6 +420,7 @@ export class OAuthController {
       try {
         res.json(await this.oauthService.refresh(clientId, refreshToken));
       } catch (error) {
+        if (!(error instanceof HttpException)) throw error;
         this.logger.warn(
           `Refresh failed (${(error as Error).message}) — answering invalid_grant`,
         );
