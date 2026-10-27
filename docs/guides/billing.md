@@ -49,7 +49,9 @@ Reglas del plan efectivo:
 - Sin fila de suscripción, o `INCOMPLETE`/`INCOMPLETE_EXPIRED` → **Free** (nunca pagaron).
 - `PAST_DUE`/`CANCELED` mantienen su plan hasta T4 (gracia); leer/exportar jamás se bloquea.
 
-El error es **402** con payload accionable: `{ message, error: 'PLAN_LIMIT_REACHED', plan, resource, limit, upgradeUrl: '/settings/billing' }` — la UI puede renderizar "Ver planes" directo desde el error.
+El error es **402** con payload accionable: `{ message, error: 'PLAN_LIMIT_REACHED', plan, resource, limit, upgradeUrl: '/settings/billing' }`. El `GlobalExceptionFilter` preserva estos campos extra de la HttpException (test de serialización en `global-exception.filter.spec.ts`) — la UI puede renderizar "Ver planes" directo desde el error.
+
+Notas: la papelera de workspaces no cuenta para el límite (como los proyectos, que filtran `isDeleted: false`); el DTO de adjuntos valida `filesize` 1 byte–10 MB (el mismo cap que el dominio), así que un valor inválido responde 400 antes de llegar al enforcement.
 
 **Fuera de alcance de T3 (follow-ups)**: seats (bloquear invitaciones por asientos pagados del Team), enforcement de `advancedAi` diferenciado del ledger, downgrade automático post-gracia (T4).
 

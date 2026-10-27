@@ -63,7 +63,9 @@ export class PlanLimitsService {
       return;
     }
     const count = await this.prisma.workspace.count({
-      where: { ownerId: ownerUserId },
+      // La papelera no cuenta: borrar y recrear no exige purgar primero
+      // (consistente con projects, que filtra isDeleted: false).
+      where: { ownerId: ownerUserId, deletedAt: null },
     });
     if (count >= limit) {
       throw this.limitReached(planId, 'workspaces', limit);

@@ -37,7 +37,7 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
     service = module.get<PlanLimitsService>(PlanLimitsService);
   });
 
-  describe('getEffectivePlanId', () => {
+  describe('getEffectivePlanId (comportamiento real, matriz de estados)', () => {
     it.each([
       ['sin fila', null, 'free'],
       [
@@ -54,15 +54,16 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
       ['TRIALING TEAM', { plan: 'TEAM', status: 'TRIALING' }, 'team'],
       ['PAST_DUE PRO (T4 gracia)', { plan: 'PRO', status: 'PAST_DUE' }, 'pro'],
       ['CANCELED PRO (T4 gracia)', { plan: 'PRO', status: 'CANCELED' }, 'pro'],
-    ])('%s → %s', (_name, row, expected) => {
-      if (row === null) {
-        mockSubscription.findUnique.mockResolvedValue(null);
-      } else {
-        mockSubscription.findUnique.mockResolvedValue(row);
-      }
-      void expected;
-      // comprobación explícita por caso en los tests de abajo; aquí fijamos
-      // la matriz documental de la tabla única
+      ['UNPAID PRO (T4 gracia)', { plan: 'PRO', status: 'UNPAID' }, 'pro'],
+    ])('%s → %s', async (_name, row, expected) => {
+      mockSubscription.findUnique.mockResolvedValue(row);
+
+      const planId = await service.getEffectivePlanId('u1');
+
+      expect(planId).toBe(expected);
+    });
+
+    it('la tabla única sigue teniendo los 4 planes', () => {
       expect(Object.keys(PLANS).sort()).toEqual([
         'enterprise',
         'free',
@@ -82,8 +83,34 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
       ).rejects.toMatchObject({
         status: HttpStatus.PAYMENT_REQUIRED,
       });
+      // La papelera no cuenta (deletedAt: null), consistente con projects
       expect(mockWorkspace.count).toHaveBeenCalledWith({
-        where: { ownerId: 'u1' },
+        where: { ownerId: 'u1', deletedAt: null },
+      });
+    });
+
+    it('Team (límite 3): con 3 → 402, con 2 → pasa', async () => {
+      subscriptionOf('TEAM', 'ACTIVE');
+      mockWorkspace.count.mockResolvedValue(3);
+      await expect(
+        service.assertWithinWorkspaceLimit('u1'),
+      ).rejects.toMatchObject({ status: HttpStatus.PAYMENT_REQUIRED });
+
+      mockWorkspace.count.mockResolvedValue(2);
+      await expect(
+        service.assertWithinWorkspaceLimit('u1'),
+      ).resolves.toBeUndefined();
+    });
+
+    it('Enterprise (límite 3 como Pro/Team): con 2 → pasa', async () => {
+      subscriptionOf('ENTERPRISE', 'ACTIVE');
+      mockWorkspace.count.mockResolvedValue(2);
+
+      await expect(
+        service.assertWithinWorkspaceLimit('u1'),
+      ).resolves.toBeUndefined();
+      expect(mockWorkspace.count).toHaveBeenCalledWith({
+        where: { ownerId: 'u1', deletedAt: null },
       });
     });
 

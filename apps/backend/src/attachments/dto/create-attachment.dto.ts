@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsNumber } from 'class-validator';
+import { IsString, MinLength, IsNumber, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateAttachmentDto {
@@ -20,5 +20,10 @@ export class CreateAttachmentDto {
 
   @Type(() => Number)
   @IsNumber()
+  // El dominio (Attachment.validateSize) aplica el mismo cap; validar aquí
+  // devuelve 400 en vez de un 500 genérico y evita 402 engañosos del
+  // enforcement de storage (ODD 012 S4).
+  @Min(1)
+  @Max(10 * 1024 * 1024)
   filesize: number;
 }
