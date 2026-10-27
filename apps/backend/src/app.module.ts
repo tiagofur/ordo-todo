@@ -52,6 +52,7 @@ import { CalendarSyncModule } from './calendar-sync/calendar-sync.module';
 import { SlackModule } from './slack/slack.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { RitualModule } from './ritual/ritual.module';
+import { BillingModule } from './billing/billing.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -122,6 +123,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     SlackModule,
     SchedulingModule,
     RitualModule,
+    BillingModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
