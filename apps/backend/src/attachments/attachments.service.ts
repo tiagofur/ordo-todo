@@ -18,6 +18,7 @@ import { CreateAttachmentDto } from './dto/create-attachment.dto';
 import { unlink, readdir } from 'fs/promises';
 import { join } from 'path';
 import { PrismaService } from '../database/prisma.service';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 
 /**
  * Response DTO for attachment with uploader details.
@@ -69,6 +70,7 @@ export class AttachmentsService {
     @Inject('AttachmentRepository')
     private readonly attachmentRepository: AttachmentRepository,
     private readonly prisma: PrismaService,
+    private readonly planLimits: PlanLimitsService,
   ) {}
 
   /**
@@ -101,6 +103,12 @@ export class AttachmentsService {
   ): Promise<AttachmentWithUploader> {
     this.logger.debug(
       `Creating attachment on task ${createAttachmentDto.taskId} by user ${userId}`,
+    );
+
+    // ODD 012 S4: el plan del dueño del workspace limita el almacenamiento
+    await this.planLimits.assertWithinTaskStorageLimit(
+      createAttachmentDto.taskId,
+      createAttachmentDto.filesize,
     );
 
     const createAttachmentUseCase = new CreateAttachmentUseCase(

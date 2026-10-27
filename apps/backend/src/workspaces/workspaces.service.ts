@@ -41,6 +41,7 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { PrismaService } from '../database/prisma.service';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 import { EmailService } from '../email/email.service';
 
 @Injectable()
@@ -64,6 +65,7 @@ export class WorkspacesService {
     private readonly hashService: HashService,
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly planLimits: PlanLimitsService,
   ) {}
 
   /**
@@ -79,6 +81,9 @@ export class WorkspacesService {
    * @throws ForbiddenException if user already has a workspace with the same slug
    */
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
+    // ODD 012 S4: el plan del dueño gobierna cuántos espacios puede crear
+    await this.planLimits.assertWithinWorkspaceLimit(userId);
+
     // Get user to retrieve username for slug generation
     const user = await this.userRepository.findById(userId);
     if (!user) {
@@ -520,9 +525,7 @@ export class WorkspacesService {
       ) {
         throw new NotFoundException(error.message);
       }
-      if (
-        error.message.startsWith('The workspace owner cannot leave')
-      ) {
+      if (error.message.startsWith('The workspace owner cannot leave')) {
         throw new BadRequestException(error.message);
       }
       throw error;

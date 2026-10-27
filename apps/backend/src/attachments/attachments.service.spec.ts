@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Attachment } from '@ordo-todo/core';
 import { AttachmentsService } from './attachments.service';
@@ -48,6 +49,14 @@ describe('AttachmentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AttachmentsService,
+        {
+          provide: PlanLimitsService,
+          useValue: {
+            assertWithinWorkspaceLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinProjectLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinTaskStorageLimit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         {
           provide: 'AttachmentRepository',
           useValue: {

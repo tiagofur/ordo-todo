@@ -19,6 +19,7 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../database/prisma.service';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
 
 @Injectable()
@@ -29,10 +30,16 @@ export class ProjectsService {
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
     private readonly prisma: PrismaService,
+    private readonly planLimits: PlanLimitsService,
     @Optional() private readonly indexer?: EmbeddingIndexerService,
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
+    // ODD 012 S4: el plan del dueño del workspace limita sus proyectos
+    await this.planLimits.assertWithinProjectLimit(
+      createProjectDto.workspaceId,
+    );
+
     const createProjectUseCase = new CreateProjectUseCase(
       this.projectRepository,
     );

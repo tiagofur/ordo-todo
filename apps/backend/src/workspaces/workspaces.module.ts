@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
+import { BillingModule } from '../billing/billing.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { WorkspacesController } from './workspaces.controller';
 import { WorkspacesService } from './workspaces.service';
 import { BcryptHashService } from '../common/services/bcrypt-hash.service';
 
 @Module({
-  imports: [DatabaseModule, RepositoriesModule],
+  imports: [DatabaseModule, RepositoriesModule, BillingModule],
   controllers: [WorkspacesController],
   providers: [
     WorkspacesService,
