@@ -84,11 +84,12 @@ export class BillingController {
       );
     }
 
+    // getClient() fuera del try: un 503 por falta de configuración no debe
+    // reportarse como "firma inválida".
+    const stripe = this.stripeService.getClient();
+
     let event: Stripe.Event;
     try {
-      // getClient() fuera del try: un 503 por falta de configuración no debe
-      // reportarse como "firma inválida".
-      const stripe = this.stripeService.getClient();
       event = await stripe.webhooks.constructEventAsync(
         request.rawBody ?? Buffer.alloc(0),
         signature,

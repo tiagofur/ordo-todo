@@ -314,6 +314,40 @@ describe('BillingWebhookService (ODD 012 S3)', () => {
         }),
       });
     });
+
+    it('keeps the existing plan when neither the price map nor the metadata name one', async () => {
+      mockWebhookEvent.create.mockResolvedValue({});
+      mockSubscriptionModel.findUnique.mockResolvedValue({
+        id: 'row1',
+        userId: 'u1',
+        plan: 'PRO',
+      });
+      mockSubscriptionModel.update.mockResolvedValue({});
+
+      await service.processEvent(
+        event(
+          'customer.subscription.updated',
+          stripeSubscription({
+            items: {
+              data: [
+                {
+                  price: { id: 'price_unknown' },
+                  quantity: 1,
+                  current_period_start: PERIOD_START_S,
+                  current_period_end: PERIOD_END_S,
+                },
+              ],
+            },
+            metadata: {},
+          }),
+        ),
+      );
+
+      expect(mockSubscriptionModel.update).toHaveBeenCalledWith({
+        where: { id: 'row1' },
+        data: expect.objectContaining({ plan: 'PRO' }),
+      });
+    });
   });
 
   describe('customer.subscription.deleted', () => {
