@@ -53,19 +53,3 @@ export class RoadmapVote extends Entity<RoadmapVoteProps> {
         return this.props.createdAt!;
     }
 }
-
-/**
- * Calculate vote weight based on subscription plan
- */
-export function calculateVoteWeight(plan?: string): number {
-    switch (plan) {
-        case "PRO":
-            return 3;
-        case "TEAM":
-            return 5;
-        case "ENTERPRISE":
-            return 10;
-        default:
-            return 1;
-    }
-}

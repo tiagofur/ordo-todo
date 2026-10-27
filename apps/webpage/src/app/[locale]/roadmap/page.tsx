@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth-context';
 import { getRoadmapItems, voteRoadmapItem, removeRoadmapVote } from '@/lib/api';
 import type { RoadmapItem } from '@/lib/api';
+import { PLANS, type PlanId } from '@/lib/plans';
 import { 
   ThumbsUp, 
   Lightbulb, 
@@ -29,12 +30,9 @@ const statusConfig: Record<string, {
   DECLINED: { label: 'Declined', icon: XCircle, color: 'text-gray-500', bg: 'bg-gray-500/10' },
 };
 
-const voteWeights: Record<string, number> = {
-  FREE: 1,
-  PRO: 3,
-  TEAM: 5,
-  ENTERPRISE: 10,
-};
+// ODD 012 S4: los pesos de voto salen de la tabla única de planes.
+const voteWeightFor = (tier: string | undefined): number =>
+  PLANS[(tier ?? 'FREE').toLowerCase() as PlanId]?.voteWeight ?? 1;
 
 export default function RoadmapPage() {
   const { user, isAuthenticated, login } = useAuth();
@@ -74,7 +72,7 @@ export default function RoadmapPage() {
         // Update local count
         setItems(prev => prev.map(item => 
           item.id === itemId 
-            ? { ...item, totalVotes: item.totalVotes - (voteWeights[user?.subscriptionTier || 'FREE'] || 1) }
+            ? { ...item, totalVotes: item.totalVotes - voteWeightFor(user?.subscriptionTier) }
             : item
         ));
       } else {
@@ -105,7 +103,7 @@ export default function RoadmapPage() {
     }
   };
 
-  const userWeight = voteWeights[user?.subscriptionTier || 'FREE'] || 1;
+  const userWeight = voteWeightFor(user?.subscriptionTier);
 
   // Group by status
   const groupedItems = items.reduce((acc, item) => {
