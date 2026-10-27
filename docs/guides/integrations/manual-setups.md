@@ -94,7 +94,7 @@ En Cursor: `.cursor/mcp.json`. En VS Code/Copilot:
 `.vscode/mcp.json`. El cliente abre el navegador para el approve
 OAuth al primer uso.
 
-Verificación: el panel MCP del editor lista las 18 tools `ordo_*`;
+Verificación: el panel MCP del editor lista las 20 tools `ordo_*`;
 llamar `ordo_me` devuelve la identidad del dueño del token.
 
 ## Hermes (YAML)

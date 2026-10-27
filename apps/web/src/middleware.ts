@@ -4,6 +4,10 @@ import { routing } from './i18n/navigation';
 
 const intlMiddleware = createMiddleware(routing);
 
+// `/connect` hosts the OAuth consent screen: connector flows (ChatGPT,
+// Claude…) land there from the API with or without a session, and the
+// page itself runs the login hop when needed. Matched by exact segment
+// (below) so unrelated paths like `/connectwhatever` stay protected.
 const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password'];
 
 function isTokenValid(token?: string): boolean {
@@ -66,7 +70,10 @@ export default function middleware(request: NextRequest) {
     const pathWithoutLocale = pathname.replace(/^\/(en|es|pt-br)/, '');
 
     // Check if route is public
-    const isPublic = publicPages.some(page => pathWithoutLocale.startsWith(page));
+    const isConnectPage =
+        pathWithoutLocale === '/connect' || pathWithoutLocale.startsWith('/connect/');
+    const isPublic =
+        isConnectPage || publicPages.some(page => pathWithoutLocale.startsWith(page));
 
     // 1. Protected Route & No Valid Token -> Login
     if (!isPublic && !hasValidToken) {
@@ -78,14 +85,18 @@ export default function middleware(request: NextRequest) {
         return response;
     }
 
-    // 2. Auth Route (Login/Register) & Valid Token -> Dashboard
-    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && hasValidToken) {
+    // 2. Auth Route (Login/Register) & Valid Token -> Dashboard. With a
+    //    `?next=` (OAuth connector hop) the page itself validates the
+    //    target and continues there: bouncing to the dashboard here would
+    //    strand the connector tab inside the app.
+    const isAuthRoute = pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register');
+    if (isAuthRoute && hasValidToken && !request.nextUrl.searchParams.has('next')) {
         return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
     }
 
     // For all other paths, use the intl middleware and clear stale tokens on auth pages
     const response = intlMiddleware(request);
-    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && !hasValidToken && hasAnyToken) {
+    if (isAuthRoute && !hasValidToken && hasAnyToken) {
         response.cookies.delete('access_token');
         response.cookies.delete('refresh_token');
     }

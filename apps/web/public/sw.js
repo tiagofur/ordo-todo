@@ -1,12 +1,19 @@
-const CACHE_NAME = "ordo-todo-v1";
-const STATIC_CACHE = "ordo-todo-static-v1";
-const DYNAMIC_CACHE = "ordo-todo-dynamic-v1";
+// v2: deploy-safe caches. Bumping these names is what purges every
+// stale entry when this worker updates — the activate handler deletes
+// any cache not listed here. v1 never changed between deploys, so it
+// could serve chunks from an old build next to fresh HTML (users saw
+// "Refused to execute script … .css" and unstyled pages right after a
+// deploy).
+const CACHE_NAME = "ordo-todo-v2";
+const STATIC_CACHE = "ordo-todo-static-v2";
+const DYNAMIC_CACHE = "ordo-todo-dynamic-v2";
 const OFFLINE_DB_NAME = "ordo-todo-offline";
 const OFFLINE_DB_VERSION = 1;
 
-// Assets to cache immediately
+// Assets to cache immediately. No "/" here on purpose: install-time
+// HTML would age forever across deploys; the network-first navigate
+// branch below keeps a fresh copy in DYNAMIC_CACHE instead.
 const STATIC_ASSETS = [
-  "/",
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -228,6 +235,12 @@ self.addEventListener("fetch", (event) => {
   // Skip external requests
   if (!url.origin.includes(self.location.origin)) return;
 
+  // Hashed build assets: never intercept them. Their names change with
+  // every deploy and they are served immutable, so the browser's own
+  // cache is always right — caching them here is what once produced a
+  // mixed-build page (stale chunk map + fresh HTML).
+  if (url.pathname.startsWith("/_next/static/")) return;
+
   // Handle API requests differently
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
@@ -250,7 +263,37 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Handle static assets and pages
+  // Navigations: network-first so deploys serve fresh HTML immediately;
+  // the cache (and offline.html) only serve as fallbacks.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() =>
+          // Prefer the fresh copy this branch keeps in DYNAMIC_CACHE:
+          // a global caches.match would hit the oldest cache first.
+          caches
+            .match(request, { cacheName: DYNAMIC_CACHE })
+            .then(
+              (cachedResponse) =>
+                cachedResponse ||
+                caches.match(request) ||
+                caches.match("/offline.html"),
+            ),
+        )
+    );
+    return;
+  }
+
+  // Other static assets: cache-first
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -274,12 +317,8 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          // Return offline page for navigation requests
-          if (request.mode === "navigate") {
-            return caches.match("/offline.html");
-          }
           return new Response("Offline content not available");
-        });
+        })
     })
   );
 });

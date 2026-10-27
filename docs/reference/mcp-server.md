@@ -65,7 +65,7 @@ curl https://api.ordotodo.app/.well-known/oauth-protected-resource
 # → {"resource": "https://api.ordotodo.app/mcp",
 #     "authorization_servers": ["https://api.ordotodo.app"],
 #     "scopes_supported": ["read", "tasks:write",
-#       "projects:write", "admin:webhooks"],
+#       "projects:write"],
 #     "bearer_methods_supported": ["header"],
 #     "resource_signing_alg_values_supported": ["HS256"]}
 
@@ -126,19 +126,21 @@ Available scopes: `read`, `tasks:write`, `projects:write`,
 
 ## Tool catalog
 
-18 tools. Reads need `read`; mutations need the write scope shown.
+37 tools. Reads need `read`; mutations need the write scope shown.
 All tools scope operations to the token owner (see Permissions).
 
 | Tool | Scope | Arguments | Does |
 | ---- | ----- | --------- | ---- |
 | `ordo_ping` | `read` | — | Health check → `{ok: true}` |
 | `ordo_search` | `read` | `query`*, `limit?` (1–50) | Semantic search across tasks, projects, habits |
-| `ordo_task_list` | `read` | `projectId?` | List my tasks (+ optional project filter) |
+| `ordo_workspace_list` | `read` | — | List my workspaces (id, name, slug, tier, member count) |
+| `ordo_task_list` | `read` | `projectId?`, `workspaceId?`, `due?` (today/overdue/week), `status?`, `priority?`, `assignedToMe?`, `includeCompleted?` | List my tasks with project/workspace names (completed hidden unless `includeCompleted`) |
 | `ordo_task_create` | `tasks:write` | `title`*, `projectId`*, `description?`, `priority?`, `dueDate?` (ISO) | Create a task (owner forced to caller) |
 | `ordo_task_get` | `read` | `id`* | Get a task by id |
-| `ordo_task_update` | `tasks:write` | `id`*, `title?`, `description?`, `priority?` | Update a task I own |
+| `ordo_task_update` | `tasks:write` | `id`*, `title?`, `description?`, `priority?`, `status?`, `dueDate?`, `doDate?` (ISO; `""` clears) | Update a task I own |
+| `ordo_task_delete` | `tasks:write` | `id`* | Permanently delete a task I own (destructive) |
 | `ordo_task_complete` | `tasks:write` | `id`* | Mark a task completed |
-| `ordo_project_list` | `read` | — | List my projects |
+| `ordo_project_list` | `read` | `workspaceId?` | List my projects with workspace names |
 | `ordo_project_create` | `projects:write` | `name`*, `workspaceId`*, `description?` | Create a project |
 | `ordo_project_get` | `read` | `id`* | Get a project by id |
 | `ordo_project_update` | `projects:write` | `id`*, `name?`, `description?` | Update a project I own |
@@ -147,7 +149,24 @@ All tools scope operations to the token owner (see Permissions).
 | `ordo_habit_complete` | `tasks:write` | `id`*, `note?` | Complete a habit for today |
 | `ordo_objective_progress` | `read` | — | Current OKR period summary |
 | `ordo_me` | `read` | — | Token owner identity |
-| `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes, risk alerts |
+| `ordo_day_plan` | `read` | — | Today's plan: blocks, frozen tasks, pending changes, risk alerts (may generate a new proposal) |
+| `ordo_timer_active` | `read` | — | Currently running session (task title, type, elapsed seconds, paused) or `{active: false}` |
+| `ordo_timer_start` | `tasks:write` | `taskId?`, `type?` (WORK/SHORT_BREAK/LONG_BREAK/CONTINUOUS) | Start tracking time (stops any previous session as interrupted; verifies task access: owner, assignee or workspace member) |
+| `ordo_timer_stop` | `tasks:write` | `wasCompleted?` | Stop the active session (`{stopped:false}` when nothing is running) |
+| `ordo_timer_pause` | `tasks:write` | — | Pause the active session |
+| `ordo_timer_resume` | `tasks:write` | — | Resume a paused session |
+| `ordo_note_list` | `read` | `workspaceId`*, `search?`, `limit?` (1–100) | Search/list workspace notes (membership required) |
+| `ordo_note_get` | `read` | `id`* | Get a note (author or member) |
+| `ordo_note_create` | `tasks:write` | `workspaceId`*, `content`*, `color?` | Create a sticky note (author = caller) |
+| `ordo_habit_list` | `read` | `includeArchived?` | All habits with schedule and state |
+| `ordo_habit_create` | `tasks:write` | `name`*, `description?`, `frequency?`, `targetDaysOfWeek?`, `targetCount?`, `timeOfDay?`, `preferredTime?` | Create a habit (owner = caller) |
+| `ordo_tag_list` | `read` | `workspaceId`* | List workspace tags (membership required) |
+| `ordo_task_tags` | `read` | `taskId`* | Tags attached to a task (task access required) |
+| `ordo_tag_add_to_task` | `tasks:write` | `taskId`*, `tagId`* | Attach a tag (task access + tag-workspace membership) |
+| `ordo_meeting_list` | `read` | `projectId?`, `limit?` (1–50) | My recent meetings, newest first (lean records: no transcripts) |
+| `ordo_comment_list` | `read` | `taskId`* | Comments of a task (task access required) |
+| `ordo_workspace_members` | `read` | `workspaceId`* | Members of a workspace I belong to (userId, name, role) |
+| `ordo_task_assign` | `tasks:write` | `taskId`*, `assigneeId`* (member userId or null to clear) | Assign a task I own to a workspace member |
 | `ordo_day_plan_apply` | `tasks:write` | `proposalId`* | Apply a day-plan proposal onto my tasks |
 
 Example `tools/call` (JSON-RPC over `POST /mcp`):

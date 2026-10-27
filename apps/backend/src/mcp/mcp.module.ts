@@ -7,6 +7,11 @@ import { SchedulingModule } from '../scheduling/scheduling.module';
 import { SearchModule } from '../search/search.module';
 import { HabitsModule } from '../habits/habits.module';
 import { ObjectivesModule } from '../objectives/objectives.module';
+import { WorkspacesModule } from '../workspaces/workspaces.module';
+import { TimersModule } from '../timers/timers.module';
+import { NotesModule } from '../notes/notes.module';
+import { TagsModule } from '../tags/tags.module';
+import { MeetingsModule } from '../meetings/meetings.module';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { McpController } from './mcp.controller';
 import { McpWellKnownController } from './mcp-well-known.controller';
@@ -27,6 +32,14 @@ import { McpAuthGuard } from './mcp-auth.guard';
     SearchModule,
     HabitsModule,
     ObjectivesModule,
+    // ordo_workspace_list + workspace names on task/project listings.
+    WorkspacesModule,
+    // Timer tools (start/stop/pause/resume/active).
+    TimersModule,
+    // Notes, tags and meetings tools (block D).
+    NotesModule,
+    TagsModule,
+    MeetingsModule,
   ],
   controllers: [McpController, McpWellKnownController],
   providers: [

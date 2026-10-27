@@ -16,7 +16,11 @@ import { PrismaService } from '../database/prisma.service';
 import { AuthAuditService } from '../auth/auth-audit.service';
 import { AuthEventType } from '../auth/types/auth-event.types';
 import { API_TOKEN_SCOPES } from '../api-tokens/api-token.constants';
-import { oAuthDelegates } from './oauth.delegate';
+import {
+  oAuthDelegates,
+  type OAuthClientRecord,
+  type OAuthRefreshTokenRecord,
+} from './oauth.delegate';
 import {
   BCRYPT_ROUNDS,
   OAUTH_ACCESS_TOKEN_TTL,
@@ -43,6 +47,22 @@ export interface AuthorizeParams {
   state?: string;
   codeChallenge: string;
   codeChallengeMethod: string;
+}
+
+/** Authorize-request params as the client sends them (no user yet). */
+export type AuthorizeRequestParams = Omit<AuthorizeParams, 'userId'>;
+
+export interface ValidatedAuthorizeRequest {
+  client: OAuthClientRecord;
+  grantedScopes: string[];
+}
+
+export interface OAuthConnection {
+  clientId: string;
+  clientName: string;
+  scopes: string[];
+  connectedAt: Date;
+  lastRefreshedAt: Date;
 }
 
 export interface ExchangeCodeParams {
@@ -232,7 +252,15 @@ export class OAuthService {
     }
   }
 
-  async authorize(params: AuthorizeParams): Promise<{ redirectUri: string }> {
+  /**
+   * Validates an authorize request (client, redirect_uri, PKCE, scopes)
+   * WITHOUT issuing anything. Used by the controller to decide the hop:
+   * invalid → consent error screen, valid → consent screen or seamless
+   * reconnect for clients with an active grant.
+   */
+  async validateAuthorizeRequest(
+    params: AuthorizeRequestParams,
+  ): Promise<ValidatedAuthorizeRequest> {
     const client = await oAuthDelegates(this.prisma).oAuthClient.findUnique({
       where: { clientId: params.clientId },
     });
@@ -256,36 +284,165 @@ export class OAuthService {
       );
     }
 
-    const requestedScopes = (params.scope ?? '')
+    const grantedScopes = this.resolveGrantedScopes(client, params.scope);
+
+    return { client, grantedScopes };
+  }
+
+  /**
+   * Scopes a code would carry for this client and requested `scope`.
+   * Shared by validation and by the consent screen's client-info call,
+   * so what the user sees is exactly what gets granted.
+   */
+  private resolveGrantedScopes(
+    client: OAuthClientRecord,
+    scope: string | undefined,
+  ): string[] {
+    const requestedScopes = (scope ?? '')
       .split(' ')
-      .map((scope) => scope.trim())
+      .map((item) => item.trim())
       .filter(Boolean);
-    let grantedScopes: string[];
     if (client.scopes.length > 0) {
       // Registered scopes are a hard ceiling (CIMD + internal clients):
       // asking outside them is a protocol error.
       const outOfScope = requestedScopes.filter(
-        (scope) => !client.scopes.includes(scope),
+        (item) => !client.scopes.includes(item),
       );
       if (outOfScope.length > 0) {
         throw new BadRequestException(
           `Scopes not granted to client: ${outOfScope.join(', ')}`,
         );
       }
-      grantedScopes =
-        requestedScopes.length > 0 ? requestedScopes : [...client.scopes];
-    } else {
-      // Open DCR clients (ChatGPT, Claude…): anything they ask for is
-      // clamped to the known vocabulary, and no request defaults to
-      // read-only. There is no consent screen yet — a phishing link
-      // must not mint a full-vocabulary token in one click.
-      grantedScopes = requestedScopes.filter((scope) =>
-        (API_TOKEN_SCOPES as readonly string[]).includes(scope),
-      );
-      if (grantedScopes.length === 0) {
-        grantedScopes = ['read'];
-      }
+      return requestedScopes.length > 0 ? requestedScopes : [...client.scopes];
     }
+    // Open DCR clients (ChatGPT, Claude…): anything they ask for is
+    // clamped to the known vocabulary, and no request defaults to
+    // read-only. The consent screen shows (and the user approves)
+    // exactly these scopes.
+    const granted = requestedScopes.filter((item) =>
+      (API_TOKEN_SCOPES as readonly string[]).includes(item),
+    );
+    return granted.length > 0 ? granted : ['read'];
+  }
+
+  /**
+   * Union of scopes across the user's unexpired refresh tokens for this
+   * client — the live connection — or null when there is none. Consent
+   * may only be skipped when the incoming request fits inside these
+   * scopes; a broader ask always re-prompts, so a client can never
+   * upgrade its access past what the user actually approved.
+   */
+  async findLiveGrantScopes(
+    userId: string,
+    clientId: string,
+  ): Promise<string[] | null> {
+    const tokens = await oAuthDelegates(this.prisma).oAuthRefreshToken.findMany(
+      {
+        where: { userId, clientId, expiresAt: { gt: new Date() } },
+      },
+    );
+    if (tokens.length === 0) return null;
+    return [...new Set(tokens.flatMap((token) => token.scopes))];
+  }
+
+  /** RFC 6749 §4.1.2.1: user denied — redirect back with access_denied. */
+  buildDeniedRedirect(redirectUri: string, state?: string): string {
+    const redirect = new URL(redirectUri);
+    redirect.searchParams.set('error', 'access_denied');
+    if (state) {
+      redirect.searchParams.set('state', state);
+    }
+    return redirect.toString();
+  }
+
+  /**
+   * Public client facts for the consent screen: display name plus the
+   * scopes a grant for `scope` would carry (null when the request would
+   * be rejected, so the screen can refuse to show a misleading list).
+   */
+  async getClientInfo(
+    clientId: string,
+    scope?: string,
+  ): Promise<{
+    clientId: string;
+    clientName: string;
+    grantedScopes: string[] | null;
+  } | null> {
+    const client = await oAuthDelegates(this.prisma).oAuthClient.findUnique({
+      where: { clientId },
+    });
+    if (!client) return null;
+    let grantedScopes: string[] | null;
+    try {
+      grantedScopes = this.resolveGrantedScopes(client, scope);
+    } catch {
+      grantedScopes = null;
+    }
+    return {
+      clientId: client.clientId,
+      clientName: client.clientName,
+      grantedScopes,
+    };
+  }
+
+  /** Active connections (apps) for the user, newest activity first. */
+  async listConnections(userId: string): Promise<OAuthConnection[]> {
+    const delegates = oAuthDelegates(this.prisma);
+    const tokens = await delegates.oAuthRefreshToken.findMany({
+      where: { userId, expiresAt: { gt: new Date() } },
+    });
+
+    const byClient = new Map<string, OAuthRefreshTokenRecord[]>();
+    for (const token of tokens) {
+      const list = byClient.get(token.clientId) ?? [];
+      list.push(token);
+      byClient.set(token.clientId, list);
+    }
+
+    const connections: OAuthConnection[] = [];
+    for (const [clientId, clientTokens] of byClient) {
+      const client = await delegates.oAuthClient.findUnique({
+        where: { clientId },
+      });
+      const scopes = [...new Set(clientTokens.flatMap((t) => t.scopes))];
+      const created = clientTokens.map((t) => t.createdAt.getTime());
+      connections.push({
+        clientId,
+        clientName: client?.clientName || clientId,
+        scopes,
+        connectedAt: new Date(Math.min(...created)),
+        lastRefreshedAt: new Date(Math.max(...created)),
+      });
+    }
+
+    return connections.sort(
+      (a, b) => b.lastRefreshedAt.getTime() - a.lastRefreshedAt.getTime(),
+    );
+  }
+
+  /** Disconnect an app: revoke every refresh token of that client. */
+  async disconnectClient(
+    userId: string,
+    clientId: string,
+  ): Promise<{ revoked: number }> {
+    const delegates = oAuthDelegates(this.prisma);
+    const { count } = await delegates.oAuthRefreshToken.deleteMany({
+      where: { userId, clientId },
+    });
+    this.logger.log(
+      `OAuth connection disconnected (user ${userId}, client ${clientId}, ${count} token(s))`,
+    );
+    await this.audit?.logEvent({
+      type: AuthEventType.TOKEN_REVOKED,
+      timestamp: new Date(),
+      metadata: { clientId, revoked: count, via: 'connections' },
+    });
+    return { revoked: count };
+  }
+
+  async authorize(params: AuthorizeParams): Promise<{ redirectUri: string }> {
+    const { client, grantedScopes } =
+      await this.validateAuthorizeRequest(params);
 
     const code = randomBytes(32).toString('base64url');
     await oAuthDelegates(this.prisma).oAuthAuthorizationCode.create({
@@ -499,24 +656,9 @@ export class OAuthService {
       return null;
     }
 
-    const delegates = oAuthDelegates(this.prisma) as unknown as {
-      oAuthRefreshToken: {
-        findMany(args: {
-          where: { clientId: string; tokenPrefix: string };
-        }): Promise<
-          {
-            id: string;
-            userId: string;
-            clientId: string;
-            tokenHash: string;
-            scopes: string[];
-            expiresAt: Date;
-          }[]
-        >;
-      };
-    };
-
-    const candidates = await delegates.oAuthRefreshToken.findMany({
+    const candidates = await oAuthDelegates(
+      this.prisma,
+    ).oAuthRefreshToken.findMany({
       where: { clientId, tokenPrefix: rawToken.slice(-8) },
     });
 

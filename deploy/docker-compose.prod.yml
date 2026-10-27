@@ -78,7 +78,7 @@ services:
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
       CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      FRONTEND_URL: ${FRONTEND_URL:-https://www.${DOMAIN}}
+      FRONTEND_URL: ${FRONTEND_URL:-https://${DOMAIN}}
       REGISTRATION_MODE: ${REGISTRATION_MODE:-invite-only}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       # Without SMTP (or RESEND_API_KEY) the email service runs in mock mode and

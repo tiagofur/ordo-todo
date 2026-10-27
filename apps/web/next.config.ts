@@ -35,86 +35,17 @@ const nextConfig: NextConfig = {
         );
       }
 
-      // Configure splitChunks for better caching
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-          defaultVendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
-            reuseExistingChunk: true,
-          },
-          // React ecosystem
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom|react-is)[\\/]/,
-            name: 'vendor-react',
-            chunks: 'all',
-            priority: 20,
-            enforce: true,
-          },
-          // Router
-          router: {
-            test: /[\\/]node_modules[\\/](@next\/next|next)[\\/]/,
-            name: 'vendor-router',
-            chunks: 'all',
-            priority: 15,
-            enforce: true,
-          },
-          // UI libraries
-          ui: {
-            test: /[\\/]node_modules[\\/](@ordo-todo|@radix-ui|lucide-react|framer-motion)[\\/]/,
-            name: 'vendor-ui',
-            chunks: 'all',
-            priority: 15,
-            enforce: true,
-          },
-          // Forms
-          forms: {
-            test: /[\\/]node_modules[\\/](react-hook-form|zod|@hookform\/resolvers)[\\/]/,
-            name: 'vendor-forms',
-            chunks: 'all',
-            priority: 12,
-            enforce: true,
-          },
-          // Charts and data visualization
-          charts: {
-            test: /[\\/]node_modules[\\/](recharts|d3)[\\/]/,
-            name: 'vendor-charts',
-            chunks: 'all',
-            priority: 10,
-            enforce: true,
-          },
-          // Date and time utilities
-          date: {
-            test: /[\\/]node_modules[\\/](date-fns|dayjs|moment)[\\/]/,
-            name: 'vendor-date',
-            chunks: 'all',
-            priority: 8,
-            enforce: true,
-          },
-          // Query and state management
-          query: {
-            test: /[\\/]node_modules[\\/](@tanstack|zustand)[\\/]/,
-            name: 'vendor-query',
-            chunks: 'all',
-            priority: 12,
-            enforce: true,
-          },
-          // Authentication
-          auth: {
-            test: /[\\/]node_modules[\\/](next-auth|next-auth\/*|@auth\/*)[\\/]/,
-            name: 'vendor-auth',
-            chunks: 'all',
-            priority: 10,
-            enforce: true,
-          },
-        },
-      };
+      // NOTE: do NOT override config.optimization.splitChunks here.
+      // A previous wholesale override (chunks: 'all' + enforce cacheGroups)
+      // detached CSS files from their entry chunks: Next then emitted page
+      // CSS in the HTML as `<script async src="...css">`, which browsers
+      // refuse to execute ("MIME type text/css is not executable") and
+      // pages rendered unstyled in production (seen on /login and
+      // /connect/authorize after the 2026-10-26 deploy). Next's own
+      // splitChunks config is correct for its chunk/CSS manifest; if vendor
+      // grouping is ever re-added, verify with:
+      //   curl -s http://localhost:PORT/es/login | grep -c '<script[^>]*\.css'   # must be 0
+
     }
 
     // Force single instance of core libraries

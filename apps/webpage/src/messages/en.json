@@ -160,7 +160,7 @@
       "billing_live_q": "Is billing live yet?",
       "billing_live_a": "Not yet: all features are currently free while paid plans are in beta. We will announce payment methods before charging anything.",
       "agents_what_q": "Can my AI assistant use Ordo?",
-      "agents_what_a": "Yes: ChatGPT, Claude, Hermes and OpenClaw connect in a few minutes with 18 tools. See the connection guides.",
+      "agents_what_a": "Yes: ChatGPT, Claude, Hermes and OpenClaw connect in a few minutes with 20+ tools. See the connection guides.",
       "agents_permissions_q": "What can my assistant see?",
       "agents_permissions_a": "Only what you can see: every request runs with your permissions and unauthorized access is denied.",
       "agents_own_q": "Does Ordo have its own agent?",
@@ -287,7 +287,7 @@
     "badge": "Agent-ready",
     "title": "Use Ordo from your AI assistant",
     "subtitle": "Connect ChatGPT, Claude, Hermes or OpenClaw in a few minutes. Your assistant operates Ordo with your own permissions — nothing more.",
-    "tools_title": "18 tools your assistant can use",
+    "tools_title": "20+ tools your assistant can use",
     "tools": {
       "tasks": {
         "title": "Tasks",
@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
+        "description": "Under authentication, choose OAuth. Your browser will open Ordo: sign in if needed, review the permissions on the consent screen and press Allow. You will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Choose OAuth and approve",
-        "description": "Under authentication, choose OAuth. Your browser will open your Ordo account: sign in if needed and you will return automatically to complete the connection."
+        "description": "Under authentication, choose OAuth. Your browser will open Ordo: sign in if needed, review the permissions on the consent screen and press Allow. You will return automatically to complete the connection."
       },
       "4": {
         "title": "Enable Ordo and try it",

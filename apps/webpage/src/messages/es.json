@@ -160,7 +160,7 @@
       "billing_live_q": "¿El cobro ya está activo?",
       "billing_live_a": "Aún no: todas las funciones son gratis mientras los planes de pago están en beta. Anunciaremos los métodos de pago antes de cobrar nada.",
       "agents_what_q": "¿Mi asistente de IA puede usar Ordo?",
-      "agents_what_a": "Sí: ChatGPT, Claude, Hermes y OpenClaw se conectan en unos minutos con 18 herramientas. Mira las guías de conexión.",
+      "agents_what_a": "Sí: ChatGPT, Claude, Hermes y OpenClaw se conectan en unos minutos con 20+ herramientas. Mira las guías de conexión.",
       "agents_permissions_q": "¿Qué puede ver mi asistente?",
       "agents_permissions_a": "Solo lo que tú puedes ver: cada petición corre con tus permisos y lo no autorizado se deniega.",
       "agents_own_q": "¿Ordo tiene su propio agente?",
@@ -278,7 +278,7 @@
     },
     "integrations": {
       "title": "Calendario, Slack y agentes",
-      "description": "Sincronización bidireccional con Google Calendar y Outlook, integración profunda con Slack, 18 herramientas MCP y API pública con webhooks."
+      "description": "Sincronización bidireccional con Google Calendar y Outlook, integración profunda con Slack, 20+ herramientas MCP y API pública con webhooks."
     },
     "cta_text": "Mira lo que incluye cada plan",
     "cta_link": "Comparar planes →"
@@ -287,7 +287,7 @@
     "badge": "Listo para agentes",
     "title": "Usa Ordo desde tu asistente de IA",
     "subtitle": "Conecta ChatGPT, Claude, Hermes u OpenClaw en unos minutos. Tu asistente opera Ordo con tus propios permisos — nada más.",
-    "tools_title": "18 herramientas que tu asistente puede usar",
+    "tools_title": "20+ herramientas que tu asistente puede usar",
     "tools": {
       "tasks": {
         "title": "Tareas",
@@ -1283,7 +1283,7 @@
     "facts_title": "Ordo en datos",
     "facts": {
       "platforms": "Apps web, escritorio y móvil",
-      "mcp_tools": "18 herramientas para agentes (MCP)",
+      "mcp_tools": "20+ herramientas para agentes (MCP)",
       "languages": "Inglés, español, portugués",
       "trial": "Plan gratuito y prueba Pro de 14 días, sin tarjeta"
     },
@@ -1460,7 +1460,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y volverás automáticamente para completar la conexión."
+        "description": "En autenticación, elige OAuth. Se abrirá Ordo en el navegador: inicia sesión si hace falta, revisa los permisos en la pantalla de consentimiento y pulsa Permitir. Volverás automáticamente para completar la conexión."
       },
       "4": {
         "title": "Activa Ordo y prueba",
@@ -1508,7 +1508,7 @@
       },
       "3": {
         "title": "Elige OAuth y aprueba",
-        "description": "En autenticación, elige OAuth. Se abrirá tu cuenta de Ordo en el navegador: inicia sesión si hace falta y volverás automáticamente para completar la conexión."
+        "description": "En autenticación, elige OAuth. Se abrirá Ordo en el navegador: inicia sesión si hace falta, revisa los permisos en la pantalla de consentimiento y pulsa Permitir. Volverás automáticamente para completar la conexión."
       },
       "4": {
         "title": "Activa Ordo y prueba",

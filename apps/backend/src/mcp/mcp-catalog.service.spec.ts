@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
@@ -12,16 +13,23 @@ import { V1CommentsService } from '../v1/v1-comments.service';
 import { SemanticSearchService } from '../search/semantic-search.service';
 import { HabitsService } from '../habits/habits.service';
 import { ObjectivesService } from '../objectives/objectives.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TimersService } from '../timers/timers.service';
+import { NotesService } from '../notes/notes.service';
+import { TagsService } from '../tags/tags.service';
+import { MeetingAssistantService } from '../meetings/meeting-assistant.service';
 import { PrismaService } from '../database/prisma.service';
 import { runWithMcpContext } from './mcp-context';
 
 const EXPECTED_TOOLS = [
   'ordo_search',
+  'ordo_workspace_list',
   'ordo_task_list',
   'ordo_task_create',
   'ordo_task_get',
   'ordo_task_update',
   'ordo_task_complete',
+  'ordo_task_delete',
   'ordo_project_list',
   'ordo_project_create',
   'ordo_project_get',
@@ -34,6 +42,23 @@ const EXPECTED_TOOLS = [
   'ordo_ping',
   'ordo_day_plan',
   'ordo_day_plan_apply',
+  'ordo_timer_active',
+  'ordo_timer_start',
+  'ordo_timer_stop',
+  'ordo_timer_pause',
+  'ordo_timer_resume',
+  'ordo_note_list',
+  'ordo_note_get',
+  'ordo_note_create',
+  'ordo_habit_list',
+  'ordo_habit_create',
+  'ordo_tag_list',
+  'ordo_task_tags',
+  'ordo_tag_add_to_task',
+  'ordo_meeting_list',
+  'ordo_comment_list',
+  'ordo_workspace_members',
+  'ordo_task_assign',
 ];
 
 describe('McpCatalogService (against official SDK client)', () => {
@@ -89,12 +114,72 @@ describe('McpCatalogService (against official SDK client)', () => {
   };
   const mockHabits = {
     findForToday: jest.fn().mockResolvedValue([]),
+    findAll: jest.fn().mockResolvedValue([]),
+    create: jest.fn().mockResolvedValue({ id: 'habit-9' }),
     complete: jest.fn().mockResolvedValue({ id: 'habit-1' }),
   };
   const mockObjectives = {
     getDashboardSummary: jest.fn().mockResolvedValue({ objectives: [] }),
   };
-  const mockPrisma = { user: { findUnique: jest.fn() } };
+  const mockWorkspaces = {
+    findAll: jest.fn().mockResolvedValue([
+      {
+        id: 'ws-1',
+        name: 'Creapolis',
+        slug: 'creapolis',
+        tier: 'FREE',
+        isArchived: false,
+        stats: { memberCount: 3 },
+      },
+      {
+        id: 'ws-2',
+        name: 'Personal',
+        slug: 'personal',
+        tier: 'FREE',
+        isArchived: false,
+        stats: { memberCount: 1 },
+      },
+    ]),
+  };
+  const mockPrisma = {
+    user: { findUnique: jest.fn() },
+    workspaceMember: { findUnique: jest.fn().mockResolvedValue({ id: 'm-1' }) },
+    workspace: { findUnique: jest.fn().mockResolvedValue(null) },
+  };
+  const mockNotes = {
+    findAll: jest.fn().mockResolvedValue({ data: [], meta: { total: 0 } }),
+    findOne: jest.fn().mockResolvedValue({ id: 'note-1' }),
+    create: jest.fn().mockResolvedValue({ id: 'note-9' }),
+  };
+  const mockTags = {
+    findAll: jest.fn().mockResolvedValue([]),
+    findOne: jest.fn().mockResolvedValue(null),
+    findByTask: jest.fn().mockResolvedValue([]),
+    assignToTask: jest.fn().mockResolvedValue({ ok: true }),
+  };
+  const mockMeetings = { getMeetings: jest.fn().mockResolvedValue([]) };
+  const mockWorkspacesFull = {
+    ...mockWorkspaces,
+    getMembers: jest.fn().mockResolvedValue([
+      {
+        userId: 'user-123',
+        role: 'OWNER',
+        user: { id: 'user-123', name: 'Owner', email: 'o@x.test' },
+      },
+      {
+        userId: 'user-9',
+        role: 'MEMBER',
+        user: { id: 'user-9', name: 'Mate', email: 'm@x.test' },
+      },
+    ]),
+  };
+  const mockTimers = {
+    start: jest.fn().mockResolvedValue({ id: 'session-1', taskId: 'task-1' }),
+    stop: jest.fn().mockResolvedValue({ id: 'session-1' }),
+    pause: jest.fn().mockResolvedValue({ id: 'session-1', isPaused: true }),
+    resume: jest.fn().mockResolvedValue({ id: 'session-1', isPaused: false }),
+    getActive: jest.fn().mockResolvedValue(null),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -107,6 +192,11 @@ describe('McpCatalogService (against official SDK client)', () => {
         { provide: SemanticSearchService, useValue: mockSearch },
         { provide: HabitsService, useValue: mockHabits },
         { provide: ObjectivesService, useValue: mockObjectives },
+        { provide: WorkspacesService, useValue: mockWorkspacesFull },
+        { provide: TimersService, useValue: mockTimers },
+        { provide: NotesService, useValue: mockNotes },
+        { provide: TagsService, useValue: mockTags },
+        { provide: MeetingAssistantService, useValue: mockMeetings },
         { provide: PrismaService, useValue: mockPrisma },
         {
           provide: TasksService,
@@ -164,6 +254,717 @@ describe('McpCatalogService (against official SDK client)', () => {
     expect(result.content).toEqual(
       expect.arrayContaining([expect.objectContaining({ type: 'text' })]),
     );
+  });
+
+  // Agent-context tools: workspace disambiguation + readable names.
+  describe('workspace disambiguation', () => {
+    beforeEach(() => {
+      mockV1Projects.list.mockResolvedValue([
+        {
+          id: 'proj-1',
+          name: 'Pepinillo',
+          workspaceId: 'ws-1',
+        },
+        {
+          id: 'proj-2',
+          name: 'Pepinillo',
+          workspaceId: 'ws-2',
+        },
+      ]);
+      mockV1Tasks.list.mockResolvedValue([
+        {
+          id: 'task-1',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'HIGH',
+          dueDate: new Date('2026-10-26T10:00:00.000Z'),
+        },
+        {
+          id: 'task-2',
+          projectId: 'proj-2',
+          status: 'COMPLETED',
+          priority: 'LOW',
+          dueDate: new Date('2026-10-26T10:00:00.000Z'),
+        },
+      ]);
+    });
+
+    it('lists workspaces with the fields agents need to disambiguate', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_workspace_list', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(mockWorkspaces.findAll).toHaveBeenCalledWith('user-123');
+      expect(payload.workspaces).toEqual([
+        expect.objectContaining({
+          id: 'ws-1',
+          name: 'Creapolis',
+          memberCount: 3,
+        }),
+        expect.objectContaining({
+          id: 'ws-2',
+          name: 'Personal',
+          memberCount: 1,
+        }),
+      ]);
+    });
+
+    it('enriches tasks with project and workspace names and hides completed by default', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_task_list', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload.totalCount).toBe(1);
+      expect(payload.tasks[0]).toEqual(
+        expect.objectContaining({
+          id: 'task-1',
+          projectName: 'Pepinillo',
+          workspaceId: 'ws-1',
+          workspaceName: 'Creapolis',
+        }),
+      );
+    });
+
+    it('disambiguates same-named projects by workspace filter', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_project_list',
+            arguments: { workspaceId: 'ws-2' },
+          }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload.totalCount).toBe(1);
+      expect(payload.projects[0]).toEqual(
+        expect.objectContaining({
+          id: 'proj-2',
+          name: 'Pepinillo',
+          workspaceName: 'Personal',
+        }),
+      );
+    });
+
+    it('keeps only tasks due today when due=today (UTC day)', async () => {
+      mockV1Tasks.list.mockResolvedValue([
+        {
+          id: 'due-today',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: new Date('2026-10-26T23:59:00.000Z'),
+        },
+        {
+          id: 'due-later',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: new Date('2026-11-01T10:00:00.000Z'),
+        },
+        {
+          id: 'planned-today',
+          projectId: 'proj-1',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          dueDate: null,
+          doDate: new Date('2026-10-26T08:00:00.000Z'),
+        },
+      ]);
+
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-10-26T12:00:00.000Z'));
+      try {
+        const result = await runWithMcpContext(
+          { userId: 'user-123', scopes: ['read'] },
+          () =>
+            client.callTool({
+              name: 'ordo_task_list',
+              arguments: { due: 'today' },
+            }),
+        );
+
+        const payload = JSON.parse(result.content[0].text);
+        expect(payload.tasks.map((t: { id: string }) => t.id).sort()).toEqual([
+          'due-today',
+          'planned-today',
+        ]);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+  });
+
+  it('deletes a task the token owner owns', async () => {
+    mockV1Tasks.remove = jest.fn().mockResolvedValue({ id: 'task-1' });
+    const result = await runWithMcpContext(
+      { userId: 'user-123', scopes: ['tasks:write'] },
+      () =>
+        client.callTool({
+          name: 'ordo_task_delete',
+          arguments: { id: 'task-1' },
+        }),
+    );
+
+    expect(mockV1Tasks.remove).toHaveBeenCalledWith('user-123', 'task-1');
+    expect(result.isError).toBeUndefined();
+  });
+
+  it('exposes tool annotations so clients can pre-classify calls', async () => {
+    const { tools } = await client.listTools();
+    const byName = new Map(tools.map((tool) => [tool.name, tool]));
+
+    expect(byName.get('ordo_task_list')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_workspace_list')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_task_delete')?.annotations).toMatchObject({
+      readOnlyHint: false,
+      destructiveHint: true,
+    });
+    expect(byName.get('ordo_task_create')?.annotations).toBeUndefined();
+    expect(byName.get('ordo_timer_active')?.annotations).toMatchObject({
+      readOnlyHint: true,
+    });
+    expect(byName.get('ordo_timer_start')?.annotations).toBeUndefined();
+  });
+
+  // Timer tools: the catalog layer is the ownership gate — the core
+  // StartTimerUseCase would accept any task id and flip it IN_PROGRESS.
+  describe('timer tools', () => {
+    it('starts a timer after verifying the task is accessible', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1', title: 'Write spec' });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_start',
+            arguments: { taskId: 'task-1' },
+          }),
+      );
+
+      expect(mockV1Tasks.get).toHaveBeenCalledWith('user-123', 'task-1');
+      expect(mockTimers.start).toHaveBeenCalledWith(
+        { taskId: 'task-1', type: undefined },
+        'user-123',
+      );
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('refuses to start a timer on a task the caller cannot access', async () => {
+      mockV1Tasks.get.mockRejectedValue(
+        new ForbiddenException('Only the task owner can modify it'),
+      );
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_start',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockTimers.start).not.toHaveBeenCalled();
+    });
+
+    it('reports when no timer is running', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_timer_active', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual({ active: false });
+    });
+
+    it('enriches the active session with the task title', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1', title: 'Write spec' });
+      mockTimers.getActive.mockResolvedValue({
+        id: 'session-1',
+        taskId: 'task-1',
+        elapsedSeconds: 90,
+        isPaused: false,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () => client.callTool({ name: 'ordo_timer_active', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual(
+        expect.objectContaining({
+          active: true,
+          taskTitle: 'Write spec',
+          elapsedSeconds: 90,
+          isPaused: false,
+        }),
+      );
+    });
+
+    it('routes stop/pause/resume through the token owner', async () => {
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_timer_stop',
+            arguments: { wasCompleted: true },
+          }),
+      );
+      expect(mockTimers.stop).toHaveBeenCalledWith(
+        { wasCompleted: true },
+        'user-123',
+      );
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_pause', arguments: {} }),
+      );
+      expect(mockTimers.pause).toHaveBeenCalledWith({}, 'user-123');
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_resume', arguments: {} }),
+      );
+      expect(mockTimers.resume).toHaveBeenCalledWith(
+        { pauseStartedAt: expect.any(Date) },
+        'user-123',
+      );
+    });
+
+    it('reports stopped:false instead of a phantom session when nothing was running', async () => {
+      mockTimers.stop.mockResolvedValueOnce({
+        id: '',
+        status: 'STOPPED',
+        wasCompleted: undefined,
+        duration: 0,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () => client.callTool({ name: 'ordo_timer_stop', arguments: {} }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(payload).toEqual({ stopped: false });
+    });
+  });
+
+  // Block D: notes/habits/tags/meetings/comments. The catalog is the
+  // security gate for services that predate user checks.
+  describe('domain tools (block D)', () => {
+    beforeEach(() => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValue({ id: 'm-1' });
+    });
+
+    it('refuses note listing for non-members of the workspace', async () => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_list',
+            arguments: { workspaceId: 'ws-x' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockNotes.findAll).not.toHaveBeenCalled();
+    });
+
+    it('creates a note as the caller after the membership gate', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_create',
+            arguments: { workspaceId: 'ws-1', content: 'Idea' },
+          }),
+      );
+
+      expect(mockNotes.create).toHaveBeenCalledWith(
+        { workspaceId: 'ws-1', content: 'Idea', color: undefined },
+        'user-123',
+      );
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('refuses to tag a task with a legacy tag that has no workspace', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-legacy',
+        workspaceId: null,
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-legacy' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain('workspace-scoped');
+      expect(mockTags.assignToTask).not.toHaveBeenCalled();
+    });
+
+    it('note_get delegates authorization to the core use case (author or member)', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_note_get',
+            arguments: { id: 'note-1' },
+          }),
+      );
+
+      expect(mockNotes.findOne).toHaveBeenCalledWith('note-1', 'user-123');
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('tag_list requires workspace membership before listing', async () => {
+      const allowed = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_list',
+            arguments: { workspaceId: 'ws-1' },
+          }),
+      );
+      expect(mockTags.findAll).toHaveBeenCalledWith('ws-1');
+      expect(allowed.isError).toBeUndefined();
+
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_list',
+            arguments: { workspaceId: 'ws-2' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockTags.findAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('refuses to tag a task with a tag from a workspace the caller is not in', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-1',
+        workspaceId: 'ws-foreign',
+      });
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-1' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockTags.assignToTask).not.toHaveBeenCalled();
+    });
+
+    it('attaches a tag when task access and membership both hold', async () => {
+      mockV1Tasks.get.mockResolvedValue({ id: 'task-1' });
+      mockTags.findOne.mockResolvedValue({
+        id: 'tag-1',
+        workspaceId: 'ws-1',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_tag_add_to_task',
+            arguments: { taskId: 'task-1', tagId: 'tag-1' },
+          }),
+      );
+
+      expect(mockTags.assignToTask).toHaveBeenCalledWith('tag-1', 'task-1');
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('lists task tags only for tasks the caller can access', async () => {
+      mockV1Tasks.get.mockRejectedValueOnce(
+        new ForbiddenException('You do not have access to this task'),
+      );
+
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_tags',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockTags.findByTask).not.toHaveBeenCalled();
+
+      const allowed = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_tags',
+            arguments: { taskId: 'task-1' },
+          }),
+      );
+      expect(mockTags.findByTask).toHaveBeenCalledWith('task-1');
+      expect(allowed.isError).toBeUndefined();
+    });
+
+    it('lists comments only for tasks the caller can access', async () => {
+      mockV1Comments.listByTask = jest.fn().mockResolvedValue([]);
+      mockV1Tasks.get.mockRejectedValueOnce(
+        new ForbiddenException('You do not have access to this task'),
+      );
+
+      const denied = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_comment_list',
+            arguments: { taskId: 'foreign-task' },
+          }),
+      );
+      expect(denied.isError).toBe(true);
+      expect(mockV1Comments.listByTask).not.toHaveBeenCalled();
+
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_comment_list',
+          arguments: { taskId: 'task-1' },
+        }),
+      );
+      expect(mockV1Comments.listByTask).toHaveBeenCalledWith('task-1');
+    });
+
+    it('routes habit listing/creation and meeting listing through the owner', async () => {
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_habit_list',
+          arguments: { includeArchived: true },
+        }),
+      );
+      expect(mockHabits.findAll).toHaveBeenCalledWith('user-123', true);
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_habit_create',
+            arguments: { name: 'Meditate', frequency: 'DAILY' },
+          }),
+      );
+      expect(mockHabits.create).toHaveBeenCalledWith(
+        {
+          name: 'Meditate',
+          description: undefined,
+          frequency: 'DAILY',
+          targetDaysOfWeek: undefined,
+          targetCount: undefined,
+          timeOfDay: undefined,
+          preferredTime: undefined,
+        },
+        'user-123',
+      );
+
+      await runWithMcpContext({ userId: 'user-123', scopes: ['read'] }, () =>
+        client.callTool({
+          name: 'ordo_meeting_list',
+          arguments: { limit: 5 },
+        }),
+      );
+      expect(mockMeetings.getMeetings).toHaveBeenCalledWith('user-123', {
+        projectId: undefined,
+        limit: 5,
+      });
+    });
+  });
+
+  describe('team tools (block E)', () => {
+    beforeEach(() => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValue({ id: 'm-1' });
+    });
+
+    it('lists workspace members without emails for callers inside the workspace', async () => {
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_workspace_members',
+            arguments: { workspaceId: 'ws-1' },
+          }),
+      );
+
+      const payload = JSON.parse(result.content[0].text);
+      expect(mockWorkspacesFull.getMembers).toHaveBeenCalledWith('ws-1');
+      expect(payload.members).toEqual([
+        { userId: 'user-123', name: 'Owner', role: 'OWNER' },
+        { userId: 'user-9', name: 'Mate', role: 'MEMBER' },
+      ]);
+    });
+
+    it('refuses member listing to non-members', async () => {
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['read'] },
+        () =>
+          client.callTool({
+            name: 'ordo_workspace_members',
+            arguments: { workspaceId: 'ws-x' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockWorkspacesFull.getMembers).not.toHaveBeenCalled();
+    });
+
+    it('assigns a task to a member of the task workspace', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'user-123',
+        projectId: 'proj-1',
+      });
+      mockV1Projects.list.mockResolvedValue([
+        { id: 'proj-1', name: 'Pepinillo', workspaceId: 'ws-1' },
+      ]);
+      mockV1Tasks.update.mockResolvedValue({
+        id: 'task-1',
+        assigneeId: 'user-9',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'user-9' },
+          }),
+      );
+
+      expect(mockV1Tasks.update).toHaveBeenCalledWith('user-123', 'task-1', {
+        assigneeId: 'user-9',
+      });
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('refuses to assign to someone outside the task workspace', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        projectId: 'proj-1',
+      });
+      mockV1Projects.list.mockResolvedValue([
+        { id: 'proj-1', name: 'Pepinillo', workspaceId: 'ws-1' },
+      ]);
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'stranger' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(mockV1Tasks.update).not.toHaveBeenCalled();
+    });
+
+    it('accepts the workspace owner as assignee even without a member row', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'user-123',
+        projectId: 'proj-1',
+      });
+      mockV1Projects.list.mockResolvedValue([
+        { id: 'proj-1', name: 'Pepinillo', workspaceId: 'ws-1' },
+      ]);
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce(null);
+      mockPrisma.workspace.findUnique.mockResolvedValueOnce({
+        ownerId: 'user-9',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'user-9' },
+          }),
+      );
+
+      expect(mockV1Tasks.update).toHaveBeenCalledWith('user-123', 'task-1', {
+        assigneeId: 'user-9',
+      });
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('fails non-owners before the membership probe (no membership oracle)', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'someone-else',
+        projectId: 'proj-1',
+      });
+
+      const result = await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: 'user-9' },
+          }),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain(
+        'Only the task owner can modify it',
+      );
+      expect(mockPrisma.workspaceMember.findUnique).not.toHaveBeenCalled();
+      expect(mockV1Tasks.update).not.toHaveBeenCalled();
+    });
+
+    it('clears the assignee without a membership check', async () => {
+      mockV1Tasks.get.mockResolvedValue({
+        id: 'task-1',
+        ownerId: 'user-123',
+        projectId: 'proj-1',
+      });
+      mockV1Tasks.update.mockResolvedValue({
+        id: 'task-1',
+        assigneeId: null,
+      });
+
+      await runWithMcpContext(
+        { userId: 'user-123', scopes: ['tasks:write'] },
+        () =>
+          client.callTool({
+            name: 'ordo_task_assign',
+            arguments: { taskId: 'task-1', assigneeId: null },
+          }),
+      );
+
+      expect(mockV1Tasks.update).toHaveBeenCalledWith('user-123', 'task-1', {
+        assigneeId: null,
+      });
+    });
   });
 
   it('should reject tool calls outside an authenticated context', async () => {

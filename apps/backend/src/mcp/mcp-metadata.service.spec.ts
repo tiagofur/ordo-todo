@@ -20,12 +20,7 @@ describe('McpMetadataService', () => {
     expect(metadata).toEqual({
       resource: 'https://api.ordo.test/mcp',
       authorization_servers: ['https://api.ordo.test'],
-      scopes_supported: [
-        'read',
-        'tasks:write',
-        'projects:write',
-        'admin:webhooks',
-      ],
+      scopes_supported: ['read', 'tasks:write', 'projects:write'],
       bearer_methods_supported: ['header'],
       resource_signing_alg_values_supported: ['HS256'],
     });

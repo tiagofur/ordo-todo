@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import {
   useState,
   useEffect,
@@ -69,6 +70,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
   const [hasSeenTour, setHasSeenTour] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const activeTours = useOnboardingStore((s) => s.active);
   const acquiredRef = useRef(false);
@@ -181,8 +183,11 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
 
   // Auto-show solo cuando el usuario está autenticado, no ha visto el tour y
   // ningún otro onboarding ocupa el turno (mutex del onboarding-store).
+  // Nunca en las pantallas públicas de conexión OAuth (/connect/…): un tour
+  // encima del consentimiento tapa los botones y confunde el flujo.
   useEffect(() => {
     if (!isAuthenticated) return;
+    if (pathname?.includes("/connect/")) return;
     if (localStorage.getItem(AI_FEATURES_TOUR_KEY)) return;
     if (activeTours.length > 0 || acquiredRef.current) return;
     setHasSeenTour(false);
@@ -194,7 +199,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
       }
     }, AI_TOUR_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [isAuthenticated, activeTours]);
+  }, [isAuthenticated, activeTours, pathname]);
 
   // Esc cierra el tour
   useEffect(() => {

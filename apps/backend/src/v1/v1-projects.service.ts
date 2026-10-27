@@ -28,20 +28,31 @@ export class V1ProjectsService {
     return this.projectsService.findAllByUser(userId);
   }
 
+  /**
+   * Read access = owner or member of the workspace that owns the
+   * project. This used to ignore `userId` entirely — any token could
+   * read any project by id (issue #408, reviewer finding on PR #407).
+   */
   async get(userId: string, id: string) {
-    const project = await this.prisma.project.findUnique({
-      where: { id },
-      select: { id: true, ownerId: true },
-    });
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
-    void userId;
+    await this.assertCanAccess(userId, id);
     return this.projectsService.findOne(id);
   }
 
-  create(userId: string, dto: CreateProjectDto) {
-    void userId;
+  async create(userId: string, dto: CreateProjectDto) {
+    // UI parity: members create projects (OWNER/ADMIN/MEMBER — the
+    // internal controller denies VIEWERs), and only in workspaces they
+    // belong to. This endpoint ignored the user entirely before #408.
+    const member = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: dto.workspaceId, userId },
+      },
+      select: { role: true },
+    });
+    if (!member || member.role === 'VIEWER') {
+      throw new ForbiddenException(
+        'You can only create projects in workspaces you belong to',
+      );
+    }
     return this.projectsService.create(dto);
   }
 
@@ -53,6 +64,35 @@ export class V1ProjectsService {
   async remove(userId: string, id: string) {
     await this.assertOwner(userId, id);
     return this.projectsService.remove(id);
+  }
+
+  private async assertCanAccess(userId: string, id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        ownerId: true,
+        workspaceId: true,
+      },
+    });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    if (project.ownerId !== userId) {
+      const member = await this.prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: project.workspaceId,
+            userId,
+          },
+        },
+        select: { id: true },
+      });
+      if (!member) {
+        throw new ForbiddenException('You do not have access to this project');
+      }
+    }
+    return project;
   }
 
   private async assertOwner(userId: string, id: string) {
