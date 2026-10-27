@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   SubscriptionInterval,
   SubscriptionPlan,
@@ -12,7 +12,7 @@ import { StripeService } from './stripe.service';
 export type WebhookProcessResult = 'processed' | 'duplicate' | 'ignored';
 
 /** Stripe subscription status → our SubscriptionStatus enum (same names by design). */
-function mapStatus(
+export function mapStatus(
   status: Stripe.Subscription.Status,
 ): SubscriptionStatus | null {
   const map: Partial<Record<Stripe.Subscription.Status, SubscriptionStatus>> = {
@@ -29,12 +29,49 @@ function mapStatus(
 }
 
 /**
+ * Checkout metadata stores planId/interval in lowercase ('pro' | 'team');
+ * here they normalize to the Prisma enums. Unknown values yield undefined
+ * so the caller keeps the existing plan instead of feeding Prisma garbage.
+ */
+export function planFromMetadata(
+  value: string | undefined,
+): SubscriptionPlan | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const upper = value.toUpperCase();
+  return (Object.values(SubscriptionPlan) as string[]).includes(upper)
+    ? (upper as SubscriptionPlan)
+    : undefined;
+}
+
+export function intervalFromMetadata(
+  value: string | undefined,
+): SubscriptionInterval | undefined {
+  if (value === 'year') {
+    return SubscriptionInterval.YEAR;
+  }
+  if (value === 'month') {
+    return SubscriptionInterval.MONTH;
+  }
+  return undefined;
+}
+
+/**
  * Webhook event handlers (ODD 012 S3). Idempotency: every event.id is
  * recorded in BillingWebhookEvent inside the same logical step that applies
  * it; Stripe retries (at-least-once delivery) therefore apply at most once.
+ *
+ * Known limitation (documented in the T2 PR): the ledger dedupes per
+ * event.id but does not order events — a very late retry of
+ * invoice.payment_failed could set PAST_DUE after a successful renewal.
+ * The next customer.subscription.updated self-corrects; T4 adds the
+ * renewal-aware refill on invoice.paid.
  */
 @Injectable()
 export class BillingWebhookService {
+  private readonly logger = new Logger(BillingWebhookService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly stripeService: StripeService,
@@ -98,12 +135,18 @@ export class BillingWebhookService {
     session: Stripe.Checkout.Session,
   ): Promise<void> {
     const userId = session.metadata?.userId;
-    if (!userId || !session.subscription) {
+    const subscriptionRef = session.subscription;
+    if (!userId || !subscriptionRef) {
       return; // not a subscription checkout we created, or missing linkage
     }
-    const subscription = await this.stripeService
-      .getClient()
-      .subscriptions.retrieve(session.subscription as string);
+    // Mirrors the customer handling: expand if the webhook ever delivers the
+    // object, retrieve when it is the plain id (our configured case).
+    const subscription =
+      typeof subscriptionRef === 'string'
+        ? await this.stripeService
+            .getClient()
+            .subscriptions.retrieve(subscriptionRef)
+        : subscriptionRef;
     await this.applySubscription(subscription, userId, {
       stripeCustomerId:
         typeof session.customer === 'string'
@@ -166,15 +209,18 @@ export class BillingWebhookService {
     const priceRef: StripePriceRef | undefined = item
       ? this.billingConfig.planForPrice(item.price.id)
       : undefined;
+    if (item && !priceRef) {
+      // Paid price we don't recognize: fail closed on entitlements (the
+      // metadata fallback below still names the plan) but leave a trace.
+      this.logger.warn(
+        `Precio de Stripe no configurado en STRIPE_PRICE_*: ${item.price.id} (suscripción ${subscription.id})`,
+      );
+    }
     const plan =
-      priceRef?.plan ??
-      (subscription.metadata?.planId as SubscriptionPlan | undefined) ??
-      undefined;
+      priceRef?.plan ?? planFromMetadata(subscription.metadata?.planId);
     const interval =
       priceRef?.interval ??
-      (subscription.metadata?.interval === 'year'
-        ? SubscriptionInterval.YEAR
-        : undefined);
+      intervalFromMetadata(subscription.metadata?.interval);
 
     const status = mapStatus(subscription.status);
     const userId =

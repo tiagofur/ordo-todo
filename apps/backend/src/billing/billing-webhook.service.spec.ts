@@ -3,7 +3,12 @@ import { SubscriptionStatus } from '@prisma/client';
 import type Stripe from 'stripe';
 import { PrismaService } from '../database/prisma.service';
 import { BillingConfig } from './billing.config';
-import { BillingWebhookService } from './billing-webhook.service';
+import {
+  BillingWebhookService,
+  intervalFromMetadata,
+  mapStatus,
+  planFromMetadata,
+} from './billing-webhook.service';
 import { StripeService } from './stripe.service';
 
 const TEST_PRICES = {
@@ -35,6 +40,37 @@ const stripeSubscription = (overrides: Partial<Record<string, unknown>> = {}) =>
     },
     ...overrides,
   }) as unknown as Stripe.Subscription;
+
+describe('mappers (plan/interval/status desde Stripe)', () => {
+  it('mapStatus cubre los 8 estados de la API de Stripe', () => {
+    expect(mapStatus('active')).toBe(SubscriptionStatus.ACTIVE);
+    expect(mapStatus('trialing')).toBe(SubscriptionStatus.TRIALING);
+    expect(mapStatus('past_due')).toBe(SubscriptionStatus.PAST_DUE);
+    expect(mapStatus('canceled')).toBe(SubscriptionStatus.CANCELED);
+    expect(mapStatus('unpaid')).toBe(SubscriptionStatus.UNPAID);
+    expect(mapStatus('incomplete')).toBe(SubscriptionStatus.INCOMPLETE);
+    expect(mapStatus('incomplete_expired')).toBe(
+      SubscriptionStatus.INCOMPLETE_EXPIRED,
+    );
+    expect(mapStatus('paused')).toBe(SubscriptionStatus.UNPAID);
+    expect(mapStatus('desconocido')).toBeNull();
+  });
+
+  it('planFromMetadata normaliza el planId en minúsculas que escribe el checkout', () => {
+    expect(planFromMetadata('pro')).toBe('PRO');
+    expect(planFromMetadata('team')).toBe('TEAM');
+    expect(planFromMetadata('TEAM')).toBe('TEAM');
+    expect(planFromMetadata('enterprise')).toBe('ENTERPRISE');
+    expect(planFromMetadata('gratis')).toBeUndefined();
+    expect(planFromMetadata(undefined)).toBeUndefined();
+  });
+
+  it('intervalFromMetadata mapea month y year', () => {
+    expect(intervalFromMetadata('month')).toBe('MONTH');
+    expect(intervalFromMetadata('year')).toBe('YEAR');
+    expect(intervalFromMetadata('semanal')).toBeUndefined();
+  });
+});
 
 describe('BillingWebhookService (ODD 012 S3)', () => {
   let service: BillingWebhookService;
@@ -263,7 +299,9 @@ describe('BillingWebhookService (ODD 012 S3)', () => {
                 },
               ],
             },
-            metadata: { userId: 'u2', planId: 'TEAM', interval: 'year' },
+            // Valor REAL que escribe el checkout (minúsculas): el fallback
+            // debe normalizarlo, no reventar (hallazgo P2 de revisión).
+            metadata: { userId: 'u2', planId: 'team', interval: 'year' },
           }),
         ),
       );
