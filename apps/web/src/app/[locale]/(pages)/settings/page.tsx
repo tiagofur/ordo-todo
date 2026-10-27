@@ -40,7 +40,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
 import { SessionsManager } from "@/components/settings/sessions-manager";
 import { ConnectedAppsSection } from "@/components/settings/connected-apps-section";
-import { BillingSection } from "@/components/settings/billing-section";
 import { CalendarConnections } from "@/components/settings/calendar-connections";
 import { SlackConnections } from "@/components/settings/slack-connections";
 import { AgentJobsSection } from "@/components/settings/agent-jobs-section";

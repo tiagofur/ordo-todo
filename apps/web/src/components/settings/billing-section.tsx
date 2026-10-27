@@ -56,6 +56,10 @@ export function BillingSection() {
   const [teamSeats, setTeamSeats] = useState(2);
   const [starting, setStarting] = useState<string | null>(null);
   const outcomeHandled = useRef(false);
+  // Descuento derivado de la tabla única — nunca un literal.
+  const annualDiscount = Math.round(
+    (1 - PLANS.pro.annualPriceUsd! / (PLANS.pro.priceUsd! * 12)) * 100,
+  );
 
   const overviewQuery = useQuery({
     queryKey: ["billing-overview"],
@@ -78,7 +82,6 @@ export function BillingSection() {
     url.searchParams.delete("checkout");
     url.searchParams.delete("session_id");
     window.history.replaceState({}, "", url.toString());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutOutcome]);
 
   const daysLeft = useMemo(() => {
@@ -292,7 +295,7 @@ export function BillingSection() {
                 >
                   {i === "month"
                     ? t("plans.monthly")
-                    : t("plans.annual", { discount: 25 })}
+                    : t("plans.annual", { discount: annualDiscount })}
                 </button>
               ))}
             </div>
