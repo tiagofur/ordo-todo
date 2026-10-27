@@ -1,4 +1,51 @@
 {
+  "Billing": {
+    "loading": "Loading your plan…",
+    "checkoutSuccess": "Subscription active! Welcome to Ordo Pro.",
+    "checkoutCanceled": "Checkout canceled — you were not charged.",
+    "errors": {
+      "checkout": "Couldn't start the checkout. Please try again.",
+      "portal": "Couldn't open the billing portal.",
+      "load": "Couldn't load billing information.",
+      "retry": "Retry"
+    },
+    "currentPlan": {
+      "title": "Your plan",
+      "trial": "Ordo Pro trial — ends in {days} {days, plural, one {day} other {days}}",
+      "grace": "Subscription canceled — access until {date}",
+      "renews": "Renews on {date}",
+      "free": "Free plan",
+      "manage": "Manage subscription and invoices",
+      "graceNotice": "You canceled your subscription: you keep Ordo Pro and all your data until {date}. Afterwards you move to the Free plan — nothing is deleted."
+    },
+    "usage": {
+      "projects": "Projects",
+      "workspaces": "Workspaces",
+      "storage": "Storage",
+      "unlimited": "Unlimited",
+      "custom": "Custom",
+      "credits": "AI credits",
+      "creditsPerMonth": "{credits}/month included"
+    },
+    "plans": {
+      "title": "Available plans",
+      "monthly": "Monthly",
+      "annual": "Annual −{discount}%",
+      "pro": "Ordo Pro",
+      "team": "Ordo Team",
+      "current": "Current",
+      "currentPlan": "Current plan",
+      "upgrade": "Choose",
+      "changeTo": "Switch to this plan",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "perSeatPerYear": "/seat/year",
+      "seats": "Seats:",
+      "enterpriseNote": "Need Enterprise (SSO, DPA, custom limits)? Write to"
+    },
+    "pageTitle": "Subscription & billing",
+    "pageSubtitle": "Your plan, current usage and invoices"
+  },
   "Calendar": {
     "title": "Calendar",
     "subtitle": "View and manage your tasks over time",
@@ -250,7 +297,10 @@
       "ranError": "Execution failed",
       "loading": "Loading jobs…",
       "empty": "No jobs yet. Create the first one above."
-    }
+    },
+    "billing": "Subscription & billing",
+    "billingDescription": "Plan, usage, AI credits and invoices",
+    "manageBilling": "Manage"
   },
   "TimerWidget": {
     "startTimer": "Start timer"
@@ -651,7 +701,15 @@
       "anytime": "Anytime"
     },
     "daysOfWeek": {
-      "short": ["S", "M", "T", "W", "T", "F", "S"],
+      "short": [
+        "S",
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S"
+      ],
       "long": [
         "Sunday",
         "Monday",

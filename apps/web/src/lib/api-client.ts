@@ -451,6 +451,51 @@ axiosInstance.interceptors.response.use(
   },
 );
 
+// ============ Billing (ODD 012 T5) ============
+
+export interface BillingLimits {
+  tasks: number;
+  projects: number;
+  workspaces: number;
+  storageGb: number | null;
+  minSeats: number;
+  advancedAi: boolean;
+  aiCreditsPerMonth: number | null;
+}
+
+export interface BillingUsageOverview {
+  plan: "FREE" | "PRO" | "TEAM" | "ENTERPRISE";
+  status: string | null;
+  interval: "MONTH" | "YEAR" | null;
+  seats: number;
+  cancelAtPeriodEnd: boolean;
+  trialEndsAt: string | null;
+  graceEndsAt: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  hasStripeCustomer: boolean;
+  effectivePlan: "free" | "pro" | "team" | "enterprise";
+  limits: BillingLimits;
+  usage: {
+    workspaces: number;
+    projects: number;
+    storageUsedBytes: number;
+  };
+  aiCredits: { balance: number };
+}
+
+export type BillingPlanId = "pro" | "team";
+export type BillingInterval = "month" | "year";
+
+export interface CheckoutSessionResult {
+  url: string;
+  sessionId: string;
+}
+
+export interface PortalSessionResult {
+  url: string;
+}
+
 export const apiClient = {
   // Auth
   // ODD 019: public registration gate ('invite-only' | 'open')
@@ -1379,6 +1424,19 @@ export const apiClient = {
     axiosInstance
       .patch(`/admin/invite-codes/${codeId}`, { isActive: false })
       .then((res) => res.data),
+  // Billing (ODD 012 S6)
+  getBillingOverview: (): Promise<BillingUsageOverview> =>
+    axiosInstance.get("/billing/usage").then((res) => res.data),
+  createCheckoutSession: (
+    planId: BillingPlanId,
+    interval: BillingInterval,
+    seats?: number,
+  ): Promise<CheckoutSessionResult> =>
+    axiosInstance
+      .post("/billing/checkout-session", { planId, interval, seats })
+      .then((res) => res.data),
+  createPortalSession: (): Promise<PortalSessionResult> =>
+    axiosInstance.post("/billing/portal-session").then((res) => res.data),
 };
 
 // Admin panel types (ODD 019 T6)

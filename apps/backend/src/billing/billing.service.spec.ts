@@ -9,6 +9,7 @@ import {
 import { SubscriptionStatus } from '@prisma/client';
 import type Stripe from 'stripe';
 import { PrismaService } from '../database/prisma.service';
+import { PlanLimitsService } from './plan-limits.service';
 import { BillingConfig } from './billing.config';
 import { BillingService } from './billing.service';
 import { StripeService } from './stripe.service';
@@ -29,9 +30,19 @@ describe('BillingService (ODD 012 S2)', () => {
     upsert: jest.fn(),
   };
   const mockUserModel = { findUnique: jest.fn() };
+  const mockWorkspace = { count: jest.fn().mockResolvedValue(0) };
+  const mockProject = { count: jest.fn().mockResolvedValue(0) };
+  const mockAttachment = {
+    aggregate: jest.fn().mockResolvedValue({ _sum: { filesize: 0 } }),
+  };
+  const mockCredits = { findUnique: jest.fn().mockResolvedValue(null) };
   const mockPrisma = {
     subscription: mockSubscriptionModel,
     user: mockUserModel,
+    workspace: mockWorkspace,
+    project: mockProject,
+    attachment: mockAttachment,
+    aiCreditAccount: mockCredits,
   };
 
   const mockCustomersCreate = jest.fn();
@@ -68,6 +79,10 @@ describe('BillingService (ODD 012 S2)', () => {
         BillingConfig,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: StripeService, useValue: getSession() },
+        {
+          provide: PlanLimitsService,
+          useValue: { getEffectivePlanId: jest.fn().mockResolvedValue('free') },
+        },
       ],
     }).compile();
     service = module.get<BillingService>(BillingService);
@@ -283,6 +298,53 @@ describe('BillingService (ODD 012 S2)', () => {
     });
   });
 
+  describe('getUsageOverview (ODD 012 S6/T5)', () => {
+    it('compone estado + límites del plan efectivo + uso + créditos', async () => {
+      mockSubscriptionModel.findUnique.mockResolvedValue({
+        plan: 'PRO',
+        status: 'ACTIVE',
+        interval: 'MONTH',
+        seats: 1,
+        cancelAtPeriodEnd: false,
+        trialEndsAt: null,
+        graceEndsAt: null,
+        currentPeriodStart: new Date(0),
+        stripeCurrentPeriodEnd: new Date(0),
+        stripeCustomerId: 'cus_existing',
+      });
+      mockWorkspace.count.mockResolvedValue(2);
+      mockProject.count.mockResolvedValue(7);
+      mockAttachment.aggregate.mockResolvedValue({ _sum: { filesize: 512 } });
+      mockCredits.findUnique.mockResolvedValue({ balance: 37 });
+
+      const overview = await service.getUsageOverview('u1');
+
+      expect(overview).toEqual(
+        expect.objectContaining({
+          plan: 'PRO',
+          status: 'ACTIVE',
+          effectivePlan: 'free', // el mock por defecto del PlanLimitsService
+          usage: { workspaces: 2, projects: 7, storageUsedBytes: 512 },
+          aiCredits: { balance: 37 },
+        }),
+      );
+      expect(overview.limits.projects).toBe(3); // límites del plan free
+    });
+
+    it('sin cuenta de créditos ni datos → ceros, plan Free', async () => {
+      mockSubscriptionModel.findUnique.mockResolvedValue(null);
+      mockWorkspace.count.mockResolvedValue(0);
+      mockAttachment.aggregate.mockResolvedValue({ _sum: { filesize: null } });
+      mockCredits.findUnique.mockResolvedValue(null);
+
+      const overview = await service.getUsageOverview('u1');
+
+      expect(overview.effectivePlan).toBe('free');
+      expect(overview.aiCredits).toEqual({ balance: 0 });
+      expect(overview.usage.storageUsedBytes).toBe(0);
+    });
+  });
+
   describe('Stripe not configured', () => {
     it('checkout fails with 503 and a clear message', async () => {
       const realKey = process.env.STRIPE_SECRET_KEY;
@@ -301,6 +363,10 @@ describe('BillingService (ODD 012 S2)', () => {
           {
             provide: StripeService,
             useValue: new StripeService(new BillingConfig()),
+          },
+          {
+            provide: PlanLimitsService,
+            useValue: { getEffectivePlanId: jest.fn().mockResolvedValue('free') },
           },
         ],
       }).compile();

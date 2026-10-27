@@ -26,6 +26,7 @@ import {
   Tags,
   ChevronRight,
   Check,
+  CreditCard,
   CalendarDays,
   MessageSquare,
   Bot,
@@ -973,6 +974,24 @@ export default function SettingsPage() {
               <SessionsManager />
 
               <ConnectedAppsSection />
+
+              {/* Suscripción y facturación (página dedicada /settings/billing) */}
+              <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <h3 className="text-base font-semibold text-foreground">{t("billing")}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{t("billingDescription")}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/settings/billing")}
+                    className="rounded-xl border-border/60 gap-2 text-xs font-medium cursor-pointer"
+                  >
+                    <CreditCard className="h-4 w-4 text-violet-500" />
+                    <span>{t("manageBilling")}</span>
+                  </Button>
+                </div>
+              </div>
 
               {/* Tags Management Link */}
               <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-xs">

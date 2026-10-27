@@ -1,4 +1,51 @@
 {
+  "Billing": {
+    "loading": "Carregando seu plano…",
+    "checkoutSuccess": "Assinatura ativa! Boas-vindas ao Ordo Pro.",
+    "checkoutCanceled": "Checkout cancelado — nenhuma cobrança foi feita.",
+    "errors": {
+      "checkout": "Não foi possível iniciar o pagamento. Tente novamente.",
+      "portal": "Não foi possível abrir o portal de faturamento.",
+      "load": "Não foi possível carregar as informações de billing.",
+      "retry": "Tentar novamente"
+    },
+    "currentPlan": {
+      "title": "Seu plano",
+      "trial": "Teste do Ordo Pro — termina em {days} {days, plural, one {dia} other {dias}}",
+      "grace": "Assinatura cancelada — acesso até {date}",
+      "renews": "Renova em {date}",
+      "free": "Plano Free",
+      "manage": "Gerenciar assinatura e faturas",
+      "graceNotice": "Você cancelou sua assinatura: mantém o Ordo Pro e todos os seus dados até {date}. Depois passa para o plano Free — nada é apagado."
+    },
+    "usage": {
+      "projects": "Projetos",
+      "workspaces": "Espaços de trabalho",
+      "storage": "Armazenamento",
+      "unlimited": "Ilimitado",
+      "custom": "Sob medida",
+      "credits": "Créditos de IA",
+      "creditsPerMonth": "{credits}/mês incluídos"
+    },
+    "plans": {
+      "title": "Planos disponíveis",
+      "monthly": "Mensal",
+      "annual": "Anual −{discount}%",
+      "pro": "Ordo Pro",
+      "team": "Ordo Team",
+      "current": "Atual",
+      "currentPlan": "Plano atual",
+      "upgrade": "Escolher",
+      "changeTo": "Mudar para este plano",
+      "perMonth": "/mês",
+      "perYear": "/ano",
+      "perSeatPerYear": "/assento/ano",
+      "seats": "Assentos:",
+      "enterpriseNote": "Precisa de Enterprise (SSO, DPA, limites sob medida)? Escreva para"
+    },
+    "pageTitle": "Assinatura e faturamento",
+    "pageSubtitle": "Seu plano, uso atual e faturas"
+  },
   "Calendar": {
     "title": "Calendário",
     "subtitle": "Visualize e gerencie suas tarefas ao longo do tempo",
@@ -250,7 +297,10 @@
       "ranError": "A execução falhou",
       "loading": "Carregando jobs…",
       "empty": "Sem jobs ainda. Crie o primeiro acima."
-    }
+    },
+    "billing": "Assinatura e faturamento",
+    "billingDescription": "Plano, uso, créditos de IA e faturas",
+    "manageBilling": "Gerenciar"
   },
   "TimerWidget": {
     "startTimer": "Iniciar cronômetro"
@@ -643,7 +693,15 @@
       "anytime": "Qualquer hora"
     },
     "daysOfWeek": {
-      "short": ["D", "S", "T", "Q", "Q", "S", "S"],
+      "short": [
+        "D",
+        "S",
+        "T",
+        "Q",
+        "Q",
+        "S",
+        "S"
+      ],
       "long": [
         "Domingo",
         "Segunda",
