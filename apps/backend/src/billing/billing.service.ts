@@ -208,8 +208,11 @@ export class BillingService {
   /**
    * Everything the billing UI (T5) needs in one call: subscription state,
    * effective plan with its limits, current usage against them and the AI
-   * credit balance. Usage semantics mirror the enforcement exactly
-   * (workspaces owned, projects in owned workspaces, storage across them).
+   * credit balance. Usage mirrors the enforcement's semantics (owned
+   * workspaces, projects/storage inside them, trash excluded) but
+   * AGGREGATED across all owned workspaces, while the enforcement applies
+   * per workspace — the aggregate is always ≥ any per-workspace count, so
+   * the UI never shows headroom the enforcement would deny.
    */
   async getUsageOverview(
     userId: string,
@@ -224,11 +227,16 @@ export class BillingService {
         where: { ownerId: userId, deletedAt: null },
       }),
       this.prisma.project.count({
-        where: { workspace: { ownerId: userId }, isDeleted: false },
+        where: {
+          workspace: { ownerId: userId, deletedAt: null },
+          isDeleted: false,
+        },
       }),
       this.prisma.attachment.aggregate({
         _sum: { filesize: true },
-        where: { task: { project: { workspace: { ownerId: userId } } } },
+        where: {
+          task: { project: { workspace: { ownerId: userId, deletedAt: null } } },
+        },
       }),
       this.prisma.aiCreditAccount.findUnique({
         where: { userId },

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, ArrowUpRight, Check, CreditCard, Loader2 } from "lucide-react";
 import { Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
+import { PLANS } from "@ordo-todo/config";
 import {
   apiClient,
   type BillingInterval,
@@ -25,11 +26,12 @@ function formatDate(iso: string, locale: string): string {
 }
 
 function formatBytes(bytes: number, locale: string): string {
+  const nf = (v: number, digits = 0) =>
+    new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(v);
   const gb = bytes / GB;
-  if (gb < 0.01) return `${Math.round(bytes / 1e3)} KB`;
-  return gb < 1
-    ? `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(gb * 1000)} MB`
-    : `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(gb)} GB`;
+  if (gb < 0.001) return `${nf(bytes / 1e3)} KB`;
+  if (gb < 1) return `${nf(gb * 1000)} MB`;
+  return `${nf(gb, 1)} GB`;
 }
 
 /** Uso/límite → porcentaje para la barra (0-100; límites -1 = ilimitado). */
@@ -43,13 +45,17 @@ export function BillingSection() {
   const t = useTranslations("Billing");
   const locale = useLocale();
   // Vuelta de Stripe Checkout: se lee una vez al montar (evita el boundary
-  // de Suspense que useSearchParams exige en Next 16).
-  const [checkoutOutcome] = useState(
-    () => new URLSearchParams(window.location.search).get("checkout"),
+  // de Suspense que useSearchParams exige en Next 16). Guard SSR: este
+  // componente solo se renderiza en cliente (páginas "use client").
+  const [checkoutOutcome] = useState(() =>
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("checkout"),
   );
   const [interval, setInterval] = useState<BillingInterval>("year");
   const [teamSeats, setTeamSeats] = useState(2);
   const [starting, setStarting] = useState<string | null>(null);
+  const outcomeHandled = useRef(false);
 
   const overviewQuery = useQuery({
     queryKey: ["billing-overview"],
@@ -57,9 +63,11 @@ export function BillingSection() {
   });
   const overview: BillingUsageOverview | undefined = overviewQuery.data;
 
-  // Resultado de la vuelta de Stripe Checkout
+  // Resultado de la vuelta de Stripe Checkout (una sola vez: StrictMode
+  // monta dos veces en dev)
   useEffect(() => {
-    if (!checkoutOutcome) return;
+    if (!checkoutOutcome || outcomeHandled.current) return;
+    outcomeHandled.current = true;
     if (checkoutOutcome === "success") {
       toast.success(t("checkoutSuccess"));
       overviewQuery.refetch();
@@ -68,6 +76,7 @@ export function BillingSection() {
     }
     const url = new URL(window.location.href);
     url.searchParams.delete("checkout");
+    url.searchParams.delete("session_id");
     window.history.replaceState({}, "", url.toString());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutOutcome]);
@@ -112,6 +121,26 @@ export function BillingSection() {
     }
   };
 
+  if (overviewQuery.isError) {
+    return (
+      <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-xs">
+        <div className="flex flex-col items-start gap-3 text-sm">
+          <span className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-4 w-4" />
+            {t("errors.load")}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => overviewQuery.refetch()}
+          >
+            {t("errors.retry")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (overviewQuery.isLoading || !overview) {
     return (
       <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-xs">
@@ -147,7 +176,6 @@ export function BillingSection() {
     },
   ];
 
-  const isPaidPlan = ["PRO", "TEAM", "ENTERPRISE"].includes(overview.plan);
   const trialActive = overview.status === "TRIALING";
 
   return (
@@ -275,14 +303,12 @@ export function BillingSection() {
               const isCurrent =
                 (planId === "pro" && overview.plan === "PRO") ||
                 (planId === "team" && overview.plan === "TEAM");
+              // Precios SIEMPRE de la tabla única (ODD 012 S1) — nunca
+              // hardcodeados aquí.
               const price =
-                planId === "pro"
-                  ? interval === "month"
-                    ? 9
-                    : 81
-                  : interval === "month"
-                    ? 19
-                    : 171;
+                interval === "month"
+                  ? PLANS[planId].priceUsd!
+                  : PLANS[planId].annualPriceUsd!;
               return (
                 <div
                   key={planId}
@@ -323,7 +349,10 @@ export function BillingSection() {
                         value={teamSeats}
                         onChange={(e) =>
                           setTeamSeats(
-                            Math.max(2, parseInt(e.target.value || "2", 10)),
+                            Math.min(
+                              999,
+                              Math.max(2, parseInt(e.target.value || "2", 10)),
+                            ),
                           )
                         }
                         className="ml-2 w-20 rounded-md border border-border bg-background px-2 py-1 text-foreground"

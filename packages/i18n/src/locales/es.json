@@ -5,7 +5,9 @@
     "checkoutCanceled": "Checkout cancelado — no se hizo ningún cargo.",
     "errors": {
       "checkout": "No se pudo iniciar el pago. Inténtalo de nuevo.",
-      "portal": "No se pudo abrir el portal de facturación."
+      "portal": "No se pudo abrir el portal de facturación.",
+      "load": "No se pudo cargar la información de billing.",
+      "retry": "Reintentar"
     },
     "currentPlan": {
       "title": "Tu plan",
@@ -40,7 +42,9 @@
       "perSeatPerYear": "/asiento/año",
       "seats": "Asientos:",
       "enterpriseNote": "¿Necesitas Enterprise (SSO, DPA, límites a medida)? Escríbenos a"
-    }
+    },
+    "pageTitle": "Suscripción y facturación",
+    "pageSubtitle": "Tu plan, uso actual y facturas"
   },
   "Calendar": {
     "title": "Calendario",
@@ -293,7 +297,10 @@
       "ranError": "Falló la ejecución",
       "loading": "Cargando jobs…",
       "empty": "Sin jobs todavía. Crea el primero arriba."
-    }
+    },
+    "billing": "Suscripción y facturación",
+    "billingDescription": "Plan, uso, créditos de IA y facturas",
+    "manageBilling": "Gestionar"
   },
   "TimerWidget": {
     "startTimer": "Iniciar timer"
@@ -694,7 +701,15 @@
       "anytime": "Cualquier momento"
     },
     "daysOfWeek": {
-      "short": ["D", "L", "M", "X", "J", "V", "S"],
+      "short": [
+        "D",
+        "L",
+        "M",
+        "X",
+        "J",
+        "V",
+        "S"
+      ],
       "long": [
         "Domingo",
         "Lunes",

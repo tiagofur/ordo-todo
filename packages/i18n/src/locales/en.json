@@ -5,7 +5,9 @@
     "checkoutCanceled": "Checkout canceled — you were not charged.",
     "errors": {
       "checkout": "Couldn't start the checkout. Please try again.",
-      "portal": "Couldn't open the billing portal."
+      "portal": "Couldn't open the billing portal.",
+      "load": "Couldn't load billing information.",
+      "retry": "Retry"
     },
     "currentPlan": {
       "title": "Your plan",
@@ -40,7 +42,9 @@
       "perSeatPerYear": "/seat/year",
       "seats": "Seats:",
       "enterpriseNote": "Need Enterprise (SSO, DPA, custom limits)? Write to"
-    }
+    },
+    "pageTitle": "Subscription & billing",
+    "pageSubtitle": "Your plan, current usage and invoices"
   },
   "Calendar": {
     "title": "Calendar",
@@ -293,7 +297,10 @@
       "ranError": "Execution failed",
       "loading": "Loading jobs…",
       "empty": "No jobs yet. Create the first one above."
-    }
+    },
+    "billing": "Subscription & billing",
+    "billingDescription": "Plan, usage, AI credits and invoices",
+    "manageBilling": "Manage"
   },
   "TimerWidget": {
     "startTimer": "Start timer"
@@ -694,7 +701,15 @@
       "anytime": "Anytime"
     },
     "daysOfWeek": {
-      "short": ["S", "M", "T", "W", "T", "F", "S"],
+      "short": [
+        "S",
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S"
+      ],
       "long": [
         "Sunday",
         "Monday",
