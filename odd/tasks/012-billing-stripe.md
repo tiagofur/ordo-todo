@@ -55,3 +55,4 @@ Fuera de alcance: SSO (008), teams multi-seat avanzado (roles básicos sí via w
 ## Log
 
 L1. "planeamos la mejor app que se pueda tener en el mundo" + corrección de promesas comerciales sin backend (mensaje y auditoría del 2026-10-18; este doc convierte pricing en realidad).
+L2. Números de negocio cerrados con el owner (2026-10-26, registrados en #240): Pro $9/mes o $81/año; Team $19/seat/mes o $171/seat/año (anual −25%); Free $0; Enterprise custom; solo USD. IA incluida en Pro/Team como recarga mensual de créditos del ledger existente (Pro 500/mes, Team 500/seat/mes, Free solo trial único de 100); packs aparte (~$10/1.000, ancla Notion) diferidos hasta GA de agentes externos. T1 extendido: `annualPriceUsd` + `aiCreditsPerMonth` en la tabla única.
