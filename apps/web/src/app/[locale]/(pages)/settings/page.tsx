@@ -39,6 +39,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
 import { SessionsManager } from "@/components/settings/sessions-manager";
 import { ConnectedAppsSection } from "@/components/settings/connected-apps-section";
+import { BillingSection } from "@/components/settings/billing-section";
 import { CalendarConnections } from "@/components/settings/calendar-connections";
 import { SlackConnections } from "@/components/settings/slack-connections";
 import { AgentJobsSection } from "@/components/settings/agent-jobs-section";
@@ -973,6 +974,8 @@ export default function SettingsPage() {
               <SessionsManager />
 
               <ConnectedAppsSection />
+
+              <BillingSection />
 
               {/* Tags Management Link */}
               <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-xs">

@@ -1,4 +1,47 @@
 {
+  "Billing": {
+    "loading": "Cargando tu plan…",
+    "checkoutSuccess": "¡Suscripción activa! Bienvenida a Ordo Pro.",
+    "checkoutCanceled": "Checkout cancelado — no se hizo ningún cargo.",
+    "errors": {
+      "checkout": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+      "portal": "No se pudo abrir el portal de facturación."
+    },
+    "currentPlan": {
+      "title": "Tu plan",
+      "trial": "Prueba de Ordo Pro — termina en {days} {days, plural, one {día} other {días}}",
+      "grace": "Suscripción cancelada — acceso hasta el {date}",
+      "renews": "Se renueva el {date}",
+      "free": "Plan Free",
+      "manage": "Gestionar suscripción y facturas",
+      "graceNotice": "Cancelaste tu suscripción: mantienes Ordo Pro y todos tus datos hasta el {date}. Después pasarás al plan Free — nada se borra."
+    },
+    "usage": {
+      "projects": "Proyectos",
+      "workspaces": "Espacios de trabajo",
+      "storage": "Almacenamiento",
+      "unlimited": "Ilimitado",
+      "custom": "A medida",
+      "credits": "Créditos de IA",
+      "creditsPerMonth": "{credits}/mes incluidos"
+    },
+    "plans": {
+      "title": "Planes disponibles",
+      "monthly": "Mensual",
+      "annual": "Anual −{discount}%",
+      "pro": "Ordo Pro",
+      "team": "Ordo Team",
+      "current": "Actual",
+      "currentPlan": "Plan actual",
+      "upgrade": "Elegir",
+      "changeTo": "Cambiar a este plan",
+      "perMonth": "/mes",
+      "perYear": "/año",
+      "perSeatPerYear": "/asiento/año",
+      "seats": "Asientos:",
+      "enterpriseNote": "¿Necesitas Enterprise (SSO, DPA, límites a medida)? Escríbenos a"
+    }
+  },
   "Calendar": {
     "title": "Calendario",
     "subtitle": "Visualiza y gestiona tus tareas en el tiempo",
