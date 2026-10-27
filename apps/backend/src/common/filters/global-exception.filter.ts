@@ -53,6 +53,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let message = 'Internal server error';
     let error = 'Internal Server Error';
     let code: string | undefined;
+    let extra: Record<string, unknown> | undefined;
 
     // Handle HttpException
     if (exception instanceof HttpException) {
@@ -68,6 +69,22 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         // frontend can map them to precise messages.
         if (typeof responseObj.code === 'string') {
           code = responseObj.code;
+        }
+        // Preserve any other machine-readable fields the exception carries
+        // (ODD 012 PLAN_LIMIT_REACHED: plan, resource, limit, upgradeUrl) —
+        // without this they never reach the client.
+        const handled = new Set([
+          'statusCode',
+          'message',
+          'error',
+          'code',
+          'timestamp',
+          'path',
+        ]);
+        for (const [key, value] of Object.entries(responseObj)) {
+          if (!handled.has(key) && value !== undefined) {
+            (extra ??= {})[key] = value;
+          }
         }
       }
     }
@@ -117,6 +134,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message,
       error,
       ...(code ? { code } : {}),
+      ...(extra ?? {}),
     };
 
     // Log the error

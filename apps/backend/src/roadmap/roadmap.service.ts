@@ -4,8 +4,9 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { RoadmapItem, RoadmapVote, calculateVoteWeight } from '@ordo-todo/core';
+import { RoadmapItem, RoadmapVote } from '@ordo-todo/core';
 import type { IRoadmapRepository } from '@ordo-todo/core';
+import { PLANS, type PlanId } from '@ordo-todo/config';
 import { PrismaService } from '../database/prisma.service';
 import { CreateRoadmapItemDto } from './dto/create-roadmap-item.dto';
 import { UpdateRoadmapItemStatusDto } from './dto/update-roadmap-item-status.dto';
@@ -46,7 +47,7 @@ export class RoadmapService {
 
   async updateStatus(id: string, dto: UpdateRoadmapItemStatusDto) {
     await this.findOne(id);
-    return this.roadmapRepository.updateItem(id, { status: dto.status as any });
+    return this.roadmapRepository.updateItem(id, { status: dto.status });
   }
 
   async delete(id: string) {
@@ -78,7 +79,9 @@ export class RoadmapService {
 
     let weight = 1;
     if (user.subscription && user.subscription.status === 'ACTIVE') {
-      weight = calculateVoteWeight(user.subscription.plan);
+      // ODD 012 S4: el peso sale de la tabla única de planes.
+      const planId = user.subscription.plan.toLowerCase() as PlanId;
+      weight = PLANS[planId]?.voteWeight ?? 1;
     }
 
     const vote = RoadmapVote.create({

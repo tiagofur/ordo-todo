@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PlanLimitsService } from '../billing/plan-limits.service';
 import { ProjectsService } from './projects.service';
 import { PrismaService } from '../database/prisma.service';
 
@@ -24,6 +25,14 @@ describe('ProjectsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProjectsService,
+        {
+          provide: PlanLimitsService,
+          useValue: {
+            assertWithinWorkspaceLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinProjectLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinTaskStorageLimit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         {
           provide: 'ProjectRepository',
           useValue: mockProjectRepository,

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
+import { BillingModule } from '../billing/billing.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
@@ -9,7 +10,13 @@ import { WorkspacesModule } from '../workspaces/workspaces.module';
 import { AIModule } from '../ai/ai.module';
 
 @Module({
-  imports: [DatabaseModule, RepositoriesModule, WorkspacesModule, AIModule],
+  imports: [
+    DatabaseModule,
+    RepositoriesModule,
+    WorkspacesModule,
+    AIModule,
+    BillingModule,
+  ],
   controllers: [ProjectsController],
   providers: [ProjectsService, ProjectGuard],
   exports: [ProjectsService],

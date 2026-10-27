@@ -1,4 +1,4 @@
-import { ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { GlobalExceptionFilter } from './global-exception.filter';
 
@@ -50,5 +50,40 @@ describe('GlobalExceptionFilter (headersSent)', () => {
       expect.any(String),
     );
     warn.mockRestore();
+  });
+
+  // ODD 012 S4: el payload accionable de los límites de plan debe llegar
+  // íntegro al cliente (plan, resource, limit, upgradeUrl), no solo
+  // message/error/code.
+  it('preserva los campos extra de una HttpException de objeto en el cuerpo serializado', () => {
+    const { host, httpAdapterHost, reply } = mockHost(false);
+    const filter = new GlobalExceptionFilter(httpAdapterHost);
+    const exception = new HttpException(
+      {
+        message: 'Llegaste al límite de 1 espacios de trabajo en el plan Free.',
+        error: 'PLAN_LIMIT_REACHED',
+        plan: 'free',
+        resource: 'workspaces',
+        limit: 1,
+        upgradeUrl: '/settings/billing',
+      },
+      HttpStatus.PAYMENT_REQUIRED,
+    );
+
+    filter.catch(exception, host);
+
+    expect(reply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        statusCode: HttpStatus.PAYMENT_REQUIRED,
+        message: expect.stringContaining('Llegaste al límite'),
+        error: 'PLAN_LIMIT_REACHED',
+        plan: 'free',
+        resource: 'workspaces',
+        limit: 1,
+        upgradeUrl: '/settings/billing',
+      }),
+      HttpStatus.PAYMENT_REQUIRED,
+    );
   });
 });
