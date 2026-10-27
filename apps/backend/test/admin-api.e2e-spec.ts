@@ -138,7 +138,10 @@ describe('Admin API (e2e)', () => {
     const victim = response.body.users.find(
       (u: { id: string }) => u.id === victimId,
     );
-    expect(victim).toMatchObject({ plan: 'FREE', status: 'ACTIVE' });
+    // ODD 012 S5: toda cuenta nueva arranca con el trial de Pro 14 días
+    // sin tarjeta (plan PRO, status TRIALING en su suscripción). El `status`
+    // de este endpoint es el de la CUENTA (ACTIVE), no el de la suscripción.
+    expect(victim).toMatchObject({ plan: 'PRO', status: 'ACTIVE' });
     expect(Object.keys(victim)).not.toContain('hashedPassword');
   });
 
