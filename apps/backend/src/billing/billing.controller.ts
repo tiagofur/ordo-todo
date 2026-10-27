@@ -61,6 +61,15 @@ export class BillingController {
     return this.billingService.getSubscriptionState(user.id);
   }
 
+  @Get('usage')
+  @ApiOperation({
+    summary:
+      'Plan efectivo, límites, uso actual y saldo de créditos de IA (todo para la UI de billing)',
+  })
+  getUsage(@CurrentUser() user: RequestUser) {
+    return this.billingService.getUsageOverview(user.id);
+  }
+
   /**
    * Stripe calls this with the raw body; the signature check needs those
    * exact bytes, hence request.rawBody (enabled in main.ts). @Public()

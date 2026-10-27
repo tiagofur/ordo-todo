@@ -11,10 +11,12 @@ import {
   SubscriptionPlan,
   SubscriptionStatus,
 } from '@prisma/client';
+import { PLANS, type PlanId } from '@ordo-todo/config';
 import Stripe from 'stripe';
 import { PrismaService } from '../database/prisma.service';
 import { BillingConfig } from './billing.config';
 import { StripeService } from './stripe.service';
+import { PlanLimitsService } from './plan-limits.service';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
 
 export interface CheckoutSessionResult {
@@ -24,6 +26,17 @@ export interface CheckoutSessionResult {
 
 export interface PortalSessionResult {
   url: string;
+}
+
+export interface UsageOverviewDto extends SubscriptionStateDto {
+  effectivePlan: PlanId;
+  limits: (typeof PLANS)[PlanId]['limits'];
+  usage: {
+    workspaces: number;
+    projects: number;
+    storageUsedBytes: number;
+  };
+  aiCredits: { balance: number };
 }
 
 export interface SubscriptionStateDto {
@@ -53,6 +66,7 @@ export class BillingService {
     private readonly prisma: PrismaService,
     private readonly stripeService: StripeService,
     private readonly billingConfig: BillingConfig,
+    private readonly planLimits: PlanLimitsService,
   ) {}
 
   async createCheckoutSession(
@@ -188,6 +202,50 @@ export class BillingService {
       currentPeriodStart: subscription.currentPeriodStart,
       currentPeriodEnd: subscription.stripeCurrentPeriodEnd,
       hasStripeCustomer: Boolean(subscription.stripeCustomerId),
+    };
+  }
+
+  /**
+   * Everything the billing UI (T5) needs in one call: subscription state,
+   * effective plan with its limits, current usage against them and the AI
+   * credit balance. Usage semantics mirror the enforcement exactly
+   * (workspaces owned, projects in owned workspaces, storage across them).
+   */
+  async getUsageOverview(
+    userId: string,
+    now: Date = new Date(),
+  ): Promise<UsageOverviewDto> {
+    const state = await this.getSubscriptionState(userId);
+    const planId = await this.planLimits.getEffectivePlanId(userId, now);
+    const limits = PLANS[planId].limits;
+
+    const [workspaces, projects, storage, credits] = await Promise.all([
+      this.prisma.workspace.count({
+        where: { ownerId: userId, deletedAt: null },
+      }),
+      this.prisma.project.count({
+        where: { workspace: { ownerId: userId }, isDeleted: false },
+      }),
+      this.prisma.attachment.aggregate({
+        _sum: { filesize: true },
+        where: { task: { project: { workspace: { ownerId: userId } } } },
+      }),
+      this.prisma.aiCreditAccount.findUnique({
+        where: { userId },
+        select: { balance: true },
+      }),
+    ]);
+
+    return {
+      ...state,
+      effectivePlan: planId,
+      limits,
+      usage: {
+        workspaces,
+        projects,
+        storageUsedBytes: storage._sum.filesize ?? 0,
+      },
+      aiCredits: { balance: credits?.balance ?? 0 },
     };
   }
 
