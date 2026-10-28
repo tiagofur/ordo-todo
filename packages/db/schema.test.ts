@@ -323,9 +323,11 @@ describe('Schema Structure', () => {
       expect(titleMatch?.[1]).not.toContain('?');
     });
 
-    it('should require projectId on Task', () => {
+    it('should allow nullable projectId on Task (tareas express, ODD 021)', () => {
       const taskMatch = schemaContent.match(/model Task\s*([\s\S]*?)\n(?:model|enum)/);
-      expect(taskMatch?.[1]).toMatch(/projectId\s+String(?!\?)/);
+      expect(taskMatch?.[1]).toMatch(/projectId\s+String\?/);
+      // La relación es opcional en el lado de Task
+      expect(taskMatch?.[1]).toMatch(/project\s+Project\?\s+@relation\(fields:\s*\[projectId\]/);
     });
 
     it('should require ownerId on Task', () => {

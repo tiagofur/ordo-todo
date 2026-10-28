@@ -115,7 +115,7 @@ Esperado: migración aplica sin datos tocados; specs nuevos RED antes de impleme
 | --- | ----- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------- |
 | T1  | S1–S4 | PR 1: schema + core + api-client + backend (guards/servicio/repo) con tests                       | bottom-up: Prisma → core → api-client/hooks → guards → service/repo → specs    | COMPLETADO (evidencia en L2) |
 | T2  | S5    | PR 2: web creación sin proyecto (dialog, quick-add, hooks, i18n) + tests                          | schemas.ts → create-task-dialog → quick-add-dialog → i18n → tests              | COMPLETADO (evidencia en L3) |
-| T3  | S6–S7 | PR 3: web visibilidad (workspace/ritual/dashboard), chip "Sin proyecto", papelera + tests + gates | tasks/page → dashboard → ritual → detail-panel → quick-filters → trash → gates | pendiente                    |
+| T3  | S6–S7 | PR 3: web visibilidad (workspace/ritual/dashboard), chip "Sin proyecto", papelera + tests + gates | tasks/page → dashboard → ritual → detail-panel → quick-filters → trash → gates | COMPLETADO (evidencia en L5) |
 
 ## Log
 
@@ -146,3 +146,8 @@ L4. Revisión independiente de PR #431 (2026-10-28): veredicto inicial NO APTO c
   - P1 (pre-existente en main, se corrige aquí porque anula A1): `TaskGuard.getWorkspaceId` clasificaba CUALQUIER petición con `?projectId=` como "deleted endpoint" y autorizaba por membresía del workspace de ESE proyecto sin verificar que la tarea perteneciera a él → `GET /tasks/<cualquier-id>?projectId=<mi-proyecto>` = IDOR cross-workspace. Fix: la rama de papelera solo aplica a la ruta de lista (`/deleted` sin `params.id`); las rutas de tarea resuelven SIEMPRE por la tarea (su projectId/workspace o fallback express). Spec de regresión añadido (miembro de otro proyecto + `?projectId=` → Forbidden por el workspace de la tarea).
   - P2 aceptados/documentados: adjuntos de express fuera del límite de storage por workspace (D6, follow-up límite personal); merge atómico de las 3 PRs recomendado por el revisor (se hará en cadena inmediata #431→#432→#433 para minimizar la ventana sin UI).
   - Evidencia post-fix: `npx jest` backend 140 suites / 1490 tests verdes (3 specs de seguridad nuevos).
+
+L5. Cierre de T3 (2026-10-28, padre). Cambios: filtro workspace incluye express en tasks/page, dashboard y daily-ritual (patrón `!projectId → visible`); chip integrado "Sin proyecto" en QuickFilters (preset sinProyecto, icono inbox) que manda `withoutProject=true` vía useTasks → queryKeys (4º parámetro); task-detail-panel VERIFICADO sin cambios (ya null-safe); papelera: `getDeletedTasks(projectId?)` + hook (undefined=off, ""=express) + dropdown con sentinel `__none__` + banner + clave `UnifiedTrash.noProject` en es/en/pt-br. Evidencia: `npx vitest run` (apps/web) 300/300; `npx turbo run build` 17/17.
+
+L6. Gates finales (2026-10-28): único fallo PRE-EXISTENTE no relacionado: `packages/db/migrations.test.ts` exige nombre `[a-z_]+` y `20261027002055_billing_t2` (mergeado en #414-#422, anterior a esta ODD) contiene un dígito — reportado, fuera de alcance. `schema.test.ts` actualizado al nuevo invariante (`projectId String?` + relación `Project?`).
+

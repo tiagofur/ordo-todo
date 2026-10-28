@@ -116,11 +116,17 @@ export function UnifiedTrashView({
 
   // Tasks
   const { data: allProjects } = useAllProjects();
+  // ODD 021: el sentinel "__none__" (= "Sin proyecto") consulta sin projectId
+  const NO_PROJECT_SENTINEL = "__none__";
+  const isNoProjectSelection = selectedProject === NO_PROJECT_SENTINEL;
+  const deletedTasksProjectId = isNoProjectSelection
+    ? ""
+    : selectedProject || undefined;
   const {
     data: deletedTasks,
     isLoading: isLoadingTasks,
     refetch: refetchTasks,
-  } = useDeletedTasks(selectedProject);
+  } = useDeletedTasks(deletedTasksProjectId);
   const restoreTask = useRestoreTask();
   const permanentDeleteTask = usePermanentDeleteTask();
 
@@ -781,6 +787,7 @@ export function UnifiedTrashView({
                   className="w-full appearance-none rounded-xl border border-input bg-background px-4 py-2.5 pr-10 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
                 >
                   <option value="">{t("allProjects")}</option>
+                  <option value={NO_PROJECT_SENTINEL}>{t("noProject")}</option>
                   {allProjects?.map((project: any) => (
                     <option key={project.id} value={project.id}>
                       {project.name}
@@ -791,7 +798,7 @@ export function UnifiedTrashView({
               </div>
             </div>
 
-            {selectedProjectObj && (
+            {(selectedProjectObj || isNoProjectSelection) && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -804,7 +811,7 @@ export function UnifiedTrashView({
                       {t("viewingTasksFor")}
                     </p>
                     <p className="text-base font-semibold text-purple-900 dark:text-purple-100">
-                      {selectedProjectObj.name}
+                      {selectedProjectObj?.name ?? t("noProject")}
                     </p>
                   </div>
                 </div>

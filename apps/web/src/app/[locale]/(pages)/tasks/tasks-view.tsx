@@ -40,7 +40,7 @@ export function TasksView() {
   const { data: tasks, isLoading } = useTasks(
     filters.projectId,
     filters.tagIds,
-    { assignedToMe: filters.assignedToMe }
+    { assignedToMe: filters.assignedToMe, withoutProject: filters.withoutProject }
   );
   
   const { data: tags } = useTags(selectedWorkspaceId || "");

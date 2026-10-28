@@ -781,9 +781,10 @@ export const apiClient = {
     axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
   deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
-  getDeletedTasks: (projectId: string): Promise<Task[]> =>
+  // ODD 021: sin projectId devuelve las tareas express borradas del usuario
+  getDeletedTasks: (projectId?: string): Promise<Task[]> =>
     axiosInstance
-      .get("/tasks/deleted", { params: { projectId } })
+      .get("/tasks/deleted", { params: projectId ? { projectId } : {} })
       .then((res) => res.data),
   restoreTask: (id: string): Promise<Task> =>
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),

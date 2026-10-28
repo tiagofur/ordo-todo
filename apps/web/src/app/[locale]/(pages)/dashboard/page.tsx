@@ -180,18 +180,21 @@ export default function DashboardPage() {
   const todaysTasks = allTasks.filter((task: Task) => {
     // Workspace isolation filter
     if (selectedWorkspaceId) {
-      const taskWorkspaceId =
-        (task as any).project?.workspace?.id ||
-        (task as any).project?.workspaceId;
-      if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
-        return false;
-      }
-      if (
-        !taskWorkspaceId &&
-        projects.length > 0 &&
-        !projects.some((p: any) => p.id === task.projectId)
-      ) {
-        return false;
+      // ODD 021: tareas express (sin proyecto) son personales → siempre visibles
+      if (task.projectId) {
+        const taskWorkspaceId =
+          (task as any).project?.workspace?.id ||
+          (task as any).project?.workspaceId;
+        if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
+          return false;
+        }
+        if (
+          !taskWorkspaceId &&
+          projects.length > 0 &&
+          !projects.some((p: any) => p.id === task.projectId)
+        ) {
+          return false;
+        }
       }
     }
     // Check if task has dueDate = today

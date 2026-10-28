@@ -16,6 +16,7 @@ import {
   Save,
   Trash2,
   ChevronDown,
+  Inbox,
 } from "lucide-react";
 import {
   Button,
@@ -51,6 +52,8 @@ export interface TaskFilters {
   assignedToMe?: boolean;
   hasSubtasks?: boolean;
   projectId?: string;
+  /** ODD 021: true = solo tareas express (sin proyecto) */
+  withoutProject?: boolean;
   tagIds?: string[];
 }
 
@@ -58,6 +61,14 @@ const STORAGE_KEY = "task-filter-presets";
 
 // Built-in presets
 const builtInPresets: FilterPreset[] = [
+  {
+    id: "sinProyecto",
+    name: "Sin proyecto",
+    icon: "inbox",
+    color: "#6b7280",
+    filters: { withoutProject: true },
+    isBuiltIn: true,
+  },
   {
     id: "urgent",
     name: "Urgentes",
@@ -117,6 +128,7 @@ const iconMap: Record<string, React.ReactNode> = {
   check: <CheckCircle className="h-4 w-4" />,
   star: <Star className="h-4 w-4" />,
   filter: <Filter className="h-4 w-4" />,
+  inbox: <Inbox className="h-4 w-4" />,
 };
 
 interface QuickFiltersProps {

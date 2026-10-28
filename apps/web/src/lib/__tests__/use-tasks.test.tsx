@@ -55,6 +55,31 @@ describe('Task Hooks', () => {
       expect(result.current.data).toEqual(mockTasks);
     });
 
+    it('passes withoutProject to the api client (ODD 021)', async () => {
+      const expressTasks = [
+        { id: '9', title: 'Comprar pan', status: 'TODO', projectId: null },
+      ];
+      const { apiClient } = await import('../api-client');
+      vi.mocked((apiClient as any).getTasks).mockResolvedValue(expressTasks);
+
+      const { result } = renderHook(
+        () => useTasks(undefined, undefined, { withoutProject: true }),
+        { wrapper },
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect((apiClient as any).getTasks).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        undefined,
+        true,
+      );
+      expect(result.current.data).toEqual(expressTasks);
+    });
+
     it('should handle loading state', () => {
       const { result } = renderHook(() => useTasks('project-1'), { wrapper });
 
@@ -89,7 +114,7 @@ describe('Task Hooks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect((apiClient as any).getTasks).toHaveBeenCalledWith('project-1', ['urgent'], undefined);
+      expect((apiClient as any).getTasks).toHaveBeenCalledWith('project-1', ['urgent'], undefined, undefined);
     });
 
     it('should call getTasks without projectId when not provided', async () => {
@@ -106,7 +131,7 @@ describe('Task Hooks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect((apiClient as any).getTasks).toHaveBeenCalledWith(undefined, undefined, undefined);
+      expect((apiClient as any).getTasks).toHaveBeenCalledWith(undefined, undefined, undefined, undefined);
     });
   });
 

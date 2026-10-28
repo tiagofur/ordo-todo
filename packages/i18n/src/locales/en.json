@@ -3019,6 +3019,7 @@
     "viewingTasksFor": "Viewing tasks for",
     "selectWorkspaceFirst": "Select a workspace first",
     "selectProjectFirst": "Select a project first",
+    "noProject": "No project",
     "noDeletedWorkspaces": "No deleted workspaces",
     "noDeletedProjects": "No deleted projects",
     "noDeletedTasks": "No deleted tasks",
