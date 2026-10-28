@@ -60,6 +60,40 @@ export class TaskGuard extends BaseResourceGuard {
       throw new NotFoundException('Task not found');
     }
 
-    return task.project.workspaceId;
+    // ODD 021: task without project ("express") has no workspace context;
+    // falls through to authorizeWithoutWorkspace (owner/assignee check).
+    return task.project?.workspaceId ?? null;
+  }
+
+  /**
+   * ODD 021: authorization fallback when no workspace can be resolved.
+   *
+   * - `GET /tasks/deleted` without `?projectId=`: allowed for any
+   *   authenticated user; the service only ever returns the caller's own
+   *   deleted express tasks.
+   * - Task-scoped routes on a task without project ("express"): owner or
+   *   assignee only — express tasks never inherit workspace memberships.
+   */
+  protected async authorizeWithoutWorkspace(
+    request: any,
+    user: { id: string },
+  ): Promise<boolean> {
+    const isDeletedEndpoint =
+      request.route?.path?.includes('deleted') ||
+      request.url?.includes('/deleted');
+    if (isDeletedEndpoint && request.query?.projectId === undefined) {
+      return true;
+    }
+
+    const taskId = request.params?.id;
+    if (!taskId) return false;
+
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      select: { ownerId: true, assigneeId: true },
+    });
+    if (!task) return false;
+
+    return task.ownerId === user.id || task.assigneeId === user.id;
   }
 }

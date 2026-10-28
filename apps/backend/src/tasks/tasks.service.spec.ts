@@ -33,6 +33,7 @@ describe('TasksService', () => {
     findTodayTasks: jest.fn(),
     findScheduledTasks: jest.fn(),
     findAvailableTasks: jest.fn(),
+    findDeleted: jest.fn(),
   };
 
   const mockAnalyticsRepository = {
@@ -187,6 +188,21 @@ describe('TasksService', () => {
       });
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('task-1');
+    });
+
+    it('passes withoutProject through to the repository (ODD 021)', async () => {
+      const userId = 'user-123';
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue([]);
+
+      await service.findAll(userId, undefined, undefined, undefined, true);
+
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
+        projectId: undefined,
+        tags: undefined,
+        withoutProject: true,
+      });
     });
 
     it('should filter out subtasks', async () => {
@@ -513,6 +529,61 @@ describe('TasksService', () => {
       expect(mockNotificationsService.create).not.toHaveBeenCalled();
     });
 
+    // ODD 021: tareas express (sin proyecto)
+    it('creates an express task without projectId, assigned to the creator', async () => {
+      const userId = 'user-123';
+      const createTaskDto = {
+        title: 'Comprar pan',
+      };
+
+      const mockTask = {
+        id: 'task-exp-1',
+        props: {
+          id: 'task-exp-1',
+          title: 'Comprar pan',
+          ownerId: userId,
+          assigneeId: userId,
+          projectId: null,
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockPrismaService.project.findUnique = jest.fn();
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask as any);
+
+      const result = await service.create(createTaskDto, userId);
+
+      expect(executeSpy).toHaveBeenCalledWith({
+        ...createTaskDto,
+        ownerId: userId,
+        assigneeId: userId,
+      });
+      // Sin proyecto no hay lookup de workspace
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+      expect(result).toEqual(mockTask.props);
+    });
+
+    it('rejects an express task assigned to another user', async () => {
+      const userId = 'user-123';
+      const createTaskDto = {
+        title: 'Comprar pan',
+        assigneeId: 'user-999',
+      };
+
+      mockPrismaService.project.findUnique = jest.fn();
+
+      await expect(service.create(createTaskDto, userId)).rejects.toThrow(
+        new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE'),
+      );
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+    });
+
     it('should update daily metrics when creating task', async () => {
       const userId = 'user-123';
       const createTaskDto = {
@@ -655,6 +726,67 @@ describe('TasksService', () => {
       });
 
       expect(result).toEqual(mockSubtask.props);
+    });
+
+    // ODD 021: subtarea de tarea express hereda projectId null
+    it('inherits null projectId from an express parent and rejects foreign assignee', async () => {
+      const userId = 'user-123';
+      const parentTaskId = 'task-parent-exp';
+
+      const mockParentTask = {
+        id: parentTaskId,
+        props: {
+          id: parentTaskId,
+          projectId: null,
+        },
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockParentTask);
+      mockPrismaService.project.findUnique = jest.fn();
+
+      await expect(
+        service.createSubtask(
+          parentTaskId,
+          { title: 'Sub express', assigneeId: 'user-999' } as any,
+          userId,
+        ),
+      ).rejects.toThrow(
+        new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE'),
+      );
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getDeleted (ODD 021)', () => {
+    it('lists deleted tasks of a project (flujo actual)', async () => {
+      mockTaskRepository.findDeleted.mockResolvedValue([]);
+
+      await service.getDeleted('project-1');
+
+      expect(mockTaskRepository.findDeleted).toHaveBeenCalledWith(
+        'project-1',
+        undefined,
+      );
+    });
+
+    it('scopes no-project deleted tasks to the requesting user', async () => {
+      mockTaskRepository.findDeleted.mockResolvedValue([]);
+
+      await service.getDeleted(undefined, 'user-1');
+
+      expect(mockTaskRepository.findDeleted).toHaveBeenCalledWith(
+        null,
+        'user-1',
+      );
+    });
+
+    it('rejects when neither projectId nor userId is provided', async () => {
+      await expect(service.getDeleted(undefined, undefined)).rejects.toThrow(
+        new BadRequestException(
+          'userId is required to list deleted tasks without project',
+        ),
+      );
+      expect(mockTaskRepository.findDeleted).not.toHaveBeenCalled();
     });
   });
 

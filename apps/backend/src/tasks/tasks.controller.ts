@@ -338,8 +338,9 @@ export class TasksController {
   })
   @ApiResponseDecorator({ status: 200, description: 'Deleted tasks retrieved' })
   @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
-  getDeleted(@Query('projectId') projectId: string) {
-    return this.tasksService.getDeleted(projectId);
+  getDeleted(@Query('projectId') projectId?: string, @CurrentUser() user?: RequestUser) {
+    // ODD 021: sin projectId devuelve las tareas express borradas del usuario
+    return this.tasksService.getDeleted(projectId, user?.id);
   }
 
   /**
@@ -429,9 +430,16 @@ export class TasksController {
     @Query('projectId') projectId?: string,
     @Query('tags') tags?: string | string[],
     @Query('assignedToMe') assignedToMe?: string,
+    @Query('withoutProject') withoutProject?: string,
   ) {
     const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
     const filterAssignedToMe = assignedToMe === 'true';
+    const filterWithoutProject = withoutProject === 'true';
+    if (projectId && filterWithoutProject) {
+      throw new BadRequestException(
+        'projectId and withoutProject are mutually exclusive',
+      );
+    }
     this.logger.debug(`Received tags query param: ${JSON.stringify(tags)}`);
     this.logger.debug(`Processed tagList: ${JSON.stringify(tagList)}`);
     this.logger.debug(`Filter assignedToMe: ${filterAssignedToMe}`);
@@ -440,6 +448,7 @@ export class TasksController {
       projectId,
       tagList,
       filterAssignedToMe,
+      filterWithoutProject,
     );
   }
 

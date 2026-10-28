@@ -102,10 +102,19 @@ export class TasksService {
    * @see {@link ../../packages/core/src/tasks/task.entity.ts | Task Entity}
    */
   async create(createTaskDto: CreateTaskDto, userId: string) {
-    await this.assertAssigneeIsWorkspaceMember(
-      createTaskDto.assigneeId,
-      createTaskDto.projectId,
-    );
+    // ODD 021: una tarea express (sin projectId) es personal del creador;
+    // sin proyecto no hay workspace contra el que validar asignaciones.
+    if (createTaskDto.projectId) {
+      await this.assertAssigneeIsWorkspaceMember(
+        createTaskDto.assigneeId,
+        createTaskDto.projectId,
+      );
+    } else if (
+      createTaskDto.assigneeId &&
+      createTaskDto.assigneeId !== userId
+    ) {
+      throw new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE');
+    }
 
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const task = await createTaskUseCase.execute({
@@ -267,6 +276,7 @@ export class TasksService {
     projectId?: string,
     tags?: string[],
     assignedToMe?: boolean,
+    withoutProject?: boolean,
   ) {
     try {
       this.logger.debug(
@@ -279,6 +289,7 @@ export class TasksService {
         {
           projectId,
           tags,
+          withoutProject,
         },
       );
       this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
@@ -699,10 +710,18 @@ export class TasksService {
       }
 
       if (updateTaskDto.assigneeId !== undefined) {
-        await this.assertAssigneeIsWorkspaceMember(
-          updateTaskDto.assigneeId,
-          task.props.projectId,
-        );
+        if (task.props.projectId) {
+          await this.assertAssigneeIsWorkspaceMember(
+            updateTaskDto.assigneeId,
+            task.props.projectId,
+          );
+        } else if (
+          updateTaskDto.assigneeId !== null &&
+          updateTaskDto.assigneeId !== userId
+        ) {
+          // ODD 021: tarea express — solo su dueño puede estar asignado
+          throw new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE');
+        }
       }
 
       const oldTask = task.props;
@@ -950,20 +969,31 @@ export class TasksService {
   }
 
   /**
-   * Retrieves soft-deleted tasks for a project.
+   * Retrieves soft-deleted tasks for a project, or the caller's own deleted
+   * express tasks when projectId is omitted (ODD 021 S4).
    *
-   * @param projectId - ID of the project
+   * @param projectId - ID of the project; omit to list the user's deleted tasks without project
+   * @param userId - Requesting user (required to scope the no-project listing)
    * @returns List of deleted tasks
    */
-  async getDeleted(projectId: string) {
+  async getDeleted(projectId?: string, userId?: string) {
     this.logger.log(
       `[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`,
     );
 
+    if (!projectId && !userId) {
+      throw new BadRequestException(
+        'userId is required to list deleted tasks without project',
+      );
+    }
+
     const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
       this.taskRepository,
     );
-    const result = await getDeletedTasksUseCase.execute(projectId);
+    const result = await getDeletedTasksUseCase.execute(
+      projectId ?? null,
+      userId,
+    );
 
     this.logger.log(
       `[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`,
@@ -1052,10 +1082,18 @@ export class TasksService {
       );
     }
     const projectId = parentTask.props.projectId;
-    await this.assertAssigneeIsWorkspaceMember(
-      createSubtaskDto.assigneeId,
-      projectId,
-    );
+    if (projectId) {
+      await this.assertAssigneeIsWorkspaceMember(
+        createSubtaskDto.assigneeId,
+        projectId,
+      );
+    } else if (
+      createSubtaskDto.assigneeId &&
+      createSubtaskDto.assigneeId !== userId
+    ) {
+      // ODD 021: subtarea de tarea express — solo su dueño puede estar asignado
+      throw new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE');
+    }
 
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const subtask = await createTaskUseCase.execute({

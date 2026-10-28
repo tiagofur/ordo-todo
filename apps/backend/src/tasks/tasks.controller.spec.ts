@@ -169,6 +169,7 @@ describe('TasksController', () => {
         undefined,
         undefined,
         false,
+        false,
       );
     });
 
@@ -186,6 +187,7 @@ describe('TasksController', () => {
         user.id,
         projectId,
         undefined,
+        false,
         false,
       );
     });
@@ -205,7 +207,44 @@ describe('TasksController', () => {
         undefined,
         tags,
         false,
+        false,
       );
+    });
+
+    it('passes withoutProject=true to the service (ODD 021)', async () => {
+      const user = { id: 'user-1', email: 'test@example.com' };
+      (tasksService.findAll as jest.Mock).mockResolvedValue([]);
+
+      await controller.findAll(
+        user as any,
+        undefined,
+        undefined,
+        undefined,
+        'true',
+      );
+
+      expect(tasksService.findAll).toHaveBeenCalledWith(
+        user.id,
+        undefined,
+        undefined,
+        false,
+        true,
+      );
+    });
+
+    it('rejects projectId + withoutProject together', () => {
+      const user = { id: 'user-1', email: 'test@example.com' };
+
+      expect(() =>
+        controller.findAll(
+          user as any,
+          'project-1',
+          undefined,
+          undefined,
+          'true',
+        ),
+      ).toThrow(BadRequestException);
+      expect(tasksService.findAll).not.toHaveBeenCalled();
     });
   });
 

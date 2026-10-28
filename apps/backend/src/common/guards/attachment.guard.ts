@@ -21,7 +21,7 @@ export class AttachmentGuard extends BaseResourceGuard {
           task: { select: { project: { select: { workspaceId: true } } } },
         },
       });
-      return attachment?.task.project.workspaceId ?? null;
+      return attachment?.task.project?.workspaceId ?? null;
     }
 
     if (projectId) {
@@ -37,9 +37,37 @@ export class AttachmentGuard extends BaseResourceGuard {
         where: { id: taskId },
         select: { project: { select: { workspaceId: true } } },
       });
-      return task?.project.workspaceId ?? null;
+      return task?.project?.workspaceId ?? null;
     }
 
     return null;
+  }
+
+  /**
+   * ODD 021: an attachment on a task express (sin proyecto) no tiene
+   * workspace; autoriza por owner/assignee de la tarea.
+   */
+  protected async authorizeWithoutWorkspace(
+    request: any,
+    user: { id: string },
+  ): Promise<boolean> {
+    const attachmentId: string | undefined = request.params?.id;
+    const taskId: string | undefined = attachmentId
+      ? (
+          await this.prisma.attachment.findUnique({
+            where: { id: attachmentId },
+            select: { taskId: true },
+          })
+        )?.taskId
+      : request.body?.taskId;
+    if (!taskId) return false;
+
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      select: { ownerId: true, assigneeId: true },
+    });
+    if (!task) return false;
+
+    return task.ownerId === user.id || task.assigneeId === user.id;
   }
 }

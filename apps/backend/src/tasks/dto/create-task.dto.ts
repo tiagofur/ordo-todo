@@ -93,9 +93,11 @@ export class CreateTaskDto {
   @IsOptional()
   isTimeBlocked?: boolean;
 
+  // Opcional (ODD 021): null/ausente crea una tarea "express" sin proyecto,
+  // personal del creador (sin assignees ajenos — ver TasksService.create)
   @IsString()
-  @MinLength(1)
-  projectId: string;
+  @IsOptional()
+  projectId?: string;
 
   @IsString()
   @IsOptional()
