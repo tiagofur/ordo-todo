@@ -48,6 +48,7 @@ describe('TasksService', () => {
       count: jest.fn(),
       create: jest.fn(),
       findMany: jest.fn(),
+      updateMany: jest.fn(),
     },
     recurrence: {
       delete: jest.fn(),
@@ -910,6 +911,136 @@ describe('TasksService', () => {
 
       expect(result.title).toBe('Updated Title');
       expect('doDate' in result).toBe(true);
+    });
+  });
+
+  describe('move between projects (ODD 021 S9)', () => {
+    const userId = 'user-123';
+    const makeTask = (props: Record<string, unknown>) => ({
+      id: 'task-1',
+      props: { id: 'task-1', ownerId: userId, ...props },
+      update: jest.fn().mockImplementation((patch: Record<string, unknown>) => ({
+        id: 'task-1',
+        props: { ...props, ...patch },
+      })),
+    });
+
+    beforeEach(() => {
+      mockTaskRepository.findById.mockReset();
+      mockTaskRepository.update.mockResolvedValue(undefined);
+      mockActivitiesService.logTaskUpdated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logStatusChanged = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logPriorityChanged = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logDueDateChanged = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logAssigneeChanged = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockNotificationsService.create = jest.fn().mockResolvedValue(undefined);
+      mockPrismaService.task.updateMany = jest
+        .fn()
+        .mockResolvedValue({ count: 0 });
+      mockPrismaService.project.findUnique = jest.fn();
+      mockPrismaService.workspaceMember.findUnique = jest
+        .fn()
+        .mockResolvedValue({ id: 'm1' });
+    });
+
+    it('moves an express task into a project and cascades subtasks', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: null, assigneeId: null, title: 'Express' }),
+      );
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'ws-2',
+        workspace: { ownerId: 'owner-2' },
+      });
+
+      await service.update('task-1', { projectId: 'proj-2' }, userId);
+
+      expect(mockPrismaService.project.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'proj-2' } }),
+      );
+      expect(mockPrismaService.task.updateMany).toHaveBeenCalledWith({
+        where: { parentTaskId: 'task-1' },
+        data: { projectId: 'proj-2' },
+      });
+    });
+
+    it('rejects moving to a project whose workspace the caller is not member of', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: null, assigneeId: null }),
+      );
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'ws-foreign',
+        workspace: { ownerId: 'owner-foreign' },
+      });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.update('task-1', { projectId: 'proj-foreign' }, userId),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects removing to express while a foreign assignee stays', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({
+          projectId: 'proj-1',
+          ownerId: 'user-1',
+          assigneeId: 'user-999',
+        }),
+      );
+
+      await expect(
+        service.update('task-1', { projectId: null }, userId),
+      ).rejects.toThrow(
+        new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE'),
+      );
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects a move whose final assignee is outside the target workspace', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: null, assigneeId: null }),
+      );
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'ws-2',
+        workspace: { ownerId: 'owner-2' },
+      });
+      // el llamador SÍ es miembro del destino; el assignee externo no
+      mockPrismaService.workspaceMember.findUnique.mockImplementation(
+        (args: any) =>
+          args.where.workspaceId_userId.userId === userId
+            ? { id: 'm1' }
+            : null,
+      );
+
+      await expect(
+        service.update(
+          'task-1',
+          { projectId: 'proj-2', assigneeId: 'user-external' },
+          userId,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('plain updates do not consult projects', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: 'proj-1', title: 'T' }),
+      );
+
+      await service.update('task-1', { title: 'Nuevo título' }, userId);
+
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+      expect(mockPrismaService.task.updateMany).not.toHaveBeenCalled();
     });
   });
 

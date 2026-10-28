@@ -8,6 +8,7 @@ import {
   IsBoolean,
   ValidateIf,
   ValidateNested,
+  MinLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateRecurrenceDto } from './create-task.dto';
@@ -78,6 +79,14 @@ export class UpdateTaskDto {
   @IsString()
   @IsOptional()
   assigneeId?: string | null;
+
+  // ODD 021 S9: mover la tarea de proyecto (string) o quitarla a express
+  // (null). Ausente = sin cambio. La validación de destino vive en el servicio.
+  @ValidateIf((_, val) => val !== null)
+  @IsString()
+  @MinLength(1)
+  @IsOptional()
+  projectId?: string | null;
 
   @ValidateIf((_, val) => val !== null)
   @ValidateNested()

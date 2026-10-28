@@ -117,6 +117,8 @@ export interface UpdateTaskDto {
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
+  /** ODD 021 S9: string = mover a ese proyecto; null = quitar a express */
+  projectId?: string | null;
   dueDate?: Date | string | null;
   startDate?: Date | string | null;
   scheduledDate?: Date | string | null;

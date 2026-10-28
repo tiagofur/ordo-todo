@@ -124,6 +124,7 @@ export class PlanLimitsService {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       select: {
+        ownerId: true,
         project: {
           select: {
             workspace: { select: { id: true, ownerId: true } },
@@ -134,16 +135,16 @@ export class PlanLimitsService {
     if (!task) {
       return; // unknown task fails later on its own foreign key
     }
-    // ODD 021: las tareas express viven fuera de todo workspace; el límite
-    // de storage es por workspace (decisión D6 del ODD — follow-up: límite propio)
-    if (!task.project) {
+    // ODD 021 S8: las tareas express viven fuera de todo workspace; su
+    // storage cuenta en una bolsa personal por owner bajo el plan del owner
+    // (follow-up de la decisión D6, antes quedaba fuera de todo límite).
+    const { project } = task;
+    const isExpress = project === null;
+    const planOwnerId = project ? project.workspace.ownerId : task.ownerId;
+    if (!planOwnerId) {
       return;
     }
-    const ownerId = task.project.workspace.ownerId;
-    if (!ownerId) {
-      return;
-    }
-    const planId = await this.getEffectivePlanId(ownerId);
+    const planId = await this.getEffectivePlanId(planOwnerId);
     const storageGb = PLANS[planId].limits.storageGb;
     if (storageGb === null || storageGb === -1) {
       return; // null = custom (enterprise), -1 = unlimited
@@ -151,7 +152,9 @@ export class PlanLimitsService {
     const limitBytes = Math.floor(storageGb * 1e9);
     const used = await this.prisma.attachment.aggregate({
       _sum: { filesize: true },
-      where: { task: { project: { workspaceId: task.project.workspace.id } } },
+      where: project
+        ? { task: { project: { workspaceId: project.workspace.id } } }
+        : { task: { projectId: null, ownerId: task.ownerId } },
     });
     const usedBytes = used._sum.filesize ?? 0;
     if (usedBytes + incomingBytes > limitBytes) {

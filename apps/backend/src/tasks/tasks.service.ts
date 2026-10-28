@@ -5,6 +5,7 @@ import {
   Logger,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   UnauthorizedException,
   Optional,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import type {
   AnalyticsRepository,
   TaskDependencyRepository,
 } from '@ordo-todo/core';
+import type { Task } from '@ordo-todo/core';
 import {
   CreateTaskUseCase,
   CompleteTaskUseCase,
@@ -709,7 +711,21 @@ export class TasksService {
         throw new NotFoundException('Task not found');
       }
 
-      if (updateTaskDto.assigneeId !== undefined) {
+      // ODD 021 S9: cambio de proyecto (mover a proyecto o quitar a express).
+      // Cubre también el assignee final, así que sustituye al check de abajo
+      // cuando hay movimiento.
+      const isProjectMove =
+        updateTaskDto.projectId !== undefined &&
+        updateTaskDto.projectId !== task.props.projectId;
+
+      if (isProjectMove) {
+        await this.assertProjectMove(
+          task,
+          updateTaskDto.projectId as string | null,
+          updateTaskDto.assigneeId,
+          userId,
+        );
+      } else if (updateTaskDto.assigneeId !== undefined) {
         if (task.props.projectId) {
           await this.assertAssigneeIsWorkspaceMember(
             updateTaskDto.assigneeId,
@@ -739,6 +755,15 @@ export class TasksService {
 
       await this.taskRepository.update(updatedTask);
       this.logger.debug(`Task ${id} updated successfully`);
+
+      // ODD 021 S9: las subtareas están ancladas al proyecto del padre —
+      // se mueven en cascada para mantener el invariante.
+      if (isProjectMove) {
+        await this.prisma.task.updateMany({
+          where: { parentTaskId: id },
+          data: { projectId: updateTaskDto.projectId as string | null },
+        });
+      }
 
       // Notify Assignee if changed
       if (
@@ -870,6 +895,85 @@ export class TasksService {
     } catch (error) {
       this.logger.error(`Failed to update task ${id}`, error);
       throw error;
+    }
+  }
+
+  /**
+   * ODD 021 S9: valida un cambio de proyecto de una tarea existente.
+   *
+   * - Destino express (null): la tarea no puede quedar con un assignee
+   *   distinto de su dueño (regla A2).
+   * - Destino proyecto: debe existir y el solicitante debe ser miembro del
+   *   workspace destino (o su owner). El assignee final, si es distinto del
+   *   dueño de la tarea, debe ser miembro del workspace destino.
+   */
+  private async assertProjectMove(
+    task: Task,
+    targetProjectId: string | null,
+    incomingAssigneeId: string | null | undefined,
+    userId: string,
+  ): Promise<void> {
+    const finalAssigneeId =
+      incomingAssigneeId !== undefined
+        ? incomingAssigneeId
+        : task.props.assigneeId;
+
+    if (targetProjectId === null) {
+      if (finalAssigneeId && finalAssigneeId !== task.props.ownerId) {
+        throw new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE');
+      }
+      return;
+    }
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: targetProjectId },
+      select: { workspaceId: true, workspace: { select: { ownerId: true } } },
+    });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    await this.assertWorkspaceMembershipOrOwner(
+      userId,
+      project.workspaceId,
+      project.workspace.ownerId,
+      'You are not a member of the target workspace',
+      ForbiddenException,
+    );
+
+    if (
+      finalAssigneeId &&
+      finalAssigneeId !== task.props.ownerId &&
+      finalAssigneeId !== project.workspace.ownerId
+    ) {
+      await this.assertWorkspaceMembershipOrOwner(
+        finalAssigneeId,
+        project.workspaceId,
+        project.workspace.ownerId,
+        'Assignee must be a member of the target workspace',
+        BadRequestException,
+      );
+    }
+  }
+
+  private async assertWorkspaceMembershipOrOwner(
+    memberUserId: string,
+    workspaceId: string,
+    workspaceOwnerId: string | null,
+    message: string,
+    exception: new (msg: string) => Error,
+  ): Promise<void> {
+    // workspace sin owner (ownerId null): solo cuenta la membresía
+    if (workspaceOwnerId !== null && workspaceOwnerId === memberUserId) return;
+
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId: memberUserId },
+      },
+      select: { id: true },
+    });
+    if (!membership) {
+      throw new exception(message);
     }
   }
 
