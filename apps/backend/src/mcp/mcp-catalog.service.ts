@@ -367,7 +367,12 @@ export class McpCatalogService implements OnModuleInit {
           const enriched = tasks
             .filter((task) => {
               if (args.workspaceId) {
-                const ctx = context.get(task.projectId);
+                // ODD 021: tareas express (projectId null) no pertenecen a
+                // ningún workspace → quedan fuera del filtro
+                const ctx =
+                  task.projectId !== null
+                    ? context.get(task.projectId)
+                    : undefined;
                 if (ctx?.workspaceId !== args.workspaceId) return false;
               }
               if (args.priority && task.priority !== args.priority) {
@@ -384,7 +389,10 @@ export class McpCatalogService implements OnModuleInit {
               return matchesDueFilter(task, args);
             })
             .map((task) => {
-              const ctx = context.get(task.projectId);
+              const ctx =
+                task.projectId !== null
+                  ? context.get(task.projectId)
+                  : undefined;
               return {
                 ...task,
                 projectName: ctx?.name ?? null,
@@ -1154,7 +1162,11 @@ export class McpCatalogService implements OnModuleInit {
           }
           if (args.assigneeId !== null) {
             const context = await this.projectContext(userId);
-            const workspaceId = context.get(task.projectId)?.workspaceId;
+            // ODD 021: tarea express sin proyecto → sin workspace resoluble
+            const workspaceId =
+              task.projectId !== null
+                ? context.get(task.projectId)?.workspaceId
+                : undefined;
             if (!workspaceId) {
               throw new ForbiddenException('Task has no resolvable workspace');
             }

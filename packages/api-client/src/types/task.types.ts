@@ -24,7 +24,8 @@ export interface Task {
   completedAt: Date | null;
   estimatedMinutes: number | null;
   actualMinutes: number | null;
-  projectId: string;
+  /** null = tarea "express" sin proyecto (ODD 021) */
+  projectId: string | null;
   ownerId: string;
   assigneeId: string | null;
   assignee?: {
@@ -78,11 +79,12 @@ export interface TaskDetails extends Task {
   comments: Comment[];
   attachments: Attachment[];
   tags: Tag[];
+  /** null cuando la tarea es express (sin proyecto) */
   project: {
     id: string;
     name: string;
     workspaceId: string;
-  };
+  } | null;
 }
 
 export interface TaskDependency {
@@ -103,7 +105,8 @@ export interface CreateTaskDto {
   scheduledTime?: string;
   scheduledEndTime?: string;
   isTimeBlocked?: boolean;
-  projectId: string;
+  /** Omit/null para crear una tarea express sin proyecto (ODD 021) */
+  projectId?: string | null;
   estimatedMinutes?: number;
   assigneeId?: string;
   recurrence?: CreateRecurrenceDto | null;
@@ -212,6 +215,8 @@ export interface TimeBlock {
  */
 export interface GetTasksParams {
   projectId?: string;
+  /** true = solo tareas express sin proyecto (ODD 021); incompatible con projectId */
+  withoutProject?: boolean;
   tags?: string[];
   assignedToMe?: boolean;
 }

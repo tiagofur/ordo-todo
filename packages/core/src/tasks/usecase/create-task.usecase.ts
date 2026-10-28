@@ -12,7 +12,7 @@ export interface CreateTaskInput {
     scheduledDate?: Date | null;
     scheduledTime?: string | null;
     scheduledEndTime?: string | null;
-    projectId: string;
+    projectId?: string | null;
     ownerId: string;
     assigneeId?: string | null;
     parentTaskId?: string | null;
@@ -37,7 +37,7 @@ export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
             scheduledDate: input.scheduledDate,
             scheduledTime: input.scheduledTime,
             scheduledEndTime: input.scheduledEndTime,
-            projectId: input.projectId,
+            projectId: input.projectId ?? null,
             ownerId: input.ownerId,
             assigneeId: input.assigneeId,
             parentTaskId: input.parentTaskId,

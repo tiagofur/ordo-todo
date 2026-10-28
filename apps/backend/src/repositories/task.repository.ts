@@ -369,7 +369,11 @@ export class PrismaTaskRepository implements TaskRepository {
 
   async findByWorkspaceMemberships(
     userId: string,
-    filters?: { projectId?: string; tags?: string[] },
+    filters?: {
+      projectId?: string;
+      tags?: string[];
+      withoutProject?: boolean;
+    },
   ): Promise<Task[]> {
     const where: any = {
       isDeleted: false,
@@ -395,6 +399,9 @@ export class PrismaTaskRepository implements TaskRepository {
 
     if (filters?.projectId) {
       where.projectId = filters.projectId;
+    } else if (filters?.withoutProject) {
+      // ODD 021: solo tareas express (sin proyecto)
+      where.projectId = null;
     }
 
     if (filters?.tags && filters.tags.length > 0) {
@@ -537,12 +544,36 @@ export class PrismaTaskRepository implements TaskRepository {
     await this.prisma.task.delete({ where: { id } });
   }
 
-  async findDeleted(projectId: string): Promise<Task[]> {
+  /**
+   * Lists soft-deleted tasks. With `projectId`, scoped to that project
+   * (access already authorized via its workspace). With `null`, scoped to the
+   * requesting user's own express tasks (ODD 021) — `userId` is required.
+   */
+  async findDeleted(
+    projectId: string | null,
+    userId?: string,
+  ): Promise<Task[]> {
+    if (!projectId && !userId) {
+      throw new Error('findDeleted: userId is required when projectId is null');
+    }
+
+    const where: {
+      projectId?: string | null;
+      isDeleted: boolean;
+      OR?: Array<Record<string, unknown>>;
+    } = {
+      isDeleted: true,
+    };
+
+    if (projectId) {
+      where.projectId = projectId;
+    } else {
+      where.projectId = null;
+      where.OR = [{ ownerId: userId }, { assigneeId: userId }];
+    }
+
     const tasks = await this.prisma.task.findMany({
-      where: {
-        projectId,
-        isDeleted: true,
-      },
+      where,
       include: {
         subTasks: true,
         recurrence: true,

@@ -16,4 +16,13 @@ export class CreateTaskGuard extends BaseResourceGuard {
 
     return project.workspaceId;
   }
+
+  /**
+   * ODD 021: creating a task without projectId is allowed — it becomes a
+   * personal "express" task of the authenticated user. A projectId that was
+   * provided but fails to resolve keeps the default deny (project not found).
+   */
+  protected async authorizeWithoutWorkspace(request: any): Promise<boolean> {
+    return !request.body?.projectId;
+  }
 }

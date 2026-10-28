@@ -104,7 +104,13 @@ export class CalendarPushService {
     if (!task || task.ownerId !== userId || !task.dueDate) {
       return;
     }
-    const datedTask = { ...task, dueDate: task.dueDate };
+    // ODD 021: las tareas express (sin proyecto) no se sincronizan —
+    // los ajustes de calendario resuelven desde project.settings.calendar
+    const { project, projectId } = task;
+    if (!project || !projectId) {
+      return;
+    }
+    const datedTask = { ...task, dueDate: task.dueDate, project, projectId };
     const integrations = await this.prisma.userIntegration.findMany({
       where: { userId, isActive: true },
     });

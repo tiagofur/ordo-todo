@@ -17,7 +17,7 @@ export interface TaskProps extends EntityProps<string> {
   scheduledEndTime?: string | null; // End time of day (e.g., "15:30")
   isTimeBlocked?: boolean; // Whether task is time blocked in calendar
   completedAt?: Date;
-  projectId: string;
+  projectId: string | null; // null = tarea "express" sin proyecto (ODD 021)
   ownerId: string;
   assigneeId?: string | null;
   parentTaskId?: string | null;
@@ -27,7 +27,7 @@ export interface TaskProps extends EntityProps<string> {
   publicToken?: string;
   energyRequired?: "LOW" | "MEDIUM" | "HIGH";
   tags?: TagProps[];
-  project?: { id: string; name: string; color: string }; // Project information for display
+  project?: { id: string; name: string; color: string } | null; // Project information for display
   assignee?: { id: string; name: string; image?: string }; // Assignee information for display
   owner?: { id: string; name: string; image?: string }; // Owner information for display
   isDeleted: boolean;

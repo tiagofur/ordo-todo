@@ -30,11 +30,9 @@ export class BaseResourceGuard implements CanActivate {
       // For 'Create' operations, subclasses must extract workspaceId from body.
       // For 'List' operations, subclasses must extract from query.
       // If extraction fails, it usually means bad request or unauthorized access attempt.
-      // Let's make it configurable or default to FALSE if the guard is meant to secure resources.
-
-      // NOTE: If getWorkspaceId returns null, it means the specific guard (ProjectGuard/TaskGuard)
-      // failed to find the resource or the ID.
-      return false;
+      // Subclasses may authorize resources without workspace context (e.g. a
+      // task express without project, ODD 021) by overriding the hook below.
+      return this.authorizeWithoutWorkspace(request, user);
     }
 
     const membership = await this.prisma.workspaceMember.findUnique({
@@ -62,6 +60,18 @@ export class BaseResourceGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  /**
+   * Fallback when the subclass cannot resolve a workspace for the request.
+   * Default deny preserves the historical behavior for every subclass;
+   * overrides must be strict (e.g. resource owner only).
+   */
+  protected async authorizeWithoutWorkspace(
+    _request: any,
+    _user: { id: string },
+  ): Promise<boolean> {
+    return false;
   }
 
   protected async getWorkspaceId(request: any): Promise<string | null> {

@@ -1409,16 +1409,18 @@ export class OrdoApiClient {
     return response.data;
   }
   /**
-   * Get all tasks (optionally filtered by project)
-   * GET /tasks?projectId=xxx
+   * Get all tasks (optionally filtered by project, or only express tasks)
+   * GET /tasks?projectId=xxx | GET /tasks?withoutProject=true
    */
   async getTasks(
     projectId?: string,
     tags?: string[],
     assignedToMe?: boolean,
+    withoutProject?: boolean,
   ): Promise<Task[]> {
     const params: GetTasksParams = {};
     if (projectId) params.projectId = projectId;
+    if (withoutProject) params.withoutProject = true;
     if (tags && tags.length > 0) params.tags = tags;
     if (assignedToMe !== undefined) params.assignedToMe = assignedToMe;
 
