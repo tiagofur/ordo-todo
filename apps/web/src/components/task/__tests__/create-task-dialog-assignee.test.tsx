@@ -26,6 +26,7 @@ const hooksState: {
 vi.mock('@/lib/api-hooks', () => ({
   useProject: () => ({ data: hooksState.project }),
   useWorkspaceMembers: () => ({ data: hooksState.members }),
+  useProjects: () => ({ data: [] }),
 }));
 
 vi.mock('../recurrence-selector', () => ({ RecurrenceSelector: () => null }));
