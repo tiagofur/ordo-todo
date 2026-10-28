@@ -17,6 +17,8 @@ import {
   ListTodo,
   ChevronDown,
   Repeat,
+  FolderInput,
+  FolderMinus,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,6 +27,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from '@/components/ui';
 import { 
   useTaskDetails, 
@@ -52,7 +57,9 @@ export interface TaskCompactData {
   dueDate?: Date | string | null;
   estimatedMinutes?: number | null;
   tags?: Array<{ id: string; name: string; color: string }>;
-  project?: { id: string; name: string; color: string };
+  /** ODD 021 S11: null = tarea express sin proyecto */
+  projectId?: string | null;
+  project?: { id: string; name: string; color: string } | null;
   recurrence?: { pattern: string; interval?: number; daysOfWeek?: number[] } | null;
 }
 
@@ -73,6 +80,12 @@ interface TaskCardCompactProps {
   onStatusChange?: (taskId: string, status: string) => void;
   /** Called when delete is requested */
   onDelete?: (taskId: string) => void;
+  /** Projects available to move the task to (ODD 021 S11) */
+  projects?: Array<{ id: string; name: string; color: string }>;
+  /** Called when an express task is moved into a project */
+  onMoveToProject?: (projectId: string) => void;
+  /** Called when a project task is removed back to express */
+  onRemoveFromProject?: () => void;
   /** Detail panel component to render when needed */
   DetailPanel?: ReactNode;
   /** Function to control DetailPanel visibility if passing it as ReactNode is not enough */
@@ -97,6 +110,8 @@ interface TaskCardCompactProps {
     // Actions
     viewDetails?: string;
     delete?: string;
+    moveToProject?: string;
+    removeFromProject?: string;
     // Meta (optional as icons used mostly)
   };
 }
@@ -156,6 +171,9 @@ export function TaskCardCompact({
   onTaskClick,
   onStatusChange,
   onDelete,
+  projects,
+  onMoveToProject,
+  onRemoveFromProject,
   DetailPanel,
   onToggleDetail,
   dateLocale,
@@ -175,6 +193,8 @@ export function TaskCardCompact({
     priorityNormal = 'Normal',
     viewDetails = 'View Details',
     delete: deleteLabel = 'Delete',
+    moveToProject = 'Move to project',
+    removeFromProject = 'Remove from project',
   } = labels;
 
   const [showDetailInternal, setShowDetailInternal] = useState(false);
@@ -417,6 +437,51 @@ export function TaskCardCompact({
           <Edit className="mr-2 h-4 w-4" />
           {viewDetails}
         </DropdownMenuItem>
+        {/* ODD 021 S11: mover express a proyecto / quitar del proyecto */}
+        {onMoveToProject && task.projectId == null && projects && projects.length > 0 && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger
+              onClick={(e) => e.stopPropagation()}
+              className="gap-2"
+            >
+              <FolderInput className="mr-2 h-4 w-4" />
+              <span>{moveToProject}</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-64 overflow-y-auto"
+            >
+              {projects.map((project) => (
+                <DropdownMenuItem
+                  key={project.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveToProject(project.id);
+                  }}
+                  className="gap-2"
+                >
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: project.color }}
+                  />
+                  {project.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )}
+        {onRemoveFromProject && task.projectId != null && (
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveFromProject();
+            }}
+          >
+            <FolderMinus className="mr-2 h-4 w-4" />
+            {removeFromProject}
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={(e) => {

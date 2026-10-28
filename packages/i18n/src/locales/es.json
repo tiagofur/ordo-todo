@@ -427,7 +427,11 @@
         "do": "Urgente + Importante = Hacer ahora",
         "schedule": "Solo Importante = Programar"
       }
-    }
+    },
+    "moveToProject": "Mover a proyecto",
+    "removeFromProject": "Quitar del proyecto",
+    "taskMovedToProject": "Tarea movida al proyecto",
+    "taskMovedToExpress": "Tarea quitada del proyecto"
   },
   "Scheduling": {
     "title": "Mi plan de hoy",

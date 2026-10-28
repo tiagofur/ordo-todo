@@ -427,7 +427,11 @@
         "do": "Urgent + Important = Do first",
         "schedule": "Important only = Schedule"
       }
-    }
+    },
+    "moveToProject": "Move to project",
+    "removeFromProject": "Remove from project",
+    "taskMovedToProject": "Task moved to project",
+    "taskMovedToExpress": "Task removed from project"
   },
   "Scheduling": {
     "title": "My plan for today",

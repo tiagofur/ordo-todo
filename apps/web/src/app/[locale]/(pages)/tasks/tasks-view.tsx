@@ -10,7 +10,7 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { useTasks, useTags, useProjects, useDeleteTask } from "@/lib/api-hooks";
+import { useTasks, useTags, useProjects, useDeleteTask, useUpdateTask } from "@/lib/api-hooks";
 import { useCreateTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
@@ -46,7 +46,26 @@ export function TasksView() {
   const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: projects } = useProjects(selectedWorkspaceId || "");
   const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: updateTask } = useUpdateTask();
   const deleteTask = useDeleteTask();
+
+  // ODD 021 S11: clasificar una express en un proyecto (o quitarla)
+  const moveToProject = async (taskId: string, projectId: string) => {
+    try {
+      await updateTask({ taskId, data: { projectId } });
+      notify.success(t("taskMovedToProject"));
+    } catch {
+      notify.error(t("taskMoveError"));
+    }
+  };
+  const removeFromProject = async (taskId: string) => {
+    try {
+      await updateTask({ taskId, data: { projectId: null } });
+      notify.success(t("taskMovedToExpress"));
+    } catch {
+      notify.error(t("taskMoveError"));
+    }
+  };
 
   const handleDeleteTask = async (taskId: string) => {
     const confirmed = await confirm({
@@ -243,6 +262,13 @@ export function TasksView() {
               showProject={true}
               showGradient={true}
               onDelete={handleDeleteTask}
+              projects={projects?.map((p: any) => ({ id: p.id, name: p.name, color: p.color }))}
+              onMoveToProject={(projectId) => moveToProject(String(task.id), projectId)}
+              onRemoveFromProject={() => removeFromProject(String(task.id))}
+              labels={{
+                moveToProject: t("moveToProject"),
+                removeFromProject: t("removeFromProject"),
+              }}
             />
           ))}
         </motion.div>
