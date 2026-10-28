@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Sparkles, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { apiClient } from "@/lib/api-client";
 
 const DAY = 24 * 60 * 60 * 1000;
 
 export function DashboardTrialBanner() {
   const t = useTranslations("Billing.dashboardBanner");
-  const router = useRouter();
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
@@ -72,14 +71,13 @@ export function DashboardTrialBanner() {
         </div>
       </div>
       <div className="flex items-center gap-2 sm:self-center shrink-0">
-        <button
-          type="button"
-          onClick={() => router.push("/settings/billing")}
+        <Link
+          href="/settings/billing"
           className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 cursor-pointer"
         >
           <span>{t("cta")}</span>
           <ArrowRight className="h-3.5 w-3.5" />
-        </button>
+        </Link>
         <button
           type="button"
           onClick={handleDismiss}
