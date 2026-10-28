@@ -637,8 +637,9 @@ export function createHooks(config: CreateHooksConfig) {
 
     return useMutation({
       mutationFn: (data: CreateTaskDto) => apiClient.createTask(data),
-      onSuccess: (task) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+      onSuccess: () => {
+        // La clave genérica ['tasks'] cubre por prefijo la lista del proyecto
+        // y la de tareas express (projectId null, ODD 021)
         queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
       },
     });
