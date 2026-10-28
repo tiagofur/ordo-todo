@@ -1,10 +1,28 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/navigation';
+import { LOCALE_COOKIE } from './i18n/locales';
+import { resolvePreferredLocale } from './lib/locale-resolve';
 
 const intlMiddleware = createMiddleware(routing);
 
 const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password'];
+
+/**
+ * Locale for URLs without a prefix: explicit choice first, then the legacy
+ * next-intl cookie (returns continuity for choices made before ordo-locale
+ * existed), then the browser's languages in order, then the default.
+ */
+function preferredLocaleFromRequest(request: NextRequest): string {
+    const browserLocales = (request.headers.get('accept-language') ?? '')
+        .split(',')
+        .map((part) => part.split(';')[0]?.trim() ?? '')
+        .filter(Boolean);
+    const stored =
+        request.cookies.get(LOCALE_COOKIE)?.value ??
+        request.cookies.get('NEXT_LOCALE')?.value;
+    return resolvePreferredLocale(browserLocales, stored);
+}
 
 function isTokenValid(token?: string): boolean {
     if (!token) return false;
@@ -45,10 +63,11 @@ export default function middleware(request: NextRequest) {
 
     // If it's the root path or locale-only path
     if (isRootPath || isLocaleOnlyPath) {
-        // Get the locale from the path or use default
+        // Locale-only paths keep their explicit locale; bare `/` negotiates
+        // from the stored choice, then the browser languages.
         const locale = isLocaleOnlyPath
             ? pathname.replace(/^\//, '').replace(/\/$/, '')
-            : routing.defaultLocale;
+            : preferredLocaleFromRequest(request);
 
         // If authenticated -> Dashboard, else -> Login
         const targetPath = hasValidToken ? 'dashboard' : 'login';
@@ -60,9 +79,11 @@ export default function middleware(request: NextRequest) {
         return response;
     }
 
-    // Identify current locale from path
+    // Identify current locale from path; unprefixed URLs (e.g. the OAuth
+    // callback target `/dashboard`) negotiate like the root path so an
+    // explicit choice or the browser language survives the round-trip.
     const localeMatch = pathname.match(/^\/(en|es|pt-br)/);
-    const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
+    const locale = localeMatch ? localeMatch[1] : preferredLocaleFromRequest(request);
     const pathWithoutLocale = pathname.replace(/^\/(en|es|pt-br)/, '');
 
     // Check if route is public

@@ -17,7 +17,7 @@
     "taskMoved": "Horário da tarefa atualizado",
     "taskMoveError": "Erro ao atualizar horário",
     "onboarding": {
-      "welcomeTitle": "Time Blocking",
+      "welcomeTitle": "Bloqueio de Tempo",
       "welcomeDesc": "Bloqueie tempo específico para suas tarefas. Esta técnica aumenta o foco e reduz a procrastinação.",
       "dragdropTitle": "Arraste e Solte",
       "dragdropDesc": "Pegue qualquer tarefa da barra lateral e arraste diretamente para o calendário para agendá-la.",
@@ -33,7 +33,7 @@
     }
   },
   "Sidebar": {
-    "aiChat": "AI Chat",
+    "aiChat": "Chat IA",
     "today": "Hoje",
     "tasks": "Tarefas",
     "habits": "Hábitos",
@@ -56,7 +56,7 @@
     "wellbeing": "Bem-estar",
     "workload": "Carga de Trabalho",
     "notes": "Notas",
-    "insights": "Insights",
+    "insights": "Análises",
     "sectionPlan": "Planejamento",
     "sectionInsights": "Desempenho",
     "sectionTeam": "Equipe & Foco",
@@ -1712,7 +1712,7 @@
     "notFound": "Tarefa não encontrada"
   },
   "AIAssistantSidebar": {
-    "title": "Ordo AI Copilot",
+    "title": "Copiloto Ordo IA",
     "welcome": "Oi! Sou a IA do Ordo. Como posso ajudá-lo a organizar seu dia?",
     "thinking": "Pensando...",
     "placeholder": "Pergunte à IA...",
@@ -1876,7 +1876,7 @@
     }
   },
   "SyncStatus": {
-    "offline": "Offline",
+    "offline": "Sem conexão",
     "syncing": "Sincronizando... {progress}%",
     "error": "Erro de sincronização",
     "pending": "{count} pendentes",
@@ -2063,6 +2063,7 @@
       "privacy": "Privacidade",
       "integrations": "Integrações",
       "subscription": "Assinatura",
+      "gamification": "Nível e XP",
       "account": "Conta"
     },
     "profile": {
@@ -2347,7 +2348,7 @@
     }
   },
   "Sync": {
-    "offline": "Offline",
+    "offline": "Sem conexão",
     "offlineDesc": "Alterações serão sincronizadas quando online",
     "syncing": "Sincronizando...",
     "syncingDesc": "Sincronizando suas alterações",
@@ -2367,7 +2368,7 @@
     "version": "Versão",
     "platform": "Plataforma",
     "madeWith": "Feito com ❤️ para aumentar sua produtividade",
-    "website": "Website",
+    "website": "Site",
     "documentation": "Documentação"
   },
   "Shortcuts": {
@@ -2751,7 +2752,7 @@
       "avgHoursPerDay": "Média de Horas/Dia"
     },
     "weeklySummary": "Resumo Semanal",
-    "insights": "Insights",
+    "insights": "Análises",
     "intervention": {
       "gentleReminder": "Lembrete Suave",
       "strongWarning": "Aviso",
@@ -2885,10 +2886,10 @@
       "days": "dias"
     },
     "calendar": {
-      "title": "Time Blocking",
+      "title": "Bloqueio de Tempo",
       "subtitle": "Organize seu tempo",
       "noBlocks": "Nenhum bloco agendado",
-      "noBlocksHint": "Agende tarefas com horário e ative 'Time Block'"
+      "noBlocksHint": "Agende tarefas com horário e ative o bloco de tempo"
     },
     "profileOptions": {
       "notifications": "Notificações",
@@ -2951,6 +2952,8 @@
       "emailPlaceholder": "seu@email.com",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "Sua senha",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
       "forgotPassword": "Esqueceu sua senha?",
       "rememberMe": "Lembrar de mim",
       "submitButton": "Entrar",
@@ -2991,9 +2994,95 @@
         "invalidEmail": "Insira um e-mail válido",
         "failed": "Ocorreu um erro ao processar a solicitação"
       }
+    },
+    "register": {
+      "title": "Criar Conta",
+      "subtitle": "Comece a organizar suas tarefas hoje mesmo",
+      "nameLabel": "Nome Completo",
+      "namePlaceholder": "Seu nome completo",
+      "usernameLabel": "Nome de Usuário",
+      "usernamePlaceholder": "usuario123",
+      "usernameHelper": "Este será seu identificador único na plataforma",
+      "usernameMinLength": "O nome de usuário deve ter pelo menos {min} caracteres",
+      "usernameMaxLength": "O nome de usuário deve ter menos de {max} caracteres",
+      "usernameInvalidChars": "O nome de usuário só pode conter minúsculas, números, hífens e sublinhados",
+      "usernameInvalidStart": "O nome de usuário não pode começar com sublinhado ou hífen",
+      "usernameInvalidEnd": "O nome de usuário não pode terminar com sublinhado ou hífen",
+      "usernameInvalidConsecutive": "O nome de usuário não pode conter hífens ou sublinhados consecutivos",
+      "usernameTaken": "Esse nome de usuário já está em uso. Por favor, escolha outro.",
+      "usernameWaitValidation": "Aguarde a validação do nome de usuário",
+      "usernameAvailable": "Nome de usuário disponível!",
+      "usernameFormatValid": "O formato do nome de usuário é válido",
+      "usernameSuggestions": "Alternativas sugeridas:",
+      "usernameRefresh": "Atualizar",
+      "usernameRequirements": "Requisitos do nome de usuário:",
+      "usernameRuleLength": "{min}-{max} caracteres",
+      "usernameRuleChars": "Apenas minúsculas, números, hífens e sublinhados",
+      "usernameRuleStart": "Não pode começar nem terminar com hífen ou sublinhado",
+      "usernameRuleConsecutive": "Sem hífens ou sublinhados consecutivos",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "voce@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "strengthWeak": "Fraca",
+      "strengthFair": "Razoável",
+      "strengthGood": "Boa",
+      "strengthExcellent": "Excelente",
+      "strengthMinChars": "8+ caracteres",
+      "strengthUppercase": "Maiúsculas",
+      "strengthNumbers": "Números",
+      "strengthSymbols": "Símbolos",
+      "confirmPasswordLabel": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "Repita sua senha",
+      "passwordsMatch": "As senhas coincidem",
+      "passwordsMismatch": "As senhas não coincidem",
+      "submitButton": "Criar Conta",
+      "submitting": "Criando conta...",
+      "orSignUpWith": "Ou cadastre-se com",
+      "haveAccount": "Já tem uma conta?",
+      "signIn": "Entrar",
+      "termsPrefix": "Ao criar uma conta, você concorda com nossos",
+      "terms": "Termos de Serviço",
+      "termsAnd": "e",
+      "privacy": "Política de Privacidade",
+      "errors": {
+        "passwordMismatch": "As senhas não coincidem",
+        "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+        "passwordTooWeak": "A senha é muito fraca. Por favor, use uma senha mais segura",
+        "createFailed": "Erro ao criar conta"
+      },
+      "success": "Conta criada com sucesso"
+    },
+    "resetPassword": {
+      "title": "Criar Nova Senha",
+      "subtitle": "Digite e confirme sua nova senha segura abaixo.",
+      "successTitle": "Senha Redefinida",
+      "successSubtitle": "Sua senha foi atualizada. Agora você pode entrar com suas novas credenciais.",
+      "successBody": "A segurança da sua conta foi atualizada. Clique abaixo para ir à tela de login.",
+      "goToLogin": "Ir para o Login",
+      "newPasswordLabel": "Nova Senha",
+      "confirmPasswordLabel": "Confirmar Nova Senha",
+      "submitButton": "Definir Nova Senha",
+      "submitting": "Redefinindo Senha...",
+      "backToLogin": "Voltar ao Login",
+      "missingTokenBanner": "Token de redefinição ausente. Verifique seu e-mail para o link completo.",
+      "errors": {
+        "missingToken": "Token de redefinição ausente na URL. Use o link enviado ao seu e-mail.",
+        "minLength": "A senha deve ter pelo menos 8 caracteres.",
+        "mismatch": "As senhas não coincidem.",
+        "failed": "Não foi possível redefinir a senha. O link pode ter expirado ou já foi usado."
+      },
+      "success": "Senha redefinida com sucesso!"
     }
   },
   "Notes": {
+    "title": "Notas",
+    "add": "Nova Nota",
+    "delete": "Excluir",
+    "noNotes": "Nenhuma nota ainda",
+    "placeholder": "Escreva algo...",
     "subtitle": "Capture pensamentos rápidos e ideias"
   },
   "ProjectTimeline": {

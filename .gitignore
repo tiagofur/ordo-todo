@@ -81,3 +81,6 @@ nul
 # NUNCA se suben: el owner las respalda a mano fuera del repo.
 deploy/secrets/*
 !deploy/secrets/README.md
+
+# Local build artifacts (debug APKs shared by hand, never committed)
+*.apk

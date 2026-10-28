@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   CheckSquare,
   Mail,
@@ -29,12 +29,15 @@ import {
 } from "@ordo-todo/hooks";
 import { apiClient } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import { API_CONFIG } from "@/config";
 import {
   inviteCodeMissing,
   resolveRegisterErrorMessage,
 } from "@/lib/registration-invite";
 import { useRegistrationMode } from "@/hooks/use-registration-mode";
 import { resolvePostLoginTarget } from "@/lib/post-login-target";
+import { resolveValidationMessage } from "@/lib/username-message";
+import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 
 // Define interface for password checks
 interface PasswordChecks {
@@ -69,7 +72,8 @@ function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const t = useTranslations("RegisterInvite");
+  const t = useTranslations("Auth.register");
+  const tInvite = useTranslations("RegisterInvite");
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -149,7 +153,7 @@ function SignUpForm() {
     if (score <= 2)
       return {
         score,
-        label: "Débil",
+        label: t("strengthWeak"),
         color: "bg-red-500",
         textColor: "text-red-600",
         checks,
@@ -157,7 +161,7 @@ function SignUpForm() {
     if (score <= 3)
       return {
         score,
-        label: "Media",
+        label: t("strengthFair"),
         color: "bg-yellow-500",
         textColor: "text-yellow-600",
         checks,
@@ -165,63 +169,59 @@ function SignUpForm() {
     if (score <= 4)
       return {
         score,
-        label: "Buena",
+        label: t("strengthGood"),
         color: "bg-cyan-500",
         textColor: "text-cyan-600",
         checks,
       };
     return {
       score,
-      label: "Excelente",
+      label: t("strengthExcellent"),
       color: "bg-green-500",
       textColor: "text-green-600",
       checks,
     };
-  }, [formData.password]);
+  }, [formData.password, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate username
     if (!formData.username || formData.username.length < 3) {
-      toast.error("El nombre de usuario debe tener al menos 3 caracteres");
+      toast.error(t("usernameMinLength", { min: 3 }));
       return;
     }
 
     // Check if username validation shows it's taken
     if (validationResult.isAvailable === false) {
-      toast.error(
-        "El nombre de usuario ya está en uso. Por favor, elige otro.",
-      );
+      toast.error(t("usernameTaken"));
       return;
     }
 
     // Check if username validation is still loading
     if (validationResult.isLoading) {
-      toast.error("Espera a que se valide el nombre de usuario");
+      toast.error(t("usernameWaitValidation"));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      toast.error(t("errors.passwordMismatch"));
       return;
     }
 
     if (formData.password.length < 8) {
-      toast.error("La contraseña debe tener al menos 8 caracteres");
+      toast.error(t("errors.passwordMinLength"));
       return;
     }
 
     if (passwordStrength.score < 2) {
-      toast.error(
-        "La contraseña es muy débil. Por favor, usa una contraseña más segura",
-      );
+      toast.error(t("errors.passwordTooWeak"));
       return;
     }
 
     const inviteOnly = registrationMode !== "open";
     if (inviteCodeMissing(registrationMode, formData.inviteCode)) {
-      toast.error(t("errorRequired"));
+      toast.error(tInvite("errorRequired"));
       return;
     }
 
@@ -239,15 +239,32 @@ function SignUpForm() {
         postLoginTarget ? { redirectTo: postLoginTarget } : undefined,
       );
 
-      toast.success("Cuenta creada exitosamente");
+      toast.success(t("success"));
       // Redirect is handled by auth context
     } catch (error: unknown) {
       // ODD 019: machine-readable invite codes → precise messages.
       toast.error(
-        resolveRegisterErrorMessage(error, t, "Error al crear cuenta"),
+        resolveRegisterErrorMessage(error, tInvite, t("errors.createFailed")),
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Same social flow as login: `next` travels as a query param and the
+  // backend platform guard carries it through the OAuth `state`.
+  const socialUrl = (provider: "google" | "github") => {
+    const base = `${API_CONFIG.baseURL}/auth/${provider}`;
+    const next = searchParams.get("next");
+    if (!next || !resolvePostLoginTarget(next)) return base;
+    return `${base}?next=${encodeURIComponent(next)}`;
+  };
+
+  const handleSocialSignUp = (provider: "google" | "github") => {
+    try {
+      window.location.href = socialUrl(provider);
+    } catch {
+      toast.error(t("errors.createFailed"));
     }
   };
 
@@ -274,10 +291,10 @@ function SignUpForm() {
             <CheckSquare className="h-9 w-9 text-white stroke-[2.2]" />
           </div>
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
-            Crear Cuenta
+            {t("title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Comienza a organizar tus tareas hoy mismo
+            {t("subtitle")}
           </p>
         </div>
 
@@ -291,7 +308,7 @@ function SignUpForm() {
                   htmlFor="inviteCode"
                   className="text-sm font-medium text-foreground"
                 >
-                  {t("label")}
+                  {tInvite("label")}
                 </label>
                 <div className="relative group">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 transition-colors">
@@ -306,10 +323,10 @@ function SignUpForm() {
                       setFormData({ ...formData, inviteCode: e.target.value })
                     }
                     className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all duration-200 placeholder:normal-case placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    placeholder={t("placeholder")}
+                    placeholder={tInvite("placeholder")}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">{t("helper")}</p>
+                <p className="text-xs text-muted-foreground">{tInvite("helper")}</p>
               </div>
             )}
 
@@ -319,7 +336,7 @@ function SignUpForm() {
                 htmlFor="name"
                 className="text-sm font-medium text-foreground"
               >
-                Nombre Completo
+                {t("nameLabel")}
               </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 transition-colors">
@@ -334,7 +351,7 @@ function SignUpForm() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  placeholder="Tu nombre completo"
+                  placeholder={t("namePlaceholder")}
                 />
               </div>
             </div>
@@ -345,16 +362,19 @@ function SignUpForm() {
               onChange={(value) =>
                 setFormData({ ...formData, username: value })
               }
-              label="Nombre de Usuario"
-              placeholder="usuario123"
+              label={t("usernameLabel")}
+              placeholder={t("usernamePlaceholder")}
               required={true}
-              helperText="Este será tu identificador único en la plataforma"
+              helperText={t("usernameHelper")}
               className="h-12"
               // Validation props
               isLoading={validationResult.isLoading}
               isValid={validationResult.isValid}
               isAvailable={validationResult.isAvailable}
-              validationMessage={validationResult.message}
+              validationMessage={resolveValidationMessage(
+                validationResult.message,
+                t,
+              )}
               // Suggestions props
               suggestions={suggestions}
               showSuggestions={true}
@@ -368,6 +388,16 @@ function SignUpForm() {
                 );
                 setSuggestions(newSuggestions);
               }}
+              strings={{
+                minLength: t("usernameMinLength", { min: 3 }),
+                suggestionsTitle: t("usernameSuggestions"),
+                refresh: t("usernameRefresh"),
+                requirementsTitle: t("usernameRequirements"),
+                ruleLength: t("usernameRuleLength", { min: 3, max: 20 }),
+                ruleChars: t("usernameRuleChars"),
+                ruleStart: t("usernameRuleStart"),
+                ruleConsecutive: t("usernameRuleConsecutive"),
+              }}
             />
 
             {/* Email Input */}
@@ -376,7 +406,7 @@ function SignUpForm() {
                 htmlFor="email"
                 className="text-sm font-medium text-foreground"
               >
-                Correo Electrónico
+                {t("emailLabel")}
               </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500 transition-colors">
@@ -391,7 +421,7 @@ function SignUpForm() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  placeholder="tu@email.com"
+                  placeholder={t("emailPlaceholder")}
                 />
               </div>
             </div>
@@ -402,7 +432,7 @@ function SignUpForm() {
                 htmlFor="password"
                 className="text-sm font-medium text-foreground"
               >
-                Contraseña
+                {t("passwordLabel")}
               </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 transition-colors">
@@ -417,11 +447,14 @@ function SignUpForm() {
                     setFormData({ ...formData, password: e.target.value })
                   }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder={t("passwordPlaceholder")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={
+                    showPassword ? t("hidePassword") : t("showPassword")
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {showPassword ? (
@@ -464,7 +497,7 @@ function SignUpForm() {
                             : "text-muted-foreground"
                         }
                       >
-                        8+ caracteres
+                        {t("strengthMinChars")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -480,7 +513,7 @@ function SignUpForm() {
                             : "text-muted-foreground"
                         }
                       >
-                        Mayúsculas
+                        {t("strengthUppercase")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -496,7 +529,7 @@ function SignUpForm() {
                             : "text-muted-foreground"
                         }
                       >
-                        Números
+                        {t("strengthNumbers")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -512,7 +545,7 @@ function SignUpForm() {
                             : "text-muted-foreground"
                         }
                       >
-                        Símbolos
+                        {t("strengthSymbols")}
                       </span>
                     </div>
                   </div>
@@ -526,7 +559,7 @@ function SignUpForm() {
                 htmlFor="confirmPassword"
                 className="text-sm font-medium text-foreground"
               >
-                Confirmar Contraseña
+                {t("confirmPasswordLabel")}
               </label>
               <div className="relative group">
                 <div
@@ -558,11 +591,14 @@ function SignUpForm() {
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                         : "border-input focus:border-orange-500 focus:ring-orange-500"
                   }`}
-                  placeholder="Repite tu contraseña"
+                  placeholder={t("confirmPasswordPlaceholder")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={
+                    showConfirmPassword ? t("hidePassword") : t("showPassword")
+                  }
                   className="absolute right-11 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {showConfirmPassword ? (
@@ -580,12 +616,12 @@ function SignUpForm() {
               </div>
               {passwordsMismatch && (
                 <p className="text-xs font-medium text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1">
-                  Las contraseñas no coinciden
+                  {t("passwordsMismatch")}
                 </p>
               )}
               {passwordsMatch && (
                 <p className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
-                  <Check className="h-3.5 w-3.5" /> Las contraseñas coinciden
+                  <Check className="h-3.5 w-3.5" /> {t("passwordsMatch")}
                 </p>
               )}
             </div>
@@ -600,11 +636,11 @@ function SignUpForm() {
                 {isLoading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Creando cuenta...
+                    {t("submitting")}
                   </>
                 ) : (
                   <>
-                    Crear Cuenta
+                    {t("submitButton")}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </>
                 )}
@@ -616,7 +652,7 @@ function SignUpForm() {
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs font-medium text-muted-foreground">
-              O regístrate con
+              {t("orSignUpWith")}
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
@@ -625,6 +661,7 @@ function SignUpForm() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={() => handleSocialSignUp("google")}
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-900 hover:border-pink-300 dark:hover:border-pink-700 hover:text-pink-600"
             >
               <Chrome className="h-5 w-5" />
@@ -632,6 +669,7 @@ function SignUpForm() {
             </button>
             <button
               type="button"
+              onClick={() => handleSocialSignUp("github")}
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:border-cyan-300 dark:hover:border-cyan-700 hover:text-cyan-600"
             >
               <Github className="h-5 w-5" />
@@ -642,12 +680,12 @@ function SignUpForm() {
           {/* Sign In Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              ¿Ya tienes una cuenta?{" "}
+              {t("haveAccount")}{" "}
               <Link
                 href="/login"
                 className="inline-flex items-center gap-1 font-semibold text-cyan-500 transition-colors hover:text-cyan-600"
               >
-                Inicia sesión
+                {t("signIn")}
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </p>
@@ -656,15 +694,18 @@ function SignUpForm() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Al crear una cuenta, aceptas nuestros{" "}
+          {t("termsPrefix")}{" "}
           <Link href="/terms" className="underline hover:text-foreground">
-            Términos de Servicio
+            {t("terms")}
           </Link>{" "}
-          y{" "}
+          {t("termsAnd")}{" "}
           <Link href="/privacy" className="underline hover:text-foreground">
-            Política de Privacidad
+            {t("privacy")}
           </Link>
         </p>
+        <div className="mt-4">
+          <AuthLocaleSwitcher />
+        </div>
       </div>
     </div>
   );

@@ -39,6 +39,18 @@ export interface UsernameInputProps {
   showSuggestions?: boolean;
   onSuggestionClick?: (suggestion: string) => void;
   onRefreshSuggestions?: () => void;
+
+  // Localized strings (all optional; English defaults preserve old behavior)
+  strings?: {
+    minLength?: string;
+    suggestionsTitle?: string;
+    refresh?: string;
+    requirementsTitle?: string;
+    ruleLength?: string;
+    ruleChars?: string;
+    ruleStart?: string;
+    ruleConsecutive?: string;
+  };
 }
 
 export function UsernameInput({
@@ -63,6 +75,7 @@ export function UsernameInput({
   showSuggestions = true,
   onSuggestionClick,
   onRefreshSuggestions,
+  strings = {},
 }: UsernameInputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -110,7 +123,7 @@ export function UsernameInput({
     }
 
     if (value.length > 0 && value.length < 3) {
-      return "Username must be at least 3 characters";
+      return strings.minLength ?? "Username must be at least 3 characters";
     }
 
     if (validationMessage && value.length >= 3) {
@@ -182,7 +195,7 @@ export function UsernameInput({
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Lightbulb className="h-3 w-3" />
-            <span>Suggested alternatives:</span>
+            <span>{strings.suggestionsTitle ?? "Suggested alternatives:"}</span>
             {onRefreshSuggestions && (
                 <Button
                 variant="ghost"
@@ -192,7 +205,7 @@ export function UsernameInput({
                 type="button"
                 >
                 <RefreshCw className="h-3 w-3 mr-1" />
-                Refresh
+                {strings.refresh ?? "Refresh"}
                 </Button>
             )}
           </div>
@@ -215,12 +228,12 @@ export function UsernameInput({
       {/* Username rules */}
       {isFocused && (
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>Username requirements:</p>
+          <p>{strings.requirementsTitle ?? "Username requirements:"}</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>3-20 characters</li>
-            <li>Lowercase letters, numbers, hyphens, and underscores only</li>
-            <li>Cannot start or end with hyphen or underscore</li>
-            <li>No consecutive hyphens or underscores</li>
+            <li>{strings.ruleLength ?? "3-20 characters"}</li>
+            <li>{strings.ruleChars ?? "Lowercase letters, numbers, hyphens, and underscores only"}</li>
+            <li>{strings.ruleStart ?? "Cannot start or end with hyphen or underscore"}</li>
+            <li>{strings.ruleConsecutive ?? "No consecutive hyphens or underscores"}</li>
           </ul>
         </div>
       )}

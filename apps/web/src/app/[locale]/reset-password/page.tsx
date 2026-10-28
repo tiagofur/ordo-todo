@@ -14,10 +14,13 @@ import {
   KeyRound,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 
 function ResetPasswordContent() {
+  const t = useTranslations("Auth.resetPassword");
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") || "";
@@ -33,17 +36,17 @@ function ResetPasswordContent() {
     setError(null);
 
     if (!token) {
-      setError("Reset token is missing from the URL. Please use the link sent to your email.");
+      setError(t("errors.missingToken"));
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("errors.minLength"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("errors.mismatch"));
       return;
     }
 
@@ -54,11 +57,11 @@ function ResetPasswordContent() {
         newPassword: password,
       });
       setIsSuccess(true);
-      toast.success("Password reset successfully!");
+      toast.success(t("success"));
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
-        "Failed to reset password. The link may have expired or already been used.";
+        t("errors.failed");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -82,12 +85,10 @@ function ResetPasswordContent() {
             Ordo
           </span>
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {isSuccess ? "Password Reset" : "Create New Password"}
+            {isSuccess ? t("successTitle") : t("title")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-            {isSuccess
-              ? "Your password has been updated. You can now log in with your new credentials."
-              : "Please enter and confirm your new secure password below."}
+            {isSuccess ? t("successSubtitle") : t("subtitle")}
           </p>
         </div>
 
@@ -99,14 +100,14 @@ function ResetPasswordContent() {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <p className="text-sm text-muted-foreground">
-                Your account security is updated. Click below to proceed to the login screen.
+                {t("successBody")}
               </p>
               <div className="pt-2">
                 <Link
                   href="/login"
                   className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-primary text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-opacity"
                 >
-                  <span>Go to Login</span>
+                  <span>{t("goToLogin")}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -123,7 +124,7 @@ function ResetPasswordContent() {
               {!token && (
                 <div className="flex items-center gap-2 p-3 text-xs rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
                   <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>Missing reset token. Check your email for the full reset link.</span>
+                  <span>{t("missingTokenBanner")}</span>
                 </div>
               )}
 
@@ -132,7 +133,7 @@ function ResetPasswordContent() {
                   htmlFor="password"
                   className="block text-xs font-medium text-foreground"
                 >
-                  New Password
+                  {t("newPasswordLabel")}
                 </label>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
@@ -156,7 +157,7 @@ function ResetPasswordContent() {
                   htmlFor="confirmPassword"
                   className="block text-xs font-medium text-foreground"
                 >
-                  Confirm New Password
+                  {t("confirmPasswordLabel")}
                 </label>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
@@ -183,11 +184,11 @@ function ResetPasswordContent() {
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Resetting Password...</span>
+                    <span>{t("submitting")}</span>
                   </>
                 ) : (
                   <>
-                    <span>Set New Password</span>
+                    <span>{t("submitButton")}</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -199,8 +200,11 @@ function ResetPasswordContent() {
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Back to Login</span>
+                  <span>{t("backToLogin")}</span>
                 </Link>
+              </div>
+              <div className="pt-2">
+                <AuthLocaleSwitcher />
               </div>
             </form>
           )}

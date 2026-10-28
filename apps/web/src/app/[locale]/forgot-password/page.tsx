@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@ordo-todo/ui";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("Auth.forgotPassword");
@@ -176,6 +177,9 @@ export default function ForgotPasswordPage() {
                   <ArrowLeft className="h-3.5 w-3.5" />
                   {t("backToLogin")}
                 </Link>
+              </div>
+              <div className="pt-2">
+                <AuthLocaleSwitcher />
               </div>
             </form>
           )}
