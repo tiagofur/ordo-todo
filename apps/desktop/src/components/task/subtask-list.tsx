@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
-import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/api";
+import { useUpdateTask, useDeleteTask } from "@/hooks/api";
+import { useCreateSubtask } from "@/lib/shared-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn, Button, Input, Checkbox } from "@ordo-todo/ui";
@@ -22,7 +23,10 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
 
   // Create subtask mutation
-  const createSubtaskMutation = useCreateTask();
+  // Revisión #436 (P1): usar el endpoint específico de subtareas —
+  // POST /tasks con parentTaskId en el body siempre daba 400
+  // (forbidNonWhitelisted), con o sin projectId "default".
+  const createSubtaskMutation = useCreateSubtask();
 
   // Update subtask mutation (for completion)
   const updateSubtaskMutation = useUpdateTask();
@@ -33,19 +37,20 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   const handleCreateSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
 
-    // ODD 021: el backend ancla la subtarea al proyecto del padre (o la
-    // hace express si el padre es express); "default" daba 403 siempre.
-    createSubtaskMutation.mutate({
-      title: newSubtaskTitle,
-      parentTaskId: taskId,
-    } as any, {
-      onSuccess: () => {
-        toast.success("Subtarea creada");
-        setNewSubtaskTitle("");
-        setIsAdding(false);
-      },
-      onError: (error) => toast.error(error.message || "Error al crear subtarea")
-    });
+    // El backend ancla la subtarea al proyecto del padre (o la hace
+    // express si el padre es express) — ODD 021.
+    createSubtaskMutation.mutate(
+      { parentTaskId: taskId, data: { title: newSubtaskTitle } },
+        {
+          onSuccess: () => {
+            toast.success("Subtarea creada");
+            setNewSubtaskTitle("");
+            setIsAdding(false);
+          },
+          onError: (error) =>
+            toast.error(error.message || "Error al crear subtarea"),
+        },
+      );
   };
 
   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
