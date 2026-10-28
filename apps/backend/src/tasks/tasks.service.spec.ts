@@ -919,10 +919,12 @@ describe('TasksService', () => {
     const makeTask = (props: Record<string, unknown>) => ({
       id: 'task-1',
       props: { id: 'task-1', ownerId: userId, ...props },
-      update: jest.fn().mockImplementation((patch: Record<string, unknown>) => ({
-        id: 'task-1',
-        props: { ...props, ...patch },
-      })),
+      update: jest
+        .fn()
+        .mockImplementation((patch: Record<string, unknown>) => ({
+          id: 'task-1',
+          props: { ...props, ...patch },
+        })),
     });
 
     beforeEach(() => {
@@ -950,7 +952,8 @@ describe('TasksService', () => {
       mockPrismaService.project.findUnique = jest.fn();
       mockPrismaService.workspaceMember.findUnique = jest
         .fn()
-        .mockResolvedValue({ id: 'm1' });
+        .mockResolvedValue({ id: 'm1', role: 'MEMBER' });
+      mockPrismaService.task.findMany = jest.fn().mockResolvedValue([]);
     });
 
     it('moves an express task into a project and cascades subtasks', async () => {
@@ -962,15 +965,74 @@ describe('TasksService', () => {
         workspace: { ownerId: 'owner-2' },
       });
 
+      // árbol: 1 hijo + 1 nieto (el anidamiento es posible por API)
+      mockPrismaService.task.findMany
+        .mockResolvedValueOnce([{ id: 'sub-1', assigneeId: null }])
+        .mockResolvedValueOnce([{ id: 'sub-1-1', assigneeId: null }])
+        .mockResolvedValueOnce([]);
+
       await service.update('task-1', { projectId: 'proj-2' }, userId);
 
       expect(mockPrismaService.project.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({ where: { id: 'proj-2' } }),
       );
       expect(mockPrismaService.task.updateMany).toHaveBeenCalledWith({
-        where: { parentTaskId: 'task-1' },
+        where: { id: { in: ['sub-1', 'sub-1-1'] } },
         data: { projectId: 'proj-2' },
       });
+    });
+
+    it('rejects moving a subtask on its own (follows its parent, P2-2)', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({
+          projectId: 'proj-1',
+          parentTaskId: 'parent-1',
+        }),
+      );
+
+      await expect(
+        service.update('task-1', { projectId: 'proj-2' }, userId),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Subtasks cannot be moved independently; move the parent task',
+        ),
+      );
+      expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('rejects moving to express when a descendant keeps a foreign assignee (P2-4)', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: 'proj-1', ownerId: 'user-1', assigneeId: null }),
+      );
+      mockPrismaService.task.findMany
+        .mockResolvedValueOnce([{ id: 'sub-1', assigneeId: 'user-999' }])
+        .mockResolvedValueOnce([]);
+
+      await expect(
+        service.update('task-1', { projectId: null }, userId),
+      ).rejects.toThrow(
+        new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE'),
+      );
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects a caller who is only VIEWER of the target workspace (P2-1)', async () => {
+      mockTaskRepository.findById.mockResolvedValue(
+        makeTask({ projectId: null, assigneeId: null }),
+      );
+      mockPrismaService.project.findUnique.mockResolvedValue({
+        workspaceId: 'ws-2',
+        workspace: { ownerId: 'owner-2' },
+      });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        id: 'm1',
+        role: 'VIEWER',
+      });
+
+      await expect(
+        service.update('task-1', { projectId: 'proj-2' }, userId),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockTaskRepository.update).not.toHaveBeenCalled();
     });
 
     it('rejects moving to a project whose workspace the caller is not member of', async () => {
@@ -1017,9 +1079,7 @@ describe('TasksService', () => {
       // el llamador SÍ es miembro del destino; el assignee externo no
       mockPrismaService.workspaceMember.findUnique.mockImplementation(
         (args: any) =>
-          args.where.workspaceId_userId.userId === userId
-            ? { id: 'm1' }
-            : null,
+          args.where.workspaceId_userId.userId === userId ? { id: 'm1' } : null,
       );
 
       await expect(

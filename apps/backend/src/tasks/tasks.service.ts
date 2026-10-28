@@ -33,7 +33,7 @@ import { CreateSubtaskDto } from './dto/create-subtask.dto';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType, ResourceType } from '@prisma/client';
+import { MemberRole, NotificationType, ResourceType } from '@prisma/client';
 
 import { GamificationService } from '../gamification/gamification.service';
 import { EmbeddingIndexerService } from '../ai/retrieval/embedding-indexer.service';
@@ -718,12 +718,20 @@ export class TasksService {
         updateTaskDto.projectId !== undefined &&
         updateTaskDto.projectId !== task.props.projectId;
 
+      let moveDescendantIds: string[] = [];
       if (isProjectMove) {
+        const targetProjectId = updateTaskDto.projectId as string | null;
         await this.assertProjectMove(
           task,
-          updateTaskDto.projectId as string | null,
+          targetProjectId,
           updateTaskDto.assigneeId,
           userId,
+        );
+        // Revisión #434 (P2-3/P2-4): recorre TODO el árbol de subtareas;
+        // hacia express valida que ninguna quede con assignee ajeno.
+        moveDescendantIds = await this.collectMoveDescendants(
+          task,
+          targetProjectId,
         );
       } else if (updateTaskDto.assigneeId !== undefined) {
         if (task.props.projectId) {
@@ -758,9 +766,9 @@ export class TasksService {
 
       // ODD 021 S9: las subtareas están ancladas al proyecto del padre —
       // se mueven en cascada para mantener el invariante.
-      if (isProjectMove) {
+      if (isProjectMove && moveDescendantIds.length > 0) {
         await this.prisma.task.updateMany({
-          where: { parentTaskId: id },
+          where: { id: { in: moveDescendantIds } },
           data: { projectId: updateTaskDto.projectId as string | null },
         });
       }
@@ -913,6 +921,14 @@ export class TasksService {
     incomingAssigneeId: string | null | undefined,
     userId: string,
   ): Promise<void> {
+    // Revisión #434 (P2-2): una subtarea no se mueve sola — sigue a su padre.
+    // Permitirlo partiría el árbol entre proyectos/workspaces.
+    if (task.props.parentTaskId) {
+      throw new BadRequestException(
+        'Subtasks cannot be moved independently; move the parent task',
+      );
+    }
+
     const finalAssigneeId =
       incomingAssigneeId !== undefined
         ? incomingAssigneeId
@@ -933,7 +949,7 @@ export class TasksService {
       throw new NotFoundException('Project not found');
     }
 
-    await this.assertWorkspaceMembershipOrOwner(
+    await this.assertWorkspaceWriteAccess(
       userId,
       project.workspaceId,
       project.workspace.ownerId,
@@ -946,7 +962,7 @@ export class TasksService {
       finalAssigneeId !== task.props.ownerId &&
       finalAssigneeId !== project.workspace.ownerId
     ) {
-      await this.assertWorkspaceMembershipOrOwner(
+      await this.assertWorkspaceWriteAccess(
         finalAssigneeId,
         project.workspaceId,
         project.workspace.ownerId,
@@ -956,25 +972,63 @@ export class TasksService {
     }
   }
 
-  private async assertWorkspaceMembershipOrOwner(
+  /**
+   * Revisión #434 (P2-1): escribir en el workspace destino exige MEMBER+
+   * (el workspace owner vale sin fila, igual que en el resto del backend);
+   * un VIEWER del destino es solo-lectura y no puede recibir tareas.
+   */
+  private async assertWorkspaceWriteAccess(
     memberUserId: string,
     workspaceId: string,
     workspaceOwnerId: string | null,
     message: string,
     exception: new (msg: string) => Error,
   ): Promise<void> {
-    // workspace sin owner (ownerId null): solo cuenta la membresía
     if (workspaceOwnerId !== null && workspaceOwnerId === memberUserId) return;
 
     const membership = await this.prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: { workspaceId, userId: memberUserId },
       },
-      select: { id: true },
+      select: { role: true },
     });
-    if (!membership) {
+    if (!membership || membership.role === MemberRole.VIEWER) {
       throw new exception(message);
     }
+  }
+
+  /**
+   * Revisión #434 (P2-3/P2-4): recorre el árbol completo de subtareas
+   * (el anidamiento es posible por API) y devuelve los ids a mover en
+   * cascada. Hacia express rechaza si alguna descendente quedaría con un
+   * assignee ajeno al dueño de la raíz (regla A2).
+   */
+  private async collectMoveDescendants(
+    task: Task,
+    targetProjectId: string | null,
+  ): Promise<string[]> {
+    let frontier = [task.id];
+    const descendants: Array<{ id: string; assigneeId: string | null }> = [];
+    while (frontier.length > 0) {
+      const children = await this.prisma.task.findMany({
+        where: { parentTaskId: { in: frontier } },
+        select: { id: true, assigneeId: true },
+      });
+      if (children.length === 0) break;
+      descendants.push(...children);
+      frontier = children.map((c) => c.id);
+    }
+
+    if (targetProjectId === null) {
+      const foreign = descendants.find(
+        (d) => d.assigneeId && d.assigneeId !== task.props.ownerId,
+      );
+      if (foreign) {
+        throw new BadRequestException('EXPRESS_TASK_NO_FOREIGN_ASSIGNEE');
+      }
+    }
+
+    return descendants.map((d) => d.id);
   }
 
   /**
