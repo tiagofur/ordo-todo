@@ -38,8 +38,12 @@ export const queryKeys = {
 
   // ============ Tasks ============
   allTasks: ['tasks'] as const,
-  tasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
-    ['tasks', { projectId, tags, assignedToMe }] as const,
+  tasks: (
+    projectId?: string,
+    tags?: string[],
+    assignedToMe?: boolean,
+    withoutProject?: boolean,
+  ) => ['tasks', { projectId, tags, assignedToMe, withoutProject }] as const,
   task: (id: string) => ['tasks', id] as const,
   taskDetails: (id: string) => ['tasks', id, 'details'] as const,
   publicTask: (token: string) => ['public-task', token] as const,

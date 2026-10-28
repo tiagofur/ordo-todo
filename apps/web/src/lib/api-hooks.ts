@@ -85,7 +85,11 @@ export function useCompleteProject() { return getHooks().useCompleteProject(); }
 export function useDeleteProject() { return getHooks().useDeleteProject(); }
 
 // Task
-export function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
+export function useTasks(
+  projectId?: string,
+  tags?: string[],
+  options?: { assignedToMe?: boolean; withoutProject?: boolean },
+) {
   return getHooks().useTasks(projectId, tags, options);
 }
 export function useTask(taskId: string) { return getHooks().useTask(taskId); }
@@ -372,11 +376,12 @@ export function usePermanentDeleteProject() {
 /**
  * Get deleted tasks for a project
  */
-export function useDeletedTasks(projectId: string) {
+export function useDeletedTasks(projectId?: string) {
   return useQuery({
-    queryKey: ["tasks", "deleted", projectId],
+    // ODD 021: undefined = sin petición; "" = tareas express borradas del usuario
+    queryKey: ["tasks", "deleted", projectId ?? null],
     queryFn: () => apiClient.getDeletedTasks(projectId),
-    enabled: !!projectId,
+    enabled: projectId !== undefined,
   });
 }
 

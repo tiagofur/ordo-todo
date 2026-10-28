@@ -609,10 +609,25 @@ export function createHooks(config: CreateHooksConfig) {
 
   // ============ TASK HOOKS ============
 
-  function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
+  function useTasks(
+    projectId?: string,
+    tags?: string[],
+    options?: { assignedToMe?: boolean; withoutProject?: boolean },
+  ) {
     return useQuery({
-      queryKey: queryKeys.tasks(projectId, tags, options?.assignedToMe),
-      queryFn: () => apiClient.getTasks(projectId, tags, options?.assignedToMe),
+      queryKey: queryKeys.tasks(
+        projectId,
+        tags,
+        options?.assignedToMe,
+        options?.withoutProject,
+      ),
+      queryFn: () =>
+        apiClient.getTasks(
+          projectId,
+          tags,
+          options?.assignedToMe,
+          options?.withoutProject,
+        ),
     });
   }
 
