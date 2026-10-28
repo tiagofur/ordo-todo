@@ -560,7 +560,12 @@ describe('createHooks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(mockApiClient.getTasks).toHaveBeenCalledWith('project-1', undefined, undefined);
+      expect(mockApiClient.getTasks).toHaveBeenCalledWith(
+        'project-1',
+        undefined,
+        undefined,
+        undefined
+      );
     });
 
     it('useTask should fetch single task', async () => {

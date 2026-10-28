@@ -11,6 +11,7 @@ export * from "./eisenhower-matrix.js";
 export * from "./task-card.js";
 export * from "./task-detail-view.js";
 export * from "./quick-add.js";
+export * from "./create-task-dialog.js";
 
 // NOTE: The following components have been moved to apps/web/src/components/task/:
 // - assignee-selector (uses useState)
