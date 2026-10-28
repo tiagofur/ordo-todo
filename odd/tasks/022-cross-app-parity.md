@@ -83,14 +83,14 @@ Esperado: CSP con producción, sin manualChunks manual; login visible contra pro
 
 | T#  | Specs | Entrega                                                                 | Ruta sugerida                                                                                                        | Estado   |
 |-----|-------|-------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|----------|
-| T0  | S0    | Prerrequisito: CSP prod + sin manualChunks (hotfix release)          | index.html → vite.config.ts → tauri:build → verificación con navegador                                             | pendiente |
-| T1  | S1    | Matriz de paridad completa (docs en este ODD)                          | inventario via carpeta de componentes + rutas                                                                  | pendiente |
-| T1b | S3+S4 | Confirmación del shape (impeccable): brief con layout único completo, slots por plataforma y i18n compartido | packages/i18n locales + packages/ui task create-task-form (presentacional) | pendiente |
-| T2  | S2+S3 | Componente compartido en packages/ui + schema único + tests           | schemas.ts → packages/ui (task/create-task.tsx) → test                                                            | pendiente |
-| T3  | S4    | Namespace CreateTask + paridad es/en/pt-br solo claves nuevas          | packages/i18n/src/locales + wiring apps (web next-intl, desktop react-i18next)                                      | pendiente |
-| T4  | S5    | Web consume el componente                                              | contenedor web en apps/web/src/components/task/create-task-dialog.tsx + adaptar tests actuales                      | pendiente |
-| T5  | S6    | Desktop (y por herencia mobile) consume el componente                  | contenedor desktop + slots (template/voz/smart-parse/campos) + typecheck móvil                                    | pendiente |
-| T6  | S7    | Documentación operativa del patrón en COMPONENT_GUIDELINES              | docs/COMPONENT_GUIDELINES.md                                                                                       | pendiente |
+| T0  | S0    | Prerrequisito: CSP prod + sin manualChunks (hotfix release)          | index.html → vite.config.ts → tauri:build → verificación con navegador                                             | COMPLETADO (PR #437 en main `277e81f6`) |
+| T1  | S1    | Matriz de paridad completa (docs en este ODD)                          | inventario via carpeta de componentes + rutas                                                                  | COMPLETADO (registrada en S1 y en #438) |
+| T1b | S3+S4 | Confirmación del shape (impeccable): brief con layout único completo, slots por plataforma y i18n compartido | packages/i18n locales + packages/ui task create-task-form (presentacional) | COMPLETADO (aprobado por usuario) |
+| T2  | S2+S3 | Componente compartido en packages/ui + schema único + tests           | packages/ui/src/components/task/create-task-dialog.tsx + tests (127/127 tests)                                       | COMPLETADO (evidencia L2) |
+| T3  | S4    | Namespace CreateTask + paridad es/en/pt-br solo claves nuevas          | packages/i18n/src/locales (31 claves en es/en/pt-br)                                                                | COMPLETADO (evidencia L2) |
+| T4  | S5    | Web consume el componente                                              | apps/web/src/components/task/create-task-dialog.tsx (303/303 tests, tsc limpio)                                      | COMPLETADO (evidencia L2) |
+| T5  | S6    | Desktop (y por herencia mobile) consume el componente                  | apps/desktop/src/components/task/create-task-dialog.tsx (101/101 tests, tsc móvil limpio, .app reinstalada)         | COMPLETADO (evidencia L2) |
+| T6  | S7    | Documentación operativa del patrón en COMPONENT_GUIDELINES              | docs/guides/packages/ui-components.md                                                                               | COMPLETADO (evidencia L2) |
 
 ## Log
 
@@ -107,3 +107,13 @@ Decisiones de diseño del padre (2026-10-28):
 - Arquitectura: componentes compartidos en `packages/ui`; contenedores delgados por app (hooks, submit, i18n por framework).
 - Idioma: i18n compartido es/en/pt-br (web por next-intl, desktop por react-i18next con el namespace `CreateTask` compartido). Sin literales en apps.
 - Atención registrada: papelera/recurrencia en dupes queda en la matriz de paridad (no se ejecuta ahora), revisión de contraste/foco accesible y validación visible (banner + asociación label/error) forman parte del piloto.
+
+
+L2. Ejecución piloto Create Task (2026-10-28):
+- Componente presentacional único creado en `packages/ui/src/components/task/create-task-dialog.tsx` y exportado desde barrel (`@ordo-todo/ui`). Soporta: Título, Proyecto (con opción "Sin proyecto (express)" y botón "+" para nuevo proyecto), Descripción, Prioridad (4 botones con banderas y labels con alto contraste y semántica de radio accesible), Estimación (min) con slot de Auto IA, Fecha de vencimiento, Asignar a (si hay >1 miembro), Recurrencia (slot), Campos personalizados (slot cuando hay proyecto seleccionado).
+- Namespace `CreateTask` añadido con 31 claves idénticas en `es.json`, `en.json`, `pt-br.json`.
+- `apps/web/src/components/task/create-task-dialog.tsx` reducido de 415 a 170 líneas actuando como contenedor delgado que consume `@ordo-todo/ui` con `useTranslations("CreateTask")`.
+- `apps/desktop/src/components/task/create-task-dialog.tsx` adaptado para consumir `@ordo-todo/ui` con `react-i18next`, inyectando template-selector en `headerActions`, voz y smart-parse en `titleActions`, auto-estimación IA en `autoEstimateAction` y custom-fields en `customFieldsNode`. Se eliminaron esquemas zod locales duplicados.
+- Fixed `packages/hooks/src/__tests__/hooks.test.tsx` (assertion de 4 argumentos de `useTasks` tras ODD 021).
+- Gates: `npx turbo run build` 17/17; `npm run check-types` 15/15; `npx turbo run test` 22/22; `npx tsc --noEmit -p apps/mobile` 0 errores; vitest ui 127/127, web 303/303, desktop 101/101.
+- App desktop recompilada con Tauri (`Ordo-Todo.app` 12.85 MiB) y reinstalada en `/Applications/Ordo-Todo.app`.
