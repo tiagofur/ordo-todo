@@ -51,54 +51,8 @@ export default defineConfig({
                 }),
             ] : [],
             output: {
-                manualChunks: (id: string) => {
-                    if (id.includes('node_modules')) {
-                        if (id.includes('react') || id.includes('react-dom')) {
-                            return 'vendor-react';
-                        }
-                        if (id.includes('react-router')) {
-                            return 'vendor-router';
-                        }
-                        if (id.includes('@tanstack/react-query') || id.includes('zustand')) {
-                            return 'vendor-state';
-                        }
-                        if (id.includes('@ordo-todo/ui') || id.includes('radix-ui') || id.includes('lucide-react')) {
-                            return 'vendor-ui';
-                        }
-                        if (id.includes('react-hook-form') || id.includes('zod')) {
-                            return 'vendor-forms';
-                        }
-                        if (id.includes('recharts') || id.includes('d3')) {
-                            return 'vendor-charts';
-                        }
-                        if (id.includes('date-fns') || id.includes('dayjs')) {
-                            return 'vendor-date';
-                        }
-                        return 'vendor-other';
-                    }
+                // SIN manualChunks manual: el resolve manual histórico generaba ciclos entre chunks (TDZ en producción: "Cannot access before initialization", PR #437)
 
-                    if (id.includes('/pages/')) {
-                        const pageName = id.split('/pages/')[1]?.split('.')[0];
-                        return `page-${pageName}`;
-                    }
-
-                    if (id.includes('/components/')) {
-                        if (id.includes('/components/task/')) return 'feature-tasks';
-                        if (id.includes('/components/timer/')) return 'feature-timer';
-                        if (id.includes('/components/analytics/')) return 'feature-analytics';
-                        if (id.includes('/components/settings/')) return 'feature-settings';
-                        if (id.includes('/components/auth/')) return 'feature-auth';
-                        return 'components-shared';
-                    }
-
-                    if (id.includes('/lib/') || id.includes('/hooks/')) {
-                        return 'utils';
-                    }
-
-                    if (id.includes('/stores/')) {
-                        return 'stores';
-                    }
-                },
                 chunkFileNames: 'assets/[name]-[hash].js',
                 entryFileNames: 'assets/[name]-[hash].js',
                 assetFileNames: (assetInfo: any) => {
