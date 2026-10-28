@@ -134,6 +134,11 @@ export class PlanLimitsService {
     if (!task) {
       return; // unknown task fails later on its own foreign key
     }
+    // ODD 021: las tareas express viven fuera de todo workspace; el límite
+    // de storage es por workspace (decisión D6 del ODD — follow-up: límite propio)
+    if (!task.project) {
+      return;
+    }
     const ownerId = task.project.workspace.ownerId;
     if (!ownerId) {
       return;

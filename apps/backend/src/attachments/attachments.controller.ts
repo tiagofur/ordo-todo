@@ -204,20 +204,29 @@ export class AttachmentsController {
       throw new NotFoundException('Task not found');
     }
 
-    // Verify user is a member of the workspace
-    const member = await this.prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: task.project.workspaceId,
-          userId: user.id,
+    // ODD 021: tarea express (sin proyecto) — solo owner/assignee, sin membership
+    if (!task.project) {
+      if (task.ownerId !== user.id && task.assigneeId !== user.id) {
+        throw new ForbiddenException(
+          'You do not have permission to upload files to this task',
+        );
+      }
+    } else {
+      // Verify user is a member of the workspace
+      const member = await this.prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: task.project.workspaceId,
+            userId: user.id,
+          },
         },
-      },
-    });
+      });
 
-    if (!member) {
-      throw new ForbiddenException(
-        'You do not have permission to upload files to this task',
-      );
+      if (!member) {
+        throw new ForbiddenException(
+          'You do not have permission to upload files to this task',
+        );
+      }
     }
 
     const attachment = await this.attachmentsService.create(

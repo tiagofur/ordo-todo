@@ -112,6 +112,8 @@ export class CommentsService {
       where: { id: createCommentDto.taskId },
       select: {
         id: true,
+        ownerId: true,
+        assigneeId: true,
         project: {
           select: {
             workspaceId: true,
@@ -124,26 +126,36 @@ export class CommentsService {
       throw new NotFoundException('Task not found');
     }
 
-    const membership = await this.prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: task.project.workspaceId,
-          userId: userId,
+    // ODD 021: tarea express (sin proyecto) — solo owner/assignee, sin membership
+    if (!task.project) {
+      if (task.ownerId !== userId && task.assigneeId !== userId) {
+        throw new ForbiddenException(
+          'You do not have permission to comment on this task',
+        );
+      }
+    } else {
+      const membership = await this.prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: task.project.workspaceId,
+            userId: userId,
+          },
         },
-      },
-    });
+      });
 
-    if (!membership) {
-      throw new ForbiddenException(
-        'You do not have permission to comment on this task',
-      );
+      if (!membership) {
+        throw new ForbiddenException(
+          'You do not have permission to comment on this task',
+        );
+      }
     }
 
     // Resolve mentions: explicit member IDs first, exact-name fallback second
+    // (sin proyecto no hay members que mencionar: devuelve [])
     const mentions = await this.resolveMentionedUserIds(
       createCommentDto.content,
       createCommentDto.mentionedUserIds,
-      task.project.workspaceId,
+      task.project?.workspaceId ?? null,
     );
 
     // Execute use case to create comment
@@ -486,8 +498,10 @@ export class CommentsService {
   private async resolveMentionedUserIds(
     content: string,
     mentionedUserIds: string[] | undefined,
-    workspaceId: string,
+    workspaceId: string | null,
   ): Promise<string[]> {
+    // ODD 021: tarea express sin workspace — no hay members que mencionar
+    if (!workspaceId) return [];
     if (mentionedUserIds) {
       const unique = [...new Set(mentionedUserIds)];
       if (unique.length === 0) return [];
@@ -535,7 +549,7 @@ export class CommentsService {
     title: string;
     ownerId: string;
     assigneeId: string | null;
-    workspaceId: string;
+    workspaceId: string | null;
   } | null> {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
@@ -557,7 +571,7 @@ export class CommentsService {
       title: task.title,
       ownerId: task.ownerId,
       assigneeId: task.assigneeId,
-      workspaceId: task.project.workspaceId,
+      workspaceId: task.project?.workspaceId ?? null,
     };
   }
 
