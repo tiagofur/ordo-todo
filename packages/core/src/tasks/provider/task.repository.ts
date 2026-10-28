@@ -105,6 +105,7 @@ export interface TaskRepository {
    * @param userId - The unique identifier of the user
    * @param filters - Optional filters for narrowing results
    * @param filters.projectId - Filter tasks by project ID
+   * @param filters.withoutProject - true = only express tasks (projectId null, ODD 021)
    * @param filters.tags - Filter tasks by tag names
    * @returns Promise that resolves to an array of tasks
    *
@@ -115,7 +116,11 @@ export interface TaskRepository {
    */
   findByWorkspaceMemberships(
     userId: string,
-    filters?: { projectId?: string; tags?: string[] },
+    filters?: {
+      projectId?: string;
+      tags?: string[];
+      withoutProject?: boolean;
+    },
   ): Promise<Task[]>;
 
   /**
@@ -192,7 +197,10 @@ export interface TaskRepository {
    *
    * Useful for implementing a "trash" or "recycle bin" feature.
    *
-   * @param projectId - The unique identifier of the project
+   * @param projectId - The unique identifier of the project; `null` lists the
+   * user's own deleted tasks without a project (ODD 021)
+   * @param userId - Required when `projectId` is null: scopes results to the
+   * requesting user (owner/assignee)
    * @returns Promise that resolves to an array of deleted tasks
    *
    * @example
@@ -200,7 +208,7 @@ export interface TaskRepository {
    * const deletedTasks = await repository.findDeleted('project-456');
    * ```
    */
-  findDeleted(projectId: string): Promise<Task[]>;
+  findDeleted(projectId: string | null, userId?: string): Promise<Task[]>;
 
   /**
    * Finds tasks scheduled for today (due today, overdue, or in progress).
