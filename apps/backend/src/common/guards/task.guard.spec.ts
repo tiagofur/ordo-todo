@@ -1,5 +1,9 @@
 import { Reflector } from '@nestjs/core';
-import { ExecutionContext, NotFoundException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { TaskGuard } from './task.guard';
 import { PrismaService } from '../../database/prisma.service';
 
@@ -155,6 +159,75 @@ describe('TaskGuard', () => {
       expect(prisma.project.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({ where: { id: 'proj-1' } }),
       );
+    });
+  });
+
+  describe('regresiones de seguridad (revisión #431)', () => {
+    it('P0: query string con "/deleted" en una ruta de tarea NO autoriza a un tercero', async () => {
+      // Exploit conocido: GET /tasks/<id>?x=/deleted otorgaba acceso sin
+      // owner/assignee porque request.url incluye la query string
+      prisma.task.findUnique
+        .mockResolvedValueOnce({ project: null }) // getWorkspaceId
+        .mockResolvedValueOnce({
+          ownerId: 'owner-9',
+          assigneeId: 'assignee-9',
+        }); // authorizeWithoutWorkspace
+
+      await expect(
+        guard.canActivate(
+          createContext({
+            params: { id: 'task-1' },
+            query: { x: '/deleted' },
+            url: '/tasks/task-1?x=/deleted',
+            route: { path: '/tasks/:id' },
+          }),
+        ),
+      ).resolves.toBe(false);
+    });
+
+    it('P0: el owner sigue autorizado aunque la query contenga "/deleted"', async () => {
+      prisma.task.findUnique
+        .mockResolvedValueOnce({ project: null })
+        .mockResolvedValueOnce({ ownerId: userId, assigneeId: null });
+
+      await expect(
+        guard.canActivate(
+          createContext({
+            params: { id: 'task-1' },
+            query: { x: '/deleted' },
+            url: '/tasks/task-1?x=/deleted',
+            route: { path: '/tasks/:id' },
+          }),
+        ),
+      ).resolves.toBe(true);
+    });
+
+    it('P1: ?projectId=<mi-proyecto> en una ruta de tarea NO autoriza por el workspace del query', async () => {
+      // La tarea pertenece a OTRO workspace; el usuario solo es miembro del
+      // proyecto que pasa en el query → debe resolverse por LA TAREA
+      prisma.task.findUnique.mockResolvedValue({
+        project: { workspaceId: 'ws-de-la-tarea' },
+      });
+      prisma.workspaceMember.findUnique.mockResolvedValue(null); // no es miembro de ws-de-la-tarea
+
+      await expect(
+        guard.canActivate(
+          createContext({
+            params: { id: 'task-1' },
+            query: { projectId: 'mi-proyecto' },
+            url: '/tasks/task-1?projectId=mi-proyecto',
+            route: { path: '/tasks/:id' },
+          }),
+        ),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+
+      // El workspace contra el que se comprueba membresía es el de la tarea
+      expect(prisma.workspaceMember.findUnique).toHaveBeenCalledWith({
+        where: {
+          workspaceId_userId: { workspaceId: 'ws-de-la-tarea', userId },
+        },
+      });
+      expect(prisma.project.findUnique).not.toHaveBeenCalled();
     });
   });
 });
