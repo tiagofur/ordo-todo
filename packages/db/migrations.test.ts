@@ -68,7 +68,10 @@ describe('Migration Files', () => {
         expect(parts.length).toBeGreaterThan(1);
         const name = parts.slice(1).join('_');
         expect(name.length).toBeGreaterThan(0);
-        expect(name).toMatch(/^[a-z_]+$/);
+        // Dígitos permitidos en el nombre descriptivo (p.ej. billing_t2,
+        // billing_t4_trial_grace). Renombrar migraciones ya aplicadas rompe
+        // `migrate deploy` (el nombre es la clave en _prisma_migrations).
+        expect(name).toMatch(/^[a-z0-9_]+$/);
       });
     });
 

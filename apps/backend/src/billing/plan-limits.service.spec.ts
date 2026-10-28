@@ -315,5 +315,55 @@ describe('PlanLimitsService (ODD 012 S4) — matriz plan×límite', () => {
         service.assertWithinTaskStorageLimit('task1', 1),
       ).resolves.toBeUndefined();
     });
+
+    // ODD 021 S8: bolsa de storage personal para adjuntos de tareas express
+    const expressTask = (ownerId = 'user-1') => ({
+      ownerId,
+      project: null,
+    });
+
+    it('express: Free con 90 MB usados y subida de 20 MB (límite 100 MB) → 402', async () => {
+      mockTask.findUnique.mockResolvedValue(expressTask());
+      subscriptionOf('FREE', 'ACTIVE');
+      mockAttachment.aggregate.mockResolvedValue({
+        _sum: { filesize: 90 * 1e6 },
+      });
+
+      await expect(
+        service.assertWithinTaskStorageLimit('task-exp', 20 * 1e6),
+      ).rejects.toMatchObject({ status: HttpStatus.PAYMENT_REQUIRED });
+      // el plan se consulta por el OWNER de la tarea y el uso agrega solo
+      // las express de ese owner
+      expect(mockAttachment.aggregate).toHaveBeenCalledWith({
+        _sum: { filesize: true },
+        where: { task: { projectId: null, ownerId: 'user-1' } },
+      });
+    });
+
+    it('express: Free con 50 MB usados y subida de 20 MB → pasa', async () => {
+      mockTask.findUnique.mockResolvedValue(expressTask());
+      subscriptionOf('FREE', 'ACTIVE');
+      mockAttachment.aggregate.mockResolvedValue({
+        _sum: { filesize: 50 * 1e6 },
+      });
+
+      await expect(
+        service.assertWithinTaskStorageLimit('task-exp', 20 * 1e6),
+      ).resolves.toBeUndefined();
+    });
+
+    it('express: el uso de la bolsa es por owner, no global', async () => {
+      mockTask.findUnique.mockResolvedValue(expressTask('user-9'));
+      subscriptionOf('FREE', 'ACTIVE');
+      mockAttachment.aggregate.mockResolvedValue({ _sum: { filesize: 0 } });
+
+      await expect(
+        service.assertWithinTaskStorageLimit('task-exp', 10 * 1e6),
+      ).resolves.toBeUndefined();
+      expect(mockAttachment.aggregate).toHaveBeenCalledWith({
+        _sum: { filesize: true },
+        where: { task: { projectId: null, ownerId: 'user-9' } },
+      });
+    });
   });
 });
