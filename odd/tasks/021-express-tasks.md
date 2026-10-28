@@ -10,22 +10,26 @@ Test runner: Jest (backend) · Jest (core, solo `packages/core/test/**`) · Vite
 ## Context (leer primero — presupuesto: estos paths, nada más)
 
 Modelo y migraciones:
+
 - `packages/db/prisma/schema.prisma` — `model Task` 1024-1139: relación requerida `project Project @relation(fields: [projectId]...)` + `projectId String` (1054-1055). `model Project` más arriba (workspace → projects → tasks). Migraciones en `packages/db/prisma/migrations/` (convención de nombre fecha_slug); comandos en `packages/db/package.json` (`db:migrate`). En producción corre `migrate deploy` del pipeline (memoria: Prisma 7 migrate desde packages/db).
 - Convenios TZ-herméticos en specs backend (memoria): fechas timezoneless, nunca `setHours` locales.
 
 Dominio (packages/core):
+
 - `packages/core/src/tasks/model/task.entity.ts:20` — `projectId: string` obligatorio en TaskProps.
 - `packages/core/src/tasks/usecase/create-task.usecase.ts:15` — `CreateTaskInput.projectId: string` obligatorio; pasa tal cual a `Task.create`.
 - `packages/core/src/tasks/usecase/get-deleted-tasks.usecase.ts:7` — `execute(projectId: string)` requerido.
 - `packages/core/src/tasks/provider/task.repository.ts:94,118,203` — `filters.projectId` ya opcional en find/findByWorkspace; `findDeleted(projectId: string)` requerido.
 
 Contratos cliente compartidos:
+
 - `packages/api-client/src/types/task.types.ts` — `Task.projectId: string` (27, obligatorio), `TaskDetails.project: {id,name,workspaceId}` NO nullable (81-85), `CreateTaskDto.projectId: string` (106, obligatorio). Ya nullable/optional: `PublicTaskResponse.project?` (153-157), `TimeBlock.project` (198-202), `GetTasksParams.projectId?` (214).
 - `packages/api-client/src/client.ts` — `createTask` (1398) hereda obligatoriedad del DTO; `getTasks(projectId?, ...)` → `GET /tasks?projectId=` con query opcional (1414-1421); NINGÚN endpoint de tarea mete projectId en el path (todo por `:id` o query).
 - `packages/hooks/src/hooks.ts` — `useTasks(projectId?, tags?, {assignedToMe})` ya opcional (612-617); `useCreateTask.onSuccess` invalida `queryKeys.tasks(task.projectId)` (641) → con null invalida clave inútil.
 - `packages/hooks/src/schemas.ts:95` — `createTaskSchema`: `projectId: z.string().min(1, "Project is required")`.
 
 Backend (apps/backend):
+
 - `apps/backend/src/tasks/dto/create-task.dto.ts` — `@IsString() @MinLength(1) projectId: string` (obligatorio). `dto/create-subtask.dto.ts:18` — `projectId?: string` ya opcional.
 - `apps/backend/src/tasks/tasks.service.ts` — `create` 104-150 (llama `assertAssigneeIsWorkspaceMember(assigneeId, projectId)` 105-108 y fuerza `assigneeId ?? userId` 115); `assertAssigneeIsWorkspaceMember` 863-892 (busca project→workspace; `NotFoundException` si proyecto no existe — con projectId null hay que cortar antes); `findAll` 265-308 vía `findByWorkspaceMemberships(userId, {projectId, tags})`; `getDeleted(projectId)` 958-980 requerido; subtareas 1043-1063: `projectId` del hijo se ancla al del padre (`parentTask.props.projectId`) — con padre express hereda null.
 - `apps/backend/src/common/guards/base-resource.guard.ts` — `canActivate`: `getWorkspaceId(request)` null → **return false** (403). Sin soporte de autorización alternativa.
@@ -35,6 +39,7 @@ Backend (apps/backend):
 - `apps/backend/src/tasks/tasks.controller.ts` — `POST /tasks` con `CreateTaskGuard` (79-90); `GET /tasks/deleted` con `TaskGuard` + `@Query('projectId') projectId: string` (324-342); `GET /tasks` (421) pasa query a findAll.
 
 Frontend (apps/web):
+
 - Creación que EXIGE proyecto: `components/task/create-task-dialog.tsx` — zod `projectId: z.string().min(1)` (131), `watch('projectId')` + `useProject(watchedProjectId)` para assignee/custom fields (163-177), select obligatorio + empty state "You need a project to create tasks" (107, 216, 293-317); `components/task/quick-add-dialog.tsx:29-45` — resuelve proyecto por hint NLP o **fallback al primer proyecto** (`if (!projectId) return`); `components/task/task-form.tsx:14,61-62,79` — `onSubmit({title, projectId})` con botón `disabled` sin projectId; `components/task/custom-field-inputs.tsx:32,47,273-275` + `create-task-custom-fields-wrapper.tsx` — custom fields son POR PROYECTO (`useCustomFields(projectId)`).
 - Filtro por workspace que EXCLUIRÍA express en silencio: `app/[locale]/(pages)/tasks/page.tsx:157-167`, `app/[locale]/(pages)/dashboard/page.tsx:181-193`, `components/planning/daily-ritual-dialog.tsx:111` — patrón `taskWsId = task.project?.workspace?.id || task.project?.workspaceId` + match contra proyectos del workspace → tarea sin proyecto no matchea y DESAPARECE cuando hay workspace seleccionado. (Desktop Eisenhower ya usa el patrón correcto: `!t.projectId || workspaceProjectIds.has(t.projectId)`.)
 - Mostrar proyecto (ya con guard, solo tipos): `components/task/task-card-compact.tsx:279,473-480` (`showProject && task.project && ...`), `components/dashboard/upcoming-tasks-widget.tsx:133-140`, `packages/ui/src/components/task/task-card.tsx:100` (`task.project?.color || '#8b5cf6'`).
@@ -80,7 +85,9 @@ Fuera de alcance: **desktop** (formularios duplicados en `apps/desktop/src` — 
 - `packages/hooks/src/{schemas.ts,hooks.ts,query-keys.ts}`
 - `packages/i18n/src/locales/{es,en,pt-br}.json`
 - `apps/backend/src/tasks/**` (dto, service, controller, specs)
-- `apps/backend/src/common/guards/{base-resource.guard.ts,task.guard.ts,create-task.guard.ts}` + sus specs
+- `apps/backend/src/common/guards/{base-resource.guard.ts,task.guard.ts,create-task.guard.ts,attachment.guard.ts,comment.guard.ts}` + sus specs (attachment/comment: mismo fallback owner/assignee, hallazgo L2)
+- `apps/backend/src/attachments/attachments.controller.ts`, `apps/backend/src/comments/comments.service.ts` (autorización de express, hallazgo L2)
+- `apps/backend/src/billing/plan-limits.service.ts`, `apps/backend/src/calendar-sync/calendar-push.service.ts`, `apps/backend/src/mcp/mcp-catalog.service.ts` (null-safety + decisiones D6/D7/D8, hallazgo L2)
 - `apps/backend/src/repositories/task.repository.ts` + spec
 - `apps/web/src/components/task/**`, `apps/web/src/components/tasks/quick-filters.tsx`, `apps/web/src/components/planning/daily-ritual-dialog.tsx`, `apps/web/src/components/trash/unified-trash-view.tsx`
 - `apps/web/src/app/[locale]/(pages)/tasks/**`, `apps/web/src/app/[locale]/(pages)/dashboard/page.tsx`
@@ -104,19 +111,30 @@ Esperado: migración aplica sin datos tocados; specs nuevos RED antes de impleme
 
 ## Tasks
 
-| T# | Specs | Entrega | Ruta sugerida | Estado |
-|----|-------|---------|---------------|--------|
-| T1 | S1–S4 | PR 1: schema + core + api-client + backend (guards/servicio/repo) con tests | bottom-up: Prisma → core → api-client/hooks → guards → service/repo → specs | pendiente |
-| T2 | S5 | PR 2: web creación sin proyecto (dialog, quick-add, hooks, i18n) + tests | schemas.ts → create-task-dialog → quick-add-dialog → i18n → tests | pendiente |
-| T3 | S6–S7 | PR 3: web visibilidad (workspace/ritual/dashboard), chip "Sin proyecto", papelera + tests + gates | tasks/page → dashboard → ritual → detail-panel → quick-filters → trash → gates | pendiente |
+| T#  | Specs | Entrega                                                                                           | Ruta sugerida                                                                  | Estado                       |
+| --- | ----- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------- |
+| T1  | S1–S4 | PR 1: schema + core + api-client + backend (guards/servicio/repo) con tests                       | bottom-up: Prisma → core → api-client/hooks → guards → service/repo → specs    | COMPLETADO (evidencia en L2) |
+| T2  | S5    | PR 2: web creación sin proyecto (dialog, quick-add, hooks, i18n) + tests                          | schemas.ts → create-task-dialog → quick-add-dialog → i18n → tests              | pendiente                    |
+| T3  | S6–S7 | PR 3: web visibilidad (workspace/ritual/dashboard), chip "Sin proyecto", papelera + tests + gates | tasks/page → dashboard → ritual → detail-panel → quick-filters → trash → gates | pendiente                    |
 
 ## Log
 
 L1. Pedido original (2026-10-28): "debemos de dar la opcion de crear una tarea fuera de un proyecto, que sea una 'tarea express' o algo que el usuario tiene que hacer pero no esta ligado a un proyecto"
 
 Decisiones de diseño del padre (2026-10-28):
+
 - D1: `projectId` nullable en vez de proyecto-fantasma "Inbox": el pedido es explícito ("no está ligado a un proyecto"); un proyecto oculto se filtraría en listas de proyectos, analytics por proyecto y permisos de collab para siempre.
 - D2: express = personal (owner/assignee). Sin proyecto no hay workspace que amplíe visibilidad ni valide miembros → assignee forzado al creador (A1/A2).
 - D3: una express aparece en TODAS las vistas globales con independencia del workspace seleccionado (es "del usuario"), patrón que desktop Eisenhower ya usa (`!projectId || has(...)`).
 - D4: etiqueta UI "Sin proyecto" (descriptiva del estado); "tarea express" queda como nombre del feature en docs/issue.
 - D5: desktop fuera de alcance esta ODD (formularios duplicados + bug latente `subtask-list.tsx:39` con `projectId: "default"`); mobile no necesita cambios (0 refs).
+
+L2. Cierre de T1 (2026-10-28, padre). Evidencia: `npx prisma migrate deploy` aplicó `20261028100000_task_project_nullable` en local; `npx jest` backend 140 suites / 1487 tests verdes (incluye specs nuevos: tasks.service express create/subtask/getDeleted/findAll-withoutProject, task.guard.spec y create-task.guard.spec nuevos); `npx turbo run build` 17/17; `npx turbo run test` 3/3; `tsc --noEmit` backend diff vs main = 0 errores nuevos. Hallazgos que AMPLIARON superficies (aprobado por el padre editando este doc, regla 6 del README):
+
+- (a) `attachment.guard.ts` / `comment.guard.ts` derivaban workspace de `task.project.workspaceId` → crash/403 con express; mismo fallback owner/assignee que TaskGuard (S3 ampliado a estos guards; `attachments.controller.ts` y `comments.service.ts` tenían el patrón duplicado en el servicio).
+- (b) `comments.service.ts`: @menciones requieren workspace → en express devuelven [] (no hay members que mencionar).
+- (c) `plan-limits.service.ts` (D6): el límite de storage es por workspace; los adjuntos de tareas express quedan FUERA del cómputo (check temprano return). Follow-up: límite personal para express.
+- (d) `calendar-push.service.ts` (D7): las express NO se sincronizan a calendarios externos (los ajustes resuelven desde `project.settings.calendar`). Follow-up si el usuario lo pide.
+- (e) `mcp-catalog.service.ts` (D8): en `ordo_task_list` las express aparecen con projectName/workspaceId null y quedan fuera del filtro por workspace; `ordo_task_assign` rechaza asignar otros sobre una express ('Task has no resolvable workspace') — coherente con A2.
+- Nota de proceso: el cambio de tipos (Prisma/client) obligó a implementar antes que los specs; specs nuevos verificados GREEN y suites previas PRESERVE (1487). RED explícito no aplicable sin romper el build completo.
+- Nota de entorno: migración local creada vía directorio manual + `migrate deploy` porque `migrate dev` pedía RESET por checksum de `20261027204750_billing_t4_trial_grace` modificado tras aplicarse (solo local, el fichero está intacto en git; NO se tocó).
