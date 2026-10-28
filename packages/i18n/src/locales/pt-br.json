@@ -16,7 +16,9 @@
       "renews": "Renova em {date}",
       "free": "Plano Free",
       "manage": "Gerenciar assinatura e faturas",
-      "graceNotice": "Você cancelou sua assinatura: mantém o Ordo Pro e todos os seus dados até {date}. Depois passa para o plano Free — nada é apagado."
+      "graceNotice": "Você cancelou sua assinatura: mantém o Ordo Pro e todos os seus dados até {date}. Depois passa para o plano Free — nada é apagado.",
+      "trialBannerTitle": "Aproveitando 14 dias de teste do Ordo Pro sem cartão ({days} {days, plural, one {dia restante} other {dias restantes}})",
+      "trialBannerDescription": "Você tem acesso completo a projetos ilimitados, até 3 espaços de trabalho, 10 GB de armazenamento e 100 créditos de IA de boas-vindas. Em {date}, você passará automaticamente para o plano Free, a menos que decida assinar. Suas tarefas e dados existentes sempre estarão acessíveis e nunca serão apagados."
     },
     "usage": {
       "projects": "Projetos",
@@ -25,7 +27,8 @@
       "unlimited": "Ilimitado",
       "custom": "Sob medida",
       "credits": "Créditos de IA",
-      "creditsPerMonth": "{credits}/mês incluídos"
+      "creditsPerMonth": "{credits}/mês incluídos",
+      "trialCredits": "{credits} de boas-vindas incluídos no teste"
     },
     "plans": {
       "title": "Planos disponíveis",
@@ -41,10 +44,18 @@
       "perYear": "/ano",
       "perSeatPerYear": "/assento/ano",
       "seats": "Assentos:",
-      "enterpriseNote": "Precisa de Enterprise (SSO, DPA, limites sob medida)? Escreva para"
+      "enterpriseNote": "Precisa de Enterprise (SSO, DPA, limites sob medida)? Escreva para",
+      "activeTrialBadge": "Teste ({days}d)",
+      "trialCurrentButton": "Plano de teste atual"
     },
     "pageTitle": "Assinatura e faturamento",
-    "pageSubtitle": "Seu plano, uso atual e faturas"
+    "pageSubtitle": "Seu plano, uso atual e faturas",
+    "dashboardBanner": {
+      "title": "Teste do Ordo Pro ativo ({days} {days, plural, one {dia restante} other {dias restantes}})",
+      "description": "Aproveitando projetos ilimitados, 3 espaços e 100 créditos de IA. Nada será cobrado ao terminar.",
+      "cta": "Ver meu plano",
+      "dismiss": "Fechar aviso"
+    }
   },
   "Calendar": {
     "title": "Calendário",

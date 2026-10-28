@@ -50,6 +50,7 @@ import { ProductivityStreakWidget } from "@/components/dashboard/productivity-st
 import { HabitsWidget } from "@/components/dashboard/habits-widget";
 import { OkrWidget } from "@/components/dashboard/okr-widget";
 import { AIInsightsWidget } from "@/components/dashboard/ai-insights-widget";
+import { DashboardTrialBanner } from "@/components/dashboard/trial-banner";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useRouter } from "next/navigation";
@@ -325,6 +326,9 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Banner de prueba activa (ODD 012 S5) */}
+        <DashboardTrialBanner />
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-3.5">
