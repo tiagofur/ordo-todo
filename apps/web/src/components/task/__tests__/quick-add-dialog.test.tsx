@@ -70,7 +70,8 @@ describe('QuickAddDialog (S2)', () => {
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'informe',
-          projectId: 'proj-1',
+          // Sin #hint: tarea express, no el primer proyecto (ODD 021)
+          projectId: undefined,
           dueDate: '2026-10-23T09:00:00.000Z',
         }),
         expect.anything(),
@@ -125,7 +126,7 @@ describe('QuickAddDialog (S2)', () => {
     });
   });
 
-  it('falls back to the first project without a hint', async () => {
+  it('creates an express task (no project) when there is no hint (ODD 021)', async () => {
     mockProjectsState.projects = [
       { id: 'proj-1', name: 'Work', slug: 'work' },
       { id: 'proj-2', name: 'Personal', slug: 'personal' },
@@ -135,21 +136,29 @@ describe('QuickAddDialog (S2)', () => {
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ projectId: 'proj-1' }),
+        expect.objectContaining({ projectId: undefined }),
         expect.anything(),
       );
     });
   });
 
-  it('warns and does not create when there are no projects', () => {
+  it('creates an express task even with zero projects (ODD 021)', async () => {
     mockProjectsState.projects = [];
     const onClose = vi.fn();
     render(<QuickAddDialog open={true} onClose={onClose} />);
     typeAndSubmit();
 
-    expect(mockMutate).not.toHaveBeenCalled();
-    expect(toast.error).toHaveBeenCalledWith('noProject');
-    expect(onClose).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'informe',
+          projectId: undefined,
+        }),
+        expect.anything(),
+      );
+    });
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('passes recurrence through to the created task', async () => {

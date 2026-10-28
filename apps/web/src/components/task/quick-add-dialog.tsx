@@ -24,7 +24,7 @@ export function QuickAddDialog({ open, onClose, defaultProjectId }: QuickAddDial
   const createTask = useCreateTask();
   const { data: projects } = useAllProjects();
 
-  const resolveProjectId = useCallback((): string | null => {
+  const resolveProjectId = useCallback((): string | undefined => {
     if (defaultProjectId) return defaultProjectId;
     const hint = parsed?.projectHint?.toLowerCase();
     if (hint && projects) {
@@ -35,17 +35,14 @@ export function QuickAddDialog({ open, onClose, defaultProjectId }: QuickAddDial
       );
       if (match) return match.id;
     }
-    // Fallback: first project. No silent inbox invention.
-    return projects?.[0]?.id ?? null;
+    // ODD 021: sin proyecto resuelto → tarea express (sin projectId);
+    // ya no se cae al primer proyecto ni se bloquea la creación.
+    return undefined;
   }, [defaultProjectId, parsed?.projectHint, projects]);
 
   const handleSubmit = useCallback(
     (value: string) => {
       const projectId = resolveProjectId();
-      if (!projectId) {
-        toast.error(t("noProject"));
-        return;
-      }
       const title = parsed?.title || value;
       // Optimistic: dismiss immediately, confirm via toast.
       setInput("");

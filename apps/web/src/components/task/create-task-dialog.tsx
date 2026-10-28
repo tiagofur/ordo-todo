@@ -18,8 +18,7 @@ import { Label } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { EmptyState } from '@/components/ui';
-import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
+import { Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
 import { serializeCalendarDateForApi } from '@ordo-todo/core';
 import { useProject, useWorkspaceMembers } from '@/lib/api-hooks';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector';
@@ -33,7 +32,8 @@ interface ProjectOption {
 interface CreateTaskFormData {
   title: string;
   description?: string;
-  projectId: string;
+  /** Opcional (ODD 021): undefined = tarea express sin proyecto */
+  projectId?: string;
   priority: string;
   dueDate?: string;
   estimatedMinutes?: number;
@@ -70,6 +70,7 @@ interface CreateTaskDialogProps {
     formTitlePlaceholder?: string;
     formProject?: string;
     formSelectProject?: string;
+    formNoProject?: string;
     formDescription?: string;
     formDescriptionPlaceholder?: string;
     formPriority?: string;
@@ -93,6 +94,7 @@ const DEFAULT_LABELS = {
   formTitlePlaceholder: 'What needs to be done?',
   formProject: 'Project',
   formSelectProject: 'Select a project',
+  formNoProject: 'No project (express)',
   formDescription: 'Description',
   formDescriptionPlaceholder: 'Add details...',
   formPriority: 'Priority',
@@ -115,8 +117,6 @@ export function CreateTaskDialog({
   onOpenChange,
   projectId,
   projects = [],
-  isLoadingProjects = false,
-  onRequestCreateProject,
   onSubmit,
   onGenerateAIDescription,
   isPending = false,
@@ -126,9 +126,10 @@ export function CreateTaskDialog({
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Schema extension for form validation
+  // ODD 021: projectId opcional — vacío crea una tarea express sin proyecto
   const formSchema = createTaskSchema.extend({
     title: z.string().min(1, t.validation.titleRequired),
-    projectId: z.string().min(1, t.validation.projectRequired),
+    projectId: z.string().optional(),
     recurrence: z.object({
       pattern: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM']),
       interval: z.number().optional(),
@@ -174,7 +175,7 @@ export function CreateTaskDialog({
     const outputData: CreateTaskFormData = {
       title: data.title,
       description: data.description || undefined,
-      projectId: data.projectId,
+      projectId: data.projectId || undefined,
       priority: data.priority,
       estimatedMinutes: data.estimatedMinutes || undefined,
       dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
@@ -212,29 +213,6 @@ export function CreateTaskDialog({
     { value: 'HIGH', label: t.priorities.high, bg: 'bg-orange-500', border: 'border-orange-500' },
     { value: 'URGENT', label: t.priorities.urgent || 'Urgent', bg: 'bg-red-500', border: 'border-red-500' },
   ];
-
-  const showEmptyState = !projectId && !isLoadingProjects && projects.length === 0;
-
-  if (showEmptyState) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-          <div className="p-6">
-            <EmptyState
-              icon={Briefcase}
-              title={t.emptyState.title}
-              description={t.emptyState.description}
-              actionLabel={t.emptyState.action}
-              onAction={() => {
-                 onOpenChange(false);
-                 onRequestCreateProject?.();
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -289,7 +267,7 @@ export function CreateTaskDialog({
               {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
 
-            {/* Project Selection (if not provided) */}
+            {/* Project Selection (if not provided) — opcional: vacío = tarea express (ODD 021) */}
             {!projectId && (
               <div className="space-y-2">
                 <Label htmlFor="projectId" className="text-sm font-medium text-foreground">
@@ -300,16 +278,13 @@ export function CreateTaskDialog({
                   {...register('projectId')}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">{t.formSelectProject}</option>
+                  <option value="">{t.formNoProject}</option>
                   {projects.map((project) => (
                     <option key={project.id} value={project.id}>
                       {project.name}
                     </option>
                   ))}
                 </select>
-                {errors.projectId && (
-                  <p className="text-sm text-red-500">{errors.projectId.message}</p>
-                )}
               </div>
             )}
 

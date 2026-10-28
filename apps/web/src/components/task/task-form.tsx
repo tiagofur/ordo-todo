@@ -6,12 +6,12 @@ import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 
 interface TaskFormProps {
-  /** Project ID to create task in */
+  /** Project ID to create task in; omit for an express task without project (ODD 021) */
   projectId?: string;
   /** Whether task creation is pending */
   isPending?: boolean;
   /** Called when form is submitted */
-  onSubmit?: (data: { title: string; projectId: string }) => void;
+  onSubmit?: (data: { title: string; projectId?: string }) => void;
   /** Custom labels for i18n */
   labels?: {
     label?: string;
@@ -58,7 +58,8 @@ export function TaskForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !projectId) return;
+    // ODD 021: sin projectId la tarea se crea como express
+    if (!title.trim()) return;
     onSubmit?.({ title: title.trim(), projectId });
     setTitle('');
   };
@@ -76,7 +77,7 @@ export function TaskForm({
           disabled={isPending}
         />
       </div>
-      <Button type="submit" disabled={isPending || !title.trim() || !projectId}>
+      <Button type="submit" disabled={isPending || !title.trim()}>
         {isPending ? adding : add}
       </Button>
     </form>
