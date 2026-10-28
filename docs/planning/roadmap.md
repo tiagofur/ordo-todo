@@ -98,6 +98,7 @@ Notas:
 | `odd/tasks/018-collab-hardening.md` | #333 | M4 Confianza + ingresos | [TASK] Collab hardening multiusuario (asignación, menciones, roles) — prerrequisito de #240 |
 | `odd/tasks/019-admin-invite-codes.md` | #353 | M4 Confianza + ingresos | [TASK] Panel de admin + registro por invitación (códigos, bloqueo, regalar Pro) |
 | `odd/tasks/021-express-tasks.md` | #430 | M2 Imbatible a diario | [FEATURE] Tareas sin proyecto (tarea express): crear/listar/papelera sin projectId |
+| `odd/tasks/022-cross-app-parity.md` | #438 | M2 Imbatible a diario | [TASK] Paridad pantallas/formularios web↔desktop↔mobile (piloto Create Task, patrón packages/ui) |
 
 ## Reglas de ejecución
 

@@ -588,3 +588,24 @@ describe('Button (Mobile)', () => {
 - [UI Architecture Strategy](./ui-architecture.md)
 - [Web Development Guide](../development/web-development.md)
 - [Mobile Development Guide](../development/mobile-development.md)
+
+---
+
+## 🧩 Unified Domain Dialog Pattern (ODD 022 / Issue #438)
+
+To maintain cross-platform parity between Web, Desktop, and Mobile without code duplication:
+
+1. **Presentational Dialog in `@ordo-todo/ui`**:
+   - Resides in `packages/ui/src/components/[domain]/[name]-dialog.tsx`.
+   - Pure UI logic: accessible Radix primitives, layout, form styling, focus rings, localized labels passed as props.
+   - Slot-based extensibility (`headerActions`, `titleActions`, `descriptionActions`, etc.) accepting render props `({ setValue, getValues }) => ReactNode`.
+   - Never directly calls data hooks (`useQuery`), framework-specific routing, or i18n hooks.
+
+2. **Shared i18n Namespace in `@ordo-todo/i18n`**:
+   - Defined in `packages/i18n/src/locales/{en,es,pt-br}.json`.
+   - Consumed via `next-intl` on Web (`useTranslations('[Namespace]')`) and via `react-i18next` on Desktop/Mobile (`useTranslation()`).
+
+3. **Thin Containers in Applications**:
+   - `apps/web/src/components/[domain]/[name]-dialog.tsx`: fetches web data hooks, attaches web-specific slots (e.g. AI generation), maps `next-intl` labels, and submits.
+   - `apps/desktop/src/components/[domain]/[name]-dialog.tsx`: fetches desktop hooks, attaches desktop slots (e.g. voice input, smart parse, template selector), maps `react-i18next` labels, and submits.
+

@@ -1,47 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { createTaskSchema } from '@ordo-todo/hooks';
+import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui';
-import { Label } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Textarea } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
-import { serializeCalendarDateForApi } from '@ordo-todo/core';
-import { useProject, useWorkspaceMembers } from '@/lib/api-hooks';
-import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector';
+  CreateTaskDialog as SharedCreateTaskDialog,
+  type CreateTaskFormData as SharedCreateTaskFormData,
+  type CreateTaskDialogLabels,
+  type ProjectOption,
+} from "@ordo-todo/ui";
+import { Sparkles } from "lucide-react";
+import { serializeCalendarDateForApi } from "@ordo-todo/core";
+import { useProject, useWorkspaceMembers, useProjects } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { RecurrenceSelector, RecurrenceValue } from "./recurrence-selector";
 
-
-interface ProjectOption {
-  id: string;
-  name: string;
-}
-
-interface CreateTaskFormData {
-  title: string;
-  description?: string;
-  /** Opcional (ODD 021): undefined = tarea express sin proyecto */
-  projectId?: string;
-  priority: string;
-  dueDate?: string;
-  estimatedMinutes?: number;
+export type { ProjectOption };
+export interface CreateTaskFormData
+  extends Omit<SharedCreateTaskFormData, "recurrence"> {
   recurrence?: RecurrenceValue;
-  assigneeId?: string;
 }
 
-interface CreateTaskDialogProps {
+export interface CreateTaskDialogProps {
   /** Whether dialog is open */
   open: boolean;
   /** Called when open state changes */
@@ -52,7 +32,7 @@ interface CreateTaskDialogProps {
   projects?: ProjectOption[];
   /** Whether projects are loading */
   isLoadingProjects?: boolean;
-  /** Called to request creating a new project (empty state action) */
+  /** Called to request creating a new project */
   onRequestCreateProject?: () => void;
   /** Called when form is submitted */
   onSubmit: (data: CreateTaskFormData) => Promise<void> | void;
@@ -61,366 +41,154 @@ interface CreateTaskDialogProps {
   /** Whether submission is pending */
   isPending?: boolean;
   /** Custom labels */
-  labels?: {
-    title?: string;
-    description?: string;
-    aiMagic?: string;
-    aiGenerating?: string;
-    formTitle?: string;
-    formTitlePlaceholder?: string;
-    formProject?: string;
-    formSelectProject?: string;
-    formNoProject?: string;
-    formDescription?: string;
-    formDescriptionPlaceholder?: string;
-    formPriority?: string;
-    formEstimatedMinutes?: string;
-    formDueDate?: string;
-    formAssignee?: string;
-    formUnassigned?: string;
-    priorities?: { low: string; medium: string; high: string; urgent?: string };
-    buttons?: { cancel: string; create: string; creating: string };
-    emptyState?: { title: string; description: string; action: string };
-    validation?: { titleRequired: string; projectRequired: string };
-  };
+  labels?: Partial<CreateTaskDialogLabels>;
 }
-
-const DEFAULT_LABELS = {
-  title: 'Create Task',
-  description: 'Add a new task to your project.',
-  aiMagic: 'AI Magic',
-  aiGenerating: 'Generating...',
-  formTitle: 'Title',
-  formTitlePlaceholder: 'What needs to be done?',
-  formProject: 'Project',
-  formSelectProject: 'Select a project',
-  formNoProject: 'No project (express)',
-  formDescription: 'Description',
-  formDescriptionPlaceholder: 'Add details...',
-  formPriority: 'Priority',
-  formEstimatedMinutes: 'Est. Minutes',
-  formDueDate: 'Due Date',
-  formAssignee: 'Assign to',
-  formUnassigned: 'Unassigned',
-  priorities: { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' },
-  buttons: { cancel: 'Cancel', create: 'Create Task', creating: 'Creating...' },
-  emptyState: {
-    title: 'No Projects Found',
-    description: 'You need a project to create tasks.',
-    action: 'Create Project',
-  },
-  validation: { titleRequired: 'Title is required', projectRequired: 'Project is required' },
-};
 
 export function CreateTaskDialog({
   open,
   onOpenChange,
   projectId,
-  projects = [],
+  projects: propProjects,
+  onRequestCreateProject,
   onSubmit,
   onGenerateAIDescription,
   isPending = false,
   labels = {},
 }: CreateTaskDialogProps) {
-  const t = { ...DEFAULT_LABELS, ...labels };
+  const t = useTranslations("CreateTask");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || "");
+  const [recurrence, setRecurrence] = useState<RecurrenceValue | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Schema extension for form validation
-  // ODD 021: projectId opcional — vacío crea una tarea express sin proyecto
-  const formSchema = createTaskSchema.extend({
-    title: z.string().min(1, t.validation.titleRequired),
-    projectId: z.string().optional(),
-    recurrence: z.object({
-      pattern: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM']),
-      interval: z.number().optional(),
-      daysOfWeek: z.array(z.number()).optional(),
-      dayOfMonth: z.number().optional(),
-      endDate: z.date().optional(),
-    }).optional(),
-    assigneeId: z.string().optional(),
-  });
+  const selectedWorkspaceId = useWorkspaceStore((state) => state.selectedWorkspaceId);
+  const { data: fetchedProjects } = useProjects(selectedWorkspaceId || "");
+  const projects = useMemo(() => {
+    if (propProjects && propProjects.length > 0) return propProjects;
+    return (
+      fetchedProjects?.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+      })) || []
+    );
+  }, [propProjects, fetchedProjects]);
 
-  type CreateTaskForm = z.infer<typeof formSchema>;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CreateTaskForm>({
-    resolver: zodResolver(formSchema) as any,
-    defaultValues: {
-      priority: 'MEDIUM',
-      projectId: projectId || '',
-      recurrence: undefined,
-    },
-  });
-
-  const currentPriority = watch('priority');
-
-  // Workspace members of the selected project, for the optional assignee field
-  const watchedProjectId = watch('projectId');
-  const { data: selectedProject } = useProject(watchedProjectId || projectId || '');
+  const activeProjectId = projectId || selectedProjectId;
+  const { data: selectedProject } = useProject(activeProjectId || "");
   const { data: workspaceMembers = [] } = useWorkspaceMembers(
-    selectedProject?.workspaceId ?? '',
-  );
-  const assignableMembers = workspaceMembers.filter(
-    (member: { user?: { id: string } | null }) => !!member.user,
+    selectedProject?.workspaceId ?? ""
   );
 
-  const handleFormSubmit = async (data: CreateTaskForm) => {
-    // Adapter for form data to output data
-    const outputData: CreateTaskFormData = {
-      title: data.title,
-      description: data.description || undefined,
-      projectId: data.projectId || undefined,
-      priority: data.priority,
-      estimatedMinutes: data.estimatedMinutes || undefined,
-      dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
-      recurrence: data.recurrence as RecurrenceValue | undefined,
-      assigneeId: data.assigneeId || undefined,
-    };
-
+  // Helper that uses next-intl translation if available, or falls back to English default
+  const resolve = (key: string, fallback: string): string => {
     try {
-      await onSubmit(outputData);
-      reset();
-      onOpenChange(false);
-    } catch (error) {
-      toast.error('Error al crear la tarea');
-    }
-  };
-
-  const handleAIMagic = async () => {
-    const title = watch('title');
-    if (!title || !onGenerateAIDescription) return;
-
-    setIsGenerating(true);
-    try {
-      const description = await onGenerateAIDescription(title);
-      setValue('description', description);
+      const val = t(key);
+      if (val && val !== key) return val;
     } catch {
-      toast.error('Error al generar descripción con IA');
-    } finally {
-      setIsGenerating(false);
+      // ignore
     }
+    return fallback;
   };
 
-  const priorities = [
-    { value: 'LOW', label: t.priorities.low, bg: 'bg-blue-500', border: 'border-blue-500' },
-    { value: 'MEDIUM', label: t.priorities.medium, bg: 'bg-yellow-500', border: 'border-yellow-500' },
-    { value: 'HIGH', label: t.priorities.high, bg: 'bg-orange-500', border: 'border-orange-500' },
-    { value: 'URGENT', label: t.priorities.urgent || 'Urgent', bg: 'bg-red-500', border: 'border-red-500' },
-  ];
+  const resolvedLabels: CreateTaskDialogLabels = {
+    title: resolve("title", "Create Task"),
+    description: resolve("description", "Add a new task to your project."),
+    formTitle: resolve("formTitle", "Title"),
+    formTitlePlaceholder: resolve("formTitlePlaceholder", "What needs to be done?"),
+    formProject: resolve("formProject", "Project"),
+    formNoProject: resolve("formNoProject", "No project (express)"),
+    formCreateProject: resolve("formCreateProject", "Create new project"),
+    formDescription: resolve("formDescription", "Description"),
+    formDescriptionPlaceholder: resolve("formDescriptionPlaceholder", "Add details..."),
+    formPriority: resolve("formPriority", "Priority"),
+    formAssignee: resolve("formAssignee", "Assign to"),
+    formUnassigned: resolve("formUnassigned", "Unassigned"),
+    formEstimatedMinutes: resolve("formEstimatedMinutes", "Est. Minutes"),
+    formDueDate: resolve("formDueDate", "Due Date"),
+    formRecurrence: resolve("formRecurrence", "Recurrence"),
+    formCustomFields: resolve("formCustomFields", "Custom fields"),
+    cancel: resolve("cancel", "Cancel"),
+    create: resolve("create", "Create Task"),
+    creating: resolve("creating", "Creating..."),
+    priorities: {
+      low: resolve("priorities.low", "Low"),
+      medium: resolve("priorities.medium", "Medium"),
+      high: resolve("priorities.high", "High"),
+      urgent: resolve("priorities.urgent", "Urgent"),
+    },
+    validation: {
+      titleRequired: resolve("validation.titleRequired", "Title is required"),
+    },
+    ...labels,
+  };
+
+  const handleFormSubmit = async (data: SharedCreateTaskFormData) => {
+    try {
+      await onSubmit({
+        ...data,
+        dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
+        recurrence,
+      });
+      setRecurrence(undefined);
+      onOpenChange(false);
+    } catch {
+      toast.error(resolve("createError", "Error al crear la tarea"));
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 pb-4 border-b border-border flex-shrink-0">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-semibold text-foreground">
-                {t.title}
-              </DialogTitle>
-              {onGenerateAIDescription && (
-                <button
-                  type="button"
-                  onClick={handleAIMagic}
-                  disabled={isGenerating}
-                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-500/10 rounded-full hover:bg-purple-500/20 transition-colors duration-200 disabled:opacity-50"
-                >
-                  <Sparkles
-                    className={`w-3.5 h-3.5 ${
-                      isGenerating ? 'animate-spin' : 'animate-pulse'
-                    }`}
-                  />
-                  {isGenerating ? t.aiGenerating : t.aiMagic}
-                </button>
-              )}
-            </div>
-            <DialogDescription className="text-muted-foreground">
-              {t.description}
-            </DialogDescription>
-          </DialogHeader>
-        </div>
-
-        <form
-          id="create-task-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(handleFormSubmit)(e);
-          }}
-          className="flex-1 overflow-y-auto p-6 space-y-5"
-        >
-            {/* Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium text-foreground">
-                {t.formTitle}
-              </Label>
-              <Input
-                id="title"
-                {...register('title')}
-                placeholder={t.formTitlePlaceholder}
-                autoFocus
-              />
-              {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
-            </div>
-
-            {/* Project Selection (if not provided) — opcional: vacío = tarea express (ODD 021) */}
-            {!projectId && (
-              <div className="space-y-2">
-                <Label htmlFor="projectId" className="text-sm font-medium text-foreground">
-                  {t.formProject}
-                </Label>
-                <select
-                  id="projectId"
-                  {...register('projectId')}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">{t.formNoProject}</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Hidden project ID if provided */}
-            {projectId && <input type="hidden" {...register('projectId')} />}
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">
-                {t.formDescription}
-              </Label>
-              <Textarea
-                id="description"
-                {...register('description')}
-                className="min-h-[100px] resize-none"
-                placeholder={t.formDescriptionPlaceholder}
-              />
-            </div>
-
-            {/* Priority */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">{t.formPriority}</Label>
-              <div className="flex gap-2">
-                {priorities.map((p) => {
-                  const isSelected = currentPriority === p.value;
-                  return (
-                    <button
-                      key={p.value}
-                      type="button"
-                      onClick={() => setValue('priority', p.value as 'LOW' | 'MEDIUM' | 'HIGH')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
-                        isSelected
-                          ? `${p.bg} text-white shadow-md shadow-lg scale-105`
-                          : 'bg-muted text-muted-foreground hover:bg-muted'
-                      }`}
-                    >
-                      {isSelected && <Flag className="w-3 h-3 fill-current" />}
-                      {p.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Assignee (only meaningful with more than one member) */}
-            {assignableMembers.length > 1 && (
-              <div className="space-y-2">
-                <Label htmlFor="assigneeId" className="text-sm font-medium text-foreground">
-                  {t.formAssignee}
-                </Label>
-                <select
-                  id="assigneeId"
-                  {...register('assigneeId')}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">{t.formUnassigned}</option>
-                  {assignableMembers.map((member) => {
-                    const user = member.user!;
-                    return (
-                      <option key={user.id} value={user.id}>
-                        {user.name || user.email}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Estimated Minutes */}
-              <div className="space-y-2">
-                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">
-                  {t.formEstimatedMinutes}
-                </Label>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    id="estimatedMinutes"
-                    {...register('estimatedMinutes', { valueAsNumber: true })}
-                    min={1}
-                    placeholder="30"
-                    className="pr-10"
-                  />
-                  <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Due Date */}
-              <div className="space-y-2">
-                <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">
-                  {t.formDueDate}
-                </Label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    id="dueDate"
-                    {...register('dueDate')}
-                    autoComplete="off"
-                    className="pr-10"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }
-                    }}
-                  />
-                  <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Recurrence */}
-            <RecurrenceSelector
-              value={watch('recurrence')}
-              onChange={(val) => setValue('recurrence', val)}
-            />
-          </form>
-
-          <DialogFooter className="p-4 border-t border-border bg-muted/30 flex-shrink-0 flex items-center justify-end gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              {t.buttons.cancel}
-            </Button>
-            <Button
-              type="submit"
-              form="create-task-form"
-              disabled={isPending}
-              className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
-            >
-              {isPending ? t.buttons.creating : t.buttons.create}
-            </Button>
-          </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <SharedCreateTaskDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      projectId={projectId}
+      projects={projects}
+      onProjectChange={setSelectedProjectId}
+      onRequestCreateProject={onRequestCreateProject}
+      assignableMembers={workspaceMembers}
+      onSubmit={handleFormSubmit}
+      isPending={isPending}
+      labels={resolvedLabels}
+      descriptionActions={
+        onGenerateAIDescription
+          ? ({ setValue, getValues }) => (
+              <button
+                type="button"
+                onClick={async () => {
+                  const title = getValues("title");
+                  if (!title) return;
+                  setIsGenerating(true);
+                  try {
+                    const desc = await onGenerateAIDescription(title);
+                    setValue("description", desc);
+                  } catch {
+                    toast.error(resolve("createError", "Error al generar descripción"));
+                  } finally {
+                    setIsGenerating(false);
+                  }
+                }}
+                disabled={isGenerating}
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-500/10 rounded-full hover:bg-purple-500/20 transition-colors disabled:opacity-50"
+              >
+                <Sparkles
+                  className={`w-3.5 h-3.5 ${
+                    isGenerating ? "animate-spin" : "animate-pulse"
+                  }`}
+                />
+                <span>
+                  {isGenerating
+                    ? resolve("aiGenerating", "Generating...")
+                    : resolve("aiMagic", "AI Magic")}
+                </span>
+              </button>
+            )
+          : undefined
+      }
+      recurrenceNode={
+        <RecurrenceSelector
+          value={recurrence}
+          onChange={setRecurrence}
+        />
+      }
+    />
   );
 }
