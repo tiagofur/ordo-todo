@@ -33,12 +33,11 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   const handleCreateSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
 
+    // ODD 021: el backend ancla la subtarea al proyecto del padre (o la
+    // hace express si el padre es express); "default" daba 403 siempre.
     createSubtaskMutation.mutate({
       title: newSubtaskTitle,
       parentTaskId: taskId,
-      projectId: "default", // Need projectId or it's optional? Usually needed.
-      // If Task API requires projectId, we should pass it. SubtaskList doesn't receive it.
-      // Assuming parentTaskId is enough for backend to infer project, or we pass a placeholder.
     } as any, {
       onSuccess: () => {
         toast.success("Subtarea creada");

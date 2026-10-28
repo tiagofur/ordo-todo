@@ -220,11 +220,12 @@ export function usePermanentDeleteProject() {
 
 // ============ DELETED TASKS HOOKS ============
 
-export function useDeletedTasks(projectId: string) {
+export function useDeletedTasks(projectId?: string) {
   return useQuery({
-    queryKey: ['tasks', 'deleted', projectId],
+    // ODD 021: undefined = sin petición; "" = tareas express borradas del usuario
+    queryKey: ['tasks', 'deleted', projectId ?? null],
     queryFn: () => apiClient.getDeletedTasks(projectId),
-    enabled: !!projectId,
+    enabled: projectId !== undefined,
   });
 }
 

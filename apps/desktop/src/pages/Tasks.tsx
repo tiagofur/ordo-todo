@@ -92,6 +92,10 @@ export function Tasks() {
   // Filter tasks by workspace
   if (filteredTasks && selectedWorkspaceId) {
     filteredTasks = filteredTasks.filter((task: any) => {
+      // ODD 021: tareas express (sin proyecto) son personales → siempre visibles
+      if (!task.projectId) {
+        return true;
+      }
       const taskWorkspaceId = task.project?.workspace?.id || task.project?.workspaceId;
       if (taskWorkspaceId) {
         return taskWorkspaceId === selectedWorkspaceId;

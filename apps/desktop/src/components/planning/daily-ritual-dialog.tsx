@@ -109,6 +109,8 @@ export function DailyRitualDialog({
   const filteredTasks = useMemo(() => {
     return allTasks.filter((t: any) => {
       if (workspaceId) {
+        // ODD 021: tareas express (sin proyecto) son personales → siempre visibles
+        if (!t.projectId) return true;
         const tWsId = t.project?.workspace?.id || t.project?.workspaceId;
         if (tWsId && tWsId !== workspaceId) return false;
       }
