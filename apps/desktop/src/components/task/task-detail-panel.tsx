@@ -530,7 +530,12 @@ export function TaskDetailPanel({
                       <SubtaskList taskId={taskId} subtasks={task?.subTasks || []} />
                     )}
                     {activeTab === "dependencies" && (
-                      <DependencyList taskId={taskId} projectId={task?.projectId} />
+                      <DependencyList
+                        taskId={taskId}
+                        // ODD 021: projectId nullable — null → undefined
+                        // (DependencyList ya trata ausencia como "todas")
+                        projectId={task?.projectId ?? undefined}
+                      />
                     )}
                     {activeTab === "comments" && (
                       <CommentThread 
