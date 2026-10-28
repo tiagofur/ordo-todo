@@ -1051,8 +1051,9 @@ model Task {
   position Int @default(0)
 
   // Relationships
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
+  // projectId nullable: tareas "express" sin proyecto (ODD 021), personales del owner/assignee
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String?
 
   // SECURITY: onDelete: Cascade - When user is deleted, all owned tasks are deleted
   owner   User   @relation("CreatedTasks", fields: [ownerId], references: [id], onDelete: Cascade)
