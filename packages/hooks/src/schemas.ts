@@ -92,7 +92,8 @@ export const taskBaseSchema = z.object({
 });
 
 export const createTaskSchema = taskBaseSchema.extend({
-    projectId: z.string().min(1, "Project is required"),
+    // Opcional (ODD 021): ausente/null = tarea express sin proyecto
+    projectId: z.string().min(1).optional().nullable(),
     parentTaskId: z.string().optional().nullable(),
     assigneeId: z.string().optional().nullable(),
     tagIds: z.array(z.string()).max(TASK_LIMITS.MAX_TAGS_PER_TASK).optional(),

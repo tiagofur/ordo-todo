@@ -110,4 +110,62 @@ describe('CreateTaskDialog assignee (ODD 018 S1)', () => {
 
     expect(screen.queryByLabelText('Assign to')).toBeNull();
   });
+
+});
+
+describe('CreateTaskDialog express (ODD 021 S5)', () => {
+  it('creates a task without project when "No project" stays selected', async () => {
+    const onSubmit = vi.fn();
+    render(
+      <CreateTaskDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        projects={[
+          { id: 'proj-1', name: 'Work' },
+          { id: 'proj-2', name: 'Personal' },
+        ]}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Comprar pan' },
+    });
+    // El select muestra "No project (express)" seleccionado por defecto
+    expect(
+      (screen.getByLabelText('Project') as HTMLSelectElement).value,
+    ).toBe('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Task' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Comprar pan',
+          projectId: undefined,
+        }),
+      );
+    });
+  });
+
+  it('still opens with the pre-selected project when projectId prop is given', async () => {
+    const onSubmit = renderDialog();
+
+    expect(
+      (screen.queryByLabelText('Project') as HTMLSelectElement | null),
+    ).toBeNull();
+
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'En proyecto' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create Task' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'proj-1',
+        }),
+      );
+    });
+  });
 });
