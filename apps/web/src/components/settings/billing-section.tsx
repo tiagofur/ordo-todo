@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, ArrowUpRight, Check, CreditCard, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  Check,
+  CreditCard,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
@@ -221,6 +228,23 @@ export function BillingSection() {
           )}
         </div>
 
+        {/* Banner destacado de prueba activa (ODD 012 S5) */}
+        {trialActive && overview.trialEndsAt && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm">
+            <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">
+                {t("currentPlan.trialBannerTitle", { days: daysLeft ?? 14 })}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t("currentPlan.trialBannerDescription", {
+                  date: formatDate(overview.trialEndsAt, locale),
+                })}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Aviso de gracia */}
         {overview.status === "CANCELED" && overview.graceEndsAt && (
           <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-500/10 p-3 text-sm">
@@ -265,12 +289,14 @@ export function BillingSection() {
             <span className="text-muted-foreground">{t("usage.credits")}</span>
             <span className="font-medium">
               {overview.aiCredits.balance}
-              {overview.limits.aiCreditsPerMonth != null &&
-              overview.limits.aiCreditsPerMonth > 0
-                ? ` / ${t("usage.creditsPerMonth", {
-                    credits: overview.limits.aiCreditsPerMonth,
-                  })}`
-                : ""}
+              {trialActive
+                ? ` / ${t("usage.trialCredits", { credits: 100 })}`
+                : overview.limits.aiCreditsPerMonth != null &&
+                    overview.limits.aiCreditsPerMonth > 0
+                  ? ` / ${t("usage.creditsPerMonth", {
+                      credits: overview.limits.aiCreditsPerMonth,
+                    })}`
+                  : ""}
             </span>
           </div>
         </div>
@@ -328,7 +354,11 @@ export function BillingSection() {
                     {isCurrent && (
                       <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                         <Check className="h-3 w-3" />
-                        {t("plans.current")}
+                        {trialActive && planId === "pro"
+                          ? t("plans.activeTrialBadge", {
+                              days: daysLeft ?? 14,
+                            })
+                          : t("plans.current")}
                       </span>
                     )}
                   </div>
@@ -377,7 +407,9 @@ export function BillingSection() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : null}
                     {isCurrent
-                      ? t("plans.currentPlan")
+                      ? trialActive && planId === "pro"
+                        ? t("plans.trialCurrentButton")
+                        : t("plans.currentPlan")
                       : overview.plan === "FREE" || overview.status === "CANCELED"
                         ? t("plans.upgrade")
                         : t("plans.changeTo")}

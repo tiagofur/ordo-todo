@@ -331,7 +331,7 @@ describe('BillingService (ODD 012 S2)', () => {
       expect(overview.limits.projects).toBe(3); // límites del plan free
     });
 
-    it('sin cuenta de créditos ni datos → ceros, plan Free', async () => {
+    it('sin cuenta de créditos ni datos → saldo de bienvenida (100), plan Free', async () => {
       mockSubscriptionModel.findUnique.mockResolvedValue(null);
       mockWorkspace.count.mockResolvedValue(0);
       mockAttachment.aggregate.mockResolvedValue({ _sum: { filesize: null } });
@@ -340,7 +340,7 @@ describe('BillingService (ODD 012 S2)', () => {
       const overview = await service.getUsageOverview('u1');
 
       expect(overview.effectivePlan).toBe('free');
-      expect(overview.aiCredits).toEqual({ balance: 0 });
+      expect(overview.aiCredits).toEqual({ balance: 100 });
       expect(overview.usage.storageUsedBytes).toBe(0);
     });
   });

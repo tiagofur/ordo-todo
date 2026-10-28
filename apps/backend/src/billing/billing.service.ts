@@ -18,6 +18,7 @@ import { BillingConfig } from './billing.config';
 import { StripeService } from './stripe.service';
 import { PlanLimitsService } from './plan-limits.service';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
+import { TRIAL_CREDITS } from '../ai/credits/credits.service';
 
 export interface CheckoutSessionResult {
   url: string;
@@ -253,7 +254,9 @@ export class BillingService {
         projects,
         storageUsedBytes: storage._sum.filesize ?? 0,
       },
-      aiCredits: { balance: credits?.balance ?? 0 },
+      // A new user without an AiCreditAccount row yet has their initial
+      // trial welcome credits (TRIAL_CREDITS = 100, ODD 004 S6) ready to spend.
+      aiCredits: { balance: credits?.balance ?? TRIAL_CREDITS },
     };
   }
 
