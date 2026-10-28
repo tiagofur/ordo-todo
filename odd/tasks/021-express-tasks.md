@@ -68,6 +68,16 @@ S6. **Web: visibilidad y filtros (P1)**. Filtro workspace (tasks/page.tsx, dashb
 
 S7. **Sin regresiones (P1)**. Suites backend/core/web verdes; gates raíz `npm run build` → `check-types` → `test`; flujos CON proyecto sin cambios (crear en proyecto, papelera por proyecto, dashboard, day-plan); fila 021 en roadmap al merge final; e2e solo si se toca flujo completo de auth/collab (no esperado).
 
+S8. **Storage cap para adjuntos de express (P1, cierra el bypass de D6)**. En `assertWithinTaskStorageLimit`, tareas sin proyecto: plan efectivo del OWNER de la tarea (`task.ownerId`) y usado = suma de `filesize` de adjuntos de tareas express de ese owner (`task: { projectId: null, ownerId }`). Mismo umbral por plan y mismo error `storage`. Con proyecto: camino actual intacto. Check: spec RED→GREEN en plan-limits.service.spec.
+
+S9. **Mover express↔proyecto (P1, habilita la clasificación posterior)**. `UpdateTaskDto.projectId?: string | null` (ausente = sin cambio; string = mover a ese proyecto; null = quitar a express). Servicio `update` cuando cambia el projectId: (a) destino proyecto → debe existir y el solicitante (userId) ser miembro del workspace destino (o su owner); si la tarea queda con un assignee distinto del owner, este debe ser miembro del workspace destino, si no 400; (b) destino express (null) → si assignee distinto del owner → 400 `EXPRESS_TASK_NO_FOREIGN_ASSIGNEE`; (c) las subtareas heredan el nuevo projectId (updateMany en cascada, mantiene el invariante de anclaje al padre). TaskGuard sigue autorizando sobre la tarea ORIGINAL. api-client: `UpdateTaskDto.projectId` tipado. Check: specs RED→GREEN (mover feliz express→proyecto, a proyecto de otro workspace 403, assignee ajeno 400, quitar a express 400 con assignee ajeno, cascada subtareas, update sin projectId no toca proyecto).
+
+S10. **Test de nombres de migración (P2)**. `packages/db/migrations.test.ts` relaja la regex de nombre a `/^[a-z0-9_]+$/` (los dígitos son descriptivos: `billing_t2`, `billing_t4_trial_grace`). NO se renombra ninguna migración aplicada (rompería `migrate deploy` en producción: el nombre es la clave en `_prisma_migrations`).
+
+S11. **Web: mover desde el menú de tarjeta (P1)**. Menú "···" de `TaskCardCompact`: submenú "Mover a proyecto" (lista de proyectos por props) para tareas sin proyecto; "Quitar del proyecto" para tareas con proyecto. Props nuevos opcionales (`projects`, `onMoveToProject`, `onRemoveFromProject`) + wiring en tasks-view (usa `useUpdateTask` con `projectId`). i18n `Tasks.*` es/en/pt-br. Check: vitest del menú (items presentes según tenga proyecto o no; llama callback correcto).
+
+S12. **Desktop: paridad express (P1)**. `create-task-dialog` (desktop): zod opcional + select con "Sin proyecto" y sin empty state bloqueante. `QuickAddTask`: proyecto opcional (sin chips seleccionados → express; el hint NL sigue rellenando). `subtask-list.tsx`: eliminar el `projectId: "default"` hardcodeado (hoy → 403; el backend ancla la subtarea al padre). Filtros workspace (Tasks.tsx, Dashboard.tsx, daily-ritual-dialog): `!projectId → visible` (patrón T3). Papelera: `getDeletedTasks(projectId?)` en su api-client/shared-hooks + opción "Sin proyecto" en TasksTrash. Check: `tsc --noEmit` de apps/mobile (incluye ../desktop) 0 errores; build desktop verde.
+
 Fuera de alcance: **desktop** (formularios duplicados en `apps/desktop/src` — follow-up propio, incluye el bug latente `subtask-list.tsx:39` con `projectId: "default"` hardcodeado); mover express→proyecto (no existe update de projectId hoy — follow-up); MCP/API pública; plantillas; mobile (0 refs — sin cambios); proyectos-fantasma tipo "Inbox" (descartado, ver D1 en Log).
 
 ## Contrato de colaboración (invariantes nuevas)
@@ -92,7 +102,12 @@ Fuera de alcance: **desktop** (formularios duplicados en `apps/desktop/src` — 
 - `apps/web/src/components/task/**`, `apps/web/src/components/tasks/quick-filters.tsx`, `apps/web/src/components/planning/daily-ritual-dialog.tsx`, `apps/web/src/components/trash/unified-trash-view.tsx`
 - `apps/web/src/app/[locale]/(pages)/tasks/**`, `apps/web/src/app/[locale]/(pages)/dashboard/page.tsx`
 - `apps/web/src/lib/{api-client.ts,api-hooks.ts}` (getDeletedTasks), tests: `apps/web/src/components/task/__tests__/**`, `apps/web/src/lib/__tests__/**`
-- `odd/tasks/021-express-tasks.md`, `docs/planning/roadmap.md` (fila 021)
+- `packages/db/migrations.test.ts`
+- `apps/backend/src/billing/plan-limits.service.ts` + spec, `apps/backend/src/tasks/dto/update-task.dto.ts`, `apps/backend/src/tasks/tasks.service.ts` + spec
+- `packages/api-client/src/types/task.types.ts` (UpdateTaskDto.projectId)
+- `apps/web/src/components/task/task-card-compact.tsx`, `apps/web/src/app/[locale]/(pages)/tasks/tasks-view.tsx`, `packages/i18n/src/locales/{es,en,pt-br}.json`, tests web de task
+- `apps/desktop/src/components/task/**`, `apps/desktop/src/components/quick-actions/QuickAddTask.tsx`, `apps/desktop/src/pages/Tasks.tsx`, `apps/desktop/src/pages/Dashboard.tsx`, `apps/desktop/src/components/planning/daily-ritual-dialog.tsx`, `apps/desktop/src/lib/{api-client.ts,shared-hooks.ts}`, `apps/desktop/src/pages/tasks-trash/TasksTrash.tsx`
+- `odd/tasks/021-express-tasks.md`
 
 ## Verification
 
@@ -116,6 +131,9 @@ Esperado: migración aplica sin datos tocados; specs nuevos RED antes de impleme
 | T1  | S1–S4 | PR 1: schema + core + api-client + backend (guards/servicio/repo) con tests                       | bottom-up: Prisma → core → api-client/hooks → guards → service/repo → specs    | COMPLETADO (evidencia en L2) |
 | T2  | S5    | PR 2: web creación sin proyecto (dialog, quick-add, hooks, i18n) + tests                          | schemas.ts → create-task-dialog → quick-add-dialog → i18n → tests              | COMPLETADO (evidencia en L3) |
 | T3  | S6–S7 | PR 3: web visibilidad (workspace/ritual/dashboard), chip "Sin proyecto", papelera + tests + gates | tasks/page → dashboard → ritual → detail-panel → quick-filters → trash → gates | COMPLETADO (evidencia en L5) |
+| T4  | S8–S10 | PR 4: backend follow-ups — test migraciones, storage cap express, mover express↔proyecto | migrations.test → plan-limits → update-task dto/service → specs | pendiente |
+| T5  | S11 | PR 5: web — "Mover a proyecto"/"Quitar del proyecto" en menú de tarjeta | task-card-compact → tasks-view → i18n | pendiente |
+| T6  | S12 | PR 6: desktop — paridad express (dialogs, quick-add, bug subtask "default", filtros, papelera) | desktop task components | pendiente |
 
 ## Log
 
@@ -151,3 +169,4 @@ L5. Cierre de T3 (2026-10-28, padre). Cambios: filtro workspace incluye express 
 
 L6. Gates finales (2026-10-28): único fallo PRE-EXISTENTE no relacionado: `packages/db/migrations.test.ts` exige nombre `[a-z_]+` y `20261027002055_billing_t2` (mergeado en #414-#422, anterior a esta ODD) contiene un dígito — reportado, fuera de alcance. `schema.test.ts` actualizado al nuevo invariante (`projectId String?` + relación `Project?`).
 
+L7. Follow-ups de los avisos menores (2026-10-28, pedido del owner verbatim: "tenemos que aplicar las correcciones o mejoras de Avisos menores, sea tuyo o anterior el error o problema"). Añadidos S8–S12 y T4–T6. Hallazgo nuevo al preparar S12: `apps/desktop/src/components/task/subtask-list.tsx:39` envía `projectId: "default"` → CreateTaskGuard 403 HOY (crear subtareas desde desktop está roto en main; el fix es omitir projectId — el backend ancla al padre desde 018-T1b). D7 (sync de express a calendarios) queda SIN spec: requiere decisión de producto de dónde salen los ajustes de calendario sin proyecto (follow-up, se propone en el cierre).
