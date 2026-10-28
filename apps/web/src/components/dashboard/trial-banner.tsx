@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Sparkles, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { apiClient } from "@/lib/api-client";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -17,8 +17,12 @@ export function DashboardTrialBanner() {
   useEffect(() => {
     // Solo muestra si no fue descartado en las últimas 24h
     if (typeof window === "undefined") return;
-    const stored = localStorage.getItem("ordo_trial_banner_dismissed_at");
-    if (!stored || Date.now() - parseInt(stored, 10) > 24 * 60 * 60 * 1000) {
+    try {
+      const stored = localStorage.getItem("ordo_trial_banner_dismissed_at");
+      if (!stored || Date.now() - parseInt(stored, 10) > DAY) {
+        setDismissed(false);
+      }
+    } catch {
       setDismissed(false);
     }
   }, []);
@@ -43,10 +47,14 @@ export function DashboardTrialBanner() {
   );
 
   const handleDismiss = () => {
-    localStorage.setItem(
-      "ordo_trial_banner_dismissed_at",
-      Date.now().toString(),
-    );
+    try {
+      localStorage.setItem(
+        "ordo_trial_banner_dismissed_at",
+        Date.now().toString(),
+      );
+    } catch {
+      // Ignorar si localStorage está deshabilitado
+    }
     setDismissed(true);
   };
 
