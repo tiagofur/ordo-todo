@@ -45,6 +45,7 @@ import { SlackConnections } from "@/components/settings/slack-connections";
 import { AgentJobsSection } from "@/components/settings/agent-jobs-section";
 import { useUserPreferences, useUpdatePreferences } from "@/lib/api-hooks";
 import type { UpdatePreferencesDto } from "@ordo-todo/api-client";
+import { LOCALE_COOKIE } from "@/i18n/locales";
 
 type SettingsTab = "general" | "timer" | "audio" | "ai" | "security" | "shortcuts";
 
@@ -85,6 +86,7 @@ export default function SettingsPage() {
     const segments = pathname.split("/");
     segments[1] = newLocale;
     const newPath = segments.join("/");
+    document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     router.push(newPath);
     const langName =
       newLocale === "es"

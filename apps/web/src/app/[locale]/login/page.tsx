@@ -19,6 +19,7 @@ import { API_CONFIG } from "@/config";
 import { resolvePostLoginTarget } from "@/lib/post-login-target";
 import { useTranslations } from "next-intl";
 import { cn } from "@ordo-todo/ui";
+import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -285,7 +286,7 @@ function SignInForm() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={
-                    showPassword ? "Ocultar contraseña" : "Ver contraseña"
+                    showPassword ? t("hidePassword") : t("showPassword")
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
@@ -400,6 +401,9 @@ function SignInForm() {
             {t("privacy")}
           </Link>
         </p>
+        <div className="mt-4">
+          <AuthLocaleSwitcher />
+        </div>
       </motion.div>
     </div>
   );
