@@ -13,7 +13,6 @@ import {
   DialogTitle,
   Label,
   Button,
-  EmptyState,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { Calendar, Flag, FolderKanban, Plus, Sparkles, Clock, Wand2 } from "lucide-react";
@@ -29,7 +28,8 @@ import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 const createTaskSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
   description: z.string().optional(),
-  projectId: z.string().min(1, "El proyecto es requerido"),
+  // Opcional (ODD 021): vacío crea una tarea express sin proyecto
+  projectId: z.string().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
   dueDate: z.string().optional(),
   estimatedMinutes: z.union([z.string(), z.number()]).transform((val) => {
@@ -98,7 +98,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         ...taskData,
         priority: data.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
         dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
-        projectId: data.projectId,
+        projectId: data.projectId || undefined,
         estimatedMinutes: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
       });
 
@@ -189,8 +189,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     setShowCreateProject(false);
   };
 
-  const showEmptyState = !projectId && !isLoadingProjects && projects?.length === 0;
-  
+  // ODD 021: siempre se puede crear (una tarea sin proyecto es "express")
   const priorities = [
     { value: "LOW", label: "Baja", color: "text-blue-500" },
     { value: "MEDIUM", label: "Media", color: "text-yellow-500" },
@@ -206,15 +205,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             <DialogTitle>Crear Tarea</DialogTitle>
           </DialogHeader>
 
-          {showEmptyState ? (
-            <EmptyState
-              icon={FolderKanban}
-              title="No hay proyectos creados"
-              description="Para crear una tarea, primero necesitas crear un proyecto."
-              actionLabel="Crear mi primer proyecto"
-              onAction={() => setShowCreateProject(true)}
-            />
-          ) : (
+          {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Template Selector */}
               <div className="flex justify-end mb-2">
@@ -346,7 +337,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 <div className="space-y-2">
                   <Label htmlFor="projectId" className="flex items-center gap-2">
                     <FolderKanban className="h-4 w-4" />
-                    Proyecto *
+                    Proyecto
                   </Label>
                   <div className="flex gap-2">
                     <select
@@ -354,7 +345,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                         {...register("projectId")}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <option value="">Selecciona un proyecto</option>
+                        <option value="">Sin proyecto (express)</option>
                         {projects?.map((project) => (
                         <option key={project.id} value={project.id}>
                             {project.name}
@@ -371,9 +362,6 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                         <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  {errors.projectId && (
-                    <p className="text-sm text-red-500">{errors.projectId.message}</p>
-                  )}
                 </div>
               )}
 
@@ -409,7 +397,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 </button>
               </div>
             </form>
-          )}
+          }
         </DialogContent>
       </Dialog>
 

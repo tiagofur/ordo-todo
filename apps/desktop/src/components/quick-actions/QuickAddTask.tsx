@@ -97,7 +97,8 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
         title: title.trim(),
         description: description.trim() || undefined,
         dueDate: dueDate ? (serializeCalendarDateForApi(dueDate) as any) : undefined,
-        projectId: projectId,
+        // ODD 021: sin proyecto seleccionado → tarea express
+        projectId: projectId || undefined,
         tagIds: tagIds.length > 0 ? tagIds : undefined,
         priority: priority.toUpperCase() as any,
         status: 'TODO',

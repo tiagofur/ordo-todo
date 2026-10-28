@@ -82,9 +82,10 @@ export class DesktopApiClient extends OrdoApiClient {
     return response.data;
   }
 
-  async getDeletedTasks(projectId: string) {
+  // ODD 021: sin projectId devuelve las tareas express borradas del usuario
+  async getDeletedTasks(projectId?: string) {
     const response = await this.axios.get("/tasks/deleted", {
-      params: { projectId },
+      params: projectId ? { projectId } : {},
     });
     return response.data;
   }

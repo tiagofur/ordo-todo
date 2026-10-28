@@ -119,11 +119,17 @@ export function TasksTrash({
 
   // Tasks
   const { data: allProjects } = useAllProjects();
+  // ODD 021: el sentinel "__none__" (= "Sin proyecto") consulta sin projectId
+  const NO_PROJECT_SENTINEL = "__none__";
+  const isNoProjectSelection = selectedProject === NO_PROJECT_SENTINEL;
+  const deletedTasksProjectId = isNoProjectSelection
+    ? ""
+    : selectedProject || undefined;
   const {
     data: deletedTasks,
     isLoading: isLoadingTasks,
     refetch: refetchTasks,
-  } = useDeletedTasks(selectedProject);
+  } = useDeletedTasks(deletedTasksProjectId);
   const restoreTask = useRestoreTask();
   const permanentDeleteTask = usePermanentDeleteTask();
 
@@ -499,6 +505,9 @@ export function TasksTrash({
                     onChange={(e) => setSelectedProject(e.target.value)}
                     className="w-full appearance-none bg-muted/40 border border-border/60 rounded-xl pl-3.5 pr-9 py-2 text-sm font-medium text-foreground hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors cursor-pointer shadow-xs"
                   >
+                    <option value="__none__">
+                      {t("UnifiedTrash.noProject", "Sin proyecto")}
+                    </option>
                     {allProjects.map((project: any) => (
                       <option key={project.id} value={project.id}>
                         {project.name}

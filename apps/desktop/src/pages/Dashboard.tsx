@@ -105,17 +105,20 @@ export function Dashboard() {
   const todaysTasks = allTasks.filter((task: any) => {
     // Workspace isolation filter
     if (selectedWorkspaceId) {
-      const taskWorkspaceId =
-        task.project?.workspace?.id || task.project?.workspaceId;
-      if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
-        return false;
-      }
-      if (
-        !taskWorkspaceId &&
-        projects.length > 0 &&
-        !projects.some((p: any) => p.id === task.projectId)
-      ) {
-        return false;
+      // ODD 021: tareas express (sin proyecto) son personales → siempre visibles
+      if (task.projectId) {
+        const taskWorkspaceId =
+          task.project?.workspace?.id || task.project?.workspaceId;
+        if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
+          return false;
+        }
+        if (
+          !taskWorkspaceId &&
+          projects.length > 0 &&
+          !projects.some((p: any) => p.id === task.projectId)
+        ) {
+          return false;
+        }
       }
     }
 
