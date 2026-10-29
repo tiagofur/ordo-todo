@@ -14,7 +14,7 @@ vi.mock("@/lib/offline-storage", () => ({
 }));
 
 import { useSyncStore } from "../sync-store";
-import { getOnlineStatus } from "@/lib/online-status-monitor";
+import { getOnlineStatus } from "@ordo-todo/online-status";
 
 const CONFIRMATION_DELAY_MS = 5000;
 

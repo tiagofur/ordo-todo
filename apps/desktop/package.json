@@ -39,6 +39,7 @@
     "@ordo-todo/core": "*",
     "@ordo-todo/hooks": "*",
     "@ordo-todo/i18n": "*",
+    "@ordo-todo/online-status": "*",
     "@ordo-todo/stores": "*",
     "@ordo-todo/styles": "*",
     "@ordo-todo/ui": "*",

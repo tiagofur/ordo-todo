@@ -15,7 +15,7 @@ import { logger } from "@/lib/logger";
 import {
   getOnlineStatus,
   subscribeOnlineStatus,
-} from "@/lib/online-status-monitor";
+} from "@ordo-todo/online-status";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 

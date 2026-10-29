@@ -1,4 +1,14 @@
 import { create } from 'zustand';
+import { getOnlineStatus, subscribeOnlineStatus } from '@ordo-todo/online-status';
+
+// The debounced monitor keeps the sync indicator aligned with the confirmed
+// connectivity: micro network flaps never flip the online state
+function followOnlineStatus(
+  setOnlineStatus: (isOnline: boolean) => void,
+): void {
+  subscribeOnlineStatus(setOnlineStatus);
+  setOnlineStatus(getOnlineStatus());
+}
 
 export interface SyncState {
   status: 'idle' | 'syncing' | 'offline' | 'error';
@@ -45,9 +55,7 @@ export const useSyncStore = create<SyncStore>((set, get) => ({
   initialize: async () => {
     const electronAPI = typeof window !== 'undefined' ? (window as any).electronAPI : null;
     if (!electronAPI?.sync) {
-      window.addEventListener('online', () => get().setOnlineStatus(true));
-      window.addEventListener('offline', () => get().setOnlineStatus(false));
-      get().setOnlineStatus(navigator.onLine);
+      followOnlineStatus((online) => get().setOnlineStatus(online));
       return;
     }
 
@@ -58,9 +66,7 @@ export const useSyncStore = create<SyncStore>((set, get) => ({
     const state = await electronAPI.sync.getState();
     set(state);
 
-    window.addEventListener('online', () => get().setOnlineStatus(true));
-    window.addEventListener('offline', () => get().setOnlineStatus(false));
-    get().setOnlineStatus(navigator.onLine);
+    followOnlineStatus((online) => get().setOnlineStatus(online));
   },
 
   forceSync: async () => {

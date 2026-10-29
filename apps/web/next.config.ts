@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
     "@ordo-todo/styles",
     "@ordo-todo/hooks",
     "@ordo-todo/stores",
+    "@ordo-todo/online-status",
     "@ordo-todo/auth-provider",
     "@ordo-todo/api-client",
     "@ordo-todo/validations",

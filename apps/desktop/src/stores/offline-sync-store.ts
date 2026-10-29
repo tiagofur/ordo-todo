@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { getOnlineStatus, subscribeOnlineStatus } from '@ordo-todo/online-status';
 
 // Types
 export type SyncStatus = 'idle' | 'syncing' | 'success' | 'error' | 'conflict';
@@ -114,7 +115,7 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
       queue: {
         operations: [],
         conflicts: [],
-        isOnline: navigator.onLine,
+        isOnline: getOnlineStatus(),
         syncStatus: 'idle',
         syncProgress: 0,
         totalOperations: 0,
@@ -504,16 +505,16 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
 
       // Setup network listeners
       setupNetworkListeners: () => {
-        const handleOnline = () => get().setOnlineStatus(true);
-        const handleOffline = () => get().setOnlineStatus(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-          window.removeEventListener('online', handleOnline);
-          window.removeEventListener('offline', handleOffline);
-        };
+        // Follow the debounced monitor: confirmed transitions only, so
+        // micro network flaps never toggle the offline UI
+        const unsubscribe = subscribeOnlineStatus((online) =>
+          get().setOnlineStatus(online),
+        );
+        // zustand v5's default shallow merge replaces the whole persisted
+        // queue object on rehydration, dropping isOnline; push the monitor's
+        // current value so the UI starts from a real state
+        get().setOnlineStatus(getOnlineStatus());
+        return unsubscribe;
       },
 
       // Resolve update conflict with intelligent merging

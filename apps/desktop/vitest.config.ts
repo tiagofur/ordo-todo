@@ -41,6 +41,7 @@ export default defineConfig({
       '@/hooks': path.resolve(__dirname, './src/hooks'),
       '@/stores': path.resolve(__dirname, './src/stores'),
       '@/lib': path.resolve(__dirname, './src/lib'),
+      '@ordo-todo/online-status': path.resolve(__dirname, '../../packages/online-status/src/index.ts'),
     },
   },
 });
