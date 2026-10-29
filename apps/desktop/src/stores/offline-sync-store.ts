@@ -507,7 +507,14 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
       setupNetworkListeners: () => {
         // Follow the debounced monitor: confirmed transitions only, so
         // micro network flaps never toggle the offline UI
-        return subscribeOnlineStatus((online) => get().setOnlineStatus(online));
+        const unsubscribe = subscribeOnlineStatus((online) =>
+          get().setOnlineStatus(online),
+        );
+        // zustand v5's default shallow merge replaces the whole persisted
+        // queue object on rehydration, dropping isOnline; push the monitor's
+        // current value so the UI starts from a real state
+        get().setOnlineStatus(getOnlineStatus());
+        return unsubscribe;
       },
 
       // Resolve update conflict with intelligent merging
