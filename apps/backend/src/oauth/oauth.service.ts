@@ -124,11 +124,20 @@ export class OAuthService {
       .map((scope) => scope.trim())
       .filter(Boolean);
     const knownScopes = API_TOKEN_SCOPES as readonly string[];
-    const unknown = requestedScopes.filter(
+    // ChatGPT and other MCP hosts send standard OIDC scopes (openid,
+    // email, profile) that they request by default. Unknown scopes can
+    // never be granted — authorize clamps open clients to the known
+    // vocabulary — so registration drops them instead of failing.
+    const grantedScopes = requestedScopes.filter((scope) =>
+      knownScopes.includes(scope),
+    );
+    const dropped = requestedScopes.filter(
       (scope) => !knownScopes.includes(scope),
     );
-    if (unknown.length > 0) {
-      throw new BadRequestException(`Unknown scopes: ${unknown.join(', ')}`);
+    if (dropped.length > 0) {
+      this.logger.log(
+        `OAuth registration dropped unsupported scopes: ${dropped.join(', ')}`,
+      );
     }
 
     // Two registration flavors, same stored shape:
@@ -195,13 +204,15 @@ export class OAuthService {
       // Strict idempotency (only CIMD collides by design): re-asserting
       // the same client returns it untouched. Anything that would ADD
       // redirect URIs or scopes is rejected — a re-registration can
-      // never widen what an existing client_id is allowed to do.
+      // never widen what an existing client_id is allowed to do. An
+      // open client (scopes: []) has no ceiling, so any known-scope
+      // request stays idempotent for it.
       const urisAllowed = validatedUris.every((uri) =>
         existing.redirectUris.includes(uri),
       );
-      const scopesAllowed = requestedScopes.every((scope) =>
-        existing.scopes.includes(scope),
-      );
+      const scopesAllowed =
+        existing.scopes.length === 0 ||
+        grantedScopes.every((scope) => existing.scopes.includes(scope));
       if (!urisAllowed || !scopesAllowed) {
         throw new BadRequestException('invalid_client_metadata');
       }
@@ -220,7 +231,7 @@ export class OAuthService {
         clientName: metadata.client_name,
         metadataUrl,
         redirectUris: validatedUris,
-        scopes: requestedScopes,
+        scopes: grantedScopes,
       },
     });
 
@@ -303,8 +314,10 @@ export class OAuthService {
       .map((item) => item.trim())
       .filter(Boolean);
     if (client.scopes.length > 0) {
-      // Registered scopes are a hard ceiling (CIMD + internal clients):
-      // asking outside them is a protocol error.
+      // Registered scopes are a ceiling (CIMD + internal clients).
+      // Asking outside them is a protocol error. A client that
+      // registered no known scopes ([] — e.g. only OIDC asks) is open
+      // and falls through to the clamping below.
       const outOfScope = requestedScopes.filter(
         (item) => !client.scopes.includes(item),
       );

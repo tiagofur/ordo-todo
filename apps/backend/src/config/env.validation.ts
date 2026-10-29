@@ -110,6 +110,13 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   ADMIN_EMAILS?: string;
+
+  // ODD 023: token que el portal de plugins de OpenAI sirve y luego
+  // verifica en /.well-known/openai-apps-challenge al validar el dominio
+  // del MCP. Vacío = el endpoint responde 404 (sin verificación en curso).
+  @IsString()
+  @IsOptional()
+  OPENAI_APPS_CHALLENGE_TOKEN?: string;
 }
 
 export function validate(config: Record<string, unknown>) {
