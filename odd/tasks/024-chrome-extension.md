@@ -29,11 +29,11 @@ Paths:
 
 ## Specs
 
-S0. **(P0) Esqueleto MV3**: nueva app `apps/extension` con WXT + React + TS; entrypoints `popup`, `background` (service worker) y `options` placeholder; manifest con permisos mínimos: `storage`, `alarms`, `contextMenus`, `activeTab`, `identity` y `host_permissions: ["https://api.ordotodo.app/*"]` — prohibidos `<all_urls>`, `tabs`, `cookies` y `notifications` (B3). Iconos de marca (símbolo morado `#AD46FF`, coherente con landing/app) en 16/32/48/128. Workspace ya cubierto por `apps/*` en root `package.json` (0 cambios raíz). ID fija en dev vía `key` en el manifest (necesaria para que el redirect OAuth sea estable, ver S1). Check: `npm run build` en apps/extension produce el bundle que carga en `chrome://extensions` (Load unpacked) sin warnings de manifest; popup de prueba renderiza texto en el idioma del navegador con i18n de `@ordo-todo/i18n` ya cableado.
+S0. **(P0) Esqueleto MV3**: nueva app `apps/extension` con WXT + React + TS; entrypoints `popup`, `background` (service worker) y `options` placeholder; manifest con permisos mínimos: `storage`, `alarms`, `contextMenus`, `activeTab`, `scripting`, `identity` y `host_permissions: ["https://api.ordotodo.app/*"]` — prohibidos `<all_urls>`, `tabs`, `cookies` y `notifications` (B3). Iconos de marca (símbolo morado `#AD46FF`, coherente con landing/app) en 16/32/48/128. Workspace ya cubierto por `apps/*` en root `package.json` (0 cambios raíz). ID fija en dev vía `key` en el manifest (necesaria para que el redirect OAuth sea estable, ver S1). Check: `npm run build` en apps/extension produce el bundle que carga en `chrome://extensions` (Load unpacked) sin warnings de manifest; popup de prueba renderiza texto en el idioma del navegador con i18n de `@ordo-todo/i18n` ya cableado.
 
 S1. **(P0) Auth: consent OAuth + apertura acotada de /api/v1**:
-    (a) **Backend — cliente first-party**: registro del cliente `Ordo para Chrome` (redirect `https://<ext-id>.chromiumapp.org/`) y emisión, a clientes marcados first-party, de un claim que autoriza la API completa (p. ej. `api: 'full'`) en el access token.
-    (b) **Backend — guard acotado**: `JwtStrategy` acepta `tokenType: 'oauth_access'` SOLO si el claim first-party está presente; los tokens de clientes de terceros (ChatGPT/Claude) siguen limitados a MCP. Test de separación obligatorio en ambas direcciones.
+    (a) **Backend — cliente first-party**: registro del cliente `Ordo para Chrome` (redirect `https://<ext-id>.chromiumapp.org/`); el client_id fijo de la extensión se inserta en BD una vez (seed/insert manual, NO registro dinámico — hoy los clientes nacen solo vía DCR/CIMD en `POST /oauth/register`) y la marca first-party es una allowlist de client_id en la config del backend (env, p. ej. `OAUTH_FIRST_PARTY_CLIENT_IDS`); a los clientes de esa allowlist se les emite un claim que autoriza la API completa (p. ej. `api: 'full'`) en el access token.
+    (b) **Backend — guard acotado**: `JwtStrategy` acepta `tokenType: 'oauth_access'` SOLO si el claim first-party está presente; los tokens de clientes de terceros (ChatGPT/Claude) siguen limitados a MCP. La validación resuelve el usuario por `sub` (patrón de `oauth.guard.ts:53-75`, que preserva el check de usuario BLOCKED de ODD 019), no por `email` — el payload OAuth no lo lleva (`oauth.service.ts:613-625`). Test de separación obligatorio en ambas direcciones.
     (c) **Extensión**: `chrome.identity.launchWebAuthFlow` → code → token+refresh vía `/oauth/token`; tokens en `chrome.storage.session` (nunca localStorage ni cookies); refresh silencioso al expirar/401; logout = revoke + `storage.clear`; estado de sesión visible en el popup.
     Check (backend, jest): token `oauth_access` de cliente first-party autentica en `/api/v1/tasks` (200); token equivalente de cliente de terceros → 401; suite MCP existente verde (regresión). Check (extensión, vitest + manual): login → consent → token persistido → `getTasksToday` real 200; expiración → refresh sin intervención; logout limpia storage y el badge.
 
@@ -45,7 +45,7 @@ S4. **(P1) Badge + vista "Hoy"**: con sesión activa, `getTasksToday()` alimenta
 
 S5. **(P2) Página de opciones**: proyecto por defecto para la captura contextual (selector con proyectos del workspace vía API), idioma (auto/es/en/pt-BR vía `@ordo-todo/i18n`), estado de sesión + logout. Persistencia: `chrome.storage.sync` (opciones), `chrome.storage.session` (tokens). Check: vitest de carga/guardado; manual: cambiar idioma y proyecto y verificar el efecto en la captura contextual.
 
-S6. **(P1) Kit de Chrome Web Store**: `docs/guides/integrations/chrome-extension.md` con: zip de release reproducible (`npm run build` + empaquetado), listing en es/en/pt-BR, justificación de cada permiso (`activeTab` = leer título/selección de la pestaña en la que el usuario actúa; `identity` = flujo OAuth; `contextMenus`/`alarms`/`storage` = captura y badge), política de privacidad (URL existente, sin venta ni tracking de datos), y checklist de review de Google. Check: doc completo + zip generado + listing redactado. El SUBMIT a la store es la tarea humana final del owner (fuera de los PRs).
+S6. **(P1) Kit de Chrome Web Store**: `docs/guides/integrations/chrome-extension.md` con: zip de release reproducible (`npm run build` + empaquetado), listing en es/en/pt-BR, justificación de cada permiso (`activeTab` = leer título/selección de la pestaña en la que el usuario actúa; `scripting` = inyectar el lector de selección amparado por `activeTab`; `identity` = flujo OAuth; `contextMenus`/`alarms`/`storage` = captura y badge), política de privacidad (URL existente, sin venta ni tracking de datos), y checklist de review de Google. Check: doc completo + zip generado + listing redactado. El SUBMIT a la store es la tarea humana final del owner (fuera de los PRs).
 
 Fuera de alcance (fase 2, intencionado): parse-task NL en la captura (endpoint ya vivo, ODD 007 S1), notificaciones/recordatorios del navegador, "enviar a mi agente", integración Gmail, dashboard en new tab, soporte Firefox/Edge (WXT lo facilita pero queda sin verificar), y el resto de la matriz de captura de ODD 007.
 
@@ -55,7 +55,7 @@ Fuera de alcance (fase 2, intencionado): parse-task NL en la captura (endpoint y
 - B2. **Auth por token OAuth** en `chrome.storage.session`; prohibido depender de cookies de sesión del navegador y prohibido pedir el permiso `cookies`.
 - B3. **Permisos mínimos y declarados**: sin `<all_urls>`, `tabs`, `cookies` ni `notifications` (MVP); `host_permissions` solo a `api.ordotodo.app`. Cualquier permiso nuevo exige entrada en `## Log` con justificación.
 - B4. **i18n trilingüe sin literales**: claves nuevas en namespace `Extension` de `@ordo-todo/i18n` (paridad es/en/pt-BR); el formulario reutiliza el namespace `CreateTask` existente.
-- B5. **La extensión captura y mira, no gestiona**: sin vistas de proyectos, ajustes de dominio, pomodoro ni colaboración.
+- B5. **La extensión captura y mira, no gestiona**: sin vistas de proyectos, ajustes de dominio, pomodoro ni colaboración. Completar tareas desde la vista Hoy (S4) no cuenta como gestión.
 
 ## Allowed edit surfaces
 
@@ -82,7 +82,7 @@ npm run build && npm run check-types
 
 # Manual (evidencia con capturas en el Log de cada T#)
 # chrome://extensions → Load unpacked → apps/extension/.output/chrome-mv3
-# login → consent → getTasksToday 200 → crear tarea desde popup → visible en ordo todo.app
+# login → consent → getTasksToday 200 → crear tarea desde popup → visible en ordotodo.app
 # menú contextual (selección/enlace/página) → 3 tareas; badge = hoy sin completar
 ```
 
@@ -110,3 +110,5 @@ Decisiones de diseño del padre (2026-10-29):
 - D4: prefill determinista (título/URL/selección) sin parse-task en el MVP; el endpoint ya existe (ODD 007 S1) y su cableado es la primera mejora de fase 2.
 - D5: feedback de la captura contextual con badge temporal, no con `chrome.notifications`: un permiso menos que justificar en la review de la store.
 - D6: hallazgo que moldea S1, verificado hoy contra el código: `JwtStrategy` rechaza `tokenType: 'oauth_access'` (`jwt.strategy.ts:32`) y el flujo OAuth emite exactamente ese tokenType (`oauth.service.ts:623`) — sin S1b la extensión no puede usar consent tokens contra `/api/v1`.
+
+L2. Revisión independiente de la PR #449 (2026-10-29): 14 claims técnicos del doc verificados contra el código, todos correctos. Hallazgos aplicados: **P1** — faltaba el permiso `scripting` (S2 usa `chrome.scripting.executeScript`, que exige el permiso en el manifest; `activeTab` cubre el host de destino, no la API) → añadido a S0 y a la justificación de S6. **P2** — S1b: la validación debe resolver el usuario por `sub`, no por `email` (el payload OAuth no lleva email; `JwtStrategy.validate` usa `payload.email` → 401 garantizado); y S1a: mecanismo first-party definido como allowlist de client_id en env (`OAUTH_FIRST_PARTY_CLIENT_IDS`) + insert manual del cliente fijo (hoy los clientes nacen solo por DCR/CIMD, no hay seed OAuth). **P3** — typo `ordo todo.app`→`ordotodo.app` en Verification; B5 aclara que completar desde la vista Hoy no es "gestionar". Con estos fixes el veredicto del revisor pasa a APTO.
