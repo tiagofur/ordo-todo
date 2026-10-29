@@ -12,6 +12,10 @@ import {
   PendingActionType,
 } from "@/lib/offline-storage";
 import { logger } from "@/lib/logger";
+import {
+  getOnlineStatus,
+  subscribeOnlineStatus,
+} from "@/lib/online-status-monitor";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
@@ -71,7 +75,7 @@ export const useSyncStore = create<SyncState>()(
   persist(
     (set, get) => ({
       // Initial state
-      isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
+      isOnline: getOnlineStatus(),
       wasOffline: false,
       status: "idle",
       pendingCount: 0,
@@ -365,13 +369,10 @@ async function processPendingAction(action: PendingAction): Promise<void> {
 
 // Initialize store with data from IndexedDB on load
 if (typeof window !== "undefined") {
-  // Listen for online/offline events
-  window.addEventListener("online", () => {
-    useSyncStore.getState().setOnline(true);
-  });
-
-  window.addEventListener("offline", () => {
-    useSyncStore.getState().setOnline(false);
+  // Follow the debounced monitor so micro network flaps never flip the sync
+  // state or trigger syncs (matches the connection toasts' behavior)
+  subscribeOnlineStatus((online) => {
+    useSyncStore.getState().setOnline(online);
   });
 
   // Initialize pending count on load
