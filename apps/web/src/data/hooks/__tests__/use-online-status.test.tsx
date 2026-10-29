@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useOnlineStatus } from '../use-online-status.hook';
+import { __resetOnlineStatusMonitor } from '@/lib/online-status-monitor';
 
 const OFFLINE_CONFIRMATION_DELAY_MS = 5000;
 
@@ -24,9 +25,11 @@ describe('useOnlineStatus', () => {
       value: true,
       configurable: true,
     });
+    __resetOnlineStatusMonitor();
   });
 
   afterEach(() => {
+    __resetOnlineStatusMonitor();
     vi.useRealTimers();
     // Restore jsdom's navigator.onLine if a test overrode it
     delete (window.navigator as unknown as { onLine?: boolean }).onLine;
@@ -84,6 +87,7 @@ describe('useOnlineStatus', () => {
       value: false,
       configurable: true,
     });
+    __resetOnlineStatusMonitor();
 
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current.isOnline).toBe(false);
@@ -95,5 +99,43 @@ describe('useOnlineStatus', () => {
     goOnline();
     expect(result.current.isOnline).toBe(true);
     expect(result.current.wasOffline).toBe(true);
+  });
+
+  it('stays silent for a second flap right after a confirmed cycle', () => {
+    const { result } = renderHook(() => useOnlineStatus());
+
+    // First cycle: confirmed outage and recovery
+    goOffline();
+    act(() => {
+      vi.advanceTimersByTime(OFFLINE_CONFIRMATION_DELAY_MS);
+    });
+    goOnline();
+    expect(result.current.wasOffline).toBe(true);
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    // Second flap under 5s must not re-announce anything
+    goOffline();
+    act(() => {
+      vi.advanceTimersByTime(OFFLINE_CONFIRMATION_DELAY_MS - 1000);
+    });
+    goOnline();
+    expect(result.current.isOnline).toBe(true);
+    expect(result.current.wasOffline).toBe(false);
+  });
+
+  it('does not update state after unmount with a pending confirmation', () => {
+    const { result, unmount } = renderHook(() => useOnlineStatus());
+
+    goOffline();
+    unmount();
+    act(() => {
+      vi.advanceTimersByTime(OFFLINE_CONFIRMATION_DELAY_MS + 1000);
+    });
+
+    // The hook unsubscribed on unmount: its state stays frozen at the last
+    // rendered value even though the monitor confirms the outage
+    expect(result.current.isOnline).toBe(true);
   });
 });
