@@ -1,0 +1,17 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "ordo": {
+      "type": "streamable-http",
+      "url": "https://api.ordotodo.app/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "baseScopes": ["read", "tasks:write", "projects:write"]
+          }
+        }
+      }
+    }
+  }
+}
