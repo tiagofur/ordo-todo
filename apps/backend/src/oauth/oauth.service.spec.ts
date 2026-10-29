@@ -851,4 +851,104 @@ describe('OAuthService', () => {
       expect(metadata.grant_types_supported).toContain('refresh_token');
     });
   });
+
+  // ODD 024: solo los clientes en OAUTH_FIRST_PARTY_CLIENT_IDS reciben el
+  // claim `api: 'full'`, que es lo que les abre /api/v1 en JwtStrategy.
+  describe('first-party API claim (ODD 024)', () => {
+    const pkce = () => {
+      const verifier = 'test-verifier-ooooooo-ooooooo-ooooooo-ooooo';
+      const challenge = sha256Base64Url(verifier);
+      return { verifier, challenge };
+    };
+
+    const storedCode = (clientId: string) => {
+      const { challenge } = pkce();
+      return {
+        id: 'code-1',
+        code: 'code-1',
+        clientId,
+        redirectUri:
+          'https://kljihfnniklhlmkpamdibbbjghinooaf.chromiumapp.org/',
+        userId: 'u9',
+        scopes: ['tasks:read', 'tasks:write'],
+        codeChallenge: challenge,
+        expiresAt: new Date(Date.now() + 60_000),
+      };
+    };
+
+    const signedClaims = (): Record<string, unknown> =>
+      mockJwtService.signAsync.mock.calls[0][0];
+
+    beforeEach(() => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'APP_URL') return 'https://ordo.test';
+        if (key === 'OAUTH_FIRST_PARTY_CLIENT_IDS')
+          return 'kljihfnniklhlmkpamdibbbjghinooaf';
+        return undefined;
+      });
+    });
+
+    it('cliente first-party recibe api: full en el access token', async () => {
+      const { verifier } = pkce();
+      mockPrismaService.oAuthAuthorizationCode.findUnique.mockResolvedValue(
+        storedCode('kljihfnniklhlmkpamdibbbjghinooaf'),
+      );
+
+      await service.exchangeCode({
+        code: 'code-1',
+        clientId: 'kljihfnniklhlmkpamdibbbjghinooaf',
+        redirectUri:
+          'https://kljihfnniklhlmkpamdibbbjghinooaf.chromiumapp.org/',
+        codeVerifier: verifier,
+      });
+
+      expect(signedClaims()).toMatchObject({
+        sub: 'u9',
+        tokenType: 'oauth_access',
+        api: 'full',
+      });
+    });
+
+    it('cliente de tercero NO recibe el claim (sigue limitado a MCP)', async () => {
+      const { verifier } = pkce();
+      mockPrismaService.oAuthAuthorizationCode.findUnique.mockResolvedValue(
+        storedCode('chatgpt-third-party'),
+      );
+
+      await service.exchangeCode({
+        code: 'code-1',
+        clientId: 'chatgpt-third-party',
+        redirectUri:
+          'https://kljihfnniklhlmkpamdibbbjghinooaf.chromiumapp.org/',
+        codeVerifier: verifier,
+      });
+
+      expect(signedClaims()).toMatchObject({
+        sub: 'u9',
+        tokenType: 'oauth_access',
+      });
+      expect(signedClaims().api).toBeUndefined();
+    });
+
+    it('allowlist vacía: ningún cliente es first-party', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'APP_URL') return 'https://ordo.test';
+        return undefined;
+      });
+      const { verifier } = pkce();
+      mockPrismaService.oAuthAuthorizationCode.findUnique.mockResolvedValue(
+        storedCode('kljihfnniklhlmkpamdibbbjghinooaf'),
+      );
+
+      await service.exchangeCode({
+        code: 'code-1',
+        clientId: 'kljihfnniklhlmkpamdibbbjghinooaf',
+        redirectUri:
+          'https://kljihfnniklhlmkpamdibbbjghinooaf.chromiumapp.org/',
+        codeVerifier: verifier,
+      });
+
+      expect(signedClaims().api).toBeUndefined();
+    });
+  });
 });

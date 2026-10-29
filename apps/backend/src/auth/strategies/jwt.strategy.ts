@@ -29,10 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req: any, payload: any) {
-    if (payload.tokenType && payload.tokenType !== 'access') {
-      throw new UnauthorizedException('Invalid token type');
-    }
-
     // Get the token from the request to check if it's blacklisted
     let token = req.get('authorization')?.replace('Bearer ', '');
 
@@ -42,6 +38,26 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (token && (await this.tokenBlacklistService.isBlacklisted(token))) {
       throw new UnauthorizedException('Token has been revoked');
+    }
+
+    // ODD 024: los tokens OAuth de clientes first-party (allowlist en env,
+    // claim `api: 'full'`) autentican la API completa; los de clientes de
+    // terceros siguen limitados a MCP (oauth.guard).
+    if (payload.tokenType === 'oauth_access') {
+      if (payload.api !== 'full') {
+        throw new UnauthorizedException(
+          'OAuth token not allowed on the regular API',
+        );
+      }
+      const user = await this.authService.validateUserById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+      return user;
+    }
+
+    if (payload.tokenType && payload.tokenType !== 'access') {
+      throw new UnauthorizedException('Invalid token type');
     }
 
     const user = await this.authService.validateUser(payload.email);

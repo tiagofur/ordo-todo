@@ -3393,6 +3393,12 @@
   "Extension": {
     "popupTitle": "Ordo Todo",
     "popupSubtitle": "Quick task capture",
-    "optionsPlaceholder": "Options — coming soon"
+    "optionsPlaceholder": "Options — coming soon",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "connectedAs": "Signed in: {email}",
+    "authLoading": "Checking session…",
+    "authError": "Couldn't connect. Try again.",
+    "openOrdo": "Open Ordo"
   }
 }

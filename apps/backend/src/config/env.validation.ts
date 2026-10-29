@@ -51,6 +51,13 @@ export class EnvironmentVariables {
   @IsOptional()
   COOKIE_DOMAIN?: string;
 
+  // Client IDs OAuth first-party (separados por coma, p. ej. la extensión de
+  // Chrome, ODD 024). Sus access tokens llevan `api: 'full'` y autentican
+  // /api/v1; los de clientes de terceros siguen limitados a MCP.
+  @IsString()
+  @IsOptional()
+  OAUTH_FIRST_PARTY_CLIENT_IDS?: string;
+
   @IsString()
   @IsOptional()
   GEMINI_API_KEY?: string;

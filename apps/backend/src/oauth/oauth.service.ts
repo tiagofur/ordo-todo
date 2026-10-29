@@ -615,15 +615,30 @@ export class OAuthService {
     clientId: string,
     scope: string,
   ): Promise<string> {
-    return this.jwtService.signAsync(
-      {
-        sub: userId,
-        client_id: clientId,
-        scope,
-        tokenType: 'oauth_access',
-      },
-      { expiresIn: OAUTH_ACCESS_TOKEN_TTL as StringValue },
-    );
+    const claims: Record<string, unknown> = {
+      sub: userId,
+      client_id: clientId,
+      scope,
+      tokenType: 'oauth_access',
+    };
+    // ODD 024: solo los clientes first-party (allowlist en env) pueden
+    // autenticar la API completa; los de terceros siguen limitados a MCP.
+    if (this.isFirstPartyClient(clientId)) {
+      claims.api = 'full';
+    }
+    return this.jwtService.signAsync(claims, {
+      expiresIn: OAUTH_ACCESS_TOKEN_TTL as StringValue,
+    });
+  }
+
+  isFirstPartyClient(clientId: string): boolean {
+    const raw =
+      this.configService.get<string>('OAUTH_FIRST_PARTY_CLIENT_IDS') ?? '';
+    const ids = raw
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean);
+    return ids.includes(clientId);
   }
 
   private async issueRefreshToken(

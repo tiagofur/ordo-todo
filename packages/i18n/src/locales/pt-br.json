@@ -3393,6 +3393,12 @@
   "Extension": {
     "popupTitle": "Ordo Todo",
     "popupSubtitle": "Captura rápida de tarefas",
-    "optionsPlaceholder": "Opções — em breve"
+    "optionsPlaceholder": "Opções — em breve",
+    "login": "Entrar",
+    "logout": "Sair",
+    "connectedAs": "Conectado: {email}",
+    "authLoading": "Verificando sessão…",
+    "authError": "Não foi possível conectar. Tente novamente.",
+    "openOrdo": "Abrir Ordo"
   }
 }
