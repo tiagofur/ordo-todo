@@ -314,8 +314,10 @@ export class OAuthService {
       .map((item) => item.trim())
       .filter(Boolean);
     if (client.scopes.length > 0) {
-      // Registered scopes are a hard ceiling (CIMD + internal clients):
-      // asking outside them is a protocol error.
+      // Registered scopes are a ceiling (CIMD + internal clients).
+      // Asking outside them is a protocol error. A client that
+      // registered no known scopes ([] — e.g. only OIDC asks) is open
+      // and falls through to the clamping below.
       const outOfScope = requestedScopes.filter(
         (item) => !client.scopes.includes(item),
       );

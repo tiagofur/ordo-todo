@@ -8,6 +8,7 @@ describe('McpWellKnownController (openai-apps-challenge)', () => {
     const res: any = {
       status: jest.fn().mockReturnThis(),
       type: jest.fn().mockReturnThis(),
+      header: jest.fn().mockReturnThis(),
       send: jest.fn(),
       end: jest.fn(),
     };
@@ -30,6 +31,7 @@ describe('McpWellKnownController (openai-apps-challenge)', () => {
     controller.openaiAppsChallenge(res);
 
     expect(res.status).not.toHaveBeenCalled();
+    expect(res.header).toHaveBeenCalledWith('Cache-Control', 'no-store');
     expect(res.type).toHaveBeenCalledWith('text/plain');
     expect(res.send).toHaveBeenCalledWith('challenge-token-123');
   });

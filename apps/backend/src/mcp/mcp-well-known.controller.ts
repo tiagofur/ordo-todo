@@ -37,6 +37,9 @@ export class McpWellKnownController {
       res.status(HttpStatus.NOT_FOUND).end();
       return;
     }
+    // no-store: the token is only meaningful while verification is in
+    // progress; don't let a proxy/CDN pin it past that.
+    res.header('Cache-Control', 'no-store');
     res.type('text/plain').send(token);
   }
 }
