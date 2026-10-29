@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ordo",
+  "version": "0.1.0",
+  "description": "Manage your Ordo tasks, projects and habits from ChatGPT: organize your day with your real data, capture tasks without leaving the conversation, and keep habits and goals on track. You approve access once in the browser; ChatGPT then acts with exactly your Ordo permissions, and you can revoke anytime.",
+  "author": {
+    "name": "Ordo",
+    "url": "https://ordotodo.app"
+  },
+  "homepage": "https://ordotodo.app/guide/connect/chatgpt",
+  "repository": "https://github.com/tiagofur/ordo-todo",
+  "license": "UNLICENSED",
+  "keywords": ["productivity", "tasks", "habits", "goals", "day planning"]
+}
