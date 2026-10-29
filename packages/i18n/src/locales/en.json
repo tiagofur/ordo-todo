@@ -3389,5 +3389,10 @@
       "maxUsesInvalid": "Uses must be a number between 1 and 10000",
       "expiresAtInvalid": "The expiration date must be in the future"
     }
+  },
+  "Extension": {
+    "popupTitle": "Ordo Todo",
+    "popupSubtitle": "Quick task capture",
+    "optionsPlaceholder": "Options — coming soon"
   }
 }

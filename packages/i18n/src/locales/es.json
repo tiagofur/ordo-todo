@@ -3389,5 +3389,10 @@
       "maxUsesInvalid": "Los usos deben ser un número entre 1 y 10000",
       "expiresAtInvalid": "La fecha de expiración debe ser futura"
     }
+  },
+  "Extension": {
+    "popupTitle": "Ordo Todo",
+    "popupSubtitle": "Captura rápida de tareas",
+    "optionsPlaceholder": "Opciones — próximamente"
   }
 }
