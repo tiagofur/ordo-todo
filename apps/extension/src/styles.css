@@ -1,0 +1,16 @@
+/* Ordo extension: mismos tokens y base que desktop (ODD 024 S2). */
+@import "tailwindcss";
+@import "@ordo-todo/styles/src/variables.css";
+@import "@ordo-todo/styles/src/theme.css";
+@import "@ordo-todo/styles/src/base.css";
+@import "@ordo-todo/styles/src/components.css";
+
+@source "../../../packages/ui";
+@plugin "tailwindcss-animate";
+
+@variant dark (.dark &);
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}

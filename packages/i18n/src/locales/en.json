@@ -3389,5 +3389,29 @@
       "maxUsesInvalid": "Uses must be a number between 1 and 10000",
       "expiresAtInvalid": "The expiration date must be in the future"
     }
+  },
+  "Extension": {
+    "popupTitle": "Ordo Todo",
+    "popupSubtitle": "Quick task capture",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "connectedAs": "Signed in: {email}",
+    "authLoading": "Checking session…",
+    "authError": "Couldn't connect. Try again.",
+    "openOrdo": "Open Ordo",
+    "created": "Task created",
+    "newCapture": "New capture",
+    "captureError": "Couldn't create the task. Try again.",
+    "tabCapture": "Capture",
+    "tabToday": "Today",
+    "todayEmpty": "Nothing pending for today",
+    "optionsTitle": "Ordo settings",
+    "optionsLanguage": "Language",
+    "optionsAuto": "Automatic (browser)",
+    "optionsDefaultProject": "Default project (context menu)",
+    "optionsDefaultProjectHelp": "Tasks created from the context menu will go to this project.",
+    "optionsNoDefaultProject": "No project (express)",
+    "optionsSession": "Session",
+    "optionsNotSignedIn": "Not signed in. Start from the popup."
   }
 }

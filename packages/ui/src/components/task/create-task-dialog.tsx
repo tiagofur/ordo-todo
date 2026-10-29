@@ -140,6 +140,9 @@ export interface CreateTaskDialogProps {
   onProjectChange?: (projectId: string) => void;
   onRequestCreateProject?: () => void;
   assignableMembers?: AssignableMember[];
+  /** ODD 024: valores iniciales de captura (prefill de página/selección). */
+  initialTitle?: string;
+  initialDescription?: string;
   onSubmit: (data: CreateTaskFormData) => Promise<void> | void;
   isPending?: boolean;
   labels?: CreateTaskDialogLabels;
@@ -192,6 +195,8 @@ export function CreateTaskDialog({
   onProjectChange,
   onRequestCreateProject,
   assignableMembers = [],
+  initialTitle,
+  initialDescription,
   onSubmit,
   isPending = false,
   labels = {},
@@ -258,8 +263,8 @@ export function CreateTaskDialog({
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
-      title: "",
-      description: "",
+      title: initialTitle ?? "",
+      description: initialDescription ?? "",
       projectId: projectId || "",
       priority: "MEDIUM",
       dueDate: "",

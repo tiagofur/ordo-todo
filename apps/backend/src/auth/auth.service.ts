@@ -347,6 +347,22 @@ export class AuthService {
     };
   }
 
+  // ODD 024: los tokens OAuth de clientes first-party llegan sin email (el
+  // payload solo lleva sub) — se resuelve el usuario por id, mismo patrón y
+  // mismo check de BLOCKED que validateUser y oauth.guard.
+  async validateUserById(userId: string): Promise<any> {
+    const user = await this.userRepository.findById(userId, false);
+    if (!user || user.status === 'BLOCKED') {
+      return null;
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+    };
+  }
+
   async refresh(refreshToken: string): Promise<AuthResponseDto> {
     try {
       // Check if refresh token is already revoked/blacklisted

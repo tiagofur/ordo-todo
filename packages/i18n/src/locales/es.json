@@ -3389,5 +3389,29 @@
       "maxUsesInvalid": "Los usos deben ser un número entre 1 y 10000",
       "expiresAtInvalid": "La fecha de expiración debe ser futura"
     }
+  },
+  "Extension": {
+    "popupTitle": "Ordo Todo",
+    "popupSubtitle": "Captura rápida de tareas",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "connectedAs": "Conectado: {email}",
+    "authLoading": "Comprobando sesión…",
+    "authError": "No se pudo conectar. Inténtalo de nuevo.",
+    "openOrdo": "Abrir Ordo",
+    "created": "Tarea creada",
+    "newCapture": "Nueva captura",
+    "captureError": "No se pudo crear la tarea. Inténtalo de nuevo.",
+    "tabCapture": "Capturar",
+    "tabToday": "Hoy",
+    "todayEmpty": "Nada pendiente para hoy",
+    "optionsTitle": "Ajustes de Ordo",
+    "optionsLanguage": "Idioma",
+    "optionsAuto": "Automático (navegador)",
+    "optionsDefaultProject": "Proyecto por defecto (captura contextual)",
+    "optionsDefaultProjectHelp": "Las tareas creadas desde el menú contextual irán a este proyecto.",
+    "optionsNoDefaultProject": "Sin proyecto (express)",
+    "optionsSession": "Sesión",
+    "optionsNotSignedIn": "Sin sesión. Inicia desde el popup."
   }
 }

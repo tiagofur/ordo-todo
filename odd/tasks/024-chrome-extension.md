@@ -37,7 +37,7 @@ S1. **(P0) Auth: consent OAuth + apertura acotada de /api/v1**:
     (c) **Extensión**: `chrome.identity.launchWebAuthFlow` → code → token+refresh vía `/oauth/token`; tokens en `chrome.storage.session` (nunca localStorage ni cookies); refresh silencioso al expirar/401; logout = revoke + `storage.clear`; estado de sesión visible en el popup.
     Check (backend, jest): token `oauth_access` de cliente first-party autentica en `/api/v1/tasks` (200); token equivalente de cliente de terceros → 401; suite MCP existente verde (regresión). Check (extensión, vitest + manual): login → consent → token persistido → `getTasksToday` real 200; expiración → refresh sin intervención; logout limpia storage y el badge.
 
-S2. **(P0) Captura rápida en popup**: popup con `CreateTaskDialog` de `packages/ui` en contenedor delgado estilo desktop (labels vía react-i18next + namespace `CreateTask`; submit vía `createTaskSchema` + `api-client.createTask` con Bearer). Prefill determinista (sin IA): título = `document.title` de la pestaña activa; descripción = URL de la página + texto seleccionado si lo hay (lectura con `chrome.tabs.query` + `chrome.scripting.executeScript`, amparadas por `activeTab` concedido en el clic). `projectId` null permitido (express). Al crear: confirmación visible en el popup y badge refrescado. Check: vitest del contenedor con mocks de `chrome.*` y api-client (prefill título/selección, payload válido según schema, express sin proyecto); manual contra prod: tarea creada desde el popup visible en `ordotodo.app`.
+S2. **(P0) Captura rápida en popup**: popup con `CreateTaskDialog` de `packages/ui` en contenedor delgado estilo desktop (labels vía react-i18next + namespace `CreateTask`; submit vía `createTaskSchema` + `api-client.createTask` con Bearer). Prefill determinista (sin IA): título = `document.title` de la pestaña activa; descripción = URL de la página + texto seleccionado si lo hay (lectura con `chrome.tabs.query` + `chrome.scripting.executeScript`, amparadas por `activeTab` concedido en el clic). `projectId` null permitido (express). Al crear: confirmación visible en el popup y badge refrescado. Check: vitest del contenedor con mocks de `chrome.*` y api-client (prefill título/selección, payload válido según schema, express sin proyecto); manual contra prod: tarea creada desde el popup visible en `ordotodo.app`. **Enmienda (L3)**: el componente compartido acepta `initialTitle`/`initialDescription` para el prefill — el contrato de props de S3/S2 se amplía con esos dos campos opcionales (ausentes = comportamiento actual, consumidores web/desktop intactos).
 
 S3. **(P1) Menú contextual**: entrada "Añadir a Ordo" en `contextMenus` sobre: selección (título = `selectionText`, descripción = URL), enlace (título = texto del enlace, descripción = `linkUrl`) y página (título + URL). Sin abrir popup: el service worker crea la tarea con el proyecto por defecto de opciones; feedback = badge temporal "✓" (5 s) — sin permiso `notifications` en MVP (D5). Sin sesión: abre pestaña de auth. Check: vitest del handler de menú (3 contextos → payload correcto, respetando opciones); manual: las 3 capturas crean tareas visibles.
 
@@ -61,10 +61,12 @@ Fuera de alcance (fase 2, intencionado): parse-task NL en la captura (endpoint y
 
 - `apps/extension/**` (nueva app: WXT, popup/background/options, tests)
 - `packages/i18n/src/locales/{es,en,pt-br}.json` (solo namespace `Extension`)
+- `packages/ui/src/components/task/create-task-dialog.tsx` (+ su test) — SOLO la ampliación de props `initialTitle`/`initialDescription` de S2 (enmienda L3)
 - `apps/backend/src/auth/strategies/jwt.strategy.ts` (+ su spec) — SOLO la apertura acotada de S1b
 - `apps/backend/src/oauth/` (claim first-party en la emisión + registro/seed del cliente; specs de oauth.service)
 - `packages/db/prisma/` (solo seed del cliente first-party si aplica; migraciones de schema requieren aprobación del padre)
 - `docs/guides/integrations/chrome-extension.md` (nueva: kit CWS)
+- `.github/workflows/ci.yml` (job `extension`: check-types + tests + build; P2-2 de la revisión, L5)
 - `docs/planning/roadmap.md` (fila 024)
 - `odd/tasks/024-chrome-extension.md`
 
@@ -92,12 +94,12 @@ Esperado: 0 warnings de manifest; jest de strategies/oauth verde incluyendo el t
 
 | T# | Specs | Entrega | Ruta sugerida | Estado |
 |----|-------|---------|---------------|--------|
-| T1 | S0 | Esqueleto WXT + i18n cableado + carga unpacked sin warnings | scaffold `apps/extension` → popup placeholder → icons marca → manifest key | PENDIENTE |
-| T2 | S1 | OAuth first-party: claim+guard en backend (test de separación RED/GREEN) + launchWebAuthFlow + storage/refresh/logout | oauth.service → jwt.strategy → auth en extensión → flujo real contra prod | PENDIENTE |
-| T3 | S2 | Popup de captura (CreateTaskDialog + prefill de pestaña/selección) | contenedor estilo desktop → mocks `chrome.*` → manual prod | PENDIENTE |
-| T4 | S3+S5 | Menú contextual + página de opciones | handler en background → options page → manual | PENDIENTE |
-| T5 | S4 | Badge + vista Hoy | alarms + getTasksToday → lista/checkbox → manual | PENDIENTE |
-| T6 | S6 | Kit CWS (doc + zip + assets + listing) | `docs/guides/integrations/chrome-extension.md` | PENDIENTE (submit humano aparte) |
+| T1 | S0 | Esqueleto WXT + i18n cableado + carga unpacked sin warnings | scaffold `apps/extension` → popup placeholder → icons marca → manifest key | COMPLETADO (commit 114e59d4) |
+| T2 | S1 | OAuth first-party: claim+guard en backend (test de separación RED/GREEN) + launchWebAuthFlow + storage/refresh/logout | oauth.service → jwt.strategy → auth en extensión | COMPLETADO (commit 788d5d1a; jest 62/62, vitest 16/16; flujo real contra prod = prueba humana pendiente) |
+| T3 | S2 | Popup de captura (CreateTaskDialog + prefill de pestaña/selección) | contenedor estilo desktop → mocks `chrome.*` + RTL | COMPLETADO (commit 2852ac0b; enmienda L3 aplicada; vitest 28/28) |
+| T4 | S3+S5 | Menú contextual + página de opciones | handler en background → options page | COMPLETADO (commit 2eff2bde; vitest menu+options) |
+| T5 | S4 | Badge + vista Hoy | alarms + getTasksToday → lista/checkbox | COMPLETADO (commit 2eff2bde; vitest badge; manual contra prod = prueba humana pendiente) |
+| T6 | S6 | Kit CWS (doc + zip + assets + listing) | `docs/guides/integrations/chrome-extension.md` | COMPLETADO (doc + listing + checklist; zip y submit = tareas humanas del owner) |
 
 ## Log
 
@@ -112,3 +114,18 @@ Decisiones de diseño del padre (2026-10-29):
 - D6: hallazgo que moldea S1, verificado hoy contra el código: `JwtStrategy` rechaza `tokenType: 'oauth_access'` (`jwt.strategy.ts:32`) y el flujo OAuth emite exactamente ese tokenType (`oauth.service.ts:623`) — sin S1b la extensión no puede usar consent tokens contra `/api/v1`.
 
 L2. Revisión independiente de la PR #449 (2026-10-29): 14 claims técnicos del doc verificados contra el código, todos correctos. Hallazgos aplicados: **P1** — faltaba el permiso `scripting` (S2 usa `chrome.scripting.executeScript`, que exige el permiso en el manifest; `activeTab` cubre el host de destino, no la API) → añadido a S0 y a la justificación de S6. **P2** — S1b: la validación debe resolver el usuario por `sub`, no por `email` (el payload OAuth no lleva email; `JwtStrategy.validate` usa `payload.email` → 401 garantizado); y S1a: mecanismo first-party definido como allowlist de client_id en env (`OAUTH_FIRST_PARTY_CLIENT_IDS`) + insert manual del cliente fijo (hoy los clientes nacen solo por DCR/CIMD, no hay seed OAuth). **P3** — typo `ordo todo.app`→`ordotodo.app` en Verification; B5 aclara que completar desde la vista Hoy no es "gestionar". Con estos fixes el veredicto del revisor pasa a APTO.
+
+L3. Enmienda del padre durante ejecución (2026-10-29, T3): el prefill de S2 exige que el `CreateTaskDialog` compartido acepte valores iniciales — el contrato de ODD 022 no los tenía. Se amplía S2 con `initialTitle?`/`initialDescription?` (opcionales, sin cambio de comportamiento cuando faltan) y se añade `packages/ui/src/components/task/create-task-dialog.tsx` (+ test) a las superficies. No rompe consumidores existentes (web/desktop no pasan los props nuevos).
+
+L4. Ejecución del MVP (2026-10-29): T1-T6 completados en la rama `feature/odd-024-chrome-extension` (commits 114e59d4, 788d5d1a, 2852ac0b, 2eff2bde y el de este log). Evidencia: jest strategies+oauth 62/62 (incluye separación first-party vs terceros en ambas direcciones); vitest de la extensión 40/40 (auth con PKCE/refresh/revoke, prefill, menú, badge, options, popup con RTL); ui 129/129; web 312/312; desktop 101/101; `tsc` 17/17 y `turbo build` 19/19.
+
+Decisiones tomadas durante la ejecución (todas compatibles con el doc):
+- D-ejec1 (T3): el prefill exigía que el `CreateTaskDialog` compartido aceptara valores iniciales → enmienda L3 (`initialTitle`/`initialDescription`, opcionales y sin efecto en web/desktop).
+- D-ejec2 (T3): el HTTP de la extensión usa `OrdoApiClient` con un adaptador `WxtTokenStorage` cuyo `getToken()` refresca ANTES de caducar; así el refresh interno del cliente (que apunta a `/auth/refresh`, semántica JWT de la app web) nunca dispara, y `onAuthError` limpia la sesión como red de seguridad.
+- D-ejec3 (T4): en el menú contextual de ENLACE el título es el de la pestaña — el API de `contextMenus` no entrega el texto del enlace; la descripción lleva el `linkUrl` (el doc original decía "texto del enlace": corregido aquí).
+- D-ejec4 (T4/T5): errores al crear desde el menú → badge `!` 5 s + pestaña de login; errores al refrescar el badge → badge neutro (nunca feedback falso).
+- D-ejec5: los paquetes del workspace se bundlean desde `src/` en vite/vitest (alias), igual que `apps/desktop`: los dist CJS rompen el análisis de exports de rollup.
+
+Pendiente humano (owner): verificación manual contra producción (flujo login → consent → captura → visible en `ordotodo.app`, menús, badge) tras el registro SQL del cliente OAuth + `OAUTH_FIRST_PARTY_CLIENT_IDS` (kit §2), y el submit a la Chrome Web Store (kit §7). La build de release y el zip se generan con `npm run build && npm run zip` en `apps/extension`.
+
+L5. Revisión independiente de la PR #450 (2026-10-29): veredicto APTO sin P1. La seguridad del cambio de auth quedó verificada end-to-end (claim solo en emisión con clientId de BD, allowlist por env, DCR/CIMD no puede apropiarse del client_id, refresh recalcula, regresión de tokens regulares intacta, BLOCKED cubierto). Hallazgos aplicados en el fixup: **P2-1** — carrera de refresh concurrente (popup vs service worker): single-flight en getValidTokens + compare-and-swap antes de borrar la sesión, con tests; **P2-2** — CI no ejecutaba la extensión: job `extension` (check-types + tests + build) añadido a ci.yml (superficie ampliada aquí); **P3** — apiFetch muerto eliminado (el único path HTTP es OrdoApiClient) y clave i18n `optionsPlaceholder` sin uso eliminada. Observación aceptada: el título del menú contextual usa browser.i18n.getUILanguage con 3 strings (el SW no ejecuta i18next); alternativa vía _locales generados en build queda anotada para fase 2.

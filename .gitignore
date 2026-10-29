@@ -84,3 +84,5 @@ deploy/secrets/*
 
 # Local build artifacts (debug APKs shared by hand, never committed)
 *.apk
+
+.output/
