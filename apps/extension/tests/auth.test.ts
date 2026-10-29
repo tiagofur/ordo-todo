@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
-import { apiFetch, getSession, logout, startLogin } from '../src/lib/auth';
+import { getSession, logout, startLogin } from '../src/lib/auth';
 
 const TOKEN_RESPONSE = (refresh = 'refresh-2') => ({
   access_token: 'new-access',
@@ -118,6 +118,61 @@ describe('auth (ODD 024 T2)', () => {
       expect(stored.ordoTokens.refreshToken).toBe('new-refresh');
     });
 
+    it('single-flight: dos refresh concurrentes hacen UNA sola llamada al token endpoint', async () => {
+      await fakeBrowser.storage.session.set({
+        ordoTokens: {
+          accessToken: 'old-access',
+          refreshToken: 'old-refresh',
+          expiresAt: Date.now() - 3600_000,
+          scope: 'read tasks:write',
+        },
+        ordoSession: { email: USERINFO.email },
+      });
+      mockFetch.mockResolvedValue(Response.json(TOKEN_RESPONSE('rotated')));
+
+      const [a, b] = await Promise.all([getSession(), getSession()]);
+
+      expect(a?.email).toBe(USERINFO.email);
+      expect(b?.email).toBe(USERINFO.email);
+      const tokenCalls = mockFetch.mock.calls.filter(([url]) =>
+        String(url).includes('/oauth/token'),
+      );
+      expect(tokenCalls).toHaveLength(1);
+    });
+
+    it('CAS: si otro contexto rotó el token durante un refresh fallido, la sesión sobrevive', async () => {
+      await fakeBrowser.storage.session.set({
+        ordoTokens: {
+          accessToken: 'old-access',
+          refreshToken: 'old-refresh',
+          expiresAt: Date.now() - 3600_000,
+          scope: 'read tasks:write',
+        },
+        ordoSession: { email: USERINFO.email },
+      });
+      // Simula al "ganador": otro contexto rota tokens mientras el nuestro falla.
+      const rotated = {
+        accessToken: 'fresh-access',
+        refreshToken: 'fresh-refresh',
+        expiresAt: Date.now() + 3600_000,
+        scope: 'read tasks:write',
+      };
+      mockFetch.mockImplementationOnce(async () => {
+        await fakeBrowser.storage.session.set({ ordoTokens: rotated });
+        return new Response('invalid_grant', { status: 400 });
+      });
+
+      const session = await getSession();
+
+      // El refresh falló, pero NO borró la sesión del ganador.
+      const stored = await fakeBrowser.storage.session.get(null);
+      expect(stored.ordoTokens.refreshToken).toBe('fresh-refresh');
+      expect(stored.ordoSession).toBeDefined();
+      expect(session).toBeNull();
+      // Y una segunda lectura ya usa el token fresco del ganador.
+      expect((await getSession())?.email).toBe(USERINFO.email);
+    });
+
     it('cierra la sesión cuando el refresh es inválido', async () => {
       await fakeBrowser.storage.session.set({
         ordoTokens: {
@@ -135,53 +190,6 @@ describe('auth (ODD 024 T2)', () => {
       expect(await getSession()).toBeNull();
       const stored = await fakeBrowser.storage.session.get('ordoTokens');
       expect(stored.ordoTokens).toBeUndefined();
-    });
-  });
-
-  describe('apiFetch', () => {
-    beforeEach(async () => {
-      await fakeBrowser.storage.session.set({
-        ordoTokens: {
-          accessToken: 'live-access',
-          refreshToken: 'live-refresh',
-          expiresAt: Date.now() + 3600_000,
-          scope: 'read tasks:write',
-        },
-        ordoSession: { email: USERINFO.email },
-      });
-    });
-
-    it('adjunta Bearer y devuelve el JSON', async () => {
-      mockFetch.mockResolvedValueOnce(Response.json({ ok: true }));
-
-      await apiFetch('/tasks');
-
-      expect(mockFetch.mock.calls[0][0]).toContain('/tasks');
-      expect(mockFetch.mock.calls[0][1].headers.Authorization).toBe(
-        'Bearer live-access',
-      );
-    });
-
-    it('reintenta una vez tras refrescar ante 401', async () => {
-      mockFetch
-        .mockResolvedValueOnce(new Response('expired', { status: 401 }))
-        .mockResolvedValueOnce(Response.json(TOKEN_RESPONSE('rotated')))
-        .mockResolvedValueOnce(Response.json([{ id: 't1' }]));
-
-      const data = await apiFetch('/tasks');
-
-      expect(data).toEqual([{ id: 't1' }]);
-      const calls = mockFetch.mock.calls;
-      expect(calls[1][0]).toContain('/oauth/token');
-      expect(calls[2][1].headers.Authorization).toBe('Bearer new-access');
-    });
-
-    it('lanza UnauthorizedError cuando el refresh también falla', async () => {
-      mockFetch
-        .mockResolvedValueOnce(new Response('expired', { status: 401 }))
-        .mockResolvedValueOnce(new Response('invalid_grant', { status: 400 }));
-
-      await expect(apiFetch('/tasks')).rejects.toThrow('not authenticated');
     });
   });
 

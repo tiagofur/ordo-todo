@@ -3393,7 +3393,6 @@
   "Extension": {
     "popupTitle": "Ordo Todo",
     "popupSubtitle": "Captura rápida de tareas",
-    "optionsPlaceholder": "Opciones — próximamente",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "connectedAs": "Conectado: {email}",

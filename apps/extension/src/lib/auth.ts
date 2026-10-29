@@ -22,13 +22,6 @@ export interface Session {
   name?: string;
 }
 
-export class UnauthorizedError extends Error {
-  constructor() {
-    super('not authenticated');
-    this.name = 'UnauthorizedError';
-  }
-}
-
 const tokensItem = storage.defineItem<OAuthTokens | null>('session:ordoTokens', {
   fallback: null,
 });
@@ -43,14 +36,23 @@ export async function getSession(): Promise<Session | null> {
 }
 
 /** Devuelve tokens válidos, refrescando en silencio si expiraron. */
+let refreshInFlight: Promise<OAuthTokens | null> | null = null;
+
 export async function getValidTokens(): Promise<OAuthTokens | null> {
   const tokens = await tokensItem.getValue();
   if (!tokens) return null;
   if (Date.now() < tokens.expiresAt) return tokens;
 
-  const refreshed = await refreshTokens(tokens.refreshToken);
-  if (!refreshed) return null;
-  return refreshed;
+  // Single-flight: popup y service worker son procesos distintos pero
+  // comparten storage.session; sin esto, dos refresh concurrentes rotarían
+  // el refresh token dos veces y el perdedor invalidaría al ganador (P2-1
+  // de la revisión de #450).
+  if (!refreshInFlight) {
+    refreshInFlight = refreshTokens(tokens.refreshToken).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
 }
 
 export async function startLogin(): Promise<Session> {
@@ -130,9 +132,15 @@ async function refreshTokens(refreshToken: string): Promise<OAuthTokens | null> 
       }),
     );
   } catch {
-    // Refresh inválido o expirado: la sesión termina aquí.
-    await tokensItem.setValue(null);
-    await sessionItem.setValue(null);
+    // Refresh inválido o expirado — PERO otro contexto (popup vs service
+    // worker) pudo haber rotado el token mientras éste fallaba: solo
+    // cerramos la sesión si el token que falló sigue siendo el vigente
+    // (compare-and-swap, P2-1 de la revisión de #450).
+    const current = await tokensItem.getValue();
+    if (current && current.refreshToken === refreshToken) {
+      await tokensItem.setValue(null);
+      await sessionItem.setValue(null);
+    }
     return null;
   }
   const tokens = toTokens(body);
@@ -181,36 +189,6 @@ async function fetchSession(accessToken: string): Promise<Session> {
   }
   const body = (await res.json()) as { email: string; name?: string };
   return { email: body.email, name: body.name };
-}
-
-/** fetch autenticado contra la API: Bearer + un reintento tras refresh. */
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const doFetch = async (accessToken: string) =>
-    fetch(`${API_BASE_URL}${path}`, {
-      ...init,
-      headers: {
-        ...init?.headers,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-  const tokens = await getValidTokens();
-  if (!tokens) {
-    throw new UnauthorizedError();
-  }
-
-  let res = await doFetch(tokens.accessToken);
-  if (res.status === 401) {
-    const refreshed = await refreshTokens(tokens.refreshToken);
-    if (!refreshed) {
-      throw new UnauthorizedError();
-    }
-    res = await doFetch(refreshed.accessToken);
-  }
-  if (!res.ok) {
-    throw new Error(`api ${path}: ${res.status}`);
-  }
-  return res.json() as Promise<T>;
 }
 
 function base64UrlRandom(byteLength: number): string {

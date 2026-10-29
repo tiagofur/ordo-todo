@@ -66,6 +66,7 @@ Fuera de alcance (fase 2, intencionado): parse-task NL en la captura (endpoint y
 - `apps/backend/src/oauth/` (claim first-party en la emisión + registro/seed del cliente; specs de oauth.service)
 - `packages/db/prisma/` (solo seed del cliente first-party si aplica; migraciones de schema requieren aprobación del padre)
 - `docs/guides/integrations/chrome-extension.md` (nueva: kit CWS)
+- `.github/workflows/ci.yml` (job `extension`: check-types + tests + build; P2-2 de la revisión, L5)
 - `docs/planning/roadmap.md` (fila 024)
 - `odd/tasks/024-chrome-extension.md`
 
@@ -126,3 +127,5 @@ Decisiones tomadas durante la ejecución (todas compatibles con el doc):
 - D-ejec5: los paquetes del workspace se bundlean desde `src/` en vite/vitest (alias), igual que `apps/desktop`: los dist CJS rompen el análisis de exports de rollup.
 
 Pendiente humano (owner): verificación manual contra producción (flujo login → consent → captura → visible en `ordotodo.app`, menús, badge) tras el registro SQL del cliente OAuth + `OAUTH_FIRST_PARTY_CLIENT_IDS` (kit §2), y el submit a la Chrome Web Store (kit §7). La build de release y el zip se generan con `npm run build && npm run zip` en `apps/extension`.
+
+L5. Revisión independiente de la PR #450 (2026-10-29): veredicto APTO sin P1. La seguridad del cambio de auth quedó verificada end-to-end (claim solo en emisión con clientId de BD, allowlist por env, DCR/CIMD no puede apropiarse del client_id, refresh recalcula, regresión de tokens regulares intacta, BLOCKED cubierto). Hallazgos aplicados en el fixup: **P2-1** — carrera de refresh concurrente (popup vs service worker): single-flight en getValidTokens + compare-and-swap antes de borrar la sesión, con tests; **P2-2** — CI no ejecutaba la extensión: job `extension` (check-types + tests + build) añadido a ci.yml (superficie ampliada aquí); **P3** — apiFetch muerto eliminado (el único path HTTP es OrdoApiClient) y clave i18n `optionsPlaceholder` sin uso eliminada. Observación aceptada: el título del menú contextual usa browser.i18n.getUILanguage con 3 strings (el SW no ejecuta i18next); alternativa vía _locales generados en build queda anotada para fase 2.
