@@ -125,4 +125,34 @@ describe('online-status-monitor', () => {
     expect(listener).toHaveBeenNthCalledWith(1, false);
     expect(listener).toHaveBeenNthCalledWith(2, true);
   });
+
+  it('stops notifying after unsubscribe', () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeOnlineStatus(listener);
+    unsubscribe();
+
+    goOffline();
+    vi.advanceTimersByTime(CONFIRMATION_DELAY_MS);
+    goOnline();
+
+    // The monitor keeps tracking state internally, just without notifying
+    expect(listener).not.toHaveBeenCalled();
+    expect(getOnlineStatus()).toBe(true);
+  });
+
+  it('keeps fanning out when a listener throws', () => {
+    const failing = vi.fn(() => {
+      throw new Error('boom');
+    });
+    const healthy = vi.fn();
+    const events = trackCustomEvents();
+    subscribeOnlineStatus(failing);
+    subscribeOnlineStatus(healthy);
+
+    goOffline();
+    vi.advanceTimersByTime(CONFIRMATION_DELAY_MS);
+
+    expect(healthy).toHaveBeenCalledWith(false);
+    expect(events).toEqual(['offline']);
+  });
 });

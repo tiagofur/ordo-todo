@@ -4,6 +4,8 @@
 // them in quick succession even though the app never lost real
 // connectivity. Transitions are only reported once the raw state persists
 // OFFLINE_CONFIRMATION_DELAY_MS, so micro-flaps stay invisible to consumers.
+import { logger } from "@/lib/logger";
+
 export const OFFLINE_CONFIRMATION_DELAY_MS = 5000;
 
 type OnlineStatusListener = (online: boolean) => void;
@@ -72,8 +74,14 @@ function handleOffline() {
 function setOnline(next: boolean) {
   if (online === next) return;
   online = next;
+  // Isolate failures: one misbehaving consumer must not swallow the rest of
+  // the fan-out nor the event dispatch
   for (const listener of listeners) {
-    listener(next);
+    try {
+      listener(next);
+    } catch (error) {
+      logger.error("[OnlineStatusMonitor] listener failed:", error);
+    }
   }
   window.dispatchEvent(
     new CustomEvent(next ? "ordo-todo:online" : "ordo-todo:offline"),
