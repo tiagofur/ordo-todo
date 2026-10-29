@@ -13,24 +13,24 @@ support email, and the review material in
 
 ## Shared facts (all listings)
 
-| Field             | Value                                                                                                                                                                                       |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product           | Ordo — tasks, projects, habits, goals                                                                                                                                                       |
-| MCP endpoint      | `https://api.ordotodo.app/mcp` (Streamable HTTP, stateless)                                                                                                                                 |
-| Auth              | OAuth 2.1 (code + S256 PKCE) + PAT (`ordo_pat_...`)                                                                                                                                         |
-| Resource metadata | `https://api.ordotodo.app/.well-known/oauth-protected-resource` (RFC 9728)                                                                                                                  |
-| AS metadata       | `https://api.ordotodo.app/.well-known/oauth-authorization-server` (RFC 8414)                                                                                                                |
-| Scopes            | `read`, `tasks:write`, `projects:write`, `admin:webhooks`                                                                                                                                   |
-| Tools exposed     | 18 (`ordo_ping`, `ordo_search`, `ordo_task_*` ×5, `ordo_project_*` ×4, `ordo_comment_add`, `ordo_habit_*` ×2, `ordo_objective_progress`, `ordo_me`, `ordo_day_plan`, `ordo_day_plan_apply`) |
-| Privacy           | Agent sees only what the token owner can; no training on user data; revoke = immediate 401                                                                                                  |
-| Docs              | `https://ordotodo.app/guide/connect` (+ per-client guides)                                                                                                                                  |
-| Support           | `support@[business-domain]` — NOT VERIFIED; business must provide the real address before publishing                                                                                        |
+| Field             | Value                                                                                                                                                                                                                                               |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product           | Ordo — tasks, projects, habits, goals                                                                                                                                                                                                               |
+| MCP endpoint      | `https://api.ordotodo.app/mcp` (Streamable HTTP, stateless)                                                                                                                                                                                         |
+| Auth              | OAuth 2.1 (code + S256 PKCE) + PAT (`ordo_pat_...`)                                                                                                                                                                                                 |
+| Resource metadata | `https://api.ordotodo.app/.well-known/oauth-protected-resource` (RFC 9728)                                                                                                                                                                          |
+| AS metadata       | `https://api.ordotodo.app/.well-known/oauth-authorization-server` (RFC 8414)                                                                                                                                                                        |
+| Scopes            | `read`, `tasks:write`, `projects:write`, `admin:webhooks`                                                                                                                                                                                           |
+| Tools exposed     | 37 (`ordo_me`, `ordo_ping`, `ordo_search`; tasks ×7 — list/create/get/update/complete/delete/assign; comments ×2; projects ×4; habits ×4; `ordo_objective_progress`; day plan ×2; tags ×3; notes ×3; `ordo_meeting_list`; timers ×5; workspaces ×2) |
+| Privacy           | Agent sees only what the token owner can; no training on user data; disconnect cuts token renewal immediately (live access tokens expire within 1 h)                                                                                                |
+| Docs              | `https://ordotodo.app/guide/connect` (+ per-client guides)                                                                                                                                                                                          |
+| Support           | `support@[business-domain]` — NOT VERIFIED; business must provide the real address before publishing                                                                                                                                                |
 
 ## 1. ChatGPT Directory (T1) — `blocked` (submission material ready, ODD 023)
 
 - **Name**: Ordo
 - **Tagline**: Your tasks, projects and habits — organized by chat.
-- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 18 tools over a remote MCP server with OAuth: search, tasks, projects, comments, habits, objectives, day planning and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Revoke anytime from Ordo settings.
+- **Description (long)**: Connect Ordo to ChatGPT to organize your day, create tasks and review progress without leaving the conversation. Ordo exposes 37 tools over a remote MCP server with OAuth: tasks, projects, comments, tags, notes, meetings, timers, workspaces, habits, objectives, day planning and identity. You approve once in the browser; ChatGPT then acts with exactly your permissions. Disconnect anytime from Ordo settings.
 - **Category**: Productivity
 - **Scopes requested**: `read`, `tasks:write`, `projects:write` (+ why: read your work / create-update tasks / manage projects).
 - **Privacy URL**: `https://ordotodo.app/privacy` (exists, verified 2026-10-29)
@@ -48,7 +48,7 @@ support email, and the review material in
 - **Setup**: owner pastes `https://api.ordotodo.app/mcp` once; members Connect + browser-approve.
 - **CLI**: `claude mcp add --transport http ordo https://api.ordotodo.app/mcp`
 - **Setup guide link**: `https://ordotodo.app/guide/connect/claude`
-- **BLOCKED ON**: (a) canonical production domain live; (b) org account to register/pin the connector; (c) human verification: fresh claude.ai install + Claude Code (`/mcp` shows ordo connected, token auto-refresh observed).
+- **BLOCKED ON**: (a) org account to register/pin the connector; (b) human verification: fresh claude.ai install + Claude Code (`/mcp` shows ordo connected, token auto-refresh observed).
 
 ## 3. ClawHub — plugin + Skill (T3) — code `done`, publish `blocked`
 

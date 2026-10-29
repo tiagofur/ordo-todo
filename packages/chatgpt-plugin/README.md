@@ -24,8 +24,12 @@ chatgpt-plugin/
 Tools que consumen las skills (todas del catálogo real,
 `apps/backend/src/mcp/mcp-tool-scopes.ts`): `ordo_day_plan`,
 `ordo_day_plan_apply`, `ordo_task_list`, `ordo_task_create`,
-`ordo_task_complete`, `ordo_habit_today`, `ordo_habit_complete`,
-`ordo_objective_progress`, `ordo_me`.
+`ordo_task_complete`, `ordo_habit_today`, `ordo_objective_progress`.
+
+El servidor expone **37 tools** en total; el portal las escanea y
+listará todas — el material de submission
+(`docs/guides/integrations/chatgpt-review-kit.md` y
+`docs/guides/integrations/listing-assets.md`) usa el mismo conteo.
 
 ## Build del ZIP
 

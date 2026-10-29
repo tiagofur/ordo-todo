@@ -9,6 +9,6 @@
   },
   "homepage": "https://ordotodo.app/guide/connect/chatgpt",
   "repository": "https://github.com/tiagofur/ordo-todo",
-  "license": "UNLICENSED",
+  "license": "LicenseRef-Proprietary",
   "keywords": ["productivity", "tasks", "habits", "goals", "day planning"]
 }
