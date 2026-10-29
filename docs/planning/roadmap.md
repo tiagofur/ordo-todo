@@ -99,6 +99,7 @@ Notas:
 | `odd/tasks/019-admin-invite-codes.md` | #353 | M4 Confianza + ingresos | [TASK] Panel de admin + registro por invitación (códigos, bloqueo, regalar Pro) |
 | `odd/tasks/021-express-tasks.md` | #430 | M2 Imbatible a diario | [FEATURE] Tareas sin proyecto (tarea express): crear/listar/papelera sin projectId |
 | `odd/tasks/022-cross-app-parity.md` | #438 | M2 Imbatible a diario | [TASK] Paridad pantallas/formularios web↔desktop↔mobile (piloto Create Task, patrón packages/ui) |
+| `odd/tasks/024-chrome-extension.md` | #448 | M2 Imbatible a diario | [FEATURE] Extensión de Chrome — captura desde el navegador (MVP) |
 
 ## Reglas de ejecución
 
