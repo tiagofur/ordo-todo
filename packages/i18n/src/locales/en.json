@@ -3402,6 +3402,17 @@
     "openOrdo": "Open Ordo",
     "created": "Task created",
     "newCapture": "New capture",
-    "captureError": "Couldn't create the task. Try again."
+    "captureError": "Couldn't create the task. Try again.",
+    "tabCapture": "Capture",
+    "tabToday": "Today",
+    "todayEmpty": "Nothing pending for today",
+    "optionsTitle": "Ordo settings",
+    "optionsLanguage": "Language",
+    "optionsAuto": "Automatic (browser)",
+    "optionsDefaultProject": "Default project (context menu)",
+    "optionsDefaultProjectHelp": "Tasks created from the context menu will go to this project.",
+    "optionsNoDefaultProject": "No project (express)",
+    "optionsSession": "Session",
+    "optionsNotSignedIn": "Not signed in. Start from the popup."
   }
 }

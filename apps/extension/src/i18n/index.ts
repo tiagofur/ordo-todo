@@ -42,4 +42,7 @@ export const changeLanguage = (lng: SupportedLanguage) => {
   localStorage.setItem('ordo-language', lng);
 };
 
+export const getCurrentLanguage = (): SupportedLanguage =>
+  (i18n.language || 'en') as SupportedLanguage;
+
 export default i18n;

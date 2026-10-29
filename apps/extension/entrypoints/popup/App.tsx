@@ -7,25 +7,38 @@ import {
   type CreateTaskFormData,
   type ProjectOption,
 } from '@ordo-todo/ui';
+import type { Task } from '@ordo-todo/api-client';
 import { serializeCalendarDateForApi } from '@ordo-todo/core';
 import { apiClient } from '../../src/lib/api-client';
+import { refreshBadge } from '../../src/lib/badge';
 import { getSession, logout, startLogin } from '../../src/lib/auth';
 import {
   buildPrefill,
   getActivePageContext,
   type PageContext,
 } from '../../src/lib/capture';
+import { getOptions } from '../../src/lib/options';
 
 type State =
   | { status: 'loading' }
   | { status: 'anon'; error?: string }
   | { status: 'authed'; email: string };
 
+type View = 'capture' | 'today';
+
 export default function App() {
   const { t } = useTranslation();
   const [state, setState] = useState<State>({ status: 'loading' });
 
   useEffect(() => {
+    // Idioma elegido en opciones (sync) manda sobre el detector.
+    void getOptions().then((options) => {
+      if (options.language && options.language !== 'auto') {
+        void import('../../src/i18n').then(({ changeLanguage }) =>
+          changeLanguage(options.language as Parameters<typeof changeLanguage>[0]),
+        );
+      }
+    });
     getSession()
       .then((session) =>
         setState(
@@ -77,23 +90,57 @@ export default function App() {
         </div>
       )}
       {state.status === 'authed' && (
-        <div className="flex items-center justify-between px-4 py-2">
-          <p role="status" className="truncate text-xs text-muted-foreground">
-            {t('Extension.connectedAs', { email: state.email })}
-          </p>
-          <div className="flex shrink-0 gap-2">
+        <>
+          <div className="flex items-center justify-between px-4 py-2">
+            <p role="status" className="truncate text-xs text-muted-foreground">
+              {t('Extension.connectedAs', { email: state.email })}
+            </p>
             <button
               type="button"
               onClick={handleLogout}
-              className="text-xs text-muted-foreground hover:underline"
+              className="shrink-0 text-xs text-muted-foreground hover:underline"
             >
               {t('Extension.logout')}
             </button>
           </div>
-        </div>
+          <PopupTabs />
+        </>
       )}
-      {state.status === 'authed' && <CaptureView />}
     </main>
+  );
+}
+
+function PopupTabs() {
+  const { t } = useTranslation();
+  const [view, setView] = useState<View>('capture');
+
+  return (
+    <div>
+      <div className="flex gap-1 border-b px-4" role="tablist">
+        {(
+          [
+            ['capture', t('Extension.tabCapture')],
+            ['today', t('Extension.tabToday')],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={view === key}
+            onClick={() => setView(key)}
+            className={`px-3 py-1.5 text-sm ${
+              view === key
+                ? 'border-b-2 border-primary font-medium text-primary'
+                : 'text-muted-foreground'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {view === 'capture' ? <CaptureView /> : <TodayView />}
+    </div>
   );
 }
 
@@ -187,6 +234,7 @@ function CaptureView() {
       } as never);
       setCreated(true);
       setOpen(false);
+      void refreshBadge();
     } catch {
       setFormError(t('Extension.captureError'));
     } finally {
@@ -248,5 +296,73 @@ function CaptureView() {
       formError={formError}
       labels={labels}
     />
+  );
+}
+
+function TodayView() {
+  const { t } = useTranslation();
+  const [tasks, setTasks] = useState<Task[] | null>(null);
+
+  const load = () => {
+    apiClient
+      .getTasksToday()
+      .then((today) =>
+        setTasks(
+          [...today.overdue, ...today.dueToday].filter(
+            (task) => task.status !== 'COMPLETED' && !task.completedAt,
+          ),
+        ),
+      )
+      .catch(() => setTasks([]));
+  };
+
+  useEffect(load, []);
+
+  const complete = async (taskId: string) => {
+    setTasks((current) => current?.filter((task) => task.id !== taskId) ?? null);
+    try {
+      await apiClient.completeTask(taskId);
+    } catch {
+      // Si falla, recargamos para mostrar el estado real.
+    }
+    load();
+    void refreshBadge();
+  };
+
+  return (
+    <div className="px-4 py-3">
+      {tasks === null && (
+        <p role="status" className="py-6 text-sm text-muted-foreground">
+          {t('Extension.authLoading')}
+        </p>
+      )}
+      {tasks?.length === 0 && (
+        <p className="py-6 text-sm text-muted-foreground">
+          {t('Extension.todayEmpty')}
+        </p>
+      )}
+      {tasks && tasks.length > 0 && (
+        <ul className="space-y-1">
+          {tasks.map((task) => (
+            <li key={task.id} className="flex items-center gap-2 py-1">
+              <input
+                type="checkbox"
+                aria-label={task.title}
+                onChange={() => void complete(task.id)}
+                className="h-4 w-4"
+              />
+              <span className="truncate text-sm">{task.title}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <button
+        type="button"
+        onClick={() => browser.tabs.create({ url: 'https://ordotodo.app' })}
+        className="mt-3 text-xs text-muted-foreground hover:underline"
+      >
+        {t('Extension.openOrdo')}
+      </button>
+    </div>
   );
 }

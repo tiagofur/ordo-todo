@@ -3402,6 +3402,17 @@
     "openOrdo": "Abrir Ordo",
     "created": "Tarea creada",
     "newCapture": "Nueva captura",
-    "captureError": "No se pudo crear la tarea. Inténtalo de nuevo."
+    "captureError": "No se pudo crear la tarea. Inténtalo de nuevo.",
+    "tabCapture": "Capturar",
+    "tabToday": "Hoy",
+    "todayEmpty": "Nada pendiente para hoy",
+    "optionsTitle": "Ajustes de Ordo",
+    "optionsLanguage": "Idioma",
+    "optionsAuto": "Automático (navegador)",
+    "optionsDefaultProject": "Proyecto por defecto (captura contextual)",
+    "optionsDefaultProjectHelp": "Las tareas creadas desde el menú contextual irán a este proyecto.",
+    "optionsNoDefaultProject": "Sin proyecto (express)",
+    "optionsSession": "Sesión",
+    "optionsNotSignedIn": "Sin sesión. Inicia desde el popup."
   }
 }
