@@ -93,12 +93,12 @@ Esperado: 0 warnings de manifest; jest de strategies/oauth verde incluyendo el t
 
 | T# | Specs | Entrega | Ruta sugerida | Estado |
 |----|-------|---------|---------------|--------|
-| T1 | S0 | Esqueleto WXT + i18n cableado + carga unpacked sin warnings | scaffold `apps/extension` → popup placeholder → icons marca → manifest key | PENDIENTE |
-| T2 | S1 | OAuth first-party: claim+guard en backend (test de separación RED/GREEN) + launchWebAuthFlow + storage/refresh/logout | oauth.service → jwt.strategy → auth en extensión → flujo real contra prod | PENDIENTE |
-| T3 | S2 | Popup de captura (CreateTaskDialog + prefill de pestaña/selección) | contenedor estilo desktop → mocks `chrome.*` → manual prod | PENDIENTE |
-| T4 | S3+S5 | Menú contextual + página de opciones | handler en background → options page → manual | PENDIENTE |
-| T5 | S4 | Badge + vista Hoy | alarms + getTasksToday → lista/checkbox → manual | PENDIENTE |
-| T6 | S6 | Kit CWS (doc + zip + assets + listing) | `docs/guides/integrations/chrome-extension.md` | PENDIENTE (submit humano aparte) |
+| T1 | S0 | Esqueleto WXT + i18n cableado + carga unpacked sin warnings | scaffold `apps/extension` → popup placeholder → icons marca → manifest key | COMPLETADO (commit 114e59d4) |
+| T2 | S1 | OAuth first-party: claim+guard en backend (test de separación RED/GREEN) + launchWebAuthFlow + storage/refresh/logout | oauth.service → jwt.strategy → auth en extensión | COMPLETADO (commit 788d5d1a; jest 62/62, vitest 16/16; flujo real contra prod = prueba humana pendiente) |
+| T3 | S2 | Popup de captura (CreateTaskDialog + prefill de pestaña/selección) | contenedor estilo desktop → mocks `chrome.*` + RTL | COMPLETADO (commit 2852ac0b; enmienda L3 aplicada; vitest 28/28) |
+| T4 | S3+S5 | Menú contextual + página de opciones | handler en background → options page | COMPLETADO (commit 2eff2bde; vitest menu+options) |
+| T5 | S4 | Badge + vista Hoy | alarms + getTasksToday → lista/checkbox | COMPLETADO (commit 2eff2bde; vitest badge; manual contra prod = prueba humana pendiente) |
+| T6 | S6 | Kit CWS (doc + zip + assets + listing) | `docs/guides/integrations/chrome-extension.md` | COMPLETADO (doc + listing + checklist; zip y submit = tareas humanas del owner) |
 
 ## Log
 
@@ -115,3 +115,14 @@ Decisiones de diseño del padre (2026-10-29):
 L2. Revisión independiente de la PR #449 (2026-10-29): 14 claims técnicos del doc verificados contra el código, todos correctos. Hallazgos aplicados: **P1** — faltaba el permiso `scripting` (S2 usa `chrome.scripting.executeScript`, que exige el permiso en el manifest; `activeTab` cubre el host de destino, no la API) → añadido a S0 y a la justificación de S6. **P2** — S1b: la validación debe resolver el usuario por `sub`, no por `email` (el payload OAuth no lleva email; `JwtStrategy.validate` usa `payload.email` → 401 garantizado); y S1a: mecanismo first-party definido como allowlist de client_id en env (`OAUTH_FIRST_PARTY_CLIENT_IDS`) + insert manual del cliente fijo (hoy los clientes nacen solo por DCR/CIMD, no hay seed OAuth). **P3** — typo `ordo todo.app`→`ordotodo.app` en Verification; B5 aclara que completar desde la vista Hoy no es "gestionar". Con estos fixes el veredicto del revisor pasa a APTO.
 
 L3. Enmienda del padre durante ejecución (2026-10-29, T3): el prefill de S2 exige que el `CreateTaskDialog` compartido acepte valores iniciales — el contrato de ODD 022 no los tenía. Se amplía S2 con `initialTitle?`/`initialDescription?` (opcionales, sin cambio de comportamiento cuando faltan) y se añade `packages/ui/src/components/task/create-task-dialog.tsx` (+ test) a las superficies. No rompe consumidores existentes (web/desktop no pasan los props nuevos).
+
+L4. Ejecución del MVP (2026-10-29): T1-T6 completados en la rama `feature/odd-024-chrome-extension` (commits 114e59d4, 788d5d1a, 2852ac0b, 2eff2bde y el de este log). Evidencia: jest strategies+oauth 62/62 (incluye separación first-party vs terceros en ambas direcciones); vitest de la extensión 40/40 (auth con PKCE/refresh/revoke, prefill, menú, badge, options, popup con RTL); ui 129/129; web 312/312; desktop 101/101; `tsc` 17/17 y `turbo build` 19/19.
+
+Decisiones tomadas durante la ejecución (todas compatibles con el doc):
+- D-ejec1 (T3): el prefill exigía que el `CreateTaskDialog` compartido aceptara valores iniciales → enmienda L3 (`initialTitle`/`initialDescription`, opcionales y sin efecto en web/desktop).
+- D-ejec2 (T3): el HTTP de la extensión usa `OrdoApiClient` con un adaptador `WxtTokenStorage` cuyo `getToken()` refresca ANTES de caducar; así el refresh interno del cliente (que apunta a `/auth/refresh`, semántica JWT de la app web) nunca dispara, y `onAuthError` limpia la sesión como red de seguridad.
+- D-ejec3 (T4): en el menú contextual de ENLACE el título es el de la pestaña — el API de `contextMenus` no entrega el texto del enlace; la descripción lleva el `linkUrl` (el doc original decía "texto del enlace": corregido aquí).
+- D-ejec4 (T4/T5): errores al crear desde el menú → badge `!` 5 s + pestaña de login; errores al refrescar el badge → badge neutro (nunca feedback falso).
+- D-ejec5: los paquetes del workspace se bundlean desde `src/` en vite/vitest (alias), igual que `apps/desktop`: los dist CJS rompen el análisis de exports de rollup.
+
+Pendiente humano (owner): verificación manual contra producción (flujo login → consent → captura → visible en `ordotodo.app`, menús, badge) tras el registro SQL del cliente OAuth + `OAUTH_FIRST_PARTY_CLIENT_IDS` (kit §2), y el submit a la Chrome Web Store (kit §7). La build de release y el zip se generan con `npm run build && npm run zip` en `apps/extension`.
