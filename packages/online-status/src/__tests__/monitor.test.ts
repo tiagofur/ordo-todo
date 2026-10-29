@@ -3,7 +3,7 @@ import {
   getOnlineStatus,
   subscribeOnlineStatus,
   __resetOnlineStatusMonitor,
-} from '../online-status-monitor';
+} from '../index.js';
 
 const CONFIRMATION_DELAY_MS = 5000;
 

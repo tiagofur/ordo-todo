@@ -1,11 +1,9 @@
-// Single source of truth for connectivity across the app (toasts, sync
-// indicator, offline queue). Raw browser online/offline events reflect the
+// Single source of truth for connectivity across Ordo apps (toasts, sync
+// indicators, offline queues). Raw browser online/offline events reflect the
 // OS network interface: Wi-Fi roaming, ISP renewals or wake-from-sleep fire
 // them in quick succession even though the app never lost real
 // connectivity. Transitions are only reported once the raw state persists
 // OFFLINE_CONFIRMATION_DELAY_MS, so micro-flaps stay invisible to consumers.
-import { logger } from "@/lib/logger";
-
 export const OFFLINE_CONFIRMATION_DELAY_MS = 5000;
 
 type OnlineStatusListener = (online: boolean) => void;
@@ -80,7 +78,7 @@ function setOnline(next: boolean) {
     try {
       listener(next);
     } catch (error) {
-      logger.error("[OnlineStatusMonitor] listener failed:", error);
+      console.error("[OnlineStatusMonitor] listener failed:", error);
     }
   }
   window.dispatchEvent(

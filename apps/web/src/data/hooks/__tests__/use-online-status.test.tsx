@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useOnlineStatus } from '../use-online-status.hook';
-import { __resetOnlineStatusMonitor } from '@/lib/online-status-monitor';
+import { __resetOnlineStatusMonitor } from '@ordo-todo/online-status';
 
 const OFFLINE_CONFIRMATION_DELAY_MS = 5000;
 

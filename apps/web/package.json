@@ -33,6 +33,7 @@
     "@ordo-todo/db": "^0.1.0",
     "@ordo-todo/hooks": "*",
     "@ordo-todo/i18n": "*",
+    "@ordo-todo/online-status": "*",
     "@ordo-todo/stores": "*",
     "@ordo-todo/styles": "*",
     "@ordo-todo/ui": "*",
