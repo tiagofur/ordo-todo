@@ -159,6 +159,70 @@ describe('OAuthService', () => {
       );
     });
 
+    it('should drop OIDC and unknown scopes from a ChatGPT-style DCR request', async () => {
+      mockPrismaService.oAuthClient.create.mockImplementation(
+        async ({ data }: any) => ({ id: data.clientId, ...data }),
+      );
+
+      const result = await service.registerClient(undefined, {
+        client_name: 'ChatGPT',
+        redirect_uris: [
+          'https://chatgpt.com/connector_platform/oauth/callback',
+        ],
+        scope: 'openid email profile read tasks:write banana',
+      });
+
+      expect(result.scope).toBe('read tasks:write');
+      expect(mockPrismaService.oAuthClient.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ scopes: ['read', 'tasks:write'] }),
+        }),
+      );
+    });
+
+    it('should create an open client when the registration only asks OIDC scopes', async () => {
+      mockPrismaService.oAuthClient.create.mockImplementation(
+        async ({ data }: any) => ({ id: data.clientId, ...data }),
+      );
+
+      const result = await service.registerClient(undefined, {
+        client_name: 'ChatGPT',
+        redirect_uris: [
+          'https://chatgpt.com/connector_platform/oauth/callback',
+        ],
+        scope: 'openid email profile',
+      });
+
+      expect(result.scope).toBe('');
+      expect(mockPrismaService.oAuthClient.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ scopes: [] }),
+        }),
+      );
+    });
+
+    it('should re-register an open client idempotently even when scopes are requested', async () => {
+      mockPrismaService.oAuthClient.findUnique.mockResolvedValueOnce({
+        clientId: 'ordo_cl_open',
+        clientName: 'ChatGPT',
+        metadataUrl: null,
+        redirectUris: ['https://chatgpt.com/connector_platform/oauth/callback'],
+        scopes: [],
+      });
+
+      const result = await service.registerClient(undefined, {
+        client_name: 'ChatGPT',
+        redirect_uris: [
+          'https://chatgpt.com/connector_platform/oauth/callback',
+        ],
+        scope: 'read',
+      });
+
+      expect(result.client_id).toBe('ordo_cl_open');
+      expect(result.scope).toBe('');
+      expect(mockPrismaService.oAuthClient.create).not.toHaveBeenCalled();
+    });
+
     it('should derive a DCR client_id from client_uri when provided', async () => {
       mockPrismaService.oAuthClient.create.mockImplementation(
         async ({ data }: any) => ({ id: data.clientId, ...data }),
