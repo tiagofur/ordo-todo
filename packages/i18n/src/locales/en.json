@@ -3399,6 +3399,9 @@
     "connectedAs": "Signed in: {email}",
     "authLoading": "Checking session…",
     "authError": "Couldn't connect. Try again.",
-    "openOrdo": "Open Ordo"
+    "openOrdo": "Open Ordo",
+    "created": "Task created",
+    "newCapture": "New capture",
+    "captureError": "Couldn't create the task. Try again."
   }
 }

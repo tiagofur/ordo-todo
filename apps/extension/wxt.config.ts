@@ -9,8 +9,24 @@ const EXTENSION_KEY =
 const isDev = process.env.NODE_ENV === 'development';
 const apiOrigin = isDev ? 'http://localhost:3101/*' : 'https://api.ordotodo.app/*';
 
+// Igual que apps/desktop: los paquetes del workspace se bundlean desde src
+// (los dist son CJS y rompen el análisis de exports de rollup).
+const repo = (p: string) =>
+  new URL(`../../packages/${p}`, import.meta.url).pathname;
+
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
+  vite: () => ({
+    resolve: {
+      alias: {
+        '@ordo-todo/ui': repo('ui/src'),
+        '@ordo-todo/api-client': repo('api-client/src'),
+        '@ordo-todo/core': repo('core/src'),
+        '@ordo-todo/hooks': repo('hooks/src'),
+        '@ordo-todo/stores': repo('stores/src'),
+      },
+    },
+  }),
   manifest: {
     name: 'Ordo Todo',
     description: 'Captura tareas de Ordo desde cualquier página: popup de captura rápida, menú contextual y tareas de hoy.',

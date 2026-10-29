@@ -1,5 +1,6 @@
 import { browser } from 'wxt/browser';
 import { storage } from 'wxt/utils/storage';
+import type { TokenStorage } from '@ordo-todo/api-client';
 import {
   API_BASE_URL,
   OAUTH_CLIENT_ID,
@@ -220,4 +221,44 @@ function base64UrlRandom(byteLength: number): string {
     binary += String.fromCharCode(byte);
   }
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export async function clearSession(): Promise<void> {
+  await tokensItem.setValue(null);
+  await sessionItem.setValue(null);
+}
+
+/**
+ * Adaptador TokenStorage para `OrdoApiClient` (@ordo-todo/api-client).
+ * getToken() devuelve SIEMPRE un access token fresco (refresca antes de
+ * caducar), así que el refresh interno del cliente —que apunta a
+ * /auth/refresh, semántica JWT de la app web— nunca debería dispararse; queda
+ * como red de seguridad y su fallo limpia la sesión vía onAuthError.
+ */
+export class WxtTokenStorage implements TokenStorage {
+  async getToken(): Promise<string | null> {
+    return (await getValidTokens())?.accessToken ?? null;
+  }
+
+  async setToken(accessToken: string): Promise<void> {
+    const current = await tokensItem.getValue();
+    if (current) await tokensItem.setValue({ ...current, accessToken });
+  }
+
+  async removeToken(): Promise<void> {
+    await clearSession();
+  }
+
+  async getRefreshToken(): Promise<string | null> {
+    return (await tokensItem.getValue())?.refreshToken ?? null;
+  }
+
+  async setRefreshToken(refreshToken: string): Promise<void> {
+    const current = await tokensItem.getValue();
+    if (current) await tokensItem.setValue({ ...current, refreshToken });
+  }
+
+  async removeRefreshToken(): Promise<void> {
+    await clearSession();
+  }
 }

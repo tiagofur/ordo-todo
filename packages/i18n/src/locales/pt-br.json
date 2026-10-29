@@ -3399,6 +3399,9 @@
     "connectedAs": "Conectado: {email}",
     "authLoading": "Verificando sessão…",
     "authError": "Não foi possível conectar. Tente novamente.",
-    "openOrdo": "Abrir Ordo"
+    "openOrdo": "Abrir Ordo",
+    "created": "Tarefa criada",
+    "newCapture": "Nova captura",
+    "captureError": "Não foi possível criar a tarefa. Tente novamente."
   }
 }

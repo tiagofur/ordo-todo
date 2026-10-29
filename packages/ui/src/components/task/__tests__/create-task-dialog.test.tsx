@@ -153,3 +153,23 @@ describe("CreateTaskDialog (packages/ui)", () => {
     expect(screen.getByTestId("recurrence-widget")).toBeDefined();
   });
 });
+
+// ODD 024 (enmienda L3): prefill de captura desde la extensión de Chrome.
+describe("CreateTaskDialog initial values (ODD 024)", () => {
+  it("rellena título y descripción con initialTitle/initialDescription", () => {
+    setup({ initialTitle: "Página interesante", initialDescription: "https://example.com/articulo" });
+
+    const titleInput = screen.getByPlaceholderText("¿Qué necesitas hacer?") as HTMLInputElement;
+    expect(titleInput.value).toBe("Página interesante");
+
+    const descriptionInput = screen.getByPlaceholderText(/add details about this task/i) as HTMLTextAreaElement;
+    expect(descriptionInput.value).toBe("https://example.com/articulo");
+  });
+
+  it("sin valores iniciales el formulario arranca vacío (regresión)", () => {
+    setup();
+
+    const titleInput = screen.getByPlaceholderText("¿Qué necesitas hacer?") as HTMLInputElement;
+    expect(titleInput.value).toBe("");
+  });
+});
