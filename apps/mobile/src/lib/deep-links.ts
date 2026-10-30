@@ -29,9 +29,12 @@ export function useOAuthDeepLinks(
         if (processedUrls.current.has(url)) continue;
         processedUrls.current.add(url);
         const query = url.includes("?") ? url.slice(url.indexOf("?") + 1) : "";
-        await callbackRef.current(
+        const ok = await callbackRef.current(
           Object.fromEntries(new URLSearchParams(query)),
         );
+        // La URL de error del backend es determinista: si el handler no tuvo
+        // éxito, permitir reintentarla (no tragamos reintentos legítimos).
+        if (ok !== true) processedUrls.current.delete(url);
       }
     };
 
