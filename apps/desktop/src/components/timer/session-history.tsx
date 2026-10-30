@@ -262,7 +262,7 @@ export function SessionHistory() {
               {t("Timer.history.loadErrorDescription") ||
                 "Comprueba tu conexión e inténtalo de nuevo"}
             </p>
-            <Button variant="outline" size="sm" onClick={() => refetchHistory()}>
+            <Button variant="outline" size="sm" onClick={() => { void refetchHistory(); }}>
               {t("Timer.history.retry") || "Reintentar"}
             </Button>
           </div>

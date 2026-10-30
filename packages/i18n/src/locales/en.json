@@ -2410,7 +2410,8 @@
     "modes": {
       "work": "Work",
       "shortBreak": "Short Break",
-      "longBreak": "Long Break"
+      "longBreak": "Long Break",
+      "continuous": "Continuous mode"
     },
     "history": {
       "totalSessions": "Total sessions",
@@ -2425,7 +2426,10 @@
       "last7Days": "Last 7 days",
       "last30Days": "Last 30 days",
       "last90Days": "Last 90 days",
-      "page": "Page"
+      "page": "Page",
+      "loadError": "Couldn't load the history",
+      "loadErrorDescription": "Check your connection and try again",
+      "retry": "Retry"
     },
     "work": "Focus",
     "shortBreak": "Short Break",
