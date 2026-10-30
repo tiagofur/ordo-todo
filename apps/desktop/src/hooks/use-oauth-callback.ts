@@ -10,6 +10,7 @@
 
 import { useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { parseOAuthCallback, storeOAuthTokens } from "@/lib/oauth";
@@ -18,13 +19,14 @@ import { desktopBridge } from "@/lib/desktop-bridge";
 export function useOAuthCallback() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const processedUrls = useRef<Set<string>>(new Set());
 
   const handleAuthCallback = useCallback(async (params: Record<string, string>) => {
     const callbackData = parseOAuthCallback(params);
 
     if (callbackData.error) {
-      toast.error(`OAuth failed: ${callbackData.error}`);
+      toast.error(t("Auth.oauthError", { error: callbackData.error }));
       return;
     }
 
@@ -35,12 +37,12 @@ export function useOAuthCallback() {
       // cubre la query del auth-provider.
       await queryClient.invalidateQueries({ queryKey: ["user", "current"] });
       await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      toast.success("Successfully signed in!");
+      toast.success(t("Auth.oauthSuccess"));
       navigate("/dashboard");
     } else {
-      toast.error("Failed to complete sign in");
+      toast.error(t("Auth.oauthFailed"));
     }
-  }, [navigate, queryClient]);
+  }, [navigate, queryClient, t]);
 
   const handleDeepLinkUrl = useCallback(
     async (url: string) => {
