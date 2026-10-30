@@ -78,10 +78,10 @@ describe('CalendarConnectionsService', () => {
     const state = service.createConnectState('user-1');
 
     expect(service.verifyConnectState(state)).toBe('user-1');
-    const payload = jwtService.decode(state) as {
+    const payload = jwtService.decode<{
       sub: string;
       tokenType: string;
-    };
+    }>(state);
     expect(payload.sub).toBe('user-1');
     expect(payload.tokenType).toBe('calendar_oauth_state');
   });
@@ -94,17 +94,15 @@ describe('CalendarConnectionsService', () => {
     expect(() => service.verifyConnectState(alien)).toThrow(
       UnauthorizedException,
     );
-    expect(() => service.verifyConnectState('')).toThrow(
-      UnauthorizedException,
-    );
+    expect(() => service.verifyConnectState('')).toThrow(UnauthorizedException);
   });
 
   it('should reject unknown providers and unknown users', async () => {
     mockPrisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
 
-    await expect(
-      service.startConnect('a@b.c', 'NOTION' as never),
-    ).rejects.toThrow(BadRequestException);
+    await expect(service.startConnect('a@b.c', 'NOTION')).rejects.toThrow(
+      BadRequestException,
+    );
 
     mockPrisma.user.findUnique.mockResolvedValue(null);
     await expect(

@@ -70,10 +70,10 @@ describe('SlackOAuthService', () => {
     const state = service.createInstallState('user-1');
 
     expect(service.verifyInstallState(state)).toBe('user-1');
-    const payload = jwtService.decode(state) as {
+    const payload = jwtService.decode<{
       sub: string;
       tokenType: string;
-    };
+    }>(state);
     expect(payload.sub).toBe('user-1');
     expect(payload.tokenType).toBe('slack_oauth_state');
   });
@@ -86,9 +86,7 @@ describe('SlackOAuthService', () => {
     expect(() => service.verifyInstallState(alien)).toThrow(
       UnauthorizedException,
     );
-    expect(() => service.verifyInstallState('')).toThrow(
-      UnauthorizedException,
-    );
+    expect(() => service.verifyInstallState('')).toThrow(UnauthorizedException);
   });
 
   it('should exchange the code and store bot token + team mapping', async () => {
