@@ -13,7 +13,6 @@ import {
   Flame,
   Clock,
   PlayCircle,
-  PauseCircle,
   ListTodo,
   ChevronDown,
   Repeat,
@@ -98,7 +97,6 @@ interface TaskCardCompactProps {
     statusTodo?: string;
     statusInProgress?: string;
     statusCompleted?: string;
-    statusOnHold?: string;
     statusLabel?: string;
     changeStatus?: string;
     // Priorities
@@ -183,7 +181,6 @@ export function TaskCardCompact({
     statusTodo = 'To Do',
     statusInProgress = 'In Progress',
     statusCompleted = 'Completed',
-    statusOnHold = 'On Hold',
     statusLabel: _statusLabel = 'Status',
     changeStatus = 'Change Status',
     priorityUrgent = 'Urgent',
@@ -233,13 +230,6 @@ export function TaskCardCompact({
           bgColor: '#22c55e15',
           icon: CheckCircle2,
           label: statusCompleted,
-        };
-      case 'ON_HOLD':
-        return {
-          color: '#f59e0b',
-          bgColor: '#f59e0b15',
-          icon: PauseCircle,
-          label: statusOnHold,
         };
       default:
         return {
@@ -382,12 +372,6 @@ export function TaskCardCompact({
             label: statusCompleted,
             icon: CheckCircle2,
             color: '#22c55e',
-          },
-          {
-            value: 'ON_HOLD',
-            label: statusOnHold,
-            icon: PauseCircle,
-            color: '#f59e0b',
           },
         ].map((status) => {
           const Icon = status.icon;
