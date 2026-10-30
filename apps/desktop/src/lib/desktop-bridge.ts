@@ -79,6 +79,15 @@ class DesktopBridge {
   }
 
   /**
+   * True when this webview is the main app window. The mini-timer window
+   * loads the same bundle, so auth/deep-link handling must be scoped to
+   * "main". Always true outside Tauri (plain web page).
+   */
+  public isMainWindow(): boolean {
+    return !this.isTauri || getCurrentWindow().label === 'main';
+  }
+
+  /**
    * Guard for commands/plugins that only exist in the desktop Rust shell
    * (window controls, tray, badge, autostart, global shortcuts). On mobile
    * these would reject with "command not found"; notifications and the
@@ -335,6 +344,65 @@ class DesktopBridge {
         console.warn(`Failed to unregister shortcut ${shortcut}:`, err);
       }
     }
+  }
+
+  // ==========================================
+  // Deep Links (ordo://)
+  // ==========================================
+
+  /**
+   * Listen for `ordo://` URLs routed to the app by the OS. The Tauri
+   * deep-link plugin emits `deep-link://new-url` with a JSON array of
+   * URL strings. Returns an unsubscribe fn; the cancelled flag guards
+   * the subscribe/unsubscribe race (unlisten resolving after the
+   * consumer already unmounted).
+   */
+  public onDeepLinkUrl(callback: (url: string) => void): () => void {
+    let cancelled = false;
+    let unlistenTauri: UnlistenFn | null = null;
+
+    if (this.hasDesktopShell) {
+      listen<string[]>('deep-link://new-url', (event) => {
+        if (!Array.isArray(event.payload)) return;
+        for (const url of event.payload) {
+          if (typeof url === 'string') {
+            callback(url);
+          }
+        }
+      }).then((unlisten) => {
+        if (cancelled) {
+          unlisten();
+        } else {
+          unlistenTauri = unlisten;
+        }
+      }).catch(() => {
+        // Sin shell/register denegado: no hay listener que limpiar.
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      if (unlistenTauri) {
+        unlistenTauri();
+      }
+    };
+  }
+
+  /**
+   * URLs the app was launched with (deep-link plugin `get_current`).
+   * Covers cold starts where the OS delivered the URL before any
+   * webview listener existed.
+   */
+  public async getDeepLinkLaunchUrls(): Promise<string[]> {
+    if (this.hasDesktopShell) {
+      try {
+        const urls = await invoke<string[]>('get_deep_link_urls');
+        return Array.isArray(urls) ? urls : [];
+      } catch (err) {
+        console.warn('Failed to read deep link launch URLs:', err);
+      }
+    }
+    return [];
   }
 
   // ==========================================

@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTimerBackend, TimerSessionMode } from "@/hooks/use-timer-backend";
 import { useUserPreferences, useUpdateTask } from "@/hooks/api";
-import { TaskStatus } from "@ordo-todo/api-client";
 import { desktopBridge, type TimerAction } from "@/lib/desktop-bridge";
 
 interface TimerConfig {
@@ -198,7 +197,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         if (selectedTaskId) {
             updateTask.mutate({
                 taskId: selectedTaskId,
-                data: { status: "DONE" as TaskStatus }
+                data: { status: "COMPLETED" }
             });
             timer.stop(true);
             setSelectedTaskId(null);

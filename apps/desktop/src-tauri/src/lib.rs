@@ -67,6 +67,23 @@ fn set_badge_count(_app: tauri::AppHandle, _count: Option<i64>) -> Result<(), St
     Ok(())
 }
 
+/// URLs the app was launched with (e.g. `ordo://auth/callback?...`). The
+/// deep-link plugin fills this from CLI arguments (Windows/Linux) and
+/// macOS `open URL` events, so the webview can catch cold-start links it
+/// was not yet listening for.
+#[tauri::command]
+fn get_deep_link_urls(app: tauri::AppHandle) -> Result<Vec<String>, String> {
+    use tauri_plugin_deep_link::DeepLinkExt;
+    match app.deep_link().get_current() {
+        Ok(urls) => Ok(urls
+            .unwrap_or_default()
+            .iter()
+            .map(|url| url.to_string())
+            .collect()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 #[tauri::command]
 fn focus_main_window(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("main") {
@@ -82,6 +99,17 @@ fn focus_main_window(app: tauri::AppHandle) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // Single-instance must be registered first: a second process hands off
+        // its arguments (forwarded to the deep-link plugin via the `deep-link`
+        // feature) and exits before the rest of the setup runs.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+        }))
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -91,6 +119,16 @@ pub fn run() {
         ))
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
+            #[cfg(desktop)]
+            {
+                // Register ordo:// as the default handler (registry entries /
+                // .desktop files). On macOS this intentionally errors — the
+                // scheme is embedded in Info.plist at bundle time from
+                // `plugins.deep-link.desktop.schemes` in tauri.conf.json.
+                use tauri_plugin_deep_link::DeepLinkExt;
+                let _ = app.deep_link().register_all();
+            }
+
             // Build system tray menu
             let show_i = MenuItem::with_id(app, "show", "Show Ordo-Todo", true, None::<&str>)?;
             let quick_add_i = MenuItem::with_id(app, "quick_add", "Quick Add Task...", true, Some("CmdOrCtrl+Shift+N"))?;
@@ -178,6 +216,7 @@ pub fn run() {
             update_tray_title,
             set_badge_count,
             focus_main_window,
+            get_deep_link_urls,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
