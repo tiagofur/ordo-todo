@@ -9,6 +9,13 @@
     "beforeBuildCommand": "npm run build:vite",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["ordo"]
+      }
+    }
+  },
   "app": {
     "windows": [
       {

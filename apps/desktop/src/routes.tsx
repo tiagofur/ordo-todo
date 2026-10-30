@@ -1,4 +1,4 @@
-import { createHashRouter, Navigate } from "react-router-dom";
+import { createHashRouter, Navigate, Outlet } from "react-router-dom";
 import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { Tasks } from "./pages/Tasks";
@@ -8,6 +8,7 @@ import { TimerFloating } from "./pages/TimerFloating";
 import { SharedTaskPage } from "./pages/SharedTask";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { OAuthCallbackHandler } from "./components/auth/OAuthCallbackHandler";
 import { LazyLoad } from "./components/LazyLoad";
 
 // Lazy load heavy components for better performance
@@ -35,8 +36,8 @@ const LazyReports = LazyLoad(() => import("./pages/reports/Reports").then((m: an
 const LazyAIChat = LazyLoad(() => import("./pages/AIChat").then((m: any) => ({ default: m.AIChat || m.default })));
 const LazyNotifications = LazyLoad(() => import("./pages/Notifications").then((m: any) => ({ default: m.Notifications || m.default })));
 
-// Create router configuration
-const router = createHashRouter([
+// Create route list (wrapped in a pathless layout below)
+const routes = [
   {
     path: "/",
     element: <Navigate to="/dashboard" replace />,
@@ -207,6 +208,19 @@ const router = createHashRouter([
         </div>
       </div>
     ),
+  },
+];
+
+// Pathless layout: mounts the ordo:// OAuth deep-link handler on every
+// route, including /auth — the callback arrives while still logged out.
+const router = createHashRouter([
+  {
+    element: (
+      <OAuthCallbackHandler>
+        <Outlet />
+      </OAuthCallbackHandler>
+    ),
+    children: routes,
   },
 ]);
 
