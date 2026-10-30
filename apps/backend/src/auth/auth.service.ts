@@ -711,11 +711,16 @@ export class AuthService {
     try {
       const user = await this.userRepository.findByEmail(email);
       if (user) {
+        // JD-001: tokenType must be present so JwtStrategy and refresh()
+        // (which reject a present-and-wrong tokenType) refuse the reset
+        // token as an access/refresh credential.
         const resetToken = this.jwtService.sign(
           {
             sub: user.id,
             email: user.props.email,
             type: 'password_reset',
+            tokenType: 'password_reset',
+            jti: crypto.randomUUID(),
           },
           {
             expiresIn: '1h',
@@ -767,6 +772,16 @@ export class AuthService {
         throw new BadRequestException('Invalid password reset token');
       }
 
+      // JD-001 (round 2): reject replay of an already-consumed reset
+      // token (same idiom as the refresh() reuse check).
+      if (
+        await this.tokenBlacklistService.isBlacklisted(resetPasswordDto.token)
+      ) {
+        throw new UnauthorizedException(
+          'Password reset token has already been used',
+        );
+      }
+
       const user = await this.userRepository.findById(payload.sub, true);
       if (!user) {
         throw new BadRequestException('User not found');
@@ -780,6 +795,10 @@ export class AuthService {
         password: hashedPassword,
       });
 
+      // JD-001: consume the reset token so it cannot be replayed during
+      // its remaining lifetime.
+      await this.tokenBlacklistService.blacklist(resetPasswordDto.token);
+
       this.logger.log(
         `Password reset successfully completed for user: ${user.id}`,
       );
@@ -790,6 +809,9 @@ export class AuthService {
       };
     } catch (error: any) {
       if (error instanceof BadRequestException) {
+        throw error;
+      }
+      if (error instanceof UnauthorizedException) {
         throw error;
       }
       if (error.name === 'TokenExpiredError') {

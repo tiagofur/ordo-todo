@@ -860,4 +860,104 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
   });
+
+  describe('password reset (JD-001)', () => {
+    const resetUser = () =>
+      new User(
+        {
+          id: 'user-reset',
+          email: 'reset@example.com',
+          username: 'resetter',
+          name: 'Reset User',
+        },
+        'draft',
+      );
+
+    it('signs the reset token with tokenType password_reset', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(resetUser());
+
+      await service.forgotPassword('reset@example.com');
+
+      expect(jwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: 'user-reset',
+          email: 'reset@example.com',
+          type: 'password_reset',
+          tokenType: 'password_reset',
+        }),
+        { expiresIn: '1h' },
+      );
+    });
+
+    it('blacklists the consumed reset token on resetPassword', async () => {
+      (jwtService.verify as jest.Mock).mockReturnValue({
+        sub: 'user-reset',
+        email: 'reset@example.com',
+        type: 'password_reset',
+        tokenType: 'password_reset',
+      });
+      mockUserRepository.findById.mockResolvedValue(resetUser());
+      mockCryptoProvider.encrypt.mockResolvedValue('$2b$12$newhashedpassword');
+      mockUserRepository.updateProps.mockResolvedValue(undefined);
+
+      const result = await service.resetPassword({
+        token: 'reset-token-value',
+        newPassword: 'NewPassword456!',
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockTokenBlacklistService.blacklist).toHaveBeenCalledWith(
+        'reset-token-value',
+      );
+    });
+
+    it('rejects replay of an already-consumed reset token (JD-001 round 2)', async () => {
+      (jwtService.verify as jest.Mock).mockReturnValue({
+        sub: 'user-reset',
+        email: 'reset@example.com',
+        type: 'password_reset',
+        tokenType: 'password_reset',
+      });
+      mockUserRepository.findById.mockResolvedValue(resetUser());
+      mockCryptoProvider.encrypt.mockResolvedValue('$2b$12$newhashedpassword');
+      mockUserRepository.updateProps.mockResolvedValue(undefined);
+
+      const first = await service.resetPassword({
+        token: 'reset-token-value',
+        newPassword: 'NewPassword456!',
+      });
+      expect(first.success).toBe(true);
+      expect(mockTokenBlacklistService.blacklist).toHaveBeenCalledWith(
+        'reset-token-value',
+      );
+
+      // The blacklist now reports the token as consumed.
+      mockTokenBlacklistService.isBlacklisted.mockResolvedValue(true);
+
+      await expect(
+        service.resetPassword({
+          token: 'reset-token-value',
+          newPassword: 'AnotherPass789!',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(mockUserRepository.updateProps).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects a token without the password_reset type', async () => {
+      (jwtService.verify as jest.Mock).mockReturnValue({
+        sub: 'user-reset',
+        email: 'reset@example.com',
+        tokenType: 'access',
+      });
+      mockUserRepository.findById.mockResolvedValue(resetUser());
+
+      await expect(
+        service.resetPassword({
+          token: 'access-shaped-token',
+          newPassword: 'NewPassword456!',
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockTokenBlacklistService.blacklist).not.toHaveBeenCalled();
+    });
+  });
 });
