@@ -508,6 +508,13 @@ export const apiClient = {
   logout: (): Promise<void> => {
     // Backend will clear httpOnly cookies
     invalidateCsrfToken();
+    // JW-S05: la cache de React Query persiste en localStorage ('ordo-query-cache')
+    // durante 24 h; sin purga, el siguiente usuario de una máquina compartida
+    // rehidrata las tareas del anterior. Este es el punto único por donde pasa
+    // todo logout (menu, topbar, session hook).
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("ordo-query-cache");
+    }
     return axiosInstance.post("/auth/logout").then((res) => res.data);
   },
   refreshToken: (data: RefreshTokenDto): Promise<AuthResponse> =>
@@ -761,9 +768,12 @@ export const apiClient = {
     projectId?: string,
     tags?: string[],
     assignedToMe?: boolean,
+    withoutProject?: boolean,
   ): Promise<Task[]> =>
     axiosInstance
-      .get("/tasks", { params: { projectId, tags, assignedToMe } })
+      .get("/tasks", {
+        params: { projectId, tags, assignedToMe, withoutProject },
+      })
       .then((res) => res.data),
   getAvailableTasks: (projectId?: string): Promise<Task[]> =>
     axiosInstance
