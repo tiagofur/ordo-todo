@@ -7,6 +7,12 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#09090b" />
+    <!-- KMO-I04: misma CSP meta que el shell desktop (el tauri.conf lleva
+         csp:null; sin esta meta el webview móvil iba sin política). -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' http://localhost:3101 https://api.ordotodo.app ws:;"
+    />
     <title>Ordo</title>
   </head>
   <body>
