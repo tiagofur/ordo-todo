@@ -42,8 +42,7 @@ import {
   useTasks,
 } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { TaskCardCompact } from "@/components/task/task-card-compact";
-import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { TaskCardCompact, ConnectedTaskDetailPanel } from "@/components/task/task-card-compact";
 import { useTaskIdFromUrl } from "@/lib/use-task-from-url";
 import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
@@ -626,9 +625,10 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      {/* Task Detail Panel */}
-      <TaskDetailPanel
-        taskId={selectedTaskId}
+      {/* Task Detail Panel — variante conectada: trae la tarea y las
+          acciones reales (JW-S01); la cruda dejaba el panel en blanco */}
+      <ConnectedTaskDetailPanel
+        taskId={selectedTaskId ?? ""}
         open={selectedTaskId !== null}
         onOpenChange={(open) => {
           if (!open) setSelectedTaskId(null);

@@ -15,7 +15,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { ConnectedTaskDetailPanel } from "@/components/task/task-card-compact";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import type { Task } from "@ordo-todo/api-client";
 import { TaskPriority } from "@ordo-todo/api-client";
@@ -148,8 +148,8 @@ export function ProjectList({ projectId }: ProjectListProps) {
         </div>
       </div>
 
-      <TaskDetailPanel
-        taskId={selectedTaskId}
+      <ConnectedTaskDetailPanel
+        taskId={selectedTaskId ?? ""}
         open={!!selectedTaskId}
         onOpenChange={(open) => !open && setSelectedTaskId(null)}
       />
