@@ -1,0 +1,608 @@
+diff --git a/apps/desktop/src-tauri/Cargo.lock b/apps/desktop/src-tauri/Cargo.lock
+index 0d4b95f2..401b5aeb 100644
+--- a/apps/desktop/src-tauri/Cargo.lock
++++ b/apps/desktop/src-tauri/Cargo.lock
+@@ -511,6 +511,26 @@ dependencies = [
+  "crossbeam-utils",
+ ]
+ 
++[[package]]
++name = "const-random"
++version = "0.1.18"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "87e00182fe74b066627d63b85fd550ac2998d4b0bd86bfed477a0ae4c7c71359"
++dependencies = [
++ "const-random-macro",
++]
++
++[[package]]
++name = "const-random-macro"
++version = "0.1.16"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f9d839f2a20b0aee515dc581a6172f2321f96cab76c1a38a4c584a194955390e"
++dependencies = [
++ "getrandom 0.2.17",
++ "once_cell",
++ "tiny-keccak",
++]
++
+ [[package]]
+ name = "cookie"
+ version = "0.18.2"
+@@ -594,6 +614,12 @@ version = "0.8.23"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
+ 
++[[package]]
++name = "crunchy"
++version = "0.2.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
++
+ [[package]]
+ name = "crypto-common"
+ version = "0.1.7"
+@@ -825,6 +851,15 @@ dependencies = [
+  "syn 2.0.119",
+ ]
+ 
++[[package]]
++name = "dlv-list"
++version = "0.5.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "442039f5147480ba31067cb00ada1adae6892028e40e45fc5de7b7df6dcc1b5f"
++dependencies = [
++ "const-random",
++]
++
+ [[package]]
+ name = "dom_query"
+ version = "0.28.0"
+@@ -1263,6 +1298,17 @@ dependencies = [
+  "windows-link",
+ ]
+ 
++[[package]]
++name = "getrandom"
++version = "0.2.17"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0"
++dependencies = [
++ "cfg-if",
++ "libc",
++ "wasi",
++]
++
+ [[package]]
+ name = "getrandom"
+ version = "0.3.4"
+@@ -1458,6 +1504,12 @@ version = "0.12.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
+ 
++[[package]]
++name = "hashbrown"
++version = "0.14.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
++
+ [[package]]
+ name = "hashbrown"
+ version = "0.17.1"
+@@ -2488,6 +2540,16 @@ version = "0.2.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
+ 
++[[package]]
++name = "ordered-multimap"
++version = "0.7.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "49203cdcae0030493bad186b28da2fa25645fa276a51b6fec8010d281e02ef79"
++dependencies = [
++ "dlv-list",
++ "hashbrown 0.14.5",
++]
++
+ [[package]]
+ name = "ordered-stream"
+ version = "0.2.0"
+@@ -2507,9 +2569,11 @@ dependencies = [
+  "tauri",
+  "tauri-build",
+  "tauri-plugin-autostart",
++ "tauri-plugin-deep-link",
+  "tauri-plugin-global-shortcut",
+  "tauri-plugin-notification",
+  "tauri-plugin-opener",
++ "tauri-plugin-single-instance",
+  "tauri-plugin-store",
+ ]
+ 
+@@ -2991,6 +3055,16 @@ dependencies = [
+  "web-sys",
+ ]
+ 
++[[package]]
++name = "rust-ini"
++version = "0.21.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "796e8d2b6696392a43bea58116b667fb4c29727dc5abd27d6acf338bb4f688c7"
++dependencies = [
++ "cfg-if",
++ "ordered-multimap",
++]
++
+ [[package]]
+ name = "rustc-hash"
+ version = "2.1.3"
+@@ -3720,6 +3794,27 @@ dependencies = [
+  "thiserror 2.0.21",
+ ]
+ 
++[[package]]
++name = "tauri-plugin-deep-link"
++version = "2.6.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ab551d9bec27bb79d1c7fe5ed38c5cfd1cebb86efa745acc65f5853f345f6e56"
++dependencies = [
++ "dunce",
++ "plist",
++ "rust-ini",
++ "serde",
++ "serde_json",
++ "tauri",
++ "tauri-plugin",
++ "tauri-utils",
++ "thiserror 2.0.21",
++ "tracing",
++ "url",
++ "windows-registry",
++ "windows-result",
++]
++
+ [[package]]
+ name = "tauri-plugin-global-shortcut"
+ version = "2.4.1"
+@@ -3777,6 +3872,23 @@ dependencies = [
+  "zbus",
+ ]
+ 
++[[package]]
++name = "tauri-plugin-single-instance"
++version = "2.5.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "726b6da0dd5bd1344f84f4108a622c07d01923baacb5c803a605189672c5352f"
++dependencies = [
++ "serde",
++ "serde_json",
++ "tauri",
++ "tauri-plugin-deep-link",
++ "thiserror 2.0.21",
++ "tokio",
++ "tracing",
++ "windows-sys 0.61.2",
++ "zbus",
++]
++
+ [[package]]
+ name = "tauri-plugin-store"
+ version = "2.5.0"
+@@ -3996,6 +4108,15 @@ dependencies = [
+  "time-core",
+ ]
+ 
++[[package]]
++name = "tiny-keccak"
++version = "2.0.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
++dependencies = [
++ "crunchy",
++]
++
+ [[package]]
+ name = "tinystr"
+ version = "0.8.4"
+diff --git a/apps/desktop/src-tauri/Cargo.toml b/apps/desktop/src-tauri/Cargo.toml
+index 31e3b5db..dcf36f7f 100644
+--- a/apps/desktop/src-tauri/Cargo.toml
++++ b/apps/desktop/src-tauri/Cargo.toml
+@@ -15,6 +15,8 @@ tauri-build = { version = "2", features = [] }
+ 
+ [dependencies]
+ tauri = { version = "2", features = ["tray-icon"] }
++tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
++tauri-plugin-deep-link = "2"
+ tauri-plugin-opener = "2"
+ tauri-plugin-notification = "2"
+ tauri-plugin-global-shortcut = "2"
+diff --git a/apps/desktop/src-tauri/src/lib.rs b/apps/desktop/src-tauri/src/lib.rs
+index 18be73d7..3dfff6f9 100644
+--- a/apps/desktop/src-tauri/src/lib.rs
++++ b/apps/desktop/src-tauri/src/lib.rs
+@@ -67,6 +67,23 @@ fn set_badge_count(_app: tauri::AppHandle, _count: Option<i64>) -> Result<(), St
+     Ok(())
+ }
+ 
++/// URLs the app was launched with (e.g. `ordo://auth/callback?...`). The
++/// deep-link plugin fills this from CLI arguments (Windows/Linux) and
++/// macOS `open URL` events, so the webview can catch cold-start links it
++/// was not yet listening for.
++#[tauri::command]
++fn get_deep_link_urls(app: tauri::AppHandle) -> Result<Vec<String>, String> {
++    use tauri_plugin_deep_link::DeepLinkExt;
++    match app.deep_link().get_current() {
++        Ok(urls) => Ok(urls
++            .unwrap_or_default()
++            .iter()
++            .map(|url| url.to_string())
++            .collect()),
++        Err(e) => Err(e.to_string()),
++    }
++}
++
+ #[tauri::command]
+ fn focus_main_window(app: tauri::AppHandle) -> Result<(), String> {
+     if let Some(window) = app.get_webview_window("main") {
+@@ -82,6 +99,17 @@ fn focus_main_window(app: tauri::AppHandle) -> Result<(), String> {
+ #[cfg_attr(mobile, tauri::mobile_entry_point)]
+ pub fn run() {
+     tauri::Builder::default()
++        // Single-instance must be registered first: a second process hands off
++        // its arguments (forwarded to the deep-link plugin via the `deep-link`
++        // feature) and exits before the rest of the setup runs.
++        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
++            if let Some(window) = app.get_webview_window("main") {
++                let _ = window.show();
++                let _ = window.unminimize();
++                let _ = window.set_focus();
++            }
++        }))
++        .plugin(tauri_plugin_deep_link::init())
+         .plugin(tauri_plugin_opener::init())
+         .plugin(tauri_plugin_notification::init())
+         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+@@ -91,6 +119,16 @@ pub fn run() {
+         ))
+         .plugin(tauri_plugin_store::Builder::default().build())
+         .setup(|app| {
++            #[cfg(desktop)]
++            {
++                // Register ordo:// as the default handler (registry entries /
++                // .desktop files). On macOS this intentionally errors — the
++                // scheme is embedded in Info.plist at bundle time from
++                // `plugins.deep-link.desktop.schemes` in tauri.conf.json.
++                use tauri_plugin_deep_link::DeepLinkExt;
++                let _ = app.deep_link().register_all();
++            }
++
+             // Build system tray menu
+             let show_i = MenuItem::with_id(app, "show", "Show Ordo-Todo", true, None::<&str>)?;
+             let quick_add_i = MenuItem::with_id(app, "quick_add", "Quick Add Task...", true, Some("CmdOrCtrl+Shift+N"))?;
+@@ -178,6 +216,7 @@ pub fn run() {
+             update_tray_title,
+             set_badge_count,
+             focus_main_window,
++            get_deep_link_urls,
+         ])
+         .run(tauri::generate_context!())
+         .expect("error while running tauri application");
+diff --git a/apps/desktop/src-tauri/tauri.conf.json b/apps/desktop/src-tauri/tauri.conf.json
+index 49fa64e2..229393d2 100644
+--- a/apps/desktop/src-tauri/tauri.conf.json
++++ b/apps/desktop/src-tauri/tauri.conf.json
+@@ -9,6 +9,13 @@
+     "beforeBuildCommand": "npm run build:vite",
+     "frontendDist": "../dist"
+   },
++  "plugins": {
++    "deep-link": {
++      "desktop": {
++        "schemes": ["ordo"]
++      }
++    }
++  },
+   "app": {
+     "windows": [
+       {
+diff --git a/apps/desktop/src/components/task/subtask-list.tsx b/apps/desktop/src/components/task/subtask-list.tsx
+index b00e54ed..41ef52ac 100644
+--- a/apps/desktop/src/components/task/subtask-list.tsx
++++ b/apps/desktop/src/components/task/subtask-list.tsx
+@@ -54,8 +54,8 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+   };
+ 
+   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
+-    if (currentStatus !== "DONE") {
+-      updateSubtaskMutation.mutate({ taskId: subtaskId, data: { status: "DONE" as any } }, {
++    if (currentStatus !== "COMPLETED") {
++      updateSubtaskMutation.mutate({ taskId: subtaskId, data: { status: "COMPLETED" } }, {
+         onSuccess: () => toast.success("Subtarea completada"),
+         onError: (error) => toast.error(error.message || "Error al completar subtarea")
+       });
+@@ -71,7 +71,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+     }
+   };
+ 
+-  const completedCount = subtasks.filter((st) => st.status === "DONE").length;
++  const completedCount = subtasks.filter((st) => st.status === "COMPLETED").length;
+   const totalCount = subtasks.length;
+   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+ 
+@@ -111,7 +111,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+             className={cn(
+               "group flex items-start gap-2 rounded-lg border p-3 transition-all",
+               "hover:bg-accent/50",
+-              subtask.status === "DONE" && "opacity-60"
++              subtask.status === "COMPLETED" && "opacity-60"
+             )}
+           >
+             {/* Drag Handle */}
+@@ -124,7 +124,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+ 
+             {/* Checkbox */}
+             <Checkbox
+-              checked={subtask.status === "DONE"}
++              checked={subtask.status === "COMPLETED"}
+               onCheckedChange={() => handleToggleComplete(String(subtask.id), subtask.status)}
+               className="mt-0.5"
+             />
+@@ -134,7 +134,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+               <p
+                 className={cn(
+                   "text-sm",
+-                  subtask.status === "DONE" && "line-through text-muted-foreground"
++                  subtask.status === "COMPLETED" && "line-through text-muted-foreground"
+                 )}
+               >
+                 {subtask.title}
+diff --git a/apps/desktop/src/contexts/timer-context.tsx b/apps/desktop/src/contexts/timer-context.tsx
+index e589e3d0..4d9a3e28 100644
+--- a/apps/desktop/src/contexts/timer-context.tsx
++++ b/apps/desktop/src/contexts/timer-context.tsx
+@@ -1,7 +1,6 @@
+ import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
+ import { useTimerBackend, TimerSessionMode } from "@/hooks/use-timer-backend";
+ import { useUserPreferences, useUpdateTask } from "@/hooks/api";
+-import { TaskStatus } from "@ordo-todo/api-client";
+ import { desktopBridge, type TimerAction } from "@/lib/desktop-bridge";
+ 
+ interface TimerConfig {
+@@ -198,7 +197,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
+         if (selectedTaskId) {
+             updateTask.mutate({
+                 taskId: selectedTaskId,
+-                data: { status: "DONE" as TaskStatus }
++                data: { status: "COMPLETED" }
+             });
+             timer.stop(true);
+             setSelectedTaskId(null);
+diff --git a/apps/desktop/src/hooks/use-oauth-callback.ts b/apps/desktop/src/hooks/use-oauth-callback.ts
+index 51cc9813..9626f166 100644
+--- a/apps/desktop/src/hooks/use-oauth-callback.ts
++++ b/apps/desktop/src/hooks/use-oauth-callback.ts
+@@ -1,16 +1,24 @@
+ /**
+  * Hook to handle OAuth callback
++ *
++ * Desktop tokens arrive through `ordo://auth/callback?...` deep links:
++ * the OS hands them to the running app and the Tauri deep-link plugin
++ * re-emits them to the webview (`deep-link://new-url`). Web builds keep
++ * the `window.location.search` path. Both funnel into the same
++ * handleAuthCallback below.
+  */
+ 
+-import { useEffect, useCallback } from "react";
++import { useEffect, useCallback, useRef } from "react";
+ import { useNavigate } from "react-router-dom";
+ import { useQueryClient } from "@tanstack/react-query";
+ import { toast } from "sonner";
+ import { parseOAuthCallback, storeOAuthTokens } from "@/lib/oauth";
++import { desktopBridge } from "@/lib/desktop-bridge";
+ 
+ export function useOAuthCallback() {
+   const navigate = useNavigate();
+   const queryClient = useQueryClient();
++  const processedUrls = useRef<Set<string>>(new Set());
+ 
+   const handleAuthCallback = useCallback(async (params: Record<string, string>) => {
+     const callbackData = parseOAuthCallback(params);
+@@ -31,8 +39,29 @@ export function useOAuthCallback() {
+     }
+   }, [navigate, queryClient]);
+ 
++  const handleDeepLinkUrl = useCallback(
++    async (url: string) => {
++      // The same URL can arrive twice (launch URLs + live event); process it once.
++      if (processedUrls.current.has(url)) return;
++      processedUrls.current.add(url);
++
++      const params: Record<string, string> = {};
++      try {
++        new URL(url).searchParams.forEach((val, key) => {
++          params[key] = val;
++        });
++      } catch {
++        return;
++      }
++      if (params.access_token || params.accessToken || params.token || params.error) {
++        await handleAuthCallback(params);
++      }
++    },
++    [handleAuthCallback]
++  );
++
+   useEffect(() => {
+-    // Check if current URL contains oauth callback params
++    // Check if current URL contains oauth callback params (web flow)
+     if (typeof window !== "undefined") {
+       const url = new URL(window.location.href);
+       const params: Record<string, string> = {};
+@@ -44,6 +73,33 @@ export function useOAuthCallback() {
+       }
+     }
+   }, [handleAuthCallback]);
++
++  useEffect(() => {
++    // ordo:// deep links (desktop). Only the main window handles auth —
++    // the mini-timer window loads this same bundle and must stay put.
++    if (!desktopBridge.isDesktop() || !desktopBridge.isMainWindow()) {
++      return;
++    }
++
++    let cancelled = false;
++    const unlistenDeepLink = desktopBridge.onDeepLinkUrl((url) => {
++      void handleDeepLinkUrl(url);
++    });
++
++    // Cold start: the URL may arrive before the listener above exists,
++    // so also pick up the URLs the app was launched with.
++    void desktopBridge.getDeepLinkLaunchUrls().then((urls) => {
++      if (cancelled) return;
++      for (const url of urls) {
++        void handleDeepLinkUrl(url);
++      }
++    });
++
++    return () => {
++      cancelled = true;
++      unlistenDeepLink();
++    };
++  }, [handleDeepLinkUrl]);
+ }
+ 
+ export default useOAuthCallback;
+diff --git a/apps/desktop/src/lib/desktop-bridge.ts b/apps/desktop/src/lib/desktop-bridge.ts
+index 778e702b..0d356237 100644
+--- a/apps/desktop/src/lib/desktop-bridge.ts
++++ b/apps/desktop/src/lib/desktop-bridge.ts
+@@ -78,6 +78,15 @@ class DesktopBridge {
+     return this.isTauri && !this.isMobile();
+   }
+ 
++  /**
++   * True when this webview is the main app window. The mini-timer window
++   * loads the same bundle, so auth/deep-link handling must be scoped to
++   * "main". Always true outside Tauri (plain web page).
++   */
++  public isMainWindow(): boolean {
++    return !this.isTauri || getCurrentWindow().label === 'main';
++  }
++
+   /**
+    * Guard for commands/plugins that only exist in the desktop Rust shell
+    * (window controls, tray, badge, autostart, global shortcuts). On mobile
+@@ -337,6 +346,63 @@ class DesktopBridge {
+     }
+   }
+ 
++  // ==========================================
++  // Deep Links (ordo://)
++  // ==========================================
++
++  /**
++   * Listen for `ordo://` URLs routed to the app by the OS. The Tauri
++   * deep-link plugin emits `deep-link://new-url` with a JSON array of
++   * URL strings. Returns an unsubscribe fn; the cancelled flag guards
++   * the subscribe/unsubscribe race (unlisten resolving after the
++   * consumer already unmounted).
++   */
++  public onDeepLinkUrl(callback: (url: string) => void): () => void {
++    let cancelled = false;
++    let unlistenTauri: UnlistenFn | null = null;
++
++    if (this.hasDesktopShell) {
++      listen<string[]>('deep-link://new-url', (event) => {
++        if (!Array.isArray(event.payload)) return;
++        for (const url of event.payload) {
++          if (typeof url === 'string') {
++            callback(url);
++          }
++        }
++      }).then((unlisten) => {
++        if (cancelled) {
++          unlisten();
++        } else {
++          unlistenTauri = unlisten;
++        }
++      });
++    }
++
++    return () => {
++      cancelled = true;
++      if (unlistenTauri) {
++        unlistenTauri();
++      }
++    };
++  }
++
++  /**
++   * URLs the app was launched with (deep-link plugin `get_current`).
++   * Covers cold starts where the OS delivered the URL before any
++   * webview listener existed.
++   */
++  public async getDeepLinkLaunchUrls(): Promise<string[]> {
++    if (this.hasDesktopShell) {
++      try {
++        const urls = await invoke<string[]>('get_deep_link_urls');
++        return Array.isArray(urls) ? urls : [];
++      } catch (err) {
++        console.warn('Failed to read deep link launch URLs:', err);
++      }
++    }
++    return [];
++  }
++
+   // ==========================================
+   // Inter-Window State Synchronization
+   // ==========================================
+diff --git a/apps/desktop/src/routes.tsx b/apps/desktop/src/routes.tsx
+index 9b49432b..b964d5a9 100644
+--- a/apps/desktop/src/routes.tsx
++++ b/apps/desktop/src/routes.tsx
+@@ -1,4 +1,4 @@
+-import { createHashRouter, Navigate } from "react-router-dom";
++import { createHashRouter, Navigate, Outlet } from "react-router-dom";
+ import { Auth } from "./pages/Auth";
+ import { Dashboard } from "./pages/Dashboard";
+ import { Tasks } from "./pages/Tasks";
+@@ -8,6 +8,7 @@ import { TimerFloating } from "./pages/TimerFloating";
+ import { SharedTaskPage } from "./pages/SharedTask";
+ import { MainLayout } from "./components/layout/MainLayout";
+ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
++import { OAuthCallbackHandler } from "./components/auth/OAuthCallbackHandler";
+ import { LazyLoad } from "./components/LazyLoad";
+ 
+ // Lazy load heavy components for better performance
+@@ -35,8 +36,8 @@ const LazyReports = LazyLoad(() => import("./pages/reports/Reports").then((m: an
+ const LazyAIChat = LazyLoad(() => import("./pages/AIChat").then((m: any) => ({ default: m.AIChat || m.default })));
+ const LazyNotifications = LazyLoad(() => import("./pages/Notifications").then((m: any) => ({ default: m.Notifications || m.default })));
+ 
+-// Create router configuration
+-const router = createHashRouter([
++// Create route list (wrapped in a pathless layout below)
++const routes = [
+   {
+     path: "/",
+     element: <Navigate to="/dashboard" replace />,
+@@ -208,6 +209,19 @@ const router = createHashRouter([
+       </div>
+     ),
+   },
++];
++
++// Pathless layout: mounts the ordo:// OAuth deep-link handler on every
++// route, including /auth — the callback arrives while still logged out.
++const router = createHashRouter([
++  {
++    element: (
++      <OAuthCallbackHandler>
++        <Outlet />
++      </OAuthCallbackHandler>
++    ),
++    children: routes,
++  },
+ ]);
+ 
+ export { router };
+\ No newline at end of file

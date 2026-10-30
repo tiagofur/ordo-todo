@@ -1,0 +1,550 @@
+diff --git a/apps/backend/src/auth/auth.service.spec.ts b/apps/backend/src/auth/auth.service.spec.ts
+index 2eb544f8..5510ed95 100644
+--- a/apps/backend/src/auth/auth.service.spec.ts
++++ b/apps/backend/src/auth/auth.service.spec.ts
+@@ -860,4 +860,72 @@ describe('AuthService', () => {
+       ).rejects.toThrow(UnauthorizedException);
+     });
+   });
++
++  describe('password reset (JD-001)', () => {
++    const resetUser = () =>
++      new User(
++        {
++          id: 'user-reset',
++          email: 'reset@example.com',
++          username: 'resetter',
++          name: 'Reset User',
++        },
++        'draft',
++      );
++
++    it('signs the reset token with tokenType password_reset', async () => {
++      mockUserRepository.findByEmail.mockResolvedValue(resetUser());
++
++      await service.forgotPassword('reset@example.com');
++
++      expect(jwtService.sign).toHaveBeenCalledWith(
++        expect.objectContaining({
++          sub: 'user-reset',
++          email: 'reset@example.com',
++          type: 'password_reset',
++          tokenType: 'password_reset',
++        }),
++        { expiresIn: '1h' },
++      );
++    });
++
++    it('blacklists the consumed reset token on resetPassword', async () => {
++      (jwtService.verify as jest.Mock).mockReturnValue({
++        sub: 'user-reset',
++        email: 'reset@example.com',
++        type: 'password_reset',
++        tokenType: 'password_reset',
++      });
++      mockUserRepository.findById.mockResolvedValue(resetUser());
++      mockCryptoProvider.encrypt.mockResolvedValue('$2b$12$newhashedpassword');
++      mockUserRepository.updateProps.mockResolvedValue(undefined);
++
++      const result = await service.resetPassword({
++        token: 'reset-token-value',
++        newPassword: 'NewPassword456!',
++      });
++
++      expect(result.success).toBe(true);
++      expect(mockTokenBlacklistService.blacklist).toHaveBeenCalledWith(
++        'reset-token-value',
++      );
++    });
++
++    it('rejects a token without the password_reset type', async () => {
++      (jwtService.verify as jest.Mock).mockReturnValue({
++        sub: 'user-reset',
++        email: 'reset@example.com',
++        tokenType: 'access',
++      });
++      mockUserRepository.findById.mockResolvedValue(resetUser());
++
++      await expect(
++        service.resetPassword({
++          token: 'access-shaped-token',
++          newPassword: 'NewPassword456!',
++        }),
++      ).rejects.toThrow(BadRequestException);
++      expect(mockTokenBlacklistService.blacklist).not.toHaveBeenCalled();
++    });
++  });
+ });
+diff --git a/apps/backend/src/auth/auth.service.ts b/apps/backend/src/auth/auth.service.ts
+index f40d0468..51d93d28 100644
+--- a/apps/backend/src/auth/auth.service.ts
++++ b/apps/backend/src/auth/auth.service.ts
+@@ -711,11 +711,16 @@ export class AuthService {
+     try {
+       const user = await this.userRepository.findByEmail(email);
+       if (user) {
++        // JD-001: tokenType must be present so JwtStrategy and refresh()
++        // (which reject a present-and-wrong tokenType) refuse the reset
++        // token as an access/refresh credential.
+         const resetToken = this.jwtService.sign(
+           {
+             sub: user.id,
+             email: user.props.email,
+             type: 'password_reset',
++            tokenType: 'password_reset',
++            jti: crypto.randomUUID(),
+           },
+           {
+             expiresIn: '1h',
+@@ -780,6 +785,10 @@ export class AuthService {
+         password: hashedPassword,
+       });
+ 
++      // JD-001: consume the reset token so it cannot be replayed during
++      // its remaining lifetime.
++      await this.tokenBlacklistService.blacklist(resetPasswordDto.token);
++
+       this.logger.log(
+         `Password reset successfully completed for user: ${user.id}`,
+       );
+diff --git a/apps/backend/src/calendar-sync/calendar-connections.controller.ts b/apps/backend/src/calendar-sync/calendar-connections.controller.ts
+index 5b728f6a..97ac2dd3 100644
+--- a/apps/backend/src/calendar-sync/calendar-connections.controller.ts
++++ b/apps/backend/src/calendar-sync/calendar-connections.controller.ts
+@@ -61,11 +61,14 @@ export class CalendarConnectionsController {
+   async callback(
+     @Param('provider') provider: string,
+     @Query('code') code: string,
+-    @Query('email') email: string,
++    @Query('state') state: string,
+     @Res() res: Response,
+   ): Promise<void> {
++    // JD-003: the account comes from the signed state issued to the
++    // authenticated initiator, never from the query string.
++    const userId = this.connections.verifyConnectState(state);
+     await this.connections.finishConnect(
+-      email,
++      userId,
+       provider as 'GOOGLE_CALENDAR' | 'MICROSOFT_CALENDAR',
+       code,
+     );
+diff --git a/apps/backend/src/calendar-sync/calendar-connections.service.spec.ts b/apps/backend/src/calendar-sync/calendar-connections.service.spec.ts
+index 9c518f25..b0141f5f 100644
+--- a/apps/backend/src/calendar-sync/calendar-connections.service.spec.ts
++++ b/apps/backend/src/calendar-sync/calendar-connections.service.spec.ts
+@@ -1,5 +1,10 @@
+ import { Test, TestingModule } from '@nestjs/testing';
+-import { BadRequestException, NotFoundException } from '@nestjs/common';
++import {
++  BadRequestException,
++  NotFoundException,
++  UnauthorizedException,
++} from '@nestjs/common';
++import { JwtService } from '@nestjs/jwt';
+ import { CalendarConnectionsService } from './calendar-connections.service';
+ import { PrismaService } from '../database/prisma.service';
+ import { GoogleCalendarProvider } from './google-calendar.provider';
+@@ -7,6 +12,9 @@ import { OutlookCalendarProvider } from './outlook-calendar.provider';
+ 
+ describe('CalendarConnectionsService', () => {
+   let service: CalendarConnectionsService;
++  const jwtService = new JwtService({
++    secret: 'test-secret-key-0123456789abcdef',
++  });
+ 
+   const mockPrisma = {
+     user: { findUnique: jest.fn() },
+@@ -36,6 +44,7 @@ describe('CalendarConnectionsService', () => {
+         { provide: PrismaService, useValue: mockPrisma },
+         { provide: GoogleCalendarProvider, useValue: mockGoogle },
+         { provide: OutlookCalendarProvider, useValue: mockOutlook },
++        { provide: JwtService, useValue: jwtService },
+       ],
+     }).compile();
+ 
+@@ -60,10 +69,36 @@ describe('CalendarConnectionsService', () => {
+     const result = await service.startConnect('a@b.c', 'GOOGLE_CALENDAR');
+ 
+     expect(result.authorizeUrl).toContain('accounts.google.com');
+-    expect(result.state).toMatch(/^[A-Za-z0-9_-]+$/);
++    // JD-003: state is a signed JWT bound to the initiating user.
++    expect(service.verifyConnectState(result.state)).toBe('user-1');
+     expect(mockGoogle.getAuthorizeUrl).toHaveBeenCalledWith(result.state);
+   });
+ 
++  it('should bind the connect state to the initiating user (JD-003)', () => {
++    const state = service.createConnectState('user-1');
++
++    expect(service.verifyConnectState(state)).toBe('user-1');
++    const payload = jwtService.decode(state) as {
++      sub: string;
++      tokenType: string;
++    };
++    expect(payload.sub).toBe('user-1');
++    expect(payload.tokenType).toBe('calendar_oauth_state');
++  });
++
++  it('should reject invalid or wrong-type OAuth state with 401', () => {
++    expect(() => service.verifyConnectState('not-a-jwt')).toThrow(
++      UnauthorizedException,
++    );
++    const alien = jwtService.sign({ sub: 'user-1', tokenType: 'access' });
++    expect(() => service.verifyConnectState(alien)).toThrow(
++      UnauthorizedException,
++    );
++    expect(() => service.verifyConnectState('')).toThrow(
++      UnauthorizedException,
++    );
++  });
++
+   it('should reject unknown providers and unknown users', async () => {
+     mockPrisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+ 
+@@ -96,11 +131,14 @@ describe('CalendarConnectionsService', () => {
+     );
+ 
+     const result = await service.finishConnect(
+-      'a@b.c',
++      'user-1',
+       'GOOGLE_CALENDAR',
+       'code-1',
+     );
+ 
++    expect(mockPrisma.user.findUnique).toHaveBeenCalledWith(
++      expect.objectContaining({ where: { id: 'user-1' } }),
++    );
+     expect(result.provider).toBe('GOOGLE_CALENDAR');
+     expect(result.isActive).toBe(true);
+     expect(result).not.toHaveProperty('accessToken');
+diff --git a/apps/backend/src/calendar-sync/calendar-connections.service.ts b/apps/backend/src/calendar-sync/calendar-connections.service.ts
+index 783ad8b1..08c8bccd 100644
+--- a/apps/backend/src/calendar-sync/calendar-connections.service.ts
++++ b/apps/backend/src/calendar-sync/calendar-connections.service.ts
+@@ -5,7 +5,7 @@ import {
+   NotFoundException,
+   UnauthorizedException,
+ } from '@nestjs/common';
+-import { randomBytes } from 'crypto';
++import { JwtService } from '@nestjs/jwt';
+ import { PrismaService } from '../database/prisma.service';
+ import { GoogleCalendarProvider } from './google-calendar.provider';
+ import { OutlookCalendarProvider } from './outlook-calendar.provider';
+@@ -42,6 +42,7 @@ export class CalendarConnectionsService {
+     private readonly prisma: PrismaService,
+     private readonly google: GoogleCalendarProvider,
+     private readonly outlook: OutlookCalendarProvider,
++    private readonly jwtService: JwtService,
+   ) {}
+ 
+   private providerFor(provider: string) {
+@@ -63,21 +64,49 @@ export class CalendarConnectionsService {
+     if (!user) {
+       throw new NotFoundException('User not found');
+     }
+-    const state = randomBytes(24).toString('base64url');
++    const state = this.createConnectState(user.id);
+     return {
+       authorizeUrl: this.providerFor(provider).getAuthorizeUrl(state),
+       state,
+     };
+   }
+ 
++  /**
++   * JD-003: the OAuth state is a signed, short-lived JWT binding the
++   * callback to the authenticated initiator — the account can no longer
++   * be chosen from the query string.
++   */
++  createConnectState(userId: string): string {
++    return this.jwtService.sign(
++      { sub: userId, tokenType: 'calendar_oauth_state' },
++      { expiresIn: '10m' },
++    );
++  }
++
++  /** Verifies the signed state and returns the bound user id (or 401). */
++  verifyConnectState(state: string): string {
++    let payload: { sub?: string; tokenType?: string };
++    try {
++      payload = this.jwtService.verify<{ sub?: string; tokenType?: string }>(
++        state,
++      );
++    } catch {
++      throw new UnauthorizedException('Invalid calendar OAuth state');
++    }
++    if (payload.tokenType !== 'calendar_oauth_state' || !payload.sub) {
++      throw new UnauthorizedException('Invalid calendar OAuth state');
++    }
++    return payload.sub;
++  }
++
+   async finishConnect(
+-    email: string,
++    userId: string,
+     provider: SupportedCalendarProvider,
+     code: string,
+     providerEmail?: string,
+   ): Promise<CalendarConnectionSummary> {
+     const user = await this.prisma.user.findUnique({
+-      where: { email },
++      where: { id: userId },
+       select: { id: true, email: true },
+     });
+     if (!user) {
+diff --git a/apps/backend/src/calendar-sync/calendar-sync.module.ts b/apps/backend/src/calendar-sync/calendar-sync.module.ts
+index f7e96028..c73448fb 100644
+--- a/apps/backend/src/calendar-sync/calendar-sync.module.ts
++++ b/apps/backend/src/calendar-sync/calendar-sync.module.ts
+@@ -1,5 +1,6 @@
+ import { Module } from '@nestjs/common';
+-import { ConfigModule } from '@nestjs/config';
++import { JwtModule } from '@nestjs/jwt';
++import { ConfigModule, ConfigService } from '@nestjs/config';
+ import { DatabaseModule } from '../database/database.module';
+ import { V1Module } from '../v1/v1.module';
+ import { CalendarConnectionsController } from './calendar-connections.controller';
+@@ -11,7 +12,19 @@ import { GoogleCalendarProvider } from './google-calendar.provider';
+ import { OutlookCalendarProvider } from './outlook-calendar.provider';
+ 
+ @Module({
+-  imports: [DatabaseModule, ConfigModule, V1Module],
++  imports: [
++    DatabaseModule,
++    ConfigModule,
++    V1Module,
++    JwtModule.registerAsync({
++      imports: [ConfigModule],
++      useFactory: (configService: ConfigService) => ({
++        secret: configService.get<string>('JWT_SECRET'),
++        signOptions: { expiresIn: '1d' as const },
++      }),
++      inject: [ConfigService],
++    }),
++  ],
+   controllers: [CalendarConnectionsController],
+   providers: [
+     CalendarConnectionsService,
+diff --git a/apps/backend/src/slack/slack-oauth.service.spec.ts b/apps/backend/src/slack/slack-oauth.service.spec.ts
+index 0176ccf7..60896346 100644
+--- a/apps/backend/src/slack/slack-oauth.service.spec.ts
++++ b/apps/backend/src/slack/slack-oauth.service.spec.ts
+@@ -1,12 +1,20 @@
+ import { Test, TestingModule } from '@nestjs/testing';
+ import { ConfigService } from '@nestjs/config';
+-import { BadRequestException, NotFoundException } from '@nestjs/common';
++import { JwtService } from '@nestjs/jwt';
++import {
++  BadRequestException,
++  NotFoundException,
++  UnauthorizedException,
++} from '@nestjs/common';
+ import { SlackOAuthService } from './slack-oauth.service';
+ import { PrismaService } from '../database/prisma.service';
+ 
+ describe('SlackOAuthService', () => {
+   let service: SlackOAuthService;
+   const mockFetch = jest.fn();
++  const jwtService = new JwtService({
++    secret: 'test-secret-key-0123456789abcdef',
++  });
+ 
+   const mockConfigService = {
+     get: jest.fn((key: string) => {
+@@ -34,6 +42,7 @@ describe('SlackOAuthService', () => {
+         SlackOAuthService,
+         { provide: PrismaService, useValue: mockPrisma },
+         { provide: ConfigService, useValue: mockConfigService },
++        { provide: JwtService, useValue: jwtService },
+       ],
+     }).compile();
+ 
+@@ -57,6 +66,31 @@ describe('SlackOAuthService', () => {
+     expect(url.searchParams.get('state')).toBe('state-1');
+   });
+ 
++  it('should bind the install state to the initiating user (JD-002)', () => {
++    const state = service.createInstallState('user-1');
++
++    expect(service.verifyInstallState(state)).toBe('user-1');
++    const payload = jwtService.decode(state) as {
++      sub: string;
++      tokenType: string;
++    };
++    expect(payload.sub).toBe('user-1');
++    expect(payload.tokenType).toBe('slack_oauth_state');
++  });
++
++  it('should reject invalid or wrong-type OAuth state with 401', () => {
++    expect(() => service.verifyInstallState('not-a-jwt')).toThrow(
++      UnauthorizedException,
++    );
++    const alien = jwtService.sign({ sub: 'user-1', tokenType: 'access' });
++    expect(() => service.verifyInstallState(alien)).toThrow(
++      UnauthorizedException,
++    );
++    expect(() => service.verifyInstallState('')).toThrow(
++      UnauthorizedException,
++    );
++  });
++
+   it('should exchange the code and store bot token + team mapping', async () => {
+     mockPrisma.user.findUnique.mockResolvedValue({
+       id: 'user-1',
+@@ -77,8 +111,11 @@ describe('SlackOAuthService', () => {
+     mockPrisma.userIntegration.upsert.mockResolvedValue({ id: 'int-1' });
+     mockPrisma.slackWorkspaceMap.upsert.mockResolvedValue({ id: 'map-1' });
+ 
+-    const result = await service.finishInstall('a@b.c', 'code-1');
++    const result = await service.finishInstall('user-1', 'code-1');
+ 
++    expect(mockPrisma.user.findUnique).toHaveBeenCalledWith(
++      expect.objectContaining({ where: { id: 'user-1' } }),
++    );
+     expect(result.teamId).toBe('T1');
+     expect(result.teamName).toBe('Acme');
+     const stored = mockPrisma.userIntegration.upsert.mock.calls[0][0];
+@@ -98,7 +135,7 @@ describe('SlackOAuthService', () => {
+ 
+   it('should reject unknown users and failed exchanges', async () => {
+     mockPrisma.user.findUnique.mockResolvedValue(null);
+-    await expect(service.finishInstall('ghost@x.c', 'c')).rejects.toThrow(
++    await expect(service.finishInstall('ghost-user', 'c')).rejects.toThrow(
+       NotFoundException,
+     );
+ 
+@@ -109,7 +146,7 @@ describe('SlackOAuthService', () => {
+       json: async () => ({ ok: false, error: 'invalid_code' }),
+       text: async () => '',
+     });
+-    await expect(service.finishInstall('a@b.c', 'bad')).rejects.toThrow(
++    await expect(service.finishInstall('user-1', 'bad')).rejects.toThrow(
+       BadRequestException,
+     );
+   });
+diff --git a/apps/backend/src/slack/slack-oauth.service.ts b/apps/backend/src/slack/slack-oauth.service.ts
+index 28c65207..ddb67a92 100644
+--- a/apps/backend/src/slack/slack-oauth.service.ts
++++ b/apps/backend/src/slack/slack-oauth.service.ts
+@@ -3,8 +3,10 @@ import {
+   Injectable,
+   Logger,
+   NotFoundException,
++  UnauthorizedException,
+ } from '@nestjs/common';
+ import { ConfigService } from '@nestjs/config';
++import { JwtService } from '@nestjs/jwt';
+ import { PrismaService } from '../database/prisma.service';
+ import {
+   SLACK_BOT_SCOPES,
+@@ -62,6 +64,7 @@ export class SlackOAuthService {
+   constructor(
+     private readonly prisma: PrismaService,
+     private readonly configService: ConfigService,
++    private readonly jwtService: JwtService,
+   ) {}
+ 
+   private credentials(): {
+@@ -91,12 +94,40 @@ export class SlackOAuthService {
+     return `${SLACK_OAUTH_AUTHORIZE_URL}?${params.toString()}`;
+   }
+ 
++  /**
++   * JD-002: the OAuth state is a signed, short-lived JWT binding the
++   * callback to the authenticated initiator — the account can no longer
++   * be chosen from the query string.
++   */
++  createInstallState(userId: string): string {
++    return this.jwtService.sign(
++      { sub: userId, tokenType: 'slack_oauth_state' },
++      { expiresIn: '10m' },
++    );
++  }
++
++  /** Verifies the signed state and returns the bound user id (or 401). */
++  verifyInstallState(state: string): string {
++    let payload: { sub?: string; tokenType?: string };
++    try {
++      payload = this.jwtService.verify<{ sub?: string; tokenType?: string }>(
++        state,
++      );
++    } catch {
++      throw new UnauthorizedException('Invalid Slack OAuth state');
++    }
++    if (payload.tokenType !== 'slack_oauth_state' || !payload.sub) {
++      throw new UnauthorizedException('Invalid Slack OAuth state');
++    }
++    return payload.sub;
++  }
++
+   async finishInstall(
+-    email: string,
++    userId: string,
+     code: string,
+   ): Promise<SlackInstallResult> {
+     const user = await this.prisma.user.findUnique({
+-      where: { email },
++      where: { id: userId },
+       select: { id: true, email: true },
+     });
+     if (!user) {
+diff --git a/apps/backend/src/slack/slack.controller.ts b/apps/backend/src/slack/slack.controller.ts
+index 60ec4835..5f794c63 100644
+--- a/apps/backend/src/slack/slack.controller.ts
++++ b/apps/backend/src/slack/slack.controller.ts
+@@ -36,8 +36,7 @@ export class SlackController {
+   @HttpCode(HttpStatus.OK)
+   @ApiOperation({ summary: 'Start Slack app install (returns install URL)' })
+   startInstall(@CurrentUser() user: RequestUser) {
+-    void user;
+-    const state = Math.random().toString(36).slice(2);
++    const state = this.oauth.createInstallState(user.id);
+     return { installUrl: this.oauth.getInstallUrl(state), state };
+   }
+ 
+@@ -46,10 +45,13 @@ export class SlackController {
+   @ApiOperation({ summary: 'Slack OAuth callback (exchanges the code)' })
+   async callback(
+     @Query('code') code: string,
+-    @Query('email') email: string,
++    @Query('state') state: string,
+     @Res() res: Response,
+   ): Promise<void> {
+-    await this.oauth.finishInstall(email, code);
++    // JD-002: the account comes from the signed state issued to the
++    // authenticated initiator, never from the query string.
++    const userId = this.oauth.verifyInstallState(state);
++    await this.oauth.finishInstall(userId, code);
+     res.redirect('/settings/integrations?connected=slack');
+   }
+ 
+diff --git a/apps/backend/src/slack/slack.module.ts b/apps/backend/src/slack/slack.module.ts
+index ad18ccbb..d95d24c6 100644
+--- a/apps/backend/src/slack/slack.module.ts
++++ b/apps/backend/src/slack/slack.module.ts
+@@ -1,5 +1,6 @@
+ import { Module } from '@nestjs/common';
+-import { ConfigModule } from '@nestjs/config';
++import { JwtModule } from '@nestjs/jwt';
++import { ConfigModule, ConfigService } from '@nestjs/config';
+ import { DatabaseModule } from '../database/database.module';
+ import { SlackController } from './slack.controller';
+ import { SlackOAuthService } from './slack-oauth.service';
+@@ -19,7 +20,18 @@ import { SLACK_NOTIFIER } from './slack-notifier.port';
+   // imports directly — closing that loop breaks ES evaluation
+   // (V1Module.imports[0] === undefined at bootstrap). SlackActionsService
+   // resolves V1TasksService/AIService lazily via ModuleRef instead.
+-  imports: [DatabaseModule, ConfigModule],
++  imports: [
++    DatabaseModule,
++    ConfigModule,
++    JwtModule.registerAsync({
++      imports: [ConfigModule],
++      useFactory: (configService: ConfigService) => ({
++        secret: configService.get<string>('JWT_SECRET'),
++        signOptions: { expiresIn: '1d' as const },
++      }),
++      inject: [ConfigService],
++    }),
++  ],
+   controllers: [SlackController],
+   providers: [
+     SlackOAuthService,
