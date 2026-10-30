@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '../database/database.module';
 import { SlackController } from './slack.controller';
 import { SlackOAuthService } from './slack-oauth.service';
@@ -19,7 +20,18 @@ import { SLACK_NOTIFIER } from './slack-notifier.port';
   // imports directly — closing that loop breaks ES evaluation
   // (V1Module.imports[0] === undefined at bootstrap). SlackActionsService
   // resolves V1TasksService/AIService lazily via ModuleRef instead.
-  imports: [DatabaseModule, ConfigModule],
+  imports: [
+    DatabaseModule,
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' as const },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
   controllers: [SlackController],
   providers: [
     SlackOAuthService,

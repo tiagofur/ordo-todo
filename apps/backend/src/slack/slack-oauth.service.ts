@@ -3,8 +3,10 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import {
   SLACK_BOT_SCOPES,
@@ -62,6 +64,7 @@ export class SlackOAuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private credentials(): {
@@ -91,12 +94,40 @@ export class SlackOAuthService {
     return `${SLACK_OAUTH_AUTHORIZE_URL}?${params.toString()}`;
   }
 
+  /**
+   * JD-002: the OAuth state is a signed, short-lived JWT binding the
+   * callback to the authenticated initiator — the account can no longer
+   * be chosen from the query string.
+   */
+  createInstallState(userId: string): string {
+    return this.jwtService.sign(
+      { sub: userId, tokenType: 'slack_oauth_state' },
+      { expiresIn: '10m' },
+    );
+  }
+
+  /** Verifies the signed state and returns the bound user id (or 401). */
+  verifyInstallState(state: string): string {
+    let payload: { sub?: string; tokenType?: string };
+    try {
+      payload = this.jwtService.verify<{ sub?: string; tokenType?: string }>(
+        state,
+      );
+    } catch {
+      throw new UnauthorizedException('Invalid Slack OAuth state');
+    }
+    if (payload.tokenType !== 'slack_oauth_state' || !payload.sub) {
+      throw new UnauthorizedException('Invalid Slack OAuth state');
+    }
+    return payload.sub;
+  }
+
   async finishInstall(
-    email: string,
+    userId: string,
     code: string,
   ): Promise<SlackInstallResult> {
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { id: userId },
       select: { id: true, email: true },
     });
     if (!user) {
