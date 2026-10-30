@@ -54,8 +54,8 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   };
 
   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
-    if (currentStatus !== "DONE") {
-      updateSubtaskMutation.mutate({ taskId: subtaskId, data: { status: "DONE" as any } }, {
+    if (currentStatus !== "COMPLETED") {
+      updateSubtaskMutation.mutate({ taskId: subtaskId, data: { status: "COMPLETED" } }, {
         onSuccess: () => toast.success("Subtarea completada"),
         onError: (error) => toast.error(error.message || "Error al completar subtarea")
       });
@@ -71,7 +71,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     }
   };
 
-  const completedCount = subtasks.filter((st) => st.status === "DONE").length;
+  const completedCount = subtasks.filter((st) => st.status === "COMPLETED").length;
   const totalCount = subtasks.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -111,7 +111,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
             className={cn(
               "group flex items-start gap-2 rounded-lg border p-3 transition-all",
               "hover:bg-accent/50",
-              subtask.status === "DONE" && "opacity-60"
+              subtask.status === "COMPLETED" && "opacity-60"
             )}
           >
             {/* Drag Handle */}
@@ -124,7 +124,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
 
             {/* Checkbox */}
             <Checkbox
-              checked={subtask.status === "DONE"}
+              checked={subtask.status === "COMPLETED"}
               onCheckedChange={() => handleToggleComplete(String(subtask.id), subtask.status)}
               className="mt-0.5"
             />
@@ -134,7 +134,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
               <p
                 className={cn(
                   "text-sm",
-                  subtask.status === "DONE" && "line-through text-muted-foreground"
+                  subtask.status === "COMPLETED" && "line-through text-muted-foreground"
                 )}
               >
                 {subtask.title}
