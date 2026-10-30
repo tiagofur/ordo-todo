@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Clock,
@@ -60,15 +60,31 @@ export function SessionHistory() {
     limit: 10,
   });
 
-  const { data: historyData, isLoading: historyLoading } = useSessionHistory({
+  // Inicio del rango truncado a medianoche y memoizado por filters.days:
+  // el Timer page re-renderiza cada segundo con el temporizador en marcha y
+  // un startDate con la hora actual cambiaba la queryKey en cada tick →
+  // refetch infinito → 429 del throttler → 'Cargando...' eterno. Mismo
+  // patrón estable que startOfTodayISO en use-timer-backend.
+  const rangeStart = useMemo(() => {
+    const start = subDays(new Date(), filters.days);
+    start.setHours(0, 0, 0, 0);
+    return start.toISOString();
+  }, [filters.days]);
+
+  const {
+    data: historyData,
+    isLoading: historyLoading,
+    isError: historyError,
+    refetch: refetchHistory,
+  } = useSessionHistory({
     type: filters.type === 'ALL' ? undefined : filters.type,
-    startDate: subDays(new Date(), filters.days).toISOString(),
+    startDate: rangeStart,
     page: filters.page,
     limit: filters.limit
   });
 
   const { data: timerStats } = useTimerStats({
-    startDate: subDays(new Date(), filters.days).toISOString()
+    startDate: rangeStart
   });
 
   const sessions = historyData?.sessions || [];
@@ -235,6 +251,20 @@ export function SessionHistory() {
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground">
             {t("Timer.history.loading") || "Cargando historial..."}
+          </div>
+        ) : historyError ? (
+          <div className="p-8 text-center">
+            <Clock className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h3 className="font-medium mb-1">
+              {t("Timer.history.loadError") || "No se pudo cargar el historial"}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t("Timer.history.loadErrorDescription") ||
+                "Comprueba tu conexión e inténtalo de nuevo"}
+            </p>
+            <Button variant="outline" size="sm" onClick={() => { void refetchHistory(); }}>
+              {t("Timer.history.retry") || "Reintentar"}
+            </Button>
           </div>
         ) : displaySessions.length === 0 ? (
           <div className="p-8 text-center">

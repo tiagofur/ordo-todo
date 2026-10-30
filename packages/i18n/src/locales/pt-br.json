@@ -2419,7 +2419,8 @@
     "modes": {
       "work": "Trabalho",
       "shortBreak": "Pausa Curta",
-      "longBreak": "Pausa Longa"
+      "longBreak": "Pausa Longa",
+      "continuous": "Modo contínuo"
     },
     "history": {
       "totalSessions": "Total de sessões",
@@ -2434,7 +2435,10 @@
       "last7Days": "Últimos 7 dias",
       "last30Days": "Últimos 30 dias",
       "last90Days": "Últimos 90 dias",
-      "page": "Página"
+      "page": "Página",
+      "loadError": "Não foi possível carregar o histórico",
+      "loadErrorDescription": "Verifique sua conexão e tente novamente",
+      "retry": "Tentar novamente"
     },
     "work": "Foco",
     "shortBreak": "Pausa curta",
