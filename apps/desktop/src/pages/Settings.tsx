@@ -35,8 +35,9 @@ export function Settings() {
   // localStorage via the context (no backend counterpart).
   const { config, updateConfig } = useTimer();
 
-  // Desktop-specific native state
-  const isNative = desktopBridge.isNative();
+  // Desktop-specific native state. isDesktop() (no isNative()): en el shell
+  // móvil la pestaña Escritorio y sus controles nativos son no-ops (KMO-S01).
+  const isDesktopShell = desktopBridge.isDesktop();
   const [autoLaunchEnabled, setAutoLaunchEnabled] = useState(false);
   const [timerFloatingVisible, setTimerFloatingVisible] = useState(false);
   const [appVersion, setAppVersion] = useState("0.5.0");
@@ -54,7 +55,7 @@ export function Settings() {
   useEffect(() => {
     setActiveLang(getCurrentLanguage());
 
-    if (isNative) {
+    if (isDesktopShell) {
       desktopBridge.isAutostartEnabled().then((enabled) => {
         setAutoLaunchEnabled(enabled);
       });
@@ -75,7 +76,7 @@ export function Settings() {
     if (userPreferences?.timerMode) {
       setTimerMode(userPreferences.timerMode === "CONTINUOUS" ? "CONTINUOUS" : "POMODORO");
     }
-  }, [isNative, userPreferences]);
+  }, [isDesktopShell, userPreferences]);
 
   const handleLanguageChange = (lng: SupportedLanguage) => {
     changeLanguage(lng);
@@ -196,7 +197,7 @@ export function Settings() {
     { code: "pt-br", label: "Português", sub: "Português (Brasil)", flag: "🇧🇷" },
   ];
 
-  const tabs: { id: SettingsTab; label: string; icon: any }[] = [
+  const allTabs: { id: SettingsTab; label: string; icon: any }[] = [
     { id: "general", label: "General", icon: Palette },
     { id: "timer", label: "Temporizador", icon: Clock },
     { id: "audio", label: "Sonido & Alertas", icon: Bell },
@@ -205,6 +206,10 @@ export function Settings() {
     { id: "desktop", label: "Escritorio", icon: Monitor },
     { id: "shortcuts", label: "Atajos", icon: Keyboard },
   ];
+
+  const tabs = isDesktopShell
+    ? allTabs
+    : allTabs.filter((tab) => tab.id !== "desktop" && tab.id !== "shortcuts");
 
   return (
     <PageTransition>

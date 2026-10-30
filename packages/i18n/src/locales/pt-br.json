@@ -3095,6 +3095,9 @@
     }
   },
   "Auth": {
+    "oauthSuccess": "Sessão iniciada com sucesso",
+    "oauthError": "Erro de OAuth: {{error}}",
+    "oauthFailed": "Não foi possível concluir o login",
     "login": {
       "title": "Bem-vindo de volta",
       "subtitle": "Entre para continuar no Ordo",

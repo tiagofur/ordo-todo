@@ -3103,6 +3103,9 @@
     }
   },
   "Auth": {
+    "oauthSuccess": "Sesión iniciada correctamente",
+    "oauthError": "Error de OAuth: {{error}}",
+    "oauthFailed": "No se pudo completar el inicio de sesión",
     "login": {
       "title": "Bienvenido de nuevo",
       "subtitle": "Inicia sesión para continuar con Ordo",

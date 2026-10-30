@@ -3103,6 +3103,9 @@
     }
   },
   "Auth": {
+    "oauthSuccess": "Signed in successfully",
+    "oauthError": "OAuth error: {{error}}",
+    "oauthFailed": "Could not complete sign in",
     "login": {
       "title": "Welcome back",
       "subtitle": "Sign in to continue to Ordo",

@@ -37,6 +37,14 @@ vi.mock('sonner', () => ({
   toast: mocks.toast,
 }));
 
+// t() interpolado: las claves Auth.* viven en los catálogos i18n reales.
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, opts?: Record<string, string>) =>
+      opts?.error ? `${key}: ${opts.error}` : key,
+  }),
+}));
+
 vi.mock('@/lib/desktop-bridge', () => ({
   desktopBridge: {
     isDesktop: mocks.isDesktop,
@@ -138,7 +146,7 @@ describe('useOAuthCallback (desktop deep links)', () => {
       mocks.deepLinkHandlers[0](oauthUrl('error=access_denied'));
     });
 
-    expect(mocks.toast.error).toHaveBeenCalledWith('OAuth failed: access_denied');
+    expect(mocks.toast.error).toHaveBeenCalledWith('Auth.oauthError: access_denied');
     expect(mocks.storeOAuthTokens).not.toHaveBeenCalled();
     expect(mocks.navigate).not.toHaveBeenCalled();
   });

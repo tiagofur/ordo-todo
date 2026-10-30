@@ -1,4 +1,5 @@
 import { RouterProvider } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster, toast } from "sonner";
 import { AuthProvider } from "@ordo-todo/auth-provider";
@@ -22,19 +23,20 @@ import { router } from "@/routes";
  */
 function MobileOAuthLinks() {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   useOAuthDeepLinks(async (params) => {
     const data = parseOAuthCallback(params);
     if (data.error) {
-      toast.error(`Error de OAuth: ${data.error}`);
+      toast.error(t("Auth.oauthError", { error: data.error }));
       return false;
     }
     const ok = await storeOAuthTokens(data);
     if (ok) {
       await qc.invalidateQueries({ queryKey: ["currentUser"] });
-      toast.success("Sesión iniciada correctamente");
+      toast.success(t("Auth.oauthSuccess"));
       window.location.hash = "/dashboard";
     } else {
-      toast.error("No se pudo completar el inicio de sesión");
+      toast.error(t("Auth.oauthFailed"));
     }
     return ok;
   });
