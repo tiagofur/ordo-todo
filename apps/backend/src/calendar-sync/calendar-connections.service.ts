@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomBytes } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import { GoogleCalendarProvider } from './google-calendar.provider';
 import { OutlookCalendarProvider } from './outlook-calendar.provider';
@@ -42,6 +42,7 @@ export class CalendarConnectionsService {
     private readonly prisma: PrismaService,
     private readonly google: GoogleCalendarProvider,
     private readonly outlook: OutlookCalendarProvider,
+    private readonly jwtService: JwtService,
   ) {}
 
   private providerFor(provider: string) {
@@ -63,21 +64,49 @@ export class CalendarConnectionsService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const state = randomBytes(24).toString('base64url');
+    const state = this.createConnectState(user.id);
     return {
       authorizeUrl: this.providerFor(provider).getAuthorizeUrl(state),
       state,
     };
   }
 
+  /**
+   * JD-003: the OAuth state is a signed, short-lived JWT binding the
+   * callback to the authenticated initiator — the account can no longer
+   * be chosen from the query string.
+   */
+  createConnectState(userId: string): string {
+    return this.jwtService.sign(
+      { sub: userId, tokenType: 'calendar_oauth_state' },
+      { expiresIn: '10m' },
+    );
+  }
+
+  /** Verifies the signed state and returns the bound user id (or 401). */
+  verifyConnectState(state: string): string {
+    let payload: { sub?: string; tokenType?: string };
+    try {
+      payload = this.jwtService.verify<{ sub?: string; tokenType?: string }>(
+        state,
+      );
+    } catch {
+      throw new UnauthorizedException('Invalid calendar OAuth state');
+    }
+    if (payload.tokenType !== 'calendar_oauth_state' || !payload.sub) {
+      throw new UnauthorizedException('Invalid calendar OAuth state');
+    }
+    return payload.sub;
+  }
+
   async finishConnect(
-    email: string,
+    userId: string,
     provider: SupportedCalendarProvider,
     code: string,
     providerEmail?: string,
   ): Promise<CalendarConnectionSummary> {
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { id: userId },
       select: { id: true, email: true },
     });
     if (!user) {

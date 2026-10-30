@@ -61,11 +61,14 @@ export class CalendarConnectionsController {
   async callback(
     @Param('provider') provider: string,
     @Query('code') code: string,
-    @Query('email') email: string,
+    @Query('state') state: string,
     @Res() res: Response,
   ): Promise<void> {
+    // JD-003: the account comes from the signed state issued to the
+    // authenticated initiator, never from the query string.
+    const userId = this.connections.verifyConnectState(state);
     await this.connections.finishConnect(
-      email,
+      userId,
       provider as 'GOOGLE_CALENDAR' | 'MICROSOFT_CALENDAR',
       code,
     );

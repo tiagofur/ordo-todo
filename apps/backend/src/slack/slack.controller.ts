@@ -36,8 +36,7 @@ export class SlackController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Start Slack app install (returns install URL)' })
   startInstall(@CurrentUser() user: RequestUser) {
-    void user;
-    const state = Math.random().toString(36).slice(2);
+    const state = this.oauth.createInstallState(user.id);
     return { installUrl: this.oauth.getInstallUrl(state), state };
   }
 
@@ -46,10 +45,13 @@ export class SlackController {
   @ApiOperation({ summary: 'Slack OAuth callback (exchanges the code)' })
   async callback(
     @Query('code') code: string,
-    @Query('email') email: string,
+    @Query('state') state: string,
     @Res() res: Response,
   ): Promise<void> {
-    await this.oauth.finishInstall(email, code);
+    // JD-002: the account comes from the signed state issued to the
+    // authenticated initiator, never from the query string.
+    const userId = this.oauth.verifyInstallState(state);
+    await this.oauth.finishInstall(userId, code);
     res.redirect('/settings/integrations?connected=slack');
   }
 
