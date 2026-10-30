@@ -19,8 +19,9 @@ import { useNavigate } from "react-router-dom";
 export function Profile() {
   const { t } = (useTranslation as any)();
   // Native-shell listeners live in MainLayout (single mount site); Profile
-  // only needs the platform flag (ODD 014 T3).
-  const isElectron = desktopBridge.isNative();
+  // only needs the platform flag (ODD 014 T3). isDesktop() (no isNative()):
+  // en el shell móvil los controles nativos de escritorio son no-ops (KMO-I03).
+  const isDesktopShell = desktopBridge.isDesktop();
   const navigate = useNavigate();
   const addSuccess = (msg: string) => toast.success(msg);
   const addError = (msg: string) => toast.error(msg);
@@ -49,7 +50,7 @@ export function Profile() {
 
   // Load desktop settings
   useEffect(() => {
-    if (!isElectron) return;
+    if (!isDesktopShell) return;
 
     desktopBridge.isAutostartEnabled().then((enabled) => {
       setAutoLaunchEnabled(enabled);
@@ -58,7 +59,7 @@ export function Profile() {
     desktopBridge.getSystemInfo().then((info) => {
       setAppVersion(info.version || '1.0.0');
     });
-  }, [isElectron]);
+  }, [isDesktopShell]);
 
   const handleLanguageChange = (lng: string) => {
     changeLanguage(lng as any);
@@ -214,7 +215,7 @@ export function Profile() {
             <span className="text-muted-foreground">Version</span>
             <span className="font-medium">{appVersion}</span>
           </div>
-          {isElectron && (
+          {isDesktopShell && (
             <>
               <div className="flex justify-between py-2">
                 <span className="text-muted-foreground">Shell</span>
@@ -281,7 +282,7 @@ export function Profile() {
             isDeleteAccountPending={deleteAccount.isPending}
             addSuccess={addSuccess}
             addError={addError}
-            desktopOnlyContent={desktopOnlyContent}
+            desktopOnlyContent={isDesktopShell ? desktopOnlyContent : undefined}
           />
         </SlideIn>
       </div>
