@@ -5,6 +5,7 @@ import { TaskCardCompact } from "../task-card-compact";
 vi.mock("@/lib/api-hooks", () => ({
   useTaskDetails: () => ({ data: null, isLoading: false }),
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
+  useDeleteTask: () => ({ mutateAsync: vi.fn() }),
   useAssignTagToTask: () => ({ mutateAsync: vi.fn() }),
   useRemoveTagFromTask: () => ({ mutateAsync: vi.fn() }),
   useShareTask: () => ({ mutateAsync: vi.fn() }),

@@ -30,11 +30,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@/components/ui';
-import { 
-  useTaskDetails, 
-  useUpdateTask, 
-  useAssignTagToTask, 
-  useRemoveTagFromTask, 
+import {
+  useTaskDetails,
+  useUpdateTask,
+  useDeleteTask,
+  useAssignTagToTask,
+  useRemoveTagFromTask,
   useShareTask,
   useTags
 } from '@/lib/api-hooks';
@@ -128,10 +129,11 @@ export function ConnectedTaskDetailPanel({
 }) {
   const { data: task, isLoading } = useTaskDetails(taskId);
   const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
   const assignTag = useAssignTagToTask();
   const removeTag = useRemoveTagFromTask();
   const shareTask = useShareTask();
-  
+
   // Safely access workspaceId
   const workspaceId = task?.project?.workspaceId || "";
   const { data: availableTags } = useTags(workspaceId);
@@ -153,6 +155,7 @@ export function ConnectedTaskDetailPanel({
       isLoading={isLoading}
       availableTags={availableTags || []}
       onUpdate={handleUpdate}
+      onDelete={async (id) => { try { await deleteTask.mutateAsync(id); } catch { toast.error('Error al eliminar tarea'); } }}
       onAssignTag={async (id, tagId) => { try { await assignTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al asignar etiqueta'); } }}
       onRemoveTag={async (id, tagId) => { try { await removeTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al remover etiqueta'); } }}
       onShare={async (id) => { try { await shareTask.mutateAsync(id); } catch { toast.error('Error al compartir tarea'); } }}
