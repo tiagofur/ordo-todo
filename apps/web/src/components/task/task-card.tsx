@@ -5,7 +5,7 @@ import { TaskCard as UITaskCard, type TaskCardTask } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 import { parseCalendarDate, isCalendarDateOverdue } from "@ordo-todo/core";
-import { TaskDetailPanel } from "./task-detail-panel";
+import { ConnectedTaskDetailPanel } from "./task-card-compact";
 import { useLocale, useTranslations } from "next-intl";
 import { useDeleteTask } from "@/lib/api-hooks";
 
@@ -76,11 +76,11 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         }}
       />
 
-      {showDetail && (
-        <TaskDetailPanel 
-          taskId={task.id ? String(task.id) : null} 
-          open={showDetail} 
-          onOpenChange={setShowDetail} 
+      {showDetail && !!task.id && (
+        <ConnectedTaskDetailPanel
+          taskId={String(task.id)}
+          open={showDetail}
+          onOpenChange={setShowDetail}
         />
       )}
     </>

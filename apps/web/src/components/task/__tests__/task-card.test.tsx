@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { TaskCard } from '../task-card';
 
 // Mock dependencies
-vi.mock('../task-detail-panel', () => ({
-  TaskDetailPanel: () => <div data-testid="task-detail-panel" />,
+vi.mock('../task-card-compact', () => ({
+  ConnectedTaskDetailPanel: () => <div data-testid="task-detail-panel" />,
 }));
 
 vi.mock('@/lib/api-hooks', () => ({

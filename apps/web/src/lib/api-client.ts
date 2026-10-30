@@ -259,6 +259,16 @@ export const invalidateCsrfToken = () => {
   csrfToken = null;
 };
 
+// JW-S05: la cache de React Query persiste en localStorage ('ordo-query-cache',
+// 24 h). Se purga en TODO cierre de sesión — el logout explícito y también los
+// dos caminos forzados del interceptor 401 — o el siguiente usuario de una
+// máquina compartida rehidrataría el contenido del anterior.
+export const purgePersistedQueryCache = () => {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem("ordo-query-cache");
+  }
+};
+
 // Refresh token logic - tokens are now in httpOnly cookies
 let isRefreshing = false;
 let refreshPromise: Promise<AuthResponse> | null = null;
@@ -421,6 +431,7 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           // If refresh fails, call logout via un-intercepted axios to avoid loops
+          purgePersistedQueryCache();
           await axios
             .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
             .catch(() => {
@@ -437,6 +448,7 @@ axiosInstance.interceptors.response.use(
         }
       } else {
         // Already retried and failed, logout via un-intercepted axios
+        purgePersistedQueryCache();
         await axios
           .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
           .catch(() => {
@@ -508,6 +520,7 @@ export const apiClient = {
   logout: (): Promise<void> => {
     // Backend will clear httpOnly cookies
     invalidateCsrfToken();
+    purgePersistedQueryCache();
     return axiosInstance.post("/auth/logout").then((res) => res.data);
   },
   refreshToken: (data: RefreshTokenDto): Promise<AuthResponse> =>
@@ -761,9 +774,12 @@ export const apiClient = {
     projectId?: string,
     tags?: string[],
     assignedToMe?: boolean,
+    withoutProject?: boolean,
   ): Promise<Task[]> =>
     axiosInstance
-      .get("/tasks", { params: { projectId, tags, assignedToMe } })
+      .get("/tasks", {
+        params: { projectId, tags, assignedToMe, withoutProject },
+      })
       .then((res) => res.data),
   getAvailableTasks: (projectId?: string): Promise<Task[]> =>
     axiosInstance

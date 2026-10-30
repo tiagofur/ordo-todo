@@ -13,7 +13,6 @@ import {
   Flame,
   Clock,
   PlayCircle,
-  PauseCircle,
   ListTodo,
   ChevronDown,
   Repeat,
@@ -31,11 +30,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@/components/ui';
-import { 
-  useTaskDetails, 
-  useUpdateTask, 
-  useAssignTagToTask, 
-  useRemoveTagFromTask, 
+import {
+  useTaskDetails,
+  useUpdateTask,
+  useDeleteTask,
+  useAssignTagToTask,
+  useRemoveTagFromTask,
   useShareTask,
   useTags
 } from '@/lib/api-hooks';
@@ -98,7 +98,6 @@ interface TaskCardCompactProps {
     statusTodo?: string;
     statusInProgress?: string;
     statusCompleted?: string;
-    statusOnHold?: string;
     statusLabel?: string;
     changeStatus?: string;
     // Priorities
@@ -130,10 +129,11 @@ export function ConnectedTaskDetailPanel({
 }) {
   const { data: task, isLoading } = useTaskDetails(taskId);
   const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
   const assignTag = useAssignTagToTask();
   const removeTag = useRemoveTagFromTask();
   const shareTask = useShareTask();
-  
+
   // Safely access workspaceId
   const workspaceId = task?.project?.workspaceId || "";
   const { data: availableTags } = useTags(workspaceId);
@@ -155,6 +155,7 @@ export function ConnectedTaskDetailPanel({
       isLoading={isLoading}
       availableTags={availableTags || []}
       onUpdate={handleUpdate}
+      onDelete={async (id) => { try { await deleteTask.mutateAsync(id); } catch { toast.error('Error al eliminar tarea'); } }}
       onAssignTag={async (id, tagId) => { try { await assignTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al asignar etiqueta'); } }}
       onRemoveTag={async (id, tagId) => { try { await removeTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al remover etiqueta'); } }}
       onShare={async (id) => { try { await shareTask.mutateAsync(id); } catch { toast.error('Error al compartir tarea'); } }}
@@ -183,7 +184,6 @@ export function TaskCardCompact({
     statusTodo = 'To Do',
     statusInProgress = 'In Progress',
     statusCompleted = 'Completed',
-    statusOnHold = 'On Hold',
     statusLabel: _statusLabel = 'Status',
     changeStatus = 'Change Status',
     priorityUrgent = 'Urgent',
@@ -233,13 +233,6 @@ export function TaskCardCompact({
           bgColor: '#22c55e15',
           icon: CheckCircle2,
           label: statusCompleted,
-        };
-      case 'ON_HOLD':
-        return {
-          color: '#f59e0b',
-          bgColor: '#f59e0b15',
-          icon: PauseCircle,
-          label: statusOnHold,
         };
       default:
         return {
@@ -382,12 +375,6 @@ export function TaskCardCompact({
             label: statusCompleted,
             icon: CheckCircle2,
             color: '#22c55e',
-          },
-          {
-            value: 'ON_HOLD',
-            label: statusOnHold,
-            icon: PauseCircle,
-            color: '#f59e0b',
           },
         ].map((status) => {
           const Icon = status.icon;
