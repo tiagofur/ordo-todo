@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { CalendarConnectionsService } from './calendar-connections.service';
 import { PrismaService } from '../database/prisma.service';
 import { GoogleCalendarProvider } from './google-calendar.provider';
@@ -7,6 +12,9 @@ import { OutlookCalendarProvider } from './outlook-calendar.provider';
 
 describe('CalendarConnectionsService', () => {
   let service: CalendarConnectionsService;
+  const jwtService = new JwtService({
+    secret: 'test-secret-key-0123456789abcdef',
+  });
 
   const mockPrisma = {
     user: { findUnique: jest.fn() },
@@ -36,6 +44,7 @@ describe('CalendarConnectionsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: GoogleCalendarProvider, useValue: mockGoogle },
         { provide: OutlookCalendarProvider, useValue: mockOutlook },
+        { provide: JwtService, useValue: jwtService },
       ],
     }).compile();
 
@@ -60,8 +69,34 @@ describe('CalendarConnectionsService', () => {
     const result = await service.startConnect('a@b.c', 'GOOGLE_CALENDAR');
 
     expect(result.authorizeUrl).toContain('accounts.google.com');
-    expect(result.state).toMatch(/^[A-Za-z0-9_-]+$/);
+    // JD-003: state is a signed JWT bound to the initiating user.
+    expect(service.verifyConnectState(result.state)).toBe('user-1');
     expect(mockGoogle.getAuthorizeUrl).toHaveBeenCalledWith(result.state);
+  });
+
+  it('should bind the connect state to the initiating user (JD-003)', () => {
+    const state = service.createConnectState('user-1');
+
+    expect(service.verifyConnectState(state)).toBe('user-1');
+    const payload = jwtService.decode(state) as {
+      sub: string;
+      tokenType: string;
+    };
+    expect(payload.sub).toBe('user-1');
+    expect(payload.tokenType).toBe('calendar_oauth_state');
+  });
+
+  it('should reject invalid or wrong-type OAuth state with 401', () => {
+    expect(() => service.verifyConnectState('not-a-jwt')).toThrow(
+      UnauthorizedException,
+    );
+    const alien = jwtService.sign({ sub: 'user-1', tokenType: 'access' });
+    expect(() => service.verifyConnectState(alien)).toThrow(
+      UnauthorizedException,
+    );
+    expect(() => service.verifyConnectState('')).toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('should reject unknown providers and unknown users', async () => {
@@ -96,11 +131,14 @@ describe('CalendarConnectionsService', () => {
     );
 
     const result = await service.finishConnect(
-      'a@b.c',
+      'user-1',
       'GOOGLE_CALENDAR',
       'code-1',
     );
 
+    expect(mockPrisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'user-1' } }),
+    );
     expect(result.provider).toBe('GOOGLE_CALENDAR');
     expect(result.isActive).toBe(true);
     expect(result).not.toHaveProperty('accessToken');
