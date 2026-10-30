@@ -31,6 +31,9 @@ export function useOAuthCallback() {
     const success = await storeOAuthTokens(callbackData);
 
     if (success) {
+      // La key real de useCurrentUser es ['user','current']; ['currentUser']
+      // cubre la query del auth-provider.
+      await queryClient.invalidateQueries({ queryKey: ["user", "current"] });
       await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Successfully signed in!");
       navigate("/dashboard");

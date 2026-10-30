@@ -375,6 +375,8 @@ class DesktopBridge {
         } else {
           unlistenTauri = unlisten;
         }
+      }).catch(() => {
+        // Sin shell/register denegado: no hay listener que limpiar.
       });
     }
 
