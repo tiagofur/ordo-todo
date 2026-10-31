@@ -57,6 +57,9 @@ export function VoiceInputButton({
     onResult: (text, isFinal) => {
       if (isFinal) setFinalTranscript(text);
     },
+    onError: (error) => {
+      console.warn('Voice recognition error:', error);
+    },
   });
 
   useEffect(() => {
@@ -78,6 +81,8 @@ export function VoiceInputButton({
         variant={variant}
         size={size}
         onClick={isListening ? stopListening : startListening}
+        aria-label={isListening ? (labels?.stop ?? 'Detener grabación') : (labels?.start ?? 'Captura por voz')}
+        aria-pressed={isListening}
         className={cn(
           'relative',
           isListening && 'ring-2 ring-red-500 ring-offset-2',
