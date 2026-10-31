@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { type Note } from "@ordo-todo/api-client";
-import { cn, Button } from "@ordo-todo/ui";
+import { cn, Button, NOTE_COLORS } from "@ordo-todo/ui";
 import { X, GripVertical } from "lucide-react";
 import { useDeleteNote, useUpdateNote } from "@/hooks/api";
 
@@ -55,22 +55,42 @@ export function NoteItem({ note }: NoteItemProps) {
     >
       <div className="flex justify-between items-center mb-1">
          {/* Grip handle for dragging */}
-         <div 
+         <div
             className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-black/5 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-            {...listeners} 
+            {...listeners}
             {...attributes}
          >
             <GripVertical className="h-4 w-4" />
          </div>
 
-        <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-black/10 text-gray-700"
-            onClick={() => deleteNote.mutate(note.id)}
-        >
-            <X className="h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {/* ODD 025 S6: cambiar color de la nota */}
+          <div className="hidden group-hover:flex items-center gap-1 mr-1">
+            {NOTE_COLORS.map((pastel) => (
+              <button
+                key={pastel}
+                type="button"
+                aria-label={`Color ${pastel}`}
+                onClick={() => updateNote.mutate({ id: note.id, data: { color: pastel } })}
+                className={cn(
+                  "h-3.5 w-3.5 rounded-full border border-black/20 transition-transform hover:scale-125",
+                  note.color?.toLowerCase() === pastel.toLowerCase() &&
+                    "ring-1 ring-offset-1 ring-gray-500 scale-110",
+                )}
+                style={{ backgroundColor: pastel }}
+              />
+            ))}
+          </div>
+
+          <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-black/10 text-gray-700"
+              onClick={() => deleteNote.mutate(note.id)}
+          >
+              <X className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
       <textarea
         className="flex-1 w-full bg-transparent resize-none border-none focus:outline-none text-sm text-gray-800 placeholder:text-gray-500"

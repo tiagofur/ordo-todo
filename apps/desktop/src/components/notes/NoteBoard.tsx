@@ -1,7 +1,7 @@
 import { DndContext, useSensor, useSensors, PointerSensor, DragEndEvent } from '@dnd-kit/core';
 import { NoteItem } from './NoteItem';
 import { useCreateNote, useUpdateNote } from '@/hooks/api';
-import { Button } from '@ordo-todo/ui';
+import { Button, NOTE_COLORS } from '@ordo-todo/ui';
 import { Plus, Loader2 } from 'lucide-react';
 import type { Note } from '@ordo-todo/api-client';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +49,8 @@ export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps)
       content: 'Nueva nota',
       x: 100 + Math.random() * 50,
       y: 100 + Math.random() * 50,
-      color: '#feff9c',
+      // ODD 025 S6: pastel al azar en vez del amarillo fijo.
+      color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)],
       width: 300,
       height: 300,
     });
