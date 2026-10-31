@@ -1,10 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { visualizer } from 'rollup-plugin-visualizer'
 import { resolve } from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+// NOTE: rollup-plugin-visualizer v7 is ESM-only and the Vite config is loaded
+// through require(), so it is imported lazily only when bundle analysis runs.
+export default defineConfig(async () => {
+    const rollupPlugins = [];
+    if (process.env.ANALYZE_BUNDLE) {
+        const { visualizer } = await import('rollup-plugin-visualizer');
+        rollupPlugins.push(
+            visualizer({
+                filename: 'dist/bundle-analysis.html',
+                open: true,
+                gzipSize: true,
+                brotliSize: true,
+            }),
+        );
+    }
+    return {
     plugins: [
         react(),
     ],
@@ -42,14 +56,7 @@ export default defineConfig({
             transformMixedEsModules: true,
         },
         rollupOptions: {
-            plugins: process.env.ANALYZE_BUNDLE ? [
-                visualizer({
-                    filename: 'dist/bundle-analysis.html',
-                    open: true,
-                    gzipSize: true,
-                    brotliSize: true,
-                }),
-            ] : [],
+            plugins: rollupPlugins,
             output: {
                 // SIN manualChunks manual: el resolve manual histórico generaba ciclos entre chunks (TDZ en producción: "Cannot access before initialization", PR #437)
 
@@ -85,4 +92,5 @@ export default defineConfig({
         ],
     },
     base: './',
+    };
 })
