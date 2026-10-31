@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker } from "@ordo-todo/ui";
+import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker, FORM_COLORS } from "@ordo-todo/ui";
 import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
@@ -38,7 +38,7 @@ export function WorkspaceSettingsDialog({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#2563EB",
+    color: FORM_COLORS[8] as string,
     icon: "🏠",
   });
 
@@ -48,7 +48,7 @@ export function WorkspaceSettingsDialog({
       setFormData({
         name: workspace.name,
         description: workspace.description || "",
-        color: workspace.color || "#2563EB",
+        color: workspace.color || FORM_COLORS[8],
         icon: workspace.icon || "🏠",
       });
     }
@@ -166,23 +166,16 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Color — ODD 025: picker canónico (deshabilitado sin permiso) */}
+                    {/* Color — ODD 025: picker canónico */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('form.color.label') || "Color"}
                       </Label>
-                      <div
-                        className={
-                          permissions.canEdit
-                            ? undefined
-                            : "pointer-events-none opacity-60"
-                        }
-                      >
-                        <ColorSwatchPicker
-                          value={formData.color}
-                          onChange={(color) => setFormData({ ...formData, color })}
-                        />
-                      </div>
+                      <ColorSwatchPicker
+                        value={formData.color}
+                        onChange={(color) => setFormData({ ...formData, color })}
+                        disabled={!permissions.canEdit}
+                      />
                     </div>
 
                     {/* Icon */}

@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +54,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
     defaultValues: {
       frequency: "daily",
       timeOfDay: "anytime",
-      color: "#10B981", // emerald (paleta canónica ODD 025)
+      color: FORM_COLORS[5], // emerald (paleta canónica ODD 025)
     },
   });
 

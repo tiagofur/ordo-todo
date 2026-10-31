@@ -19,8 +19,14 @@ interface ColorSwatchPickerProps {
   /** Paleta; por defecto FORM_COLORS (12 colores canónicos). */
   colors?: readonly string[];
   labels?: ColorSwatchPickerLabels;
+  /** Deshabilita la interacción (permisos de edición). */
+  disabled?: boolean;
   className?: string;
 }
+
+/** Comparación de hex insensible a mayúsculas (datos previos en minúscula). */
+const sameColor = (a: string | undefined, b: string) =>
+  !!a && a.toLowerCase() === b.toLowerCase();
 
 /**
  * Picker de color estándar de formularios (ODD 025 S2): swatches
@@ -32,9 +38,11 @@ export function ColorSwatchPicker({
   onChange,
   colors = FORM_COLORS,
   labels,
+  disabled = false,
   className,
 }: ColorSwatchPickerProps) {
-  const currentIsCustom = !!value && !colors.includes(value);
+  const currentIsCustom =
+    !!value && !colors.some((color) => sameColor(value, color));
 
   return (
     <div
@@ -46,26 +54,30 @@ export function ColorSwatchPicker({
           type="button"
           aria-label={labels?.currentColor ?? "Current color"}
           aria-pressed="true"
+          disabled={disabled}
           onClick={() => onChange(value as string)}
           className={cn(
             "h-9 w-9 shrink-0 rounded-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ring-2 ring-offset-2 ring-offset-background ring-primary scale-110",
+            disabled && "opacity-50 cursor-not-allowed hover:scale-100",
           )}
           style={{ backgroundColor: value }}
         />
       )}
       {colors.map((color) => {
-        const selected = value === color;
+        const selected = sameColor(value, color);
         return (
           <button
             key={color}
             type="button"
             aria-label={color}
             aria-pressed={selected}
+            disabled={disabled}
             onClick={() => onChange(color)}
             className={cn(
               "h-9 w-9 shrink-0 rounded-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               selected &&
                 "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110",
+              disabled && "opacity-50 cursor-not-allowed hover:scale-100",
             )}
             style={{ backgroundColor: color }}
           />

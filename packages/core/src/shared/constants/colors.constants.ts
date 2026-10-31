@@ -3,6 +3,10 @@
  * These colors are used across all applications (Web, Mobile, Desktop)
  */
 
+/**
+ * @deprecated ODD 025: usar FORM_COLORS (paleta canónica única).
+ * Se mantienen solo por compatibilidad de tipos hasta T2/T6.
+ */
 export const PROJECT_COLORS = [
     "#EF4444", // red
     "#F59E0B", // amber
@@ -13,6 +17,10 @@ export const PROJECT_COLORS = [
     "#6B7280", // gray
 ] as const;
 
+/**
+ * @deprecated ODD 025: usar FORM_COLORS (paleta canónica única).
+ * Se mantienen solo por compatibilidad de tipos hasta T2/T6.
+ */
 export const TAG_COLORS = [
     "#EF4444", // red
     "#F59E0B", // amber

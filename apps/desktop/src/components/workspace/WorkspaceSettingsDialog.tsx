@@ -24,6 +24,7 @@ import {
   TabsList,
   TabsTrigger,
   ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
 import { WorkspaceConfigurationSettings } from "./workspace-configuration-settings";
@@ -62,7 +63,7 @@ export function WorkspaceSettingsDialog({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#2563EB",
+    color: FORM_COLORS[8] as string,
     icon: "🏠",
   });
 
@@ -72,7 +73,7 @@ export function WorkspaceSettingsDialog({
       setFormData({
         name: (workspace as any).name || "",
         description: (workspace as any).description || "",
-        color: (workspace as any).color || "#2563EB",
+        color: (workspace as any).color || FORM_COLORS[8],
         icon: (workspace as any).icon || "🏠",
       });
     }

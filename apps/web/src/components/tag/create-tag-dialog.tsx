@@ -53,7 +53,7 @@ interface CreateTagDialogProps {
 /**
  * CreateTagDialog - Platform-agnostic tag creation/edit dialog
  * 
- * Uses @ordo-todo/core for TAG_COLORS constant.
+ * Color via shared ColorSwatchPicker (ODD 025 canonical palette).
  * Form submission and API calls are handled externally via onSubmit.
  * 
  * @example
