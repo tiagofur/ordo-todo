@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Filter,
@@ -132,6 +133,7 @@ export function QuickFilters({
   onPresetSelect,
   className,
 }: QuickFiltersProps) {
+  const { t } = useTranslation();
   const [presets, setPresets] = useState<FilterPreset[]>(builtInPresets);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
@@ -224,7 +226,7 @@ export function QuickFilters({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1 h-8">
-              Más
+              {t("QuickFilters.moreLabel", "Más")}
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
@@ -267,7 +269,9 @@ export function QuickFilters({
           className="gap-1 h-8 text-muted-foreground hover:text-foreground"
         >
           <Save className="h-4 w-4" />
-          <span className="hidden sm:inline">Guardar filtro</span>
+          <span className="hidden sm:inline">
+            {t("QuickFilters.saveFilterButton", "Guardar filtro")}
+          </span>
         </Button>
       )}
 
@@ -283,7 +287,7 @@ export function QuickFilters({
           className="gap-1 h-8 text-muted-foreground hover:text-foreground"
         >
           <X className="h-4 w-4" />
-          Limpiar
+          {t("QuickFilters.clearLabel", "Limpiar")}
         </Button>
       )}
 
@@ -305,6 +309,7 @@ interface CreatePresetDialogProps {
 }
 
 function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("star");
   const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[9]);
@@ -324,23 +329,32 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Guardar Filtro</DialogTitle>
+          <DialogTitle>
+            {t("QuickFilters.presetDialog.saveTitle", "Guardar Filtro")}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Name input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nombre</label>
+            <label className="text-sm font-medium">
+              {t("QuickFilters.presetDialog.nameLabel", "Nombre")}
+            </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Mi filtro personalizado"
+              placeholder={t(
+                "QuickFilters.presetDialog.namePlaceholder",
+                "Mi filtro personalizado",
+              )}
             />
           </div>
 
           {/* Icon selector */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Icono</label>
+            <label className="text-sm font-medium">
+              {t("QuickFilters.presetDialog.iconLabel", "Icono")}
+            </label>
             <div className="flex gap-2 flex-wrap">
               {icons.map((icon) => (
                 <Button
@@ -358,7 +372,9 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
 
           {/* Color selector — ODD 025: picker canónico */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Color</label>
+            <label className="text-sm font-medium">
+              {t("QuickFilters.presetDialog.colorLabel", "Color")}
+            </label>
             <ColorSwatchPicker
               value={selectedColor}
               onChange={setSelectedColor}
@@ -367,7 +383,9 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
 
           {/* Preview */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Vista previa</label>
+            <label className="text-sm font-medium">
+              {t("QuickFilters.presetDialog.previewLabel", "Vista previa")}
+            </label>
             <Button
               variant="outline"
               size="sm"
@@ -377,21 +395,21 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
               <span style={{ color: selectedColor }}>
                 {iconMap[selectedIcon]}
               </span>
-              {name || "Mi filtro"}
+              {name || t("QuickFilters.presetDialog.previewDefault", "Mi filtro")}
             </Button>
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t("QuickFilters.presetDialog.cancel", "Cancelar")}
             </Button>
             <Button
               onClick={handleSave}
               disabled={!name.trim()}
               className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
             >
-              Guardar
+              {t("QuickFilters.presetDialog.save", "Guardar")}
             </Button>
           </div>
         </div>

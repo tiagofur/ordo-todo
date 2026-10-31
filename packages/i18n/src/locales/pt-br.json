@@ -2575,7 +2575,8 @@
         "PERCENTAGE": "Porcentagem",
         "NUMBER": "Número",
         "CURRENCY": "Moeda",
-        "BOOLEAN": "Verdadeiro/Falso"
+        "BOOLEAN": "Verdadeiro/Falso",
+        "TASK_COUNT": "Tarefas concluídas"
       },
       "subtitle": "Defina métricas para medir seu progresso",
       "addFirst": "Adicionar primeiro resultado chave",
@@ -3107,11 +3108,16 @@
     "oauthSuccess": "Sessão iniciada com sucesso",
     "oauthError": "Erro de OAuth: {{error}}",
     "oauthFailed": "Não foi possível concluir o login",
+    "errors": {
+      "authFailed": "Erro de autenticação. Verifique suas credenciais."
+    },
     "login": {
       "title": "Bem-vindo de volta",
       "subtitle": "Entre para continuar no Ordo",
       "emailLabel": "E-mail",
       "emailPlaceholder": "seu@email.com",
+      "emailOrUsername": "E-mail ou usuário",
+      "emailOrUsernamePlaceholder": "voce@email.com ou usuário",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "Sua senha",
       "showPassword": "Mostrar senha",
@@ -3196,6 +3202,10 @@
       "strengthUppercase": "Maiúsculas",
       "strengthNumbers": "Números",
       "strengthSymbols": "Símbolos",
+      "checksLowercase": "Minúscula (a-z)",
+      "checksUppercase": "Maiúscula (A-Z)",
+      "checksNumber": "Número (0-9)",
+      "checksSpecial": "Símbolo (@$!%*?&)",
       "confirmPasswordLabel": "Confirmar Senha",
       "confirmPasswordPlaceholder": "Repita sua senha",
       "passwordsMatch": "As senhas coincidem",
@@ -3209,11 +3219,19 @@
       "terms": "Termos de Serviço",
       "termsAnd": "e",
       "privacy": "Política de Privacidade",
+      "inviteCodeLabel": "Código de convite",
+      "inviteCodePlaceholder": "ORDO-XXXX-XXXX",
       "errors": {
         "passwordMismatch": "As senhas não coincidem",
         "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+        "passwordRequirements": "A senha deve ter: 8+ caracteres, maiúscula, minúscula, número e símbolo (@$!%*?&)",
+        "inviteRequired": "Você precisa de um código de convite para criar uma conta",
         "passwordTooWeak": "A senha é muito fraca. Por favor, use uma senha mais segura",
-        "createFailed": "Erro ao criar conta"
+        "createFailed": "Erro ao criar conta",
+        "inviteInvalid": "Este código de convite não é válido",
+        "inviteInactive": "Este código de convite foi desativado",
+        "inviteExpired": "Este código de convite expirou",
+        "inviteExhausted": "Este código de convite já foi usado"
       },
       "success": "Conta criada com sucesso"
     },
@@ -3237,6 +3255,24 @@
         "failed": "Não foi possível redefinir a senha. O link pode ter expirado ou já foi usado."
       },
       "success": "Senha redefinida com sucesso!"
+    },
+    "changePassword": {
+      "title": "Alterar Senha",
+      "description": "Digite sua senha atual e defina sua nova senha segura.",
+      "currentLabel": "Senha atual",
+      "currentPlaceholder": "••••••••",
+      "newLabel": "Nova senha",
+      "newPlaceholder": "Mínimo de 8 caracteres",
+      "confirmLabel": "Confirmar nova senha",
+      "confirmPlaceholder": "Repita a nova senha",
+      "currentRequired": "Por favor, digite sua senha atual",
+      "tooShort": "A nova senha deve ter pelo menos 8 caracteres",
+      "mismatch": "As senhas não coincidem",
+      "submit": "Atualizar Senha",
+      "submitting": "Atualizando...",
+      "cancel": "Cancelar",
+      "success": "Senha atualizada com sucesso",
+      "errorGeneric": "Erro ao atualizar a senha"
     }
   },
   "Notes": {
@@ -3425,5 +3461,21 @@
     "optionsNoDefaultProject": "Sem projeto (express)",
     "optionsSession": "Sessão",
     "optionsNotSignedIn": "Sem sessão. Entre pelo popup."
+  },
+  "QuickFilters": {
+    "moreLabel": "Mais",
+    "clearLabel": "Limpar",
+    "saveFilterButton": "Salvar filtro",
+    "presetDialog": {
+      "saveTitle": "Salvar Filtro",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Meu filtro personalizado",
+      "iconLabel": "Ícone",
+      "colorLabel": "Cor",
+      "previewLabel": "Pré-visualização",
+      "previewDefault": "Meu filtro",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    }
   }
 }

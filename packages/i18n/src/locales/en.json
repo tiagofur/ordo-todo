@@ -2583,7 +2583,8 @@
         "PERCENTAGE": "Percentage",
         "NUMBER": "Number",
         "CURRENCY": "Currency",
-        "BOOLEAN": "True/False"
+        "BOOLEAN": "True/False",
+        "TASK_COUNT": "Completed tasks"
       },
       "subtitle": "Define metrics to measure your progress",
       "addFirst": "Add first key result",
@@ -3115,11 +3116,16 @@
     "oauthSuccess": "Signed in successfully",
     "oauthError": "OAuth error: {{error}}",
     "oauthFailed": "Could not complete sign in",
+    "errors": {
+      "authFailed": "Authentication error. Please check your credentials."
+    },
     "login": {
       "title": "Welcome back",
       "subtitle": "Sign in to continue to Ordo",
       "emailLabel": "Email address",
       "emailPlaceholder": "you@email.com",
+      "emailOrUsername": "Email or username",
+      "emailOrUsernamePlaceholder": "you@email.com or username",
       "passwordLabel": "Password",
       "passwordPlaceholder": "Your password",
       "showPassword": "Show password",
@@ -3204,6 +3210,10 @@
       "strengthUppercase": "Uppercase",
       "strengthNumbers": "Numbers",
       "strengthSymbols": "Symbols",
+      "checksLowercase": "Lowercase (a-z)",
+      "checksUppercase": "Uppercase (A-Z)",
+      "checksNumber": "Number (0-9)",
+      "checksSpecial": "Symbol (@$!%*?&)",
       "confirmPasswordLabel": "Confirm Password",
       "confirmPasswordPlaceholder": "Repeat your password",
       "passwordsMatch": "Passwords match",
@@ -3217,11 +3227,19 @@
       "terms": "Terms of Service",
       "termsAnd": "and",
       "privacy": "Privacy Policy",
+      "inviteCodeLabel": "Invitation code",
+      "inviteCodePlaceholder": "ORDO-XXXX-XXXX",
       "errors": {
         "passwordMismatch": "Passwords do not match",
         "passwordMinLength": "Password must be at least 8 characters",
+        "passwordRequirements": "Password must have: 8+ characters, uppercase, lowercase, number and symbol (@$!%*?&)",
+        "inviteRequired": "You need an invitation code to create an account",
         "passwordTooWeak": "Password is too weak. Please use a stronger password",
-        "createFailed": "Failed to create account"
+        "createFailed": "Failed to create account",
+        "inviteInvalid": "This invite code is not valid",
+        "inviteInactive": "This invite code has been deactivated",
+        "inviteExpired": "This invite code has expired",
+        "inviteExhausted": "This invite code has already been used"
       },
       "success": "Account created successfully"
     },
@@ -3245,6 +3263,24 @@
         "failed": "Failed to reset password. The link may have expired or already been used."
       },
       "success": "Password reset successfully!"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Enter your current password and choose a new secure password.",
+      "currentLabel": "Current password",
+      "currentPlaceholder": "••••••••",
+      "newLabel": "New password",
+      "newPlaceholder": "At least 8 characters",
+      "confirmLabel": "Confirm new password",
+      "confirmPlaceholder": "Repeat the new password",
+      "currentRequired": "Please enter your current password",
+      "tooShort": "The new password must be at least 8 characters",
+      "mismatch": "Passwords do not match",
+      "submit": "Update Password",
+      "submitting": "Updating...",
+      "cancel": "Cancel",
+      "success": "Password updated successfully",
+      "errorGeneric": "Error updating password"
     }
   },
   "ProjectTimeline": {
@@ -3425,5 +3461,21 @@
     "optionsNoDefaultProject": "No project (express)",
     "optionsSession": "Session",
     "optionsNotSignedIn": "Not signed in. Start from the popup."
+  },
+  "QuickFilters": {
+    "moreLabel": "More",
+    "clearLabel": "Clear",
+    "saveFilterButton": "Save filter",
+    "presetDialog": {
+      "saveTitle": "Save Filter",
+      "nameLabel": "Name",
+      "namePlaceholder": "My custom filter",
+      "iconLabel": "Icon",
+      "colorLabel": "Color",
+      "previewLabel": "Preview",
+      "previewDefault": "My filter",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
   }
 }

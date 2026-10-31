@@ -25,12 +25,13 @@ interface CreateKeyResultDialogProps {
   objectiveId: string;
 }
 
+// Metric types — labels resolved from Goals.keyResults.types.* at render time
 const metricTypes = [
-  { value: "PERCENTAGE", label: "Porcentaje", unit: "%" },
-  { value: "NUMBER", label: "Número", unit: "" },
-  { value: "CURRENCY", label: "Moneda", unit: "$" },
-  { value: "BOOLEAN", label: "Sí/No", unit: "" },
-  { value: "TASK_COUNT", label: "Tareas completadas", unit: "tareas" },
+  { value: "PERCENTAGE", unit: "%" },
+  { value: "NUMBER", unit: "" },
+  { value: "CURRENCY", unit: "$" },
+  { value: "BOOLEAN", unit: "" },
+  { value: "TASK_COUNT", unit: "tareas" },
 ];
 
 export function CreateKeyResultDialog({
@@ -70,7 +71,7 @@ export function CreateKeyResultDialog({
     e.preventDefault();
 
     if (!title.trim()) {
-      notify.error(t("validation.titleRequired") || "El título es requerido");
+      notify.error(t("validation.titleRequired"));
       return;
     }
 
@@ -87,11 +88,11 @@ export function CreateKeyResultDialog({
         },
       });
 
-      notify.success(t("toast.created") || "Resultado clave creado");
+      notify.success(t("toast.created"));
       resetForm();
       onOpenChange(false);
     } catch (error: unknown) {
-      notify.error(error instanceof Error ? error.message : (t("toast.error") || "Error al crear"));
+      notify.error(error instanceof Error ? error.message : t("toast.error"));
     }
   };
 
@@ -108,21 +109,21 @@ export function CreateKeyResultDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{t("createTitle") || "Agregar Resultado Clave"}</DialogTitle>
+          <DialogTitle>{t("createTitle")}</DialogTitle>
           <DialogDescription>
-            {t("createDescription") || "Define un resultado medible para tu objetivo"}
+            {t("createDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">{t("form.title") || "Título"} *</Label>
+            <Label htmlFor="title">{t("form.title")} *</Label>
             <input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("form.titlePlaceholder") || "Ej: Aumentar ventas mensuales"}
+              placeholder={t("form.titlePlaceholder")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               autoFocus
             />
@@ -130,19 +131,19 @@ export function CreateKeyResultDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">{t("form.description") || "Descripción"}</Label>
+            <Label htmlFor="description">{t("form.description")}</Label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={t("form.descriptionPlaceholder") || "Describe cómo medirás el progreso..."}
+              placeholder={t("form.descriptionPlaceholder")}
               className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
             />
           </div>
 
           {/* Metric Type */}
           <div className="space-y-2">
-            <Label>{t("form.metricType") || "Tipo de métrica"}</Label>
+            <Label>{t("form.metricType")}</Label>
             <Select value={metricType} onValueChange={handleMetricTypeChange}>
               <SelectTrigger>
                 <SelectValue />
@@ -150,7 +151,7 @@ export function CreateKeyResultDialog({
               <SelectContent>
                 {metricTypes.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                    {t(`types.${type.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -161,7 +162,7 @@ export function CreateKeyResultDialog({
           {metricType !== "BOOLEAN" && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startValue">{t("form.startValue") || "Valor inicial"}</Label>
+                <Label htmlFor="startValue">{t("form.startValue")}</Label>
                 <input
                   id="startValue"
                   type="number"
@@ -171,7 +172,7 @@ export function CreateKeyResultDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="targetValue">{t("form.targetValue") || "Valor objetivo"}</Label>
+                <Label htmlFor="targetValue">{t("form.targetValue")}</Label>
                 <input
                   id="targetValue"
                   type="number"
@@ -186,12 +187,12 @@ export function CreateKeyResultDialog({
           {/* Unit */}
           {metricType !== "BOOLEAN" && metricType !== "PERCENTAGE" && (
             <div className="space-y-2">
-              <Label htmlFor="unit">{t("form.unit") || "Unidad"}</Label>
+              <Label htmlFor="unit">{t("form.unit")}</Label>
               <input
                 id="unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                placeholder={t("form.unitPlaceholder") || "Ej: ventas, usuarios, horas"}
+                placeholder={t("form.unitPlaceholder")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
@@ -203,16 +204,14 @@ export function CreateKeyResultDialog({
               onClick={() => onOpenChange(false)}
               className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              {t("actions.cancel") || "Cancelar"}
+              {t("actions.cancel")}
             </button>
             <button
               type="submit"
               disabled={addKeyResult.isPending}
               className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 disabled:opacity-50"
             >
-              {addKeyResult.isPending
-                ? t("actions.creating") || "Creando..."
-                : t("actions.create") || "Crear"}
+              {addKeyResult.isPending ? t("actions.creating") : t("actions.create")}
             </button>
           </DialogFooter>
         </form>
