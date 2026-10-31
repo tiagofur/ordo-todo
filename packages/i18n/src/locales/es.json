@@ -462,7 +462,12 @@
     "create": "Crear tarea",
     "creating": "Creando...",
     "applyTemplate": "Aplicar plantilla...",
-    "voice": "Voz",
+    "voice": {
+      "start": "Voz",
+      "stop": "Detener grabación",
+      "listening": "Escuchando...",
+      "transcribing": "Transcribiendo..."
+    },
     "smartParse": "Smart Parse",
     "auto": "Auto",
     "aiMagic": "Magia IA",

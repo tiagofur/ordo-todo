@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface SpeechRecognitionEvent extends Event {
@@ -38,6 +40,14 @@ export interface UseSpeechRecognitionOptions {
     onError?: (error: string) => void;
 }
 
+/**
+ * Reconocimiento de voz del design system (ODD 025 S10).
+ *
+ * Los callbacks viven en refs para que el efecto solo dependa de
+ * [lang, continuous, interimResults]: con callbacks inline el consumidor
+ * re-crea la instancia en cada render y aborta la escucha a mitad de
+ * captura (bug del audit desktop).
+ */
 export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) {
     const {
         lang = 'es-ES',
@@ -52,66 +62,69 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     const [interimTranscript, setInterimTranscript] = useState('');
     const [isSupported, setIsSupported] = useState(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+    const onResultRef = useRef(onResult);
+    const onErrorRef = useRef(onError);
+    onResultRef.current = onResult;
+    onErrorRef.current = onError;
 
     useEffect(() => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        setIsSupported(!!SpeechRecognition);
+        const SpeechRecognitionCtor =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+        setIsSupported(!!SpeechRecognitionCtor);
+        if (!SpeechRecognitionCtor) return;
 
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.continuous = continuous;
-            recognition.interimResults = interimResults;
-            recognition.lang = lang;
+        const recognition = new SpeechRecognitionCtor();
+        recognition.continuous = continuous;
+        recognition.interimResults = interimResults;
+        recognition.lang = lang;
 
-            recognition.onstart = () => {
-                setIsListening(true);
-            };
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
 
-            recognition.onend = () => {
-                setIsListening(false);
-            };
+        recognition.onend = () => {
+            setIsListening(false);
+        };
 
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                setIsListening(false);
-                onError?.(event.error);
-            };
+        recognition.onerror = (event) => {
+            onErrorRef.current?.(event.error);
+            setIsListening(false);
+        };
 
-            recognition.onresult = (event) => {
-                let interimText = '';
-                let finalText = '';
+        recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
 
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const result = event.results[i];
-                    const text = result[0].transcript;
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                if (!result) continue;
+                const text = result[0]?.transcript ?? '';
 
-                    if (result.isFinal) {
-                        finalText += text;
-                    } else {
-                        interimText += text;
-                    }
+                if (result.isFinal) {
+                    finalText += text;
+                } else {
+                    interimText += text;
                 }
+            }
 
-                if (finalText) {
-                    setTranscript((prev) => prev + ' ' + finalText);
-                    onResult?.(finalText, true);
-                }
+            if (finalText) {
+                setTranscript((prev) => prev + ' ' + finalText);
+                onResultRef.current?.(finalText, true);
+            }
 
-                if (interimText) {
-                    setInterimTranscript(interimText);
-                    onResult?.(interimText, false);
-                }
-            };
-
-            recognitionRef.current = recognition;
-        }
-
-        return () => {
-            if (recognitionRef.current) {
-                recognitionRef.current.abort();
+            if (interimText) {
+                setInterimTranscript(interimText);
+                onResultRef.current?.(interimText, false);
             }
         };
-    }, [lang, continuous, interimResults, onResult, onError]);
+
+        recognitionRef.current = recognition;
+
+        return () => {
+            recognition.abort();
+            recognitionRef.current = null;
+        };
+    }, [lang, continuous, interimResults]);
 
     const startListening = useCallback(() => {
         if (recognitionRef.current && !isListening) {

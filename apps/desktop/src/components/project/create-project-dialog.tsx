@@ -14,6 +14,7 @@ import {
   EmptyState,
   ColorSwatchPicker,
   IconPicker,
+  VoiceInputButton,
   FORM_COLORS,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
@@ -211,9 +212,21 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                </div>
             )}
 
-            {/* Description */}
+            {/* Description — ODD 025 S10: dictado en textos largos */}
             <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
                 <Label htmlFor="description">Descripción</Label>
+                <VoiceInputButton
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                  showLabel={false}
+                  onTranscript={(text) => {
+                    const current = watch("description") || "";
+                    setValue("description", current ? `${current} ${text}` : text);
+                  }}
+                />
+                </div>
                 <textarea
                 id="description"
                 {...register("description")}

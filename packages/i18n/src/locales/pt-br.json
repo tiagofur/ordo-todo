@@ -462,7 +462,12 @@
     "create": "Criar tarefa",
     "creating": "Criando...",
     "applyTemplate": "Aplicar modelo...",
-    "voice": "Voz",
+    "voice": {
+      "start": "Voz",
+      "stop": "Parar gravação",
+      "listening": "Ouvindo...",
+      "transcribing": "Transcrevendo..."
+    },
     "smartParse": "Smart Parse",
     "auto": "Auto",
     "aiMagic": "Magia IA",
