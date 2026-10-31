@@ -2,6 +2,8 @@
   "extends": "@ordo-todo/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
+    // TS 6 requires an explicit rootDir when sources span src/ + test/.
+    "rootDir": ".",
     "types": ["node", "jest"],
     "esModuleInterop": true
   },

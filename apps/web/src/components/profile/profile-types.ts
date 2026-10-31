@@ -1,5 +1,6 @@
 import React from "react";
-import { Sun, Moon, Sunset, Calendar, MessageSquare, Github } from "lucide-react";
+import { Sun, Moon, Sunset, Calendar, MessageSquare } from "lucide-react";
+import { GithubIcon as Github } from "@ordo-todo/ui";
 
 export const TIMEZONES = [
   { value: "America/Mexico_City", label: "Mexico City (GMT-6)" },

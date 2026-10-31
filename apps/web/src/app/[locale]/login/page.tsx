@@ -6,7 +6,6 @@ import {
   CheckSquare,
   Mail,
   Lock,
-  Github,
   ArrowRight,
   Eye,
   EyeOff,
@@ -18,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { API_CONFIG } from "@/config";
 import { resolvePostLoginTarget } from "@/lib/post-login-target";
 import { useTranslations } from "next-intl";
-import { cn } from "@ordo-todo/ui";
+import { cn, GithubIcon } from "@ordo-todo/ui";
 import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -371,7 +370,7 @@ function SignInForm() {
               onClick={handleGitHubSignIn}
               className="flex items-center justify-center gap-2.5 rounded-xl border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted/80 hover:border-foreground/20"
             >
-              <Github className="h-4 w-4" />
+              <GithubIcon className="h-4 w-4" />
               {t("github")}
             </button>
           </div>

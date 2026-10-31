@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
-import { Github, Twitter, Linkedin } from 'lucide-react';
+import { TwitterIcon as Twitter, GithubIcon as Github, LinkedinIcon as Linkedin } from '@ordo-todo/ui';
 import { BrandMark } from './brand-mark';
 
 export function Footer() {

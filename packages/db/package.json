@@ -29,12 +29,11 @@
   "dependencies": {
     "@prisma/client": "^7.10.1",
     "@prisma/config": "^7.10.1",
-    "dotenv": "^16.6.1",
-    "expo-local-authentication": "~15.0.2"
+    "dotenv": "^18.0.9"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "prisma": "^7.10.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.15",

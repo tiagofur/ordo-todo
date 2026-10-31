@@ -2,7 +2,8 @@
 import { type ReactNode } from 'react';
 import { cn } from '../../utils/index.js';
 import { Button } from '../ui/button.js';
-import { Mail, Github } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { GithubIcon } from '../icons/brand-icons.js';
 
 interface AuthFormProps {
   /** Logo component to render */
@@ -138,7 +139,7 @@ export function AuthForm({
             className="w-full py-6"
             size="lg"
           >
-            <Github className="w-5 h-5 mr-2" />
+            <GithubIcon className="w-5 h-5 mr-2" />
             {t.githubLogin}
           </Button>
         </div>
