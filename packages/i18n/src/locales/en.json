@@ -3235,7 +3235,11 @@
         "passwordRequirements": "Password must have: 8+ characters, uppercase, lowercase, number and symbol (@$!%*?&)",
         "inviteRequired": "You need an invitation code to create an account",
         "passwordTooWeak": "Password is too weak. Please use a stronger password",
-        "createFailed": "Failed to create account"
+        "createFailed": "Failed to create account",
+        "inviteInvalid": "This invite code is not valid",
+        "inviteInactive": "This invite code has been deactivated",
+        "inviteExpired": "This invite code has expired",
+        "inviteExhausted": "This invite code has already been used"
       },
       "success": "Account created successfully"
     },

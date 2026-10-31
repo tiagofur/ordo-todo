@@ -3235,7 +3235,11 @@
         "passwordRequirements": "La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)",
         "inviteRequired": "Necesitas un código de invitación para crear una cuenta",
         "passwordTooWeak": "La contraseña es muy débil. Por favor, usa una contraseña más segura",
-        "createFailed": "Error al crear cuenta"
+        "createFailed": "Error al crear cuenta",
+        "inviteInvalid": "El código de invitación no es válido",
+        "inviteInactive": "Este código de invitación está desactivado",
+        "inviteExpired": "Este código de invitación ha caducado",
+        "inviteExhausted": "Este código de invitación ya se ha usado"
       },
       "success": "Cuenta creada exitosamente"
     },

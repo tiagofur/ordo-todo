@@ -3227,7 +3227,11 @@
         "passwordRequirements": "A senha deve ter: 8+ caracteres, maiúscula, minúscula, número e símbolo (@$!%*?&)",
         "inviteRequired": "Você precisa de um código de convite para criar uma conta",
         "passwordTooWeak": "A senha é muito fraca. Por favor, use uma senha mais segura",
-        "createFailed": "Erro ao criar conta"
+        "createFailed": "Erro ao criar conta",
+        "inviteInvalid": "Este código de convite não é válido",
+        "inviteInactive": "Este código de convite foi desativado",
+        "inviteExpired": "Este código de convite expirou",
+        "inviteExhausted": "Este código de convite já foi usado"
       },
       "success": "Conta criada com sucesso"
     },

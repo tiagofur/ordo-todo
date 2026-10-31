@@ -230,6 +230,8 @@ export function Auth() {
             "Auth.errors.authFailed",
             "Error de autenticación. Verifica tus credenciales.",
           ),
+          // t tipado (keys como unión de literales): adaptar a (key: string).
+          (key: string) => t(key as never),
         ),
       );
     } finally {
