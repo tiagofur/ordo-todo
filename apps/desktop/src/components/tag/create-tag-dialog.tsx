@@ -11,7 +11,9 @@ import {
   DialogTitle,
   Label,
   Button,
-  Input
+  Input,
+  ColorSwatchPicker,
+  FORM_COLORS
 } from "@ordo-todo/ui";
 
 const createTagSchema = z.object({
@@ -37,18 +39,9 @@ interface CreateTagDialogProps {
   isPending?: boolean;
 }
 
-const tagColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6366F1", // indigo
-  "#14B8A6", // teal
-  "#F97316", // orange
-  "#84CC16", // lime
-];
+// ODD 025: la paleta inline divergente (10) se elimina — ColorSwatchPicker
+// usa la paleta canónica FORM_COLORS y muestra el color actual como swatch
+// extra si es de datos previos.
 
 export function CreateTagDialog({ 
   open, 
@@ -58,7 +51,7 @@ export function CreateTagDialog({
   onSubmit, 
   isPending 
 }: CreateTagDialogProps) {
-  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || tagColors[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(tagToEdit?.color || FORM_COLORS[0]);
 
   const {
     register,
@@ -72,7 +65,7 @@ export function CreateTagDialog({
     defaultValues: {
       workspaceId: workspaceId,
       name: tagToEdit?.name || "",
-      color: tagToEdit?.color || tagColors[0],
+      color: tagToEdit?.color || FORM_COLORS[0],
     },
   });
 
@@ -80,15 +73,15 @@ export function CreateTagDialog({
     if (open) {
       if (tagToEdit) {
         setValue("name", tagToEdit.name);
-        setSelectedColor(tagToEdit.color || tagColors[0]);
+        setSelectedColor(tagToEdit.color || FORM_COLORS[0]);
         setValue("workspaceId", tagToEdit.workspaceId);
       } else {
         reset({
           workspaceId: workspaceId,
           name: "",
-          color: tagColors[0],
+          color: FORM_COLORS[0],
         });
-        setSelectedColor(tagColors[0]);
+        setSelectedColor(FORM_COLORS[0]);
       }
     }
   }, [open, tagToEdit, workspaceId, reset, setValue]);
@@ -100,7 +93,7 @@ export function CreateTagDialog({
       onSubmit(
         {
           name: data.name,
-          color: selectedColor || tagColors[0],
+          color: selectedColor || FORM_COLORS[0],
           workspaceId: data.workspaceId,
         },
         !!tagToEdit
@@ -119,22 +112,13 @@ export function CreateTagDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Color Picker */}
+          {/* Color Picker — ODD 025: picker canónico */}
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {tagColors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`h-10 w-10 rounded-lg transition-all ${
-                    selectedColor === color ? "scale-110 ring-2 ring-offset-2 ring-primary" : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
+            <ColorSwatchPicker
+              value={selectedColor}
+              onChange={setSelectedColor}
+            />
           </div>
 
           {/* Name */}

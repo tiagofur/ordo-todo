@@ -11,13 +11,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { Palette, Check } from 'lucide-react';
-import { PROJECT_COLORS, updateProjectSchema } from '@ordo-todo/core';
+import { Palette } from 'lucide-react';
+import { updateProjectSchema } from '@ordo-todo/core';
 
 export interface ProjectSettingsData {
   id: string;
@@ -115,9 +117,7 @@ export function ProjectSettingsDialog({
     saving = 'Saving...',
   } = labels;
 
-  const [selectedColor, setSelectedColor] = useState<(typeof PROJECT_COLORS)[number]>(
-    PROJECT_COLORS[3]
-  );
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
 
   const formSchema = updateProjectSchema.extend({
     name: z.string().min(1, nameRequired),
@@ -142,9 +142,7 @@ export function ProjectSettingsDialog({
         description: project.description || '',
         color: project.color || undefined,
       });
-      setSelectedColor(
-        (project.color || PROJECT_COLORS[3]) as (typeof PROJECT_COLORS)[number]
-      );
+      setSelectedColor(project.color || FORM_COLORS[8]);
     }
   }, [project, reset]);
 
@@ -198,23 +196,11 @@ export function ProjectSettingsDialog({
                 <Palette className="w-4 h-4" /> {colorLabel}
               </Label>
               <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
-                {PROJECT_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setSelectedColor(color)}
-                    className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                      selectedColor === color
-                        ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
-                        : 'hover:opacity-80'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  >
-                    {selectedColor === color && (
-                      <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    )}
-                  </button>
-                ))}
+                {/* ODD 025: picker canónico */}
+                <ColorSwatchPicker
+                  value={selectedColor}
+                  onChange={setSelectedColor}
+                />
               </div>
             </div>
 

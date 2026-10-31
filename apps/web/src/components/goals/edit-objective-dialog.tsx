@@ -9,11 +9,11 @@ import { useUpdateObjective } from "@/lib/api-hooks";
 import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Button, Input, Textarea, Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+    ColorSwatchPicker
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
 import { OKRPeriod } from "@ordo-todo/api-client";
-import { TAG_COLORS } from "@ordo-todo/core";
 import { notify } from "@/lib/notify";
 
 const periodValues = ["WEEKLY", "MONTHLY", "QUARTERLY", "YEARLY", "CUSTOM"] as const;
@@ -169,18 +169,12 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t("form.color")}</FormLabel>
-                                    <div className="flex flex-wrap gap-2">
-                                        {TAG_COLORS.map(color => (
-                                            <button
-                                                key={color}
-                                                type="button"
-                                                className={`h-10 w-10 rounded-lg transition-all ${field.value === color ? 'scale-110 ring-2 ring-offset-2 ring-primary' : 'hover:scale-105'}`}
-                                                style={{ backgroundColor: color }}
-                                                onClick={() => field.onChange(color)}
-                                                aria-label={`Select color ${color}`}
-                                            />
-                                        ))}
-                                    </div>
+                                    {/* ODD 025: picker canónico (muestra el color actual
+                                        del objetivo como swatch extra si es de datos previos) */}
+                                    <ColorSwatchPicker
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}

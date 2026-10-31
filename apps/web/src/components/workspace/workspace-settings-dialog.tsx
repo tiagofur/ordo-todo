@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
+import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker } from "@ordo-todo/ui";
 import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
@@ -166,37 +166,22 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Color */}
+                    {/* Color — ODD 025: picker canónico (deshabilitado sin permiso) */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('form.color.label') || "Color"}
                       </Label>
-                      <div className="grid grid-cols-9 gap-2">
-                        {[
-                          { name: "Azul", value: "#2563EB" },
-                          { name: "Púrpura", value: "#7C3AED" },
-                          { name: "Rosa", value: "#DB2777" },
-                          { name: "Rojo", value: "#DC2626" },
-                          { name: "Naranja", value: "#EA580C" },
-                          { name: "Amarillo", value: "#CA8A04" },
-                          { name: "Verde", value: "#16A34A" },
-                          { name: "Turquesa", value: "#0891B2" },
-                          { name: "Gris", value: "#6B7280" },
-                        ].map((color) => (
-                          <button
-                            key={color.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, color: color.value })}
-                            disabled={!permissions.canEdit}
-                            className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                              backgroundColor: color.value,
-                              borderColor: formData.color === color.value ? color.value : "transparent",
-                              opacity: formData.color === color.value ? 1 : 0.6,
-                            }}
-                            title={color.name}
-                          />
-                        ))}
+                      <div
+                        className={
+                          permissions.canEdit
+                            ? undefined
+                            : "pointer-events-none opacity-60"
+                        }
+                      >
+                        <ColorSwatchPicker
+                          value={formData.color}
+                          onChange={(color) => setFormData({ ...formData, color })}
+                        />
                       </div>
                     </div>
 

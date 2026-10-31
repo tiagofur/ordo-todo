@@ -12,6 +12,8 @@ import {
   DialogTitle,
   Label,
   EmptyState,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { Briefcase } from "lucide-react";
@@ -32,18 +34,9 @@ interface CreateProjectDialogProps {
   workspaceId?: string;
 }
 
-const projectColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6B7280", // gray
-];
-
 export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateProjectDialogProps) {
-  const [selectedColor, setSelectedColor] = useState(projectColors[3]);
+  // ODD 025: azul canónico de la paleta única (antes projectColors inline de 7).
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
 
   const createWorkflow = useCreateWorkflow();
 
@@ -61,7 +54,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       workspaceId: workspaceId || "",
-      color: projectColors[3],
+      color: FORM_COLORS[8],
       workflowId: "",
     },
   });
@@ -161,22 +154,13 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
            />
         ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Color Picker */}
+            {/* Color Picker — ODD 025: picker canónico */}
             <div className="space-y-2">
                 <Label>Color</Label>
-                <div className="flex gap-2">
-                {projectColors.map((color) => (
-                    <button
-                    key={color}
-                    type="button"
-                    onClick={() => setSelectedColor(color)}
-                    className={`h-8 w-8 rounded-lg transition-transform ${
-                        selectedColor === color ? "scale-110 ring-2 ring-offset-2" : ""
-                    }`}
-                    style={{ backgroundColor: color }}
-                    />
-                ))}
-                </div>
+                <ColorSwatchPicker
+                    value={selectedColor}
+                    onChange={setSelectedColor}
+                />
             </div>
 
             {/* Name */}

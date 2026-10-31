@@ -17,6 +17,7 @@ import { Label } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Textarea } from "@/components/ui";
 import { Button } from "@/components/ui";
+import { ColorSwatchPicker, FORM_COLORS } from "@/components/ui";
 import { generateSlug } from "@ordo-todo/core";
 
 export interface CreateWorkspaceFormData {
@@ -87,7 +88,8 @@ export function CreateWorkspaceDialog({
     },
   };
 
-  const [selectedColor, setSelectedColor] = useState("#2563EB");
+  // ODD 025: azul canónico (antes paleta 600-weight inline).
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
   const [selectedIcon, setSelectedIcon] = useState("🏠");
 
   const formSchema = z.object({
@@ -118,7 +120,7 @@ export function CreateWorkspaceDialog({
         icon: selectedIcon,
       });
       reset();
-      setSelectedColor("#2563EB");
+      setSelectedColor(FORM_COLORS[8]);
       setSelectedIcon("🏠");
     } catch (error) {
       if (process.env.NODE_ENV === "development") console.error(error);
@@ -126,18 +128,7 @@ export function CreateWorkspaceDialog({
     }
   };
 
-  const workspaceColors = [
-    { name: "Azul", value: "#2563EB" },
-    { name: "Púrpura", value: "#7C3AED" },
-    { name: "Rosa", value: "#DB2777" },
-    { name: "Rojo", value: "#DC2626" },
-    { name: "Naranja", value: "#EA580C" },
-    { name: "Amarillo", value: "#CA8A04" },
-    { name: "Verde", value: "#16A34A" },
-    { name: "Turquesa", value: "#0891B2" },
-    { name: "Gris", value: "#6B7280" },
-  ];
-
+  // ODD 025: paleta 600-weight inline eliminada — ver ColorSwatchPicker.
   const workspaceIcons = [
     "🏠",
     "💼",
@@ -202,30 +193,15 @@ export function CreateWorkspaceDialog({
               />
             </div>
 
-            {/* Color */}
+            {/* Color — ODD 025: picker canónico */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">
                 {t.form.color}
               </Label>
-              <div className="grid grid-cols-9 gap-2">
-                {workspaceColors.map((color) => (
-                  <button
-                    key={color.value}
-                    type="button"
-                    onClick={() => setSelectedColor(color.value)}
-                    className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
-                    style={{
-                      backgroundColor: color.value,
-                      borderColor:
-                        selectedColor === color.value
-                          ? color.value
-                          : "transparent",
-                      opacity: selectedColor === color.value ? 1 : 0.6,
-                    }}
-                    title={color.name}
-                  />
-                ))}
-              </div>
+              <ColorSwatchPicker
+                value={selectedColor}
+                onChange={setSelectedColor}
+              />
             </div>
 
             {/* Icon */}

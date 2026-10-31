@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TAG_COLORS } from '@ordo-todo/core';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Input } from '@/components/ui';
@@ -83,7 +84,7 @@ export function CreateTagDialog({
   labels = {},
 }: CreateTagDialogProps) {
   const [name, setName] = useState(tagToEdit?.name || '');
-  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || TAG_COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(tagToEdit?.color || FORM_COLORS[0]);
   const [error, setError] = useState('');
 
   const {
@@ -108,7 +109,7 @@ export function CreateTagDialog({
   useEffect(() => {
     if (open) {
       setName(tagToEdit?.name || '');
-      setSelectedColor(tagToEdit?.color || TAG_COLORS[0]);
+      setSelectedColor(tagToEdit?.color || FORM_COLORS[0]);
       setError('');
     }
   }, [open, tagToEdit]);
@@ -141,25 +142,13 @@ export function CreateTagDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Color Picker */}
+          {/* Color Picker — ODD 025: picker canónico */}
           <div className="space-y-2">
             <Label>{colorLabel}</Label>
-            <div className="flex flex-wrap gap-2">
-              {TAG_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`h-10 w-10 rounded-lg transition-all ${
-                    selectedColor === color 
-                      ? 'scale-110 ring-2 ring-offset-2 ring-primary' 
-                      : 'hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  aria-label={`Select color ${color}`}
-                />
-              ))}
-            </div>
+            <ColorSwatchPicker
+              value={selectedColor}
+              onChange={setSelectedColor}
+            />
           </div>
 
           {/* Name */}
