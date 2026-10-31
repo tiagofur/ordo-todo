@@ -5,7 +5,8 @@ import { Plus, X, Calendar, Clock, Tag, ChevronDown, Loader2, AlertTriangle } fr
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger, Badge } from '@ordo-todo/ui';
-import { useTasks, useCreateTask, useProjects, useTags } from '@/lib/shared-hooks';
+import { useTasks, useCreateTask, useProjects, useTags, useAssignTagToTask } from '@/lib/shared-hooks';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import { useParseTask } from '@/hooks/use-parse-task';
 import { serializeCalendarDateForApi, toCalendarDateString } from '@ordo-todo/core';
 
@@ -24,9 +25,15 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: projects } = useProjects("");
-  const { data: tags } = useTags("");
+  // ODD 025 S9: contexto de workspace real — con "" las queries de
+  // proyectos/etiquetas están disabled y los pickers salían vacíos.
+  const selectedWorkspaceId = useWorkspaceStore(
+    (state) => state.selectedWorkspaceId
+  );
+  const { data: projects } = useProjects(selectedWorkspaceId || "");
+  const { data: tags } = useTags(selectedWorkspaceId || "");
   const createTask = useCreateTask();
+  const assignTag = useAssignTagToTask();
   const { t } = useTranslation();
 
   // Live NL parse of the title input (S5): prefills date/priority/
@@ -93,16 +100,27 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
 
     setIsSubmitting(true);
     try {
-      await createTask.mutateAsync({
+      const created = await createTask.mutateAsync({
         title: title.trim(),
         description: description.trim() || undefined,
         dueDate: dueDate ? (serializeCalendarDateForApi(dueDate) as any) : undefined,
         // ODD 021: sin proyecto seleccionado → tarea express
         projectId: projectId || undefined,
-        tagIds: tagIds.length > 0 ? tagIds : undefined,
+        // ODD 025 S9: el DTO de creación no acepta tagIds NI status
+        // (forbidNonWhitelisted → 400): tags se asignan tras crear y el
+        // backend ya crea con status TODO por defecto.
         priority: priority.toUpperCase() as any,
-        status: 'TODO',
       } as any);
+
+      if (tagIds.length > 0 && created?.id) {
+        for (const tagId of tagIds) {
+          try {
+            await assignTag.mutateAsync({ taskId: created.id, tagId });
+          } catch {
+            toast.error('No se pudo asignar una etiqueta');
+          }
+        }
+      }
 
       toast.success('Task created successfully');
       onClose();

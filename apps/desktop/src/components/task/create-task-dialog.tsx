@@ -6,16 +6,22 @@ import {
   type CreateTaskDialogLabels,
   type ProjectOption,
   Button,
+  Badge,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@ordo-todo/ui";
+import { Wand2, Sparkles, Tag, Check } from "lucide-react";
 import {
   useCreateTask,
   useProjects,
   useProject,
   useWorkspaceMembers,
+  useTags,
+  useAssignTagToTask,
 } from "@/lib/shared-hooks";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
-import { Wand2, Sparkles } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { parseTaskInput } from "@/utils/smart-capture";
@@ -85,6 +91,18 @@ export function CreateTaskDialog({
 
   const customFieldsForm = useCustomFieldForm(activeProjectId || "");
   const createTask = useCreateTask();
+  const assignTag = useAssignTagToTask();
+
+  // ODD 025 S9: tags en el diálogo unificado. El DTO de creación no acepta
+  // tags (forbidNonWhitelisted → 400): se asignan tras crear, igual que el
+  // panel de detalle.
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const { data: availableTagsForProject } = useTags(
+    currentProject?.workspaceId ?? selectedWorkspaceId ?? ""
+  );
+  const selectedTagObjects = (availableTagsForProject || []).filter((tag) =>
+    selectedTagIds.includes(tag.id)
+  );
 
   const labels: CreateTaskDialogLabels = {
     title: t("CreateTask.title", "Crear Tarea"),
@@ -156,6 +174,19 @@ export function CreateTaskDialog({
         await customFieldsForm.saveValues(createdTask.id);
       }
 
+      // ODD 025 S9: asignar tags tras crear (el DTO de creación no las acepta).
+      if (selectedTagIds.length > 0 && createdTask?.id) {
+        for (const tagId of selectedTagIds) {
+          try {
+            await assignTag.mutateAsync({ taskId: createdTask.id, tagId });
+          } catch {
+            toast.error(
+              t("CreateTask.tagAssignError", "No se pudo asignar una etiqueta")
+            );
+          }
+        }
+      }
+      setSelectedTagIds([]);
       toast.success(
         t("CreateTask.created", "Tarea creada exitosamente")
       );
@@ -175,7 +206,10 @@ export function CreateTaskDialog({
     <>
       <SharedCreateTaskDialog
         open={open}
-        onOpenChange={onOpenChange}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) setSelectedTagIds([]);
+          onOpenChange(nextOpen);
+        }}
         projectId={projectId}
         projects={projects}
         onProjectChange={setSelectedProjectId}
@@ -312,6 +346,64 @@ export function CreateTaskDialog({
             />
           ) : undefined
         }
+        descriptionActions={() => (
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {selectedTagObjects.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-4"
+                style={{ backgroundColor: `${tag.color}25`, color: tag.color }}
+              >
+                {tag.name}
+              </Badge>
+            ))}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Tag className="w-3 h-3 mr-1" />
+                  {t("CreateTask.tags", "Etiquetas")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1" align="end">
+                {(availableTagsForProject || []).length === 0 ? (
+                  <p className="text-xs text-muted-foreground p-2">
+                    {t("CreateTask.noTags", "Sin etiquetas aún")}
+                  </p>
+                ) : (
+                  (availableTagsForProject || []).map((tag) => (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedTagIds((prev) =>
+                          prev.includes(tag.id)
+                            ? prev.filter((id) => id !== tag.id)
+                            : [...prev, tag.id]
+                        )
+                      }
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left"
+                    >
+                      <span
+                        className="h-2.5 w-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      <span className="flex-1 truncate">{tag.name}</span>
+                      {selectedTagIds.includes(tag.id) && (
+                        <Check className="w-3.5 h-3.5 text-primary" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
       />
 
       <CreateProjectDialog

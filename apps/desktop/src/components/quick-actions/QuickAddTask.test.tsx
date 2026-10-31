@@ -20,6 +20,7 @@ const mockMutateAsync = vi.fn();
 vi.mock('@/lib/shared-hooks', () => ({
   useTasks: () => ({ data: [] }),
   useCreateTask: () => ({ mutateAsync: mockMutateAsync }),
+  useAssignTagToTask: () => ({ mutateAsync: vi.fn(() => Promise.resolve()) }),
   useProjects: () => ({
     data: [
       { id: 'proj-1', name: 'Work', slug: 'work', color: '#000' },
@@ -121,6 +122,12 @@ describe('QuickAddTask NL prefill (S5)', () => {
         }),
       );
     });
+
+    // ODD 025 S9: el payload NUNCA lleva tagIds ni status — el backend
+    // (forbidNonWhitelisted) responde 400 si aparecen.
+    const payload = mockMutateAsync.mock.calls[0][0];
+    expect(payload).not.toHaveProperty('tagIds');
+    expect(payload).not.toHaveProperty('status');
   });
 
   it('resolves the project from the #hint on submit', async () => {

@@ -10,11 +10,13 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Button, Input, Textarea, Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-    ColorSwatchPicker, IconPicker
+    ColorSwatchPicker, IconPicker, DatePicker
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
 import { OKRPeriod } from "@ordo-todo/api-client";
 import { notify } from "@/lib/notify";
+import { parseCalendarDate } from "@ordo-todo/core";
+import { format } from "date-fns";
 
 const periodValues = ["WEEKLY", "MONTHLY", "QUARTERLY", "YEARLY", "CUSTOM"] as const;
 
@@ -208,8 +210,12 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t("form.startDate")}</FormLabel>
+                                        {/* ODD 025 S11: DatePicker canónico */}
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <DatePicker
+                                                date={field.value ? (parseCalendarDate(field.value) ?? undefined) : undefined}
+                                                setDate={(d) => field.onChange(d ? format(d, "yyyy-MM-dd") : "")}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -222,7 +228,10 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                                     <FormItem>
                                         <FormLabel>{t("form.endDate")}</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <DatePicker
+                                                date={field.value ? (parseCalendarDate(field.value) ?? undefined) : undefined}
+                                                setDate={(d) => field.onChange(d ? format(d, "yyyy-MM-dd") : "")}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
