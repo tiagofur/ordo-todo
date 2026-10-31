@@ -25,6 +25,7 @@ import {
 } from "@/hooks/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import type { Habit } from "@ordo-todo/api-client";
 import { CreateHabitDialog } from "@/components/habit/create-habit-dialog";
 import { HabitDetailPanel } from "@/components/habit/habit-detail-panel";
 
@@ -35,6 +36,7 @@ export function Habits() {
 
   // State
   const [showCreateHabit, setShowCreateHabit] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "paused">("all");
@@ -194,7 +196,7 @@ export function Habits() {
 
               <button
                 type="button"
-                onClick={() => setShowCreateHabit(true)}
+                onClick={() => { setEditingHabit(null); setShowCreateHabit(true); }}
                 className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 hover:bg-emerald-600 hover:scale-[1.02] cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
@@ -392,7 +394,7 @@ export function Habits() {
               </p>
               <button
                 type="button"
-                onClick={() => setShowCreateHabit(true)}
+                onClick={() => { setEditingHabit(null); setShowCreateHabit(true); }}
                 className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
@@ -674,12 +676,21 @@ export function Habits() {
       {/* Dialogs */}
       <CreateHabitDialog
         open={showCreateHabit}
-        onOpenChange={setShowCreateHabit}
+        onOpenChange={(open) => {
+          setShowCreateHabit(open);
+          if (!open) setEditingHabit(null);
+        }}
+        habitToEdit={editingHabit}
       />
       <HabitDetailPanel
         habitId={selectedHabitId}
         open={!!selectedHabitId}
         onOpenChange={(open) => !open && setSelectedHabitId(null)}
+        onEditRequest={(habit) => {
+          setSelectedHabitId(null);
+          setEditingHabit(habit);
+          setShowCreateHabit(true);
+        }}
       />
     </PageTransition>
   );

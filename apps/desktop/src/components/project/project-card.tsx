@@ -8,6 +8,7 @@ import {
   Trash2,
   CheckSquare,
   Clock,
+  Pencil,
 } from "lucide-react";
 import { useDeleteProject, useUpdateProject } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
 import { useConfirm } from "@/components/shared/confirm-dialog";
+import { ProjectSettingsDialog } from "./project-settings-dialog";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Task } from "@ordo-todo/api-client";
@@ -46,6 +48,8 @@ export function ProjectCard({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { confirm, ConfirmModal } = useConfirm();
+  // ODD 025 S5: edición de proyecto desde el menú de la tarjeta.
+  const [showEdit, setShowEdit] = React.useState(false);
 
   // Filter tasks for this project
   const projectTasks = (allTasks || []).filter(
@@ -229,6 +233,16 @@ export function ProjectCard({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEdit(true);
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleArchive}>
                   {project.archived ? (
                     <>
@@ -252,6 +266,19 @@ export function ProjectCard({
           </div>
         </div>
         <ConfirmModal />
+        {project.id && (
+          <ProjectSettingsDialog
+            open={showEdit}
+            onOpenChange={setShowEdit}
+            project={{
+              id: String(project.id),
+              name: project.name,
+              description: project.description,
+              color: project.color,
+              icon: (project as { icon?: string | null }).icon,
+            }}
+          />
+        )}
       </>
     );
   }

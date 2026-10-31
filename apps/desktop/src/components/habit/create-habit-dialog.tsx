@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Sparkles, Sun, Moon, Sunset } from "lucide-react";
-import { useCreateHabit } from "@/hooks/api";
+import { useCreateHabit, useUpdateHabit } from "@/hooks/api";
 import { toast } from "sonner";
-import type { HabitFrequency, TimeOfDay } from "@ordo-todo/api-client";
+import type { Habit, HabitFrequency, TimeOfDay } from "@ordo-todo/api-client";
 import {
   Dialog,
   DialogContent,
@@ -19,12 +19,15 @@ import {
   Textarea,
   Button,
   ColorSwatchPicker,
+  IconPicker,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 
 interface CreateHabitDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** ODD 025 S4: si se pasa, el diálogo edita ese hábito en vez de crear. */
+  habitToEdit?: Habit | null;
 }
 
 const createHabitSchema = z.object({
@@ -35,13 +38,16 @@ const createHabitSchema = z.object({
   timeOfDay: z.enum(["morning", "afternoon", "evening", "anytime"]).optional(),
   color: z.string().optional(),
   reminderTime: z.string().optional(),
+  icon: z.string().optional(),
 });
 
 type CreateHabitForm = z.infer<typeof createHabitSchema>;
 
-export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps) {
+export function CreateHabitDialog({ open, onOpenChange, habitToEdit }: CreateHabitDialogProps) {
   const { t } = (useTranslation as any)();
   const createHabitMutation = useCreateHabit();
+  const updateHabitMutation = useUpdateHabit();
+  const isEdit = !!habitToEdit;
 
   const {
     register,
@@ -56,16 +62,43 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
       frequency: "daily",
       timeOfDay: "anytime",
       color: "#10B981",
+      icon: "⭐",
     },
   });
 
   const currentFrequency = watch("frequency");
   const currentTimeOfDay = watch("timeOfDay");
   const currentColor = watch("color");
+  const currentIcon = watch("icon");
+
+  // ODD 025 S4: precarga en modo edición y reset al abrir en modo creación.
+  useEffect(() => {
+    if (!open) return;
+    if (habitToEdit) {
+      const freq = (habitToEdit.frequency || "DAILY").toUpperCase();
+      reset({
+        name: habitToEdit.name,
+        description: habitToEdit.description || "",
+        frequency: freq === "DAILY" ? "daily" : freq === "WEEKLY" ? "weekly" : "custom",
+        daysOfWeek: habitToEdit.targetDaysOfWeek || [],
+        timeOfDay: ((habitToEdit.timeOfDay || "anytime").toLowerCase()) as CreateHabitForm["timeOfDay"],
+        color: habitToEdit.color || "#10B981",
+        reminderTime: habitToEdit.preferredTime || "",
+        icon: habitToEdit.icon || "⭐",
+      });
+    } else {
+      reset({
+        frequency: "daily",
+        timeOfDay: "anytime",
+        color: "#10B981",
+        icon: "⭐",
+      });
+    }
+  }, [open, habitToEdit, reset]);
 
   const onSubmit = async (data: CreateHabitForm) => {
     try {
-      await createHabitMutation.mutateAsync({
+      const payload = {
         name: data.name,
         description: data.description || undefined,
         frequency: data.frequency.toUpperCase() as HabitFrequency,
@@ -73,12 +106,21 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
         timeOfDay: data.timeOfDay?.toUpperCase() as TimeOfDay | undefined,
         color: data.color,
         preferredTime: data.reminderTime || undefined,
-      });
-      toast.success(t("Habits.toast.created", "Hábito criado!"));
-      reset();
+        icon: data.icon || undefined,
+      };
+      if (isEdit && habitToEdit) {
+        await updateHabitMutation.mutateAsync({
+          habitId: habitToEdit.id,
+          data: payload,
+        });
+        toast.success(t("Habits.toast.updated", "Hábito atualizado"));
+      } else {
+        await createHabitMutation.mutateAsync(payload);
+        toast.success(t("Habits.toast.created", "Hábito criado!"));
+      }
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(t("Habits.toast.error", { message: error?.message || "Failed to create habit" }));
+      toast.error(t("Habits.toast.error", { message: error?.message || (isEdit ? "Failed to update habit" : "Failed to create habit") }));
     }
   };
 
@@ -115,12 +157,18 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
               style={{ backgroundColor: currentColor }}
             >
-              <Sparkles className="h-5 w-5" />
+              {currentIcon ? <span className="text-lg">{currentIcon}</span> : <Sparkles className="h-5 w-5" />}
             </div>
             <div>
-              <DialogTitle>{t("Habits.form.createTitle", "Novo Hábito")}</DialogTitle>
+              <DialogTitle>
+                {isEdit
+                  ? t("Habits.form.editTitle", "Editar Hábito")
+                  : t("Habits.form.createTitle", "Novo Hábito")}
+              </DialogTitle>
               <DialogDescription>
-                {t("Habits.form.createDescription", "Crie um novo hábito")}
+                {isEdit
+                  ? t("Habits.form.editDescription", "Ajusta tu hábito")
+                  : t("Habits.form.createDescription", "Crie um novo hábito")}
               </DialogDescription>
             </div>
           </div>
@@ -232,6 +280,15 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
             </div>
           </div>
 
+          {/* Icon — ODD 025 S3: picker canónico */}
+          <div className="space-y-2">
+            <Label>{t("Habits.form.icon", "Icono")}</Label>
+            <IconPicker
+              value={currentIcon}
+              onChange={(icon) => setValue("icon", icon)}
+            />
+          </div>
+
           {/* Color */}
           <div className="space-y-2">
             <Label>{t("Habits.form.color", "Cor")}</Label>
@@ -256,14 +313,16 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Habits.form.cancel", "Cancelar")}
             </Button>
-            <Button 
-              type="submit" 
-              disabled={createHabitMutation.isPending}
+            <Button
+              type="submit"
+              disabled={createHabitMutation.isPending || updateHabitMutation.isPending}
               className="bg-[#10B981] hover:bg-[#10B981]/90 text-white shadow-lg shadow-[#10B981]/25"
             >
-              {createHabitMutation.isPending 
-                ? t("Habits.form.creating", "Criando...") 
-                : t("Habits.form.create", "Criar Hábito")}
+              {createHabitMutation.isPending || updateHabitMutation.isPending
+                ? t("Habits.form.creating", "Criando...")
+                : isEdit
+                  ? t("Habits.form.save", "Guardar")
+                  : t("Habits.form.create", "Criar Hábito")}
             </Button>
           </DialogFooter>
         </form>

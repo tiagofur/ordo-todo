@@ -16,13 +16,13 @@ import {
 import {
   useHabit,
   useHabitStats,
-  useUpdateHabit,
   useDeleteHabit,
   usePauseHabit,
   useResumeHabit,
 } from "@/hooks/api";
 import { toast } from "sonner";
 import { toCalendarDateString } from "@ordo-todo/core";
+import type { Habit } from "@ordo-todo/api-client";
 import {
   Sheet,
   SheetContent,
@@ -39,48 +39,21 @@ interface HabitDetailPanelProps {
   habitId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** ODD 025 S4: abre el diálogo de edición completa (color, frecuencia…). */
+  onEditRequest?: (habit: Habit) => void;
 }
 
-export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPanelProps) {
+export function HabitDetailPanel({ habitId, open, onOpenChange, onEditRequest }: HabitDetailPanelProps) {
   const { t } = (useTranslation as any)();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState("");
-  const [editedDescription, setEditedDescription] = useState("");
 
   const { data: habit, isLoading: isLoadingHabit } = useHabit(habitId || "");
   const { data: stats, isLoading: isLoadingStats } = useHabitStats(habitId || "");
 
-  const updateHabit = useUpdateHabit();
   const deleteHabit = useDeleteHabit();
   const pauseHabit = usePauseHabit();
   const resumeHabit = useResumeHabit();
 
   const isLoading = isLoadingHabit || isLoadingStats;
-
-  const handleStartEdit = () => {
-    if (habit) {
-      setEditedName(habit.name);
-      setEditedDescription(habit.description || "");
-      setIsEditing(true);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!habitId) return;
-    try {
-      await updateHabit.mutateAsync({
-        habitId,
-        data: {
-          name: editedName,
-          description: editedDescription || undefined,
-        },
-      });
-      toast.success(t("Habits.toast.updated", "Hábito atualizado"));
-      setIsEditing(false);
-    } catch (error: any) {
-      toast.error(t("Habits.toast.error", { message: error?.message || "Falha ao atualizar" }));
-    }
-  };
 
   const handleDelete = async () => {
     if (!habitId) return;
@@ -147,18 +120,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                   <Sparkles className="h-7 w-7" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  {isEditing ? (
-                    <Input
-                      value={editedName}
-                      onChange={(e) => setEditedName(e.target.value)}
-                      className="text-xl font-semibold"
-                      autoFocus
-                    />
-                  ) : (
-                    <SheetTitle className="text-xl font-semibold truncate">
-                      {habit.name}
-                    </SheetTitle>
-                  )}
+                  <SheetTitle className="text-xl font-semibold truncate">
+                    {habit.name}
+                  </SheetTitle>
                   <div className="flex items-center gap-2 mt-1">
                     {habit.isPaused ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
@@ -180,20 +144,12 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
             </SheetHeader>
 
             {/* Description */}
-            {(habit.description || isEditing) && (
+            {habit.description && (
               <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">
                   {t("Habits.form.description", "Descrição")}
                 </Label>
-                {isEditing ? (
-                  <Textarea
-                    value={editedDescription}
-                    onChange={(e) => setEditedDescription(e.target.value)}
-                    rows={3}
-                  />
-                ) : (
-                  <p className="text-sm">{habit.description}</p>
-                )}
+                <p className="text-sm">{habit.description}</p>
               </div>
             )}
 
@@ -277,57 +233,43 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
 
             {/* Actions */}
             <div className="flex flex-col gap-2 pt-4 border-t">
-              {isEditing ? (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    className="flex-1" 
-                    onClick={() => setIsEditing(false)}
-                  >
-                    {t("Habits.form.cancel", "Cancelar")}
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-habits hover:bg-habits/90 text-white font-semibold shadow-lg shadow-habits/25" 
-                    onClick={handleSave} 
-                    disabled={updateHabit.isPending}
-                  >
-                    {updateHabit.isPending ? "..." : t("Habits.actions.edit", "Salvar")}
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Button variant="outline" onClick={handleStartEdit}>
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    {t("Habits.actions.edit", "Editar")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleTogglePause}
-                    disabled={pauseHabit.isPending || resumeHabit.isPending}
-                  >
-                    {habit.isPaused ? (
-                      <>
-                        <Play className="h-4 w-4 mr-2" />
-                        {t("Habits.actions.resume", "Retomar")}
-                      </>
-                    ) : (
-                      <>
-                        <Pause className="h-4 w-4 mr-2" />
-                        {t("Habits.actions.pause", "Pausar")}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                    onClick={handleDelete}
-                    disabled={deleteHabit.isPending}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    {t("Habits.actions.delete", "Excluir")}
-                  </Button>
-                </>
-              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => habit && onEditRequest?.(habit)}
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  {t("Habits.actions.edit", "Editar")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleTogglePause}
+                  disabled={pauseHabit.isPending || resumeHabit.isPending}
+                  className="flex-1"
+                >
+                  {habit.isPaused ? (
+                    <>
+                      <Play className="h-4 w-4 mr-2" />
+                      {t("Habits.actions.resume", "Retomar")}
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="h-4 w-4 mr-2" />
+                      {t("Habits.actions.pause", "Pausar")}
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  onClick={handleDelete}
+                  disabled={deleteHabit.isPending}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {t("Habits.actions.delete", "Excluir")}
+                </Button>
+              </div>
             </div>
           </div>
         ) : (

@@ -6,6 +6,13 @@ import { Plus, Loader2 } from 'lucide-react';
 import type { Note } from '@ordo-todo/api-client';
 import { useTranslation } from 'react-i18next';
 
+// ODD 025 S6: pastels canónicos de notas (los de StickyNote en packages/ui).
+// El color se elige al azar al crear y se puede cambiar desde la nota.
+export const NOTE_PASTELS = [
+  '#feff9c', '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf',
+  '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff', '#fffffc',
+];
+
 interface NoteBoardProps {
   workspaceId: string;
   notes: Note[] | null | undefined;
@@ -49,7 +56,8 @@ export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps)
       content: 'Nueva nota',
       x: 100 + Math.random() * 50,
       y: 100 + Math.random() * 50,
-      color: '#feff9c',
+      // ODD 025 S6: pastel al azar en vez del amarillo fijo.
+      color: NOTE_PASTELS[Math.floor(Math.random() * NOTE_PASTELS.length)],
       width: 300,
       height: 300,
     });
