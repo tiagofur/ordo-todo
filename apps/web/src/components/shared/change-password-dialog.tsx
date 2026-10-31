@@ -13,6 +13,7 @@ import {
   Label,
 } from "@ordo-todo/ui";
 import { Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ interface ChangePasswordDialogProps {
 }
 
 export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialogProps) {
+  const t = useTranslations("Auth.changePassword");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,17 +37,17 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
     setError(null);
 
     if (!currentPassword) {
-      setError("Por favor ingresa tu contraseña actual");
+      setError(t("currentRequired"));
       return;
     }
 
     if (newPassword.length < 8) {
-      setError("La nueva contraseña debe tener al menos 8 caracteres");
+      setError(t("tooShort"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setError(t("mismatch"));
       return;
     }
 
@@ -56,13 +58,13 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
         newPassword,
       });
 
-      toast.success("Contraseña actualizada exitosamente");
+      toast.success(t("success"));
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       onOpenChange(false);
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || "Error al actualizar la contraseña";
+      const msg = err.response?.data?.message || err.message || t("errorGeneric");
       setError(msg);
       toast.error(msg);
     } finally {
@@ -89,11 +91,11 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
               <Lock className="h-5 w-5" />
             </div>
             <DialogTitle className="text-xl font-semibold">
-              Cambiar Contraseña
+              {t("title")}
             </DialogTitle>
           </div>
           <DialogDescription className="text-sm text-muted-foreground">
-            Ingresa tu contraseña actual y define tu nueva contraseña segura.
+            {t("description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -106,14 +108,14 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="current-password">Contraseña actual</Label>
+            <Label htmlFor="current-password">{t("currentLabel")}</Label>
             <div className="relative">
               <Input
                 id="current-password"
                 type={showCurrent ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t("currentPlaceholder")}
                 required
                 className="pr-10"
               />
@@ -128,14 +130,14 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="new-password">Nueva contraseña</Label>
+            <Label htmlFor="new-password">{t("newLabel")}</Label>
             <div className="relative">
               <Input
                 id="new-password"
                 type={showNew ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 8 caracteres"
+                placeholder={t("newPlaceholder")}
                 required
                 className="pr-10"
               />
@@ -150,13 +152,13 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-password">Confirmar nueva contraseña</Label>
+            <Label htmlFor="confirm-password">{t("confirmLabel")}</Label>
             <Input
               id="confirm-password"
               type={showNew ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repite la nueva contraseña"
+              placeholder={t("confirmPlaceholder")}
               required
             />
           </div>
@@ -169,7 +171,7 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                 onClick={() => handleClose(false)}
                 disabled={isLoading}
               >
-                Cancelar
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
@@ -179,10 +181,10 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Actualizando...
+                    {t("submitting")}
                   </>
                 ) : (
-                  "Actualizar Contraseña"
+                  t("submit")
                 )}
               </Button>
             </DialogFooter>

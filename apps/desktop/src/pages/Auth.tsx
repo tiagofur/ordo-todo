@@ -16,6 +16,7 @@ import {
   Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Input, Label, Separator } from "@ordo-todo/ui";
@@ -37,6 +38,7 @@ interface PasswordChecks {
 }
 
 export function Auth() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, register, signInWithGoogle, signInWithGitHub } = useAuth();
 
@@ -127,7 +129,7 @@ export function Auth() {
     if (score <= 2)
       return {
         score,
-        label: "Débil",
+        label: t("Auth.register.strengthWeak", "Débil"),
         color: "bg-red-500",
         textColor: "text-red-600",
         checks,
@@ -136,7 +138,7 @@ export function Auth() {
     if (score <= 3)
       return {
         score,
-        label: "Media",
+        label: t("Auth.register.strengthFair", "Media"),
         color: "bg-yellow-500",
         textColor: "text-yellow-600",
         checks,
@@ -145,7 +147,7 @@ export function Auth() {
     if (score <= 4)
       return {
         score,
-        label: "Buena",
+        label: t("Auth.register.strengthGood", "Buena"),
         color: "bg-cyan-500",
         textColor: "text-cyan-600",
         checks,
@@ -153,13 +155,13 @@ export function Auth() {
       };
     return {
       score,
-      label: "Excelente",
+      label: t("Auth.register.strengthExcellent", "Excelente"),
       color: "bg-green-500",
       textColor: "text-green-600",
       checks,
       isValid,
     };
-  }, [formData.password]);
+  }, [formData.password, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,18 +173,26 @@ export function Auth() {
           email: formData.email,
           password: formData.password,
         });
-        toast.success("Sesión iniciada exitosamente");
+        toast.success(t("Auth.login.success", "Sesión iniciada exitosamente"));
       } else {
         // Register validations
         if (formData.password !== formData.confirmPassword) {
-          toast.error("Las contraseñas no coinciden");
+          toast.error(
+            t(
+              "Auth.register.errors.passwordMismatch",
+              "Las contraseñas no coinciden",
+            ),
+          );
           setIsLoading(false);
           return;
         }
         // Password must meet all 5 criteria to match backend validation
         if (!passwordStrength.isValid) {
           toast.error(
-            "La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)",
+            t(
+              "Auth.register.errors.passwordRequirements",
+              "La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)",
+            ),
           );
           setIsLoading(false);
           return;
@@ -190,7 +200,10 @@ export function Auth() {
         // ODD 019: invite gate (invite-only by default in production).
         if (inviteCodeMissing(registrationMode, formData.inviteCode)) {
           toast.error(
-            "Necesitas un código de invitación para crear una cuenta",
+            t(
+              "Auth.register.errors.inviteRequired",
+              "Necesitas un código de invitación para crear una cuenta",
+            ),
           );
           setIsLoading(false);
           return;
@@ -205,7 +218,7 @@ export function Auth() {
             ? { inviteCode: formData.inviteCode.trim() }
             : {}),
         });
-        toast.success("Cuenta creada exitosamente");
+        toast.success(t("Auth.register.success", "Cuenta creada exitosamente"));
       }
       navigate("/dashboard");
     } catch (error: any) {
@@ -213,7 +226,10 @@ export function Auth() {
       toast.error(
         resolveRegisterErrorMessage(
           error,
-          "Error de autenticación. Verifica tus credenciales.",
+          t(
+            "Auth.errors.authFailed",
+            "Error de autenticación. Verifica tus credenciales.",
+          ),
         ),
       );
     } finally {
@@ -226,7 +242,9 @@ export function Auth() {
       await signInWithGoogle();
       navigate("/dashboard");
     } catch (error) {
-      toast.error("Error al conectar con Google");
+      toast.error(
+        t("Auth.login.errors.googleFailed", "Error al conectar con Google"),
+      );
     }
   };
 
@@ -235,7 +253,9 @@ export function Auth() {
       await signInWithGitHub();
       navigate("/dashboard");
     } catch (error) {
-      toast.error("Error al conectar con GitHub");
+      toast.error(
+        t("Auth.login.errors.githubFailed", "Error al conectar con GitHub"),
+      );
     }
   };
 
@@ -276,12 +296,17 @@ export function Auth() {
             <CheckSquare className="h-9 w-9 text-white stroke-[2.2]" />
           </motion.div>
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
-            {isLogin ? "Bienvenido de nuevo" : "Crear Cuenta"}
+            {isLogin
+              ? t("Auth.login.title", "Bienvenido de nuevo")
+              : t("Auth.register.title", "Crear Cuenta")}
           </h1>
           <p className="text-sm text-muted-foreground">
             {isLogin
-              ? "Inicia sesión para continuar con Ordo"
-              : "Comienza a organizar tus tareas hoy mismo"}
+              ? t("Auth.login.subtitle", "Inicia sesión para continuar con Ordo")
+              : t(
+                  "Auth.register.subtitle",
+                  "Comienza a organizar tus tareas hoy mismo",
+                )}
           </p>
         </div>
 
@@ -302,7 +327,7 @@ export function Auth() {
                   {/* Name Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      Nombre Completo
+                      {t("Auth.register.nameLabel", "Nombre Completo")}
                     </label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500">
@@ -316,7 +341,10 @@ export function Auth() {
                           setFormData({ ...formData, name: e.target.value })
                         }
                         className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
-                        placeholder="Tu nombre completo"
+                        placeholder={t(
+                          "Auth.register.namePlaceholder",
+                          "Tu nombre completo",
+                        )}
                       />
                     </div>
                   </div>
@@ -324,7 +352,7 @@ export function Auth() {
                   {/* Username Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      Nombre de Usuario
+                      {t("Auth.register.usernameLabel", "Nombre de Usuario")}
                     </label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
@@ -338,7 +366,10 @@ export function Auth() {
                           setFormData({ ...formData, username: e.target.value })
                         }
                         className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                        placeholder="usuario123"
+                        placeholder={t(
+                          "Auth.register.usernamePlaceholder",
+                          "usuario123",
+                        )}
                       />
                     </div>
                   </div>
@@ -349,7 +380,9 @@ export function Auth() {
             {/* Email Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                {isLogin ? "Correo o usuario" : "Correo Electrónico"}
+                {isLogin
+                  ? t("Auth.login.emailOrUsername", "Correo o usuario")
+                  : t("Auth.register.emailLabel", "Correo Electrónico")}
               </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
@@ -365,7 +398,12 @@ export function Auth() {
                   }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
                   placeholder={
-                    isLogin ? "tu@email.com o usuario" : "tu@email.com"
+                    isLogin
+                      ? t(
+                          "Auth.login.emailOrUsernamePlaceholder",
+                          "tu@email.com o usuario",
+                        )
+                      : t("Auth.login.emailPlaceholder", "tu@email.com")
                   }
                 />
               </div>
@@ -374,7 +412,7 @@ export function Auth() {
             {/* Password Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Contraseña
+                {t("Auth.login.passwordLabel", "Contraseña")}
               </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
@@ -389,7 +427,12 @@ export function Auth() {
                   }
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                   placeholder={
-                    isLogin ? "Tu contraseña" : "Mínimo 6 caracteres"
+                    isLogin
+                      ? t("Auth.login.passwordPlaceholder", "Tu contraseña")
+                      : t(
+                          "Auth.register.passwordPlaceholder",
+                          "Mínimo 8 caracteres",
+                        )
                   }
                 />
                 <button
@@ -430,7 +473,9 @@ export function Auth() {
                       ) : (
                         <X className="h-3 w-3" />
                       )}
-                      <span>8+ caracteres</span>
+                      <span>
+                        {t("Auth.register.strengthMinChars", "8+ caracteres")}
+                      </span>
                     </div>
                     <div
                       className={`flex items-center gap-1 ${passwordStrength.checks.lowercase ? "text-green-600" : "text-muted-foreground"}`}
@@ -440,7 +485,9 @@ export function Auth() {
                       ) : (
                         <X className="h-3 w-3" />
                       )}
-                      <span>Minúscula (a-z)</span>
+                      <span>
+                        {t("Auth.register.checksLowercase", "Minúscula (a-z)")}
+                      </span>
                     </div>
                     <div
                       className={`flex items-center gap-1 ${passwordStrength.checks.uppercase ? "text-green-600" : "text-muted-foreground"}`}
@@ -450,7 +497,9 @@ export function Auth() {
                       ) : (
                         <X className="h-3 w-3" />
                       )}
-                      <span>Mayúscula (A-Z)</span>
+                      <span>
+                        {t("Auth.register.checksUppercase", "Mayúscula (A-Z)")}
+                      </span>
                     </div>
                     <div
                       className={`flex items-center gap-1 ${passwordStrength.checks.number ? "text-green-600" : "text-muted-foreground"}`}
@@ -460,7 +509,9 @@ export function Auth() {
                       ) : (
                         <X className="h-3 w-3" />
                       )}
-                      <span>Número (0-9)</span>
+                      <span>
+                        {t("Auth.register.checksNumber", "Número (0-9)")}
+                      </span>
                     </div>
                     <div
                       className={`col-span-2 flex items-center gap-1 ${passwordStrength.checks.special ? "text-green-600" : "text-muted-foreground"}`}
@@ -470,7 +521,9 @@ export function Auth() {
                       ) : (
                         <X className="h-3 w-3" />
                       )}
-                      <span>Símbolo (@$!%*?&)</span>
+                      <span>
+                        {t("Auth.register.checksSpecial", "Símbolo (@$!%*?&)")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -486,7 +539,10 @@ export function Auth() {
                   className="space-y-2"
                 >
                   <label className="text-sm font-medium text-foreground">
-                    Confirmar Contraseña
+                    {t(
+                      "Auth.register.confirmPasswordLabel",
+                      "Confirmar Contraseña",
+                    )}
                   </label>
                   <div className="relative group">
                     <div
@@ -509,7 +565,10 @@ export function Auth() {
                           ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
                           : "border-input focus:border-orange-500 focus:ring-orange-500/20"
                       }`}
-                      placeholder="Repite tu contraseña"
+                      placeholder={t(
+                        "Auth.register.confirmPasswordPlaceholder",
+                        "Repite tu contraseña",
+                      )}
                     />
                     <button
                       type="button"
@@ -538,7 +597,7 @@ export function Auth() {
                   className="space-y-2"
                 >
                   <label className="text-sm font-medium text-foreground">
-                    Código de invitación
+                    {t("Auth.register.inviteCodeLabel", "Código de invitación")}
                   </label>
                   <div className="relative group">
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500">
@@ -552,7 +611,10 @@ export function Auth() {
                         setFormData({ ...formData, inviteCode: e.target.value })
                       }
                       className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                      placeholder="ORDO-XXXX-XXXX"
+                      placeholder={t(
+                        "Auth.register.inviteCodePlaceholder",
+                        "ORDO-XXXX-XXXX",
+                      )}
                       autoComplete="off"
                       spellCheck={false}
                     />
@@ -577,7 +639,7 @@ export function Auth() {
                   htmlFor="remember"
                   className="text-sm font-medium text-muted-foreground cursor-pointer"
                 >
-                  Recordarme
+                  {t("Auth.login.rememberMe", "Recordarme")}
                 </label>
               </div>
             )}
@@ -595,7 +657,9 @@ export function Auth() {
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+                  {isLogin
+                    ? t("Auth.login.submitButton", "Iniciar Sesión")
+                    : t("Auth.register.submitButton", "Crear Cuenta")}
                   <ArrowRight className="h-4 w-4" />
                 </span>
               )}
@@ -606,7 +670,7 @@ export function Auth() {
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs font-medium text-muted-foreground">
-              O continúa con
+              {t("Auth.login.orContinueWith", "O continúa con")}
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
@@ -619,7 +683,7 @@ export function Auth() {
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:text-cyan-600"
             >
               <Chrome className="h-5 w-5" />
-              Google
+              {t("Auth.login.google", "Google")}
             </button>
             <button
               onClick={handleGitHubSignIn}
@@ -627,14 +691,16 @@ export function Auth() {
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-purple-500/10 hover:border-purple-500/30 hover:text-purple-600"
             >
               <Github className="h-5 w-5" />
-              GitHub
+              {t("Auth.login.github", "GitHub")}
             </button>
           </div>
 
           {/* Toggle Login/Signup */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              {isLogin ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
+              {isLogin
+                ? t("Auth.login.noAccount", "¿No tienes una cuenta?")
+                : t("Auth.register.haveAccount", "¿Ya tienes una cuenta?")}{" "}
               <button
                 type="button"
                 onClick={toggleMode}
@@ -644,7 +710,9 @@ export function Auth() {
                     : "text-cyan-500 hover:text-cyan-600"
                 }`}
               >
-                {isLogin ? "Regístrate gratis" : "Inicia sesión"}
+                {isLogin
+                  ? t("Auth.login.signUpFree", "Regístrate gratis")
+                  : t("Auth.register.signIn", "Inicia sesión")}
                 {isLogin ? (
                   <Sparkles className="h-3 w-3" />
                 ) : (

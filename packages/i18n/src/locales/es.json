@@ -2620,7 +2620,8 @@
         "PERCENTAGE": "Porcentaje",
         "NUMBER": "Número",
         "CURRENCY": "Moneda",
-        "BOOLEAN": "Verdadero/Falso"
+        "BOOLEAN": "Verdadero/Falso",
+        "TASK_COUNT": "Tareas completadas"
       }
     },
     "stats": {
@@ -3115,11 +3116,16 @@
     "oauthSuccess": "Sesión iniciada correctamente",
     "oauthError": "Error de OAuth: {{error}}",
     "oauthFailed": "No se pudo completar el inicio de sesión",
+    "errors": {
+      "authFailed": "Error de autenticación. Verifica tus credenciales."
+    },
     "login": {
       "title": "Bienvenido de nuevo",
       "subtitle": "Inicia sesión para continuar con Ordo",
       "emailLabel": "Correo Electrónico",
       "emailPlaceholder": "tu@email.com",
+      "emailOrUsername": "Correo o usuario",
+      "emailOrUsernamePlaceholder": "tu@email.com o usuario",
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "Tu contraseña",
       "showPassword": "Ver contraseña",
@@ -3204,6 +3210,10 @@
       "strengthUppercase": "Mayúsculas",
       "strengthNumbers": "Números",
       "strengthSymbols": "Símbolos",
+      "checksLowercase": "Minúscula (a-z)",
+      "checksUppercase": "Mayúscula (A-Z)",
+      "checksNumber": "Número (0-9)",
+      "checksSpecial": "Símbolo (@$!%*?&)",
       "confirmPasswordLabel": "Confirmar Contraseña",
       "confirmPasswordPlaceholder": "Repite tu contraseña",
       "passwordsMatch": "Las contraseñas coinciden",
@@ -3217,9 +3227,13 @@
       "terms": "Términos de Servicio",
       "termsAnd": "y",
       "privacy": "Política de Privacidad",
+      "inviteCodeLabel": "Código de invitación",
+      "inviteCodePlaceholder": "ORDO-XXXX-XXXX",
       "errors": {
         "passwordMismatch": "Las contraseñas no coinciden",
         "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+        "passwordRequirements": "La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)",
+        "inviteRequired": "Necesitas un código de invitación para crear una cuenta",
         "passwordTooWeak": "La contraseña es muy débil. Por favor, usa una contraseña más segura",
         "createFailed": "Error al crear cuenta"
       },
@@ -3245,6 +3259,24 @@
         "failed": "No se pudo restablecer la contraseña. El enlace puede haber expirado o ya fue usado."
       },
       "success": "¡Contraseña restablecida exitosamente!"
+    },
+    "changePassword": {
+      "title": "Cambiar Contraseña",
+      "description": "Ingresa tu contraseña actual y define tu nueva contraseña segura.",
+      "currentLabel": "Contraseña actual",
+      "currentPlaceholder": "••••••••",
+      "newLabel": "Nueva contraseña",
+      "newPlaceholder": "Mínimo 8 caracteres",
+      "confirmLabel": "Confirmar nueva contraseña",
+      "confirmPlaceholder": "Repite la nueva contraseña",
+      "currentRequired": "Por favor ingresa tu contraseña actual",
+      "tooShort": "La nueva contraseña debe tener al menos 8 caracteres",
+      "mismatch": "Las contraseñas no coinciden",
+      "submit": "Actualizar Contraseña",
+      "submitting": "Actualizando...",
+      "cancel": "Cancelar",
+      "success": "Contraseña actualizada exitosamente",
+      "errorGeneric": "Error al actualizar la contraseña"
     }
   },
   "ProjectTimeline": {
@@ -3425,5 +3457,21 @@
     "optionsNoDefaultProject": "Sin proyecto (express)",
     "optionsSession": "Sesión",
     "optionsNotSignedIn": "Sin sesión. Inicia desde el popup."
+  },
+  "QuickFilters": {
+    "moreLabel": "Más",
+    "clearLabel": "Limpiar",
+    "saveFilterButton": "Guardar filtro",
+    "presetDialog": {
+      "saveTitle": "Guardar Filtro",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Mi filtro personalizado",
+      "iconLabel": "Icono",
+      "colorLabel": "Color",
+      "previewLabel": "Vista previa",
+      "previewDefault": "Mi filtro",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    }
   }
 }
