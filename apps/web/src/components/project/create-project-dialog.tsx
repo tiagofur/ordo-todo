@@ -19,8 +19,9 @@ import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { ScrollArea } from '@/components/ui';
-import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
-import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/hooks';
+import { ColorSwatchPicker, FORM_COLORS } from '@/components/ui';
+import { Briefcase, Palette, LayoutTemplate } from 'lucide-react';
+import { createProjectSchema } from '@ordo-todo/hooks';
 import { PROJECT_TEMPLATES } from '@/data/project-templates';
 
 // Interfaces for props
@@ -148,9 +149,8 @@ export function CreateProjectDialog({
     creating = 'Creating...',
   } = labels;
 
-  const [selectedColor, setSelectedColor] = useState<(typeof PROJECT_COLORS)[number]>(
-    PROJECT_COLORS[3]
-  );
+  // ODD 025: azul canónico de la paleta única.
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
 
@@ -173,7 +173,7 @@ export function CreateProjectDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       workspaceId: workspaceId || '',
-      color: PROJECT_COLORS[3],
+      color: FORM_COLORS[8],
       workflowId: '',
     },
   });
@@ -212,7 +212,7 @@ export function CreateProjectDialog({
   const handleTemplateSelect = (template: ProjectTemplate) => {
     setValue('name', template.name);
     setValue('description', template.description);
-    setSelectedColor(template.color as (typeof PROJECT_COLORS)[number]);
+    setSelectedColor(template.color);
     setSelectedTemplate(template);
     setShowTemplates(false);
   };
@@ -225,7 +225,7 @@ export function CreateProjectDialog({
       );
       reset();
       setSelectedTemplate(null);
-      setSelectedColor(PROJECT_COLORS[3]);
+      setSelectedColor(FORM_COLORS[8]);
       onOpenChange(false);
     } catch {
       toast.error('Error al crear el proyecto');
@@ -314,23 +314,11 @@ export function CreateProjectDialog({
                     <Palette className="w-4 h-4" /> {colorLabel}
                   </Label>
                   <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
-                    {PROJECT_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() => setSelectedColor(color)}
-                        className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                          selectedColor === color
-                            ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
-                            : 'hover:brightness-90'
-                        }`}
-                        style={{ backgroundColor: color }}
-                      >
-                        {selectedColor === color && (
-                          <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                      </button>
-                    ))}
+                    {/* ODD 025: picker canónico */}
+                    <ColorSwatchPicker
+                      value={selectedColor}
+                      onChange={setSelectedColor}
+                    />
                   </div>
                 </div>
 

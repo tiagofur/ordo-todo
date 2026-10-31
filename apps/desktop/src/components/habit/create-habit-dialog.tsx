@@ -18,6 +18,7 @@ import {
   Input,
   Textarea,
   Button,
+  ColorSwatchPicker,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 
@@ -93,11 +94,6 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
     { value: "afternoon", label: t("Habits.timeOfDay.afternoon", "Tarde"), icon: Sun },
     { value: "evening", label: t("Habits.timeOfDay.evening", "Noite"), icon: Sunset },
     { value: "anytime", label: t("Habits.timeOfDay.anytime", "Qualquer hora"), icon: Moon },
-  ];
-
-  const colors = [
-    "#10B981", "#f59e0b", "#8b5cf6", "#ec4899",
-    "#06b6d4", "#3b82f6", "#ef4444", "#84cc16",
   ];
 
   const weekDays = [
@@ -239,20 +235,11 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
           {/* Color */}
           <div className="space-y-2">
             <Label>{t("Habits.form.color", "Cor")}</Label>
-            <div className="flex gap-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setValue("color", color)}
-                  className={cn(
-                    "h-8 w-8 rounded-full transition-all",
-                    currentColor === color && "ring-2 ring-offset-2 ring-primary scale-110"
-                  )}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
+            {/* ODD 025: picker canónico (swatches rounded-lg, antes círculos) */}
+            <ColorSwatchPicker
+              value={currentColor}
+              onChange={(color) => setValue("color", color)}
+            />
           </div>
 
           {/* Reminder */}

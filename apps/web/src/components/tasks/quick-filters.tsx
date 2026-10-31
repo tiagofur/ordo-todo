@@ -31,6 +31,8 @@ import {
   DialogTitle,
   Input,
   Badge,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { toCalendarDateString, isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
@@ -318,20 +320,16 @@ interface CreatePresetDialogProps {
 function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogProps) {
   const [name, setName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("star");
-  const [selectedColor, setSelectedColor] = useState("#8b5cf6");
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[9]);
 
   const icons = ["star", "flame", "calendar", "clock", "user", "check", "filter"];
-  const colors = [
-    "#ef4444", "#f97316", "#eab308", "#22c55e", 
-    "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899",
-  ];
 
   const handleSave = () => {
     if (name.trim()) {
       onSave(name.trim(), selectedIcon, selectedColor);
       setName("");
       setSelectedIcon("star");
-      setSelectedColor("#8b5cf6");
+      setSelectedColor(FORM_COLORS[9]);
     }
   };
 
@@ -371,22 +369,13 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
             </div>
           </div>
 
-          {/* Color selector */}
+          {/* Color selector — ODD 025: picker canónico */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  className={cn(
-                    "h-8 w-8 rounded-full transition-all",
-                    selectedColor === color && "ring-2 ring-offset-2 ring-purple-500"
-                  )}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
-                />
-              ))}
-            </div>
+            <ColorSwatchPicker
+              value={selectedColor}
+              onChange={setSelectedColor}
+            />
           </div>
 
           {/* Preview */}

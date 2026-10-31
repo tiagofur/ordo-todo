@@ -8,6 +8,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +18,7 @@ import { useCreateHabit } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { Sparkles, Sun, Moon, Sunset } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { TAG_COLORS } from "@ordo-todo/core";
+
 
 interface CreateHabitDialogProps {
   open: boolean;
@@ -52,7 +54,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
     defaultValues: {
       frequency: "daily",
       timeOfDay: "anytime",
-      color: TAG_COLORS[2], // Emerald
+      color: FORM_COLORS[5], // emerald (paleta canónica ODD 025)
     },
   });
 
@@ -252,25 +254,13 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               </div>
             </div>
 
-            {/* Color Selection */}
+            {/* Color Selection — ODD 025: picker canónico */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-foreground">{t("form.color")}</Label>
-              <div className="flex flex-wrap gap-2">
-                {TAG_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setValue("color", color)}
-                    className={`h-10 w-10 rounded-lg transition-all duration-200 ${
-                      currentColor === color
-                        ? "ring-2 ring-offset-2 ring-primary scale-110"
-                        : "hover:scale-105"
-                    }`}
-                    style={{ backgroundColor: color }}
-                    aria-label={`Select color ${color}`}
-                  />
-                ))}
-              </div>
+              <ColorSwatchPicker
+                value={currentColor}
+                onChange={(color) => setValue("color", color)}
+              />
             </div>
 
             {/* Reminder Time */}

@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Label } from '@/components/ui';
-import { Palette, Check, Archive, Trash2, AlertTriangle } from 'lucide-react';
+import { Label, ColorSwatchPicker, FORM_COLORS } from '@/components/ui';
+import { Palette, Archive, Trash2, AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui';
 
-import { PROJECT_COLORS, updateProjectSchema } from '@ordo-todo/core';
+import { updateProjectSchema } from '@ordo-todo/core';
 
 interface ProjectSettingsProps {
   project: {
@@ -154,8 +154,8 @@ export function ProjectSettings({
     },
   };
 
-  const [selectedColor, setSelectedColor] = useState(
-    project.color || PROJECT_COLORS[3]
+  const [selectedColor, setSelectedColor] = useState<string>(
+    project.color || FORM_COLORS[8]
   );
 
   const formSchema = updateProjectSchema.extend({
@@ -184,7 +184,7 @@ export function ProjectSettings({
       description: project.description || '',
       color: project.color,
     });
-    setSelectedColor(project.color || PROJECT_COLORS[3]);
+    setSelectedColor(project.color || FORM_COLORS[8]);
   }, [project, reset]);
 
   const onSubmit = async (data: UpdateProjectForm) => {
@@ -231,23 +231,11 @@ export function ProjectSettings({
               <Palette className="w-4 h-4" /> {t.form.color.label}
             </Label>
             <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
-              {PROJECT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                    selectedColor === color
-                      ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
-                      : 'hover:opacity-80'
-                  }`}
-                  style={{ backgroundColor: color }}
-                >
-                  {selectedColor === color && (
-                    <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                  )}
-                </button>
-              ))}
+              {/* ODD 025: picker canónico */}
+              <ColorSwatchPicker
+                value={selectedColor}
+                onChange={setSelectedColor}
+              />
             </div>
           </div>
 

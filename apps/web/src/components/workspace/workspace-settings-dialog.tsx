@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
+import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker, FORM_COLORS } from "@ordo-todo/ui";
 import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
@@ -38,7 +38,7 @@ export function WorkspaceSettingsDialog({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#2563EB",
+    color: FORM_COLORS[8] as string,
     icon: "🏠",
   });
 
@@ -48,7 +48,7 @@ export function WorkspaceSettingsDialog({
       setFormData({
         name: workspace.name,
         description: workspace.description || "",
-        color: workspace.color || "#2563EB",
+        color: workspace.color || FORM_COLORS[8],
         icon: workspace.icon || "🏠",
       });
     }
@@ -166,38 +166,16 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Color */}
+                    {/* Color — ODD 025: picker canónico */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('form.color.label') || "Color"}
                       </Label>
-                      <div className="grid grid-cols-9 gap-2">
-                        {[
-                          { name: "Azul", value: "#2563EB" },
-                          { name: "Púrpura", value: "#7C3AED" },
-                          { name: "Rosa", value: "#DB2777" },
-                          { name: "Rojo", value: "#DC2626" },
-                          { name: "Naranja", value: "#EA580C" },
-                          { name: "Amarillo", value: "#CA8A04" },
-                          { name: "Verde", value: "#16A34A" },
-                          { name: "Turquesa", value: "#0891B2" },
-                          { name: "Gris", value: "#6B7280" },
-                        ].map((color) => (
-                          <button
-                            key={color.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, color: color.value })}
-                            disabled={!permissions.canEdit}
-                            className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                              backgroundColor: color.value,
-                              borderColor: formData.color === color.value ? color.value : "transparent",
-                              opacity: formData.color === color.value ? 1 : 0.6,
-                            }}
-                            title={color.name}
-                          />
-                        ))}
-                      </div>
+                      <ColorSwatchPicker
+                        value={formData.color}
+                        onChange={(color) => setFormData({ ...formData, color })}
+                        disabled={!permissions.canEdit}
+                      />
                     </div>
 
                     {/* Icon */}

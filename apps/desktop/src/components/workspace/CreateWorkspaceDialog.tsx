@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
 
@@ -42,7 +44,8 @@ export function CreateWorkspaceDialog({
   open,
   onOpenChange,
 }: CreateWorkspaceDialogProps) {
-  const [selectedColor, setSelectedColor] = useState("#2563EB");
+  // ODD 025: azul canónico de la paleta única (antes #2563EB de la paleta 600).
+  const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
   const [selectedIcon, setSelectedIcon] = useState("🏠");
   const createWorkspaceMutation = useCreateWorkspace();
 
@@ -65,7 +68,7 @@ export function CreateWorkspaceDialog({
       });
       toast.success("Workspace creado exitosamente");
       reset();
-      setSelectedColor("#2563EB");
+      setSelectedColor(FORM_COLORS[8]);
       setSelectedIcon("🏠");
       onOpenChange(false);
     } catch (error: any) {
@@ -73,18 +76,8 @@ export function CreateWorkspaceDialog({
     }
   };
 
-  const workspaceColors = [
-    { name: "Azul", value: "#2563EB" },
-    { name: "Púrpura", value: "#7C3AED" },
-    { name: "Rosa", value: "#DB2777" },
-    { name: "Rojo", value: "#DC2626" },
-    { name: "Naranja", value: "#EA580C" },
-    { name: "Amarillo", value: "#CA8A04" },
-    { name: "Verde", value: "#16A34A" },
-    { name: "Turquesa", value: "#0891B2" },
-    { name: "Gris", value: "#6B7280" },
-  ];
-
+  // ODD 025: los nombres de color y la paleta 600-weight inline mueren —
+  // ColorSwatchPicker usa la paleta canónica.
   const workspaceIcons = [
     "🏠",
     "💼",
@@ -109,28 +102,13 @@ export function CreateWorkspaceDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Color */}
+          {/* Color — ODD 025: picker canónico */}
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="grid grid-cols-9 gap-2">
-              {workspaceColors.map((color) => (
-                <button
-                  key={color.value}
-                  type="button"
-                  onClick={() => setSelectedColor(color.value)}
-                  className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: color.value,
-                    borderColor:
-                      selectedColor === color.value
-                        ? color.value
-                        : "transparent",
-                    opacity: selectedColor === color.value ? 1 : 0.6,
-                  }}
-                  title={color.name}
-                />
-              ))}
-            </div>
+            <ColorSwatchPicker
+              value={selectedColor}
+              onChange={setSelectedColor}
+            />
           </div>
 
           {/* Icon */}

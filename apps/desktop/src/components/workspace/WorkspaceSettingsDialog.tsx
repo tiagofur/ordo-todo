@@ -23,6 +23,8 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  ColorSwatchPicker,
+  FORM_COLORS,
 } from "@ordo-todo/ui";
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
 import { WorkspaceConfigurationSettings } from "./workspace-configuration-settings";
@@ -34,17 +36,9 @@ interface WorkspaceSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const WORKSPACE_COLORS = [
-  { name: "Azul", value: "#2563EB" },
-  { name: "Púrpura", value: "#7C3AED" },
-  { name: "Rosa", value: "#DB2777" },
-  { name: "Rojo", value: "#DC2626" },
-  { name: "Naranja", value: "#EA580C" },
-  { name: "Amarillo", value: "#CA8A04" },
-  { name: "Verde", value: "#16A34A" },
-  { name: "Turquesa", value: "#0891B2" },
-  { name: "Gris", value: "#6B7280" },
-];
+// ODD 025: paleta 600-weight inline eliminada — ColorSwatchPicker usa la
+// paleta canónica y muestra el color actual del workspace como swatch extra
+// si está fuera de ella (datos previos).
 
 const WORKSPACE_ICONS = ["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"];
 
@@ -69,7 +63,7 @@ export function WorkspaceSettingsDialog({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#2563EB",
+    color: FORM_COLORS[8] as string,
     icon: "🏠",
   });
 
@@ -79,7 +73,7 @@ export function WorkspaceSettingsDialog({
       setFormData({
         name: (workspace as any).name || "",
         description: (workspace as any).description || "",
-        color: (workspace as any).color || "#2563EB",
+        color: (workspace as any).color || FORM_COLORS[8],
         icon: (workspace as any).icon || "🏠",
       });
     }
@@ -192,27 +186,15 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Color */}
-                    <div className="space-y-2">
+                      {/* Color — ODD 025: picker canónico */}
+                      <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('WorkspaceSettingsDialog.form.color.label') || "Color"}
                       </Label>
-                      <div className="grid grid-cols-9 gap-2">
-                        {WORKSPACE_COLORS.map((color) => (
-                          <button
-                            key={color.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, color: color.value })}
-                            className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
-                            style={{
-                              backgroundColor: color.value,
-                              borderColor: formData.color === color.value ? color.value : "transparent",
-                              opacity: formData.color === color.value ? 1 : 0.6,
-                            }}
-                            title={color.name}
-                          />
-                        ))}
-                      </div>
+                      <ColorSwatchPicker
+                        value={formData.color}
+                        onChange={(color) => setFormData({ ...formData, color })}
+                      />
                     </div>
 
                     {/* Icon */}
