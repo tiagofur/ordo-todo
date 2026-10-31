@@ -25,7 +25,10 @@ import {
   formatCalendarDateInput,
   serializeCalendarDateForApi,
 } from "@ordo-todo/core";
-import { VoiceInputButton } from "@/components/voice/voice-input";
+import {
+  VoiceInputButton,
+  type VoiceInputButtonLabels,
+} from "@ordo-todo/ui";
 import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 
 export type { CreateTaskFormData, ProjectOption };
@@ -41,7 +44,16 @@ export function CreateTaskDialog({
   onOpenChange,
   projectId,
 }: CreateTaskDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // ODD 025 S10: el dictado sigue la locale de la app, no un idioma fijo.
+  const voiceLang =
+    { es: "es-ES", en: "en-US", "pt-br": "pt-BR" }[i18n.language] ?? "es-ES";
+  const voiceLabels: VoiceInputButtonLabels = {
+    start: t("CreateTask.voice.start", "Voz"),
+    stop: t("CreateTask.voice.stop", "Detener grabación"),
+    listening: t("CreateTask.voice.listening", "Escuchando..."),
+    transcribing: t("CreateTask.voice.transcribing", "Transcribiendo..."),
+  };
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<
     string | undefined
@@ -195,7 +207,12 @@ export function CreateTaskDialog({
         titleActions={({ setValue, getValues }) => (
           <div className="flex items-center gap-1.5">
             <VoiceInputButton
-              onTranscript={(parsed: any) => {
+              lang={voiceLang}
+              labels={voiceLabels}
+              onTranscript={(text: string) => {
+                // ODD 025 S10: el parseo NL vive en el wrapper, no en el
+                // primitivo compartido.
+                const parsed = parseTaskInput(text);
                 if (parsed.title) setValue("title", parsed.title);
                 if (parsed.priority) setValue("priority", parsed.priority);
                 if (parsed.dueDate) {

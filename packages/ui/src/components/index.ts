@@ -39,3 +39,4 @@ export * from './note/index.js';
 export * from './habit/index.js';
 export * from './scheduling/index.js';
 export * from './ritual/index.js';
+export * from './voice/index.js';

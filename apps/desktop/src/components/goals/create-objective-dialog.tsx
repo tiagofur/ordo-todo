@@ -26,8 +26,12 @@ import {
   SelectValue,
   ColorSwatchPicker,
   IconPicker,
+  VoiceInputButton,
+  DatePicker,
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { parseCalendarDate } from "@ordo-todo/core";
 
 const periodValues = ["WEEKLY", "MONTHLY", "QUARTERLY", "YEARLY", "CUSTOM"] as const;
 
@@ -124,7 +128,19 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("Goals.form.description", "Descripción")}</FormLabel>
+                  {/* ODD 025 S10: dictado en textos largos */}
+                  <div className="flex items-center justify-between gap-2">
+                    <FormLabel>{t("Goals.form.description", "Descripción")}</FormLabel>
+                    <VoiceInputButton
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                      showLabel={false}
+                      onTranscript={(text) => {
+                        field.onChange(field.value ? `${field.value} ${text}` : text);
+                      }}
+                    />
+                  </div>
                   <FormControl>
                     <Textarea
                       placeholder={t(
@@ -205,8 +221,14 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("Goals.form.startDate", "Fecha de Inicio")}</FormLabel>
+                    {/* ODD 025 S11: DatePicker canónico. parseCalendarDate
+                        interpreta 'YYYY-MM-DD' en hora local (new Date() lo
+                        haría en UTC y correría un día en TZ negativas). */}
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        date={field.value ? (parseCalendarDate(field.value) ?? undefined) : undefined}
+                        setDate={(d) => field.onChange(d ? format(d, "yyyy-MM-dd") : "")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -219,7 +241,10 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                   <FormItem>
                     <FormLabel>{t("Goals.form.endDate", "Fecha de Fin")}</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        date={field.value ? (parseCalendarDate(field.value) ?? undefined) : undefined}
+                        setDate={(d) => field.onChange(d ? format(d, "yyyy-MM-dd") : "")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

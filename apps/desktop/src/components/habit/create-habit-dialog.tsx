@@ -20,6 +20,7 @@ import {
   Button,
   ColorSwatchPicker,
   IconPicker,
+  VoiceInputButton,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 
@@ -203,9 +204,21 @@ export function CreateHabitDialog({ open, onOpenChange, habitToEdit }: CreateHab
             )}
           </div>
 
-          {/* Description */}
+          {/* Description — ODD 025 S10: dictado en textos largos */}
           <div className="space-y-2">
-            <Label htmlFor="description">{t("Habits.form.description", "Descrição")}</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="description">{t("Habits.form.description", "Descrição")}</Label>
+              <VoiceInputButton
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                showLabel={false}
+                onTranscript={(text) => {
+                  const current = watch("description") || "";
+                  setValue("description", current ? `${current} ${text}` : text);
+                }}
+              />
+            </div>
             <Textarea
               id="description"
               {...register("description")}

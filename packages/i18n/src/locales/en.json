@@ -462,7 +462,12 @@
     "create": "Create task",
     "creating": "Creating...",
     "applyTemplate": "Apply template...",
-    "voice": "Voice",
+    "voice": {
+      "start": "Voice",
+      "stop": "Stop recording",
+      "listening": "Listening...",
+      "transcribing": "Transcribing..."
+    },
     "smartParse": "Smart Parse",
     "auto": "Auto",
     "aiMagic": "AI Magic",
