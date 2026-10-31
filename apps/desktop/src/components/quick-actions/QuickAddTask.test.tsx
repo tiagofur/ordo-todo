@@ -20,6 +20,7 @@ const mockMutateAsync = vi.fn();
 vi.mock('@/lib/shared-hooks', () => ({
   useTasks: () => ({ data: [] }),
   useCreateTask: () => ({ mutateAsync: mockMutateAsync }),
+  useAssignTagToTask: () => ({ mutateAsync: vi.fn(() => Promise.resolve()) }),
   useProjects: () => ({
     data: [
       { id: 'proj-1', name: 'Work', slug: 'work', color: '#000' },

@@ -5,7 +5,7 @@ import { Plus, X, Calendar, Clock, Tag, ChevronDown, Loader2, AlertTriangle } fr
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger, Badge } from '@ordo-todo/ui';
-import { useTasks, useCreateTask, useProjects, useTags } from '@/lib/shared-hooks';
+import { useTasks, useCreateTask, useProjects, useTags, useAssignTagToTask } from '@/lib/shared-hooks';
 import { useParseTask } from '@/hooks/use-parse-task';
 import { serializeCalendarDateForApi, toCalendarDateString } from '@ordo-todo/core';
 
@@ -27,6 +27,7 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
   const { data: projects } = useProjects("");
   const { data: tags } = useTags("");
   const createTask = useCreateTask();
+  const assignTag = useAssignTagToTask();
   const { t } = useTranslation();
 
   // Live NL parse of the title input (S5): prefills date/priority/
@@ -93,16 +94,27 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
 
     setIsSubmitting(true);
     try {
-      await createTask.mutateAsync({
+      const created = await createTask.mutateAsync({
         title: title.trim(),
         description: description.trim() || undefined,
         dueDate: dueDate ? (serializeCalendarDateForApi(dueDate) as any) : undefined,
         // ODD 021: sin proyecto seleccionado → tarea express
         projectId: projectId || undefined,
-        tagIds: tagIds.length > 0 ? tagIds : undefined,
+        // ODD 025 S9: el DTO de creación no acepta tagIds
+        // (forbidNonWhitelisted → 400): se asignan tras crear.
         priority: priority.toUpperCase() as any,
         status: 'TODO',
       } as any);
+
+      if (tagIds.length > 0 && created?.id) {
+        for (const tagId of tagIds) {
+          try {
+            await assignTag.mutateAsync({ taskId: created.id, tagId });
+          } catch {
+            // una etiqueta que falle no invalida la tarea creada
+          }
+        }
+      }
 
       toast.success('Task created successfully');
       onClose();
