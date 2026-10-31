@@ -17,6 +17,9 @@
     "rootDir": "./",
     "incremental": true,
     "skipLibCheck": true,
+    // TS 6 enables `strict` by default; pin it off to preserve the TS 5
+    // checking behavior of this project (explicit flags below still apply).
+    "strict": false,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
