@@ -68,3 +68,22 @@ export type ProjectColor = typeof PROJECT_COLORS[number];
 export type TagColor = typeof TAG_COLORS[number];
 export type WorkspaceColor = typeof WORKSPACE_COLORS[keyof typeof WORKSPACE_COLORS];
 export type FormColor = typeof FORM_COLORS[number];
+
+/**
+ * Set de iconos canónico del design system (ODD 025 S3): la ÚNICA fuente
+ * para los IconPicker de formularios (workspace, proyecto, objetivo, hábito).
+ */
+export const FORM_ICONS = [
+    "🏠",
+    "💼",
+    "👥",
+    "🚀",
+    "🎯",
+    "📊",
+    "💡",
+    "🔥",
+    "⭐",
+    "📁",
+    "📚",
+    "🧠",
+] as const;

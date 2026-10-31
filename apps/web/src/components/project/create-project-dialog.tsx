@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { ScrollArea } from '@/components/ui';
-import { ColorSwatchPicker, FORM_COLORS } from '@/components/ui';
+import { ColorSwatchPicker, FORM_COLORS, IconPicker } from '@/components/ui';
 import { Briefcase, Palette, LayoutTemplate } from 'lucide-react';
 import { createProjectSchema } from '@ordo-todo/hooks';
 import { PROJECT_TEMPLATES } from '@/data/project-templates';
@@ -54,6 +54,7 @@ export interface CreateProjectFormData {
   name: string;
   description?: string;
   color: string;
+  icon?: string;
   workspaceId: string;
   workflowId?: string;
 }
@@ -96,6 +97,7 @@ interface CreateProjectDialogProps {
     hideTemplates?: string;
     useTemplate?: string;
     colorLabel?: string;
+    iconLabel?: string;
     nameLabel?: string;
     namePlaceholder?: string;
     workspaceLabel?: string;
@@ -140,6 +142,7 @@ export function CreateProjectDialog({
     hideTemplates = 'Hide Templates',
     useTemplate = 'Use Template',
     colorLabel = 'Color',
+    iconLabel = 'Icon',
     nameLabel = 'Name',
     namePlaceholder = 'Project Name',
     workspaceLabel = 'Workspace',
@@ -151,6 +154,8 @@ export function CreateProjectDialog({
 
   // ODD 025: azul canónico de la paleta única.
   const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
+  // ODD 025 S3: el DTO trae icon desde siempre; hoy tiene picker por fin.
+  const [selectedIcon, setSelectedIcon] = useState<string>("📁");
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
 
@@ -220,7 +225,7 @@ export function CreateProjectDialog({
   const handleFormSubmit = async (data: CreateProjectForm) => {
     try {
       await onSubmit(
-        { ...data, color: selectedColor },
+        { ...data, color: selectedColor, icon: selectedIcon },
         selectedTemplate?.tasks
       );
       reset();
@@ -320,6 +325,17 @@ export function CreateProjectDialog({
                       onChange={setSelectedColor}
                     />
                   </div>
+                </div>
+
+                {/* Icon — ODD 025 S3: picker canónico */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    {iconLabel}
+                  </Label>
+                  <IconPicker
+                    value={selectedIcon}
+                    onChange={setSelectedIcon}
+                  />
                 </div>
 
                 {/* Name */}

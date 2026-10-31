@@ -12,6 +12,7 @@ import {
   DialogTitle,
   Label,
   ColorSwatchPicker,
+  IconPicker,
   FORM_COLORS,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
@@ -77,19 +78,7 @@ export function CreateWorkspaceDialog({
   };
 
   // ODD 025: los nombres de color y la paleta 600-weight inline mueren —
-  // ColorSwatchPicker usa la paleta canónica.
-  const workspaceIcons = [
-    "🏠",
-    "💼",
-    "👥",
-    "🚀",
-    "🎯",
-    "📊",
-    "💡",
-    "🔥",
-    "⭐",
-    "📁",
-  ];
+  // ColorSwatchPicker e IconPicker usan las constantes canónicas.
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,29 +100,13 @@ export function CreateWorkspaceDialog({
             />
           </div>
 
-          {/* Icon */}
+          {/* Icon — ODD 025: picker canónico */}
           <div className="space-y-2">
             <Label>Icono</Label>
-            <div className="grid grid-cols-10 gap-2">
-              {workspaceIcons.map((icon) => (
-                <button
-                  key={icon}
-                  type="button"
-                  onClick={() => setSelectedIcon(icon)}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
-                  style={{
-                    borderColor:
-                      selectedIcon === icon ? selectedColor : "transparent",
-                    backgroundColor:
-                      selectedIcon === icon
-                        ? `${selectedColor}15`
-                        : "transparent",
-                  }}
-                >
-                  {icon}
-                </button>
-              ))}
-            </div>
+            <IconPicker
+              value={selectedIcon}
+              onChange={setSelectedIcon}
+            />
           </div>
 
           {/* Name */}

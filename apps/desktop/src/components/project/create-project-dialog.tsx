@@ -13,6 +13,7 @@ import {
   Label,
   EmptyState,
   ColorSwatchPicker,
+  IconPicker,
   FORM_COLORS,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
@@ -37,6 +38,8 @@ interface CreateProjectDialogProps {
 export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateProjectDialogProps) {
   // ODD 025: azul canónico de la paleta única (antes projectColors inline de 7).
   const [selectedColor, setSelectedColor] = useState<string>(FORM_COLORS[8]);
+  // ODD 025 S3: el DTO trae icon desde siempre; hoy tiene picker por fin.
+  const [selectedIcon, setSelectedIcon] = useState<string>("📁");
 
   const createWorkflow = useCreateWorkflow();
 
@@ -120,6 +123,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
             ...data,
             workflowId: finalWorkflowId, // We ensure it's set above
             color: selectedColor,
+            icon: selectedIcon,
         });
         toast.success("Proyecto creado exitosamente");
         reset();
@@ -160,6 +164,15 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                 <ColorSwatchPicker
                     value={selectedColor}
                     onChange={setSelectedColor}
+                />
+            </div>
+
+            {/* Icon — ODD 025 S3: picker canónico */}
+            <div className="space-y-2">
+                <Label>Icono</Label>
+                <IconPicker
+                    value={selectedIcon}
+                    onChange={setSelectedIcon}
                 />
             </div>
 

@@ -24,6 +24,7 @@ import {
   TabsList,
   TabsTrigger,
   ColorSwatchPicker,
+  IconPicker,
   FORM_COLORS,
 } from "@ordo-todo/ui";
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
@@ -38,9 +39,8 @@ interface WorkspaceSettingsDialogProps {
 
 // ODD 025: paleta 600-weight inline eliminada — ColorSwatchPicker usa la
 // paleta canónica y muestra el color actual del workspace como swatch extra
-// si está fuera de ella (datos previos).
-
-const WORKSPACE_ICONS = ["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"];
+// si está fuera de ella (datos previos). IconPicker reemplaza la constante
+// de emojis duplicada.
 
 export function WorkspaceSettingsDialog({
   workspaceId,
@@ -197,27 +197,15 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Icon */}
+                    {/* Icon — ODD 025: picker canónico */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('WorkspaceSettingsDialog.form.icon.label') || "Icono"}
                       </Label>
-                      <div className="grid grid-cols-10 gap-2">
-                        {WORKSPACE_ICONS.map((icon) => (
-                          <button
-                            key={icon}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, icon })}
-                            className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
-                            style={{
-                              borderColor: formData.icon === icon ? formData.color : "transparent",
-                              backgroundColor: formData.icon === icon ? `${formData.color}15` : "transparent",
-                            }}
-                          >
-                            {icon}
-                          </button>
-                        ))}
-                      </div>
+                      <IconPicker
+                        value={formData.icon}
+                        onChange={(icon) => setFormData({ ...formData, icon })}
+                      />
                     </div>
                   </div>
 

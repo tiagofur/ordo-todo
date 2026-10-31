@@ -10,7 +10,7 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Button, Input, Textarea, Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-    ColorSwatchPicker
+    ColorSwatchPicker, IconPicker
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
 import { OKRPeriod } from "@ordo-todo/api-client";
@@ -25,6 +25,7 @@ const objectiveSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   color: z.string().default("#3B82F6"),
+  icon: z.string().optional(),
 });
 
 interface EditObjectiveDialogProps {
@@ -38,6 +39,7 @@ interface EditObjectiveDialogProps {
         startDate: string | Date;
         endDate: string | Date;
         color?: string | null;
+        icon?: string | null;
     };
 }
 
@@ -59,6 +61,7 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
             startDate: new Date(objective.startDate).toISOString().split('T')[0],
             endDate: new Date(objective.endDate).toISOString().split('T')[0],
             color: objective.color || "#3B82F6",
+            icon: objective.icon || "🎯",
         }
     });
 
@@ -172,6 +175,22 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                                     {/* ODD 025: picker canónico (muestra el color actual
                                         del objetivo como swatch extra si es de datos previos) */}
                                     <ColorSwatchPicker
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Icon — ODD 025 S3: picker canónico */}
+                        <FormField
+                            control={form.control}
+                            name="icon"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("form.icon")}</FormLabel>
+                                    <IconPicker
                                         value={field.value}
                                         onChange={field.onChange}
                                     />

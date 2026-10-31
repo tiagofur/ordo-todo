@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker, FORM_COLORS } from "@ordo-todo/ui";
+import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, ColorSwatchPicker, FORM_COLORS, IconPicker } from "@ordo-todo/ui";
 import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
@@ -178,28 +178,16 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Icon */}
+                    {/* Icon — ODD 025: picker canónico */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-foreground">
                         {t('form.icon.label') || "Icono"}
                       </Label>
-                      <div className="grid grid-cols-10 gap-2">
-                        {["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"].map((icon) => (
-                          <button
-                            key={icon}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, icon })}
-                            disabled={!permissions.canEdit}
-                            className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                              borderColor: formData.icon === icon ? formData.color : "transparent",
-                              backgroundColor: formData.icon === icon ? `${formData.color}15` : "transparent",
-                            }}
-                          >
-                            {icon}
-                          </button>
-                        ))}
-                      </div>
+                      <IconPicker
+                        value={formData.icon}
+                        onChange={(icon) => setFormData({ ...formData, icon })}
+                        disabled={!permissions.canEdit}
+                      />
                     </div>
                   </div>
 

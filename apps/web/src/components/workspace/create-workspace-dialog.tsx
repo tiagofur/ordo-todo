@@ -17,7 +17,7 @@ import { Label } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Textarea } from "@/components/ui";
 import { Button } from "@/components/ui";
-import { ColorSwatchPicker, FORM_COLORS } from "@/components/ui";
+import { ColorSwatchPicker, FORM_COLORS, IconPicker } from "@/components/ui";
 import { generateSlug } from "@ordo-todo/core";
 
 export interface CreateWorkspaceFormData {
@@ -128,19 +128,8 @@ export function CreateWorkspaceDialog({
     }
   };
 
-  // ODD 025: paleta 600-weight inline eliminada — ver ColorSwatchPicker.
-  const workspaceIcons = [
-    "🏠",
-    "💼",
-    "👥",
-    "🚀",
-    "🎯",
-    "📊",
-    "💡",
-    "🔥",
-    "⭐",
-    "📁",
-  ];
+  // ODD 025: paleta 600-weight inline eliminada — ver ColorSwatchPicker e
+  // IconPicker.
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -204,31 +193,15 @@ export function CreateWorkspaceDialog({
               />
             </div>
 
-            {/* Icon */}
+            {/* Icon — ODD 025: picker canónico */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">
                 {t.form.icon}
               </Label>
-              <div className="grid grid-cols-10 gap-2">
-                {workspaceIcons.map((icon) => (
-                  <button
-                    key={icon}
-                    type="button"
-                    onClick={() => setSelectedIcon(icon)}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
-                    style={{
-                      borderColor:
-                        selectedIcon === icon ? selectedColor : "transparent",
-                      backgroundColor:
-                        selectedIcon === icon
-                          ? `${selectedColor}15`
-                          : "transparent",
-                    }}
-                  >
-                    {icon}
-                  </button>
-                ))}
-              </div>
+              <IconPicker
+                value={selectedIcon}
+                onChange={setSelectedIcon}
+              />
             </div>
 
             <DialogFooter className="pt-2">

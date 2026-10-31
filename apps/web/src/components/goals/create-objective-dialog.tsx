@@ -9,7 +9,7 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Button, Input, Textarea, Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-    ColorSwatchPicker
+    ColorSwatchPicker, IconPicker
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
 import { OKRPeriod } from "@ordo-todo/api-client";
@@ -23,6 +23,7 @@ const objectiveSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   color: z.string().default("#3B82F6"),
+  icon: z.string().optional(),
 });
 
 interface CreateObjectiveDialogProps {
@@ -43,7 +44,8 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
             period: "QUARTERLY" as const, // Cast needed for literal type matching
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0],
-            color: "#3B82F6"
+            color: "#3B82F6",
+            icon: "🎯"
         }
     });
 
@@ -137,6 +139,22 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                                     <FormLabel>{t("form.color")}</FormLabel>
                                     {/* ODD 025: picker canónico */}
                                     <ColorSwatchPicker
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Icon — ODD 025 S3: picker canónico */}
+                        <FormField
+                            control={form.control}
+                            name="icon"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("form.icon")}</FormLabel>
+                                    <IconPicker
                                         value={field.value}
                                         onChange={field.onChange}
                                     />

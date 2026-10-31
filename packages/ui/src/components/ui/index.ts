@@ -16,6 +16,7 @@ export * from "./checkbox.js";
 export * from "./collapsible.js";
 export * from "./color-swatch-picker.js";
 export * from "./command.js";
+export * from "./icon-picker.js";
 export * from "./custom-icons.js";
 export * from "./date-picker.js";
 export * from "./dialog.js";
