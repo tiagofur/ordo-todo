@@ -77,6 +77,7 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                 startDate: new Date(objective.startDate).toISOString().split('T')[0],
                 endDate: new Date(objective.endDate).toISOString().split('T')[0],
                 color: objective.color || "#3B82F6",
+                icon: objective.icon || "🎯",
             });
         }
     }, [open, objective, form]);
@@ -91,6 +92,7 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                 startDate: new Date(values.startDate).toISOString(),
                 endDate: new Date(values.endDate).toISOString(),
                 color: values.color,
+                icon: values.icon,
             },
         }, {
             onSuccess: () => {

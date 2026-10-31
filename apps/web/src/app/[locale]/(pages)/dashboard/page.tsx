@@ -774,6 +774,7 @@ export default function DashboardPage() {
             name: data.name,
             description: data.description,
             color: data.color,
+            icon: data.icon,
             workspaceId: data.workspaceId,
             workflowId: workflowId || "",
           });
