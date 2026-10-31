@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger, Badge } from '@ordo-todo/ui';
 import { useTasks, useCreateTask, useProjects, useTags, useAssignTagToTask } from '@/lib/shared-hooks';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import { useParseTask } from '@/hooks/use-parse-task';
 import { serializeCalendarDateForApi, toCalendarDateString } from '@ordo-todo/core';
 
@@ -24,8 +25,13 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: projects } = useProjects("");
-  const { data: tags } = useTags("");
+  // ODD 025 S9: contexto de workspace real — con "" las queries de
+  // proyectos/etiquetas están disabled y los pickers salían vacíos.
+  const selectedWorkspaceId = useWorkspaceStore(
+    (state) => state.selectedWorkspaceId
+  );
+  const { data: projects } = useProjects(selectedWorkspaceId || "");
+  const { data: tags } = useTags(selectedWorkspaceId || "");
   const createTask = useCreateTask();
   const assignTag = useAssignTagToTask();
   const { t } = useTranslation();
@@ -100,10 +106,10 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
         dueDate: dueDate ? (serializeCalendarDateForApi(dueDate) as any) : undefined,
         // ODD 021: sin proyecto seleccionado → tarea express
         projectId: projectId || undefined,
-        // ODD 025 S9: el DTO de creación no acepta tagIds
-        // (forbidNonWhitelisted → 400): se asignan tras crear.
+        // ODD 025 S9: el DTO de creación no acepta tagIds NI status
+        // (forbidNonWhitelisted → 400): tags se asignan tras crear y el
+        // backend ya crea con status TODO por defecto.
         priority: priority.toUpperCase() as any,
-        status: 'TODO',
       } as any);
 
       if (tagIds.length > 0 && created?.id) {
@@ -111,7 +117,7 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
           try {
             await assignTag.mutateAsync({ taskId: created.id, tagId });
           } catch {
-            // una etiqueta que falle no invalida la tarea creada
+            toast.error('No se pudo asignar una etiqueta');
           }
         }
       }
