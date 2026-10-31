@@ -23,9 +23,9 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src'),
-            '@ordo-todo/api-client': path.resolve(__dirname, '../../packages/api-client/src/index.ts'),
-            '@ordo-todo/online-status': path.resolve(__dirname, '../../packages/online-status/src/index.ts'),
+            '@': path.resolve(import.meta.dirname, './src'),
+            '@ordo-todo/api-client': path.resolve(import.meta.dirname, '../../packages/api-client/src/index.ts'),
+            '@ordo-todo/online-status': path.resolve(import.meta.dirname, '../../packages/online-status/src/index.ts'),
         },
     },
 });

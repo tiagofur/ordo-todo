@@ -19,14 +19,14 @@ export default defineConfig({
     envPrefix: ['VITE_', 'TAURI_ENV_*'],
     resolve: {
         alias: {
-            '@': resolve(__dirname, './src'),
+            '@': resolve(import.meta.dirname, './src'),
             // Workspace aliases for monorepo
-            '@ordo-todo/ui': resolve(__dirname, '../../packages/ui/src'),
-            '@ordo-todo/hooks': resolve(__dirname, '../../packages/hooks/src'),
-            '@ordo-todo/api-client': resolve(__dirname, '../../packages/api-client/src'),
-            '@ordo-todo/core': resolve(__dirname, '../../packages/core/src'),
-            '@ordo-todo/stores': resolve(__dirname, '../../packages/stores/src'),
-            '@ordo-todo/auth-provider': resolve(__dirname, '../../packages/auth-provider/src'),
+            '@ordo-todo/ui': resolve(import.meta.dirname, '../../packages/ui/src'),
+            '@ordo-todo/hooks': resolve(import.meta.dirname, '../../packages/hooks/src'),
+            '@ordo-todo/api-client': resolve(import.meta.dirname, '../../packages/api-client/src'),
+            '@ordo-todo/core': resolve(import.meta.dirname, '../../packages/core/src'),
+            '@ordo-todo/stores': resolve(import.meta.dirname, '../../packages/stores/src'),
+            '@ordo-todo/auth-provider': resolve(import.meta.dirname, '../../packages/auth-provider/src'),
         },
     },
     build: {

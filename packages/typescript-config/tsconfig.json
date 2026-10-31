@@ -1,0 +1,7 @@
+{
+  // This package ships shared tsconfig bases (no TS sources to compile).
+  // The file exists so tooling that walks project references (Vite 8 / oxc
+  // tsconfig discovery, editors) finds a valid project instead of failing.
+  "compilerOptions": {},
+  "include": []
+}

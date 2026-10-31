@@ -6,14 +6,14 @@ import { resolve } from "path";
 // La app móvil renderiza el MISMO frontend que apps/desktop (ODD 020 P4):
 // `@/*` apunta a la fuente de desktop y este proyecto solo aporta la
 // configuración Tauri móvil y los adaptadores de plataforma (src/).
-const desktopSrc = resolve(__dirname, "../desktop/src");
+const desktopSrc = resolve(import.meta.dirname, "../desktop/src");
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 1421,
     strictPort: true,
-    fs: { allow: [resolve(__dirname, "../..")] },
+    fs: { allow: [resolve(import.meta.dirname, "../..")] },
     watch: {
       ignored: ["**/src-tauri/**"],
     },
@@ -27,17 +27,17 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": desktopSrc,
-      "@ordo-todo/ui": resolve(__dirname, "../../packages/ui/src"),
+      "@ordo-todo/ui": resolve(import.meta.dirname, "../../packages/ui/src"),
       "@ordo-todo/api-client": resolve(
-        __dirname,
+        import.meta.dirname,
         "../../packages/api-client/src",
       ),
-      "@ordo-todo/core": resolve(__dirname, "../../packages/core/src"),
-      "@ordo-todo/hooks": resolve(__dirname, "../../packages/hooks/src"),
-      "@ordo-todo/i18n": resolve(__dirname, "../../packages/i18n/src"),
-      "@ordo-todo/stores": resolve(__dirname, "../../packages/stores/src"),
+      "@ordo-todo/core": resolve(import.meta.dirname, "../../packages/core/src"),
+      "@ordo-todo/hooks": resolve(import.meta.dirname, "../../packages/hooks/src"),
+      "@ordo-todo/i18n": resolve(import.meta.dirname, "../../packages/i18n/src"),
+      "@ordo-todo/stores": resolve(import.meta.dirname, "../../packages/stores/src"),
       "@ordo-todo/auth-provider": resolve(
-        __dirname,
+        import.meta.dirname,
         "../../packages/auth-provider/src",
       ),
     },
