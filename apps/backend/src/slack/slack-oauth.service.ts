@@ -43,7 +43,7 @@ const defaultFetch: FetchLike = async (url, init) => {
   return {
     ok: response.ok,
     status: response.status,
-    json: () => response.json() as Promise<unknown>,
+    json: () => response.json(),
     text: () => response.text(),
   };
 };

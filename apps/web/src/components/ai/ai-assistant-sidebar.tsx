@@ -81,7 +81,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
              // For now, let's treat createConversation as just setting up the room.
          } catch (err) {
              if (process.env.NODE_ENV === 'development') console.error("Failed to create conversation", err);
-             throw new Error("Could not start conversation");
+             throw new Error("Could not start conversation", { cause: err });
          }
       }
 

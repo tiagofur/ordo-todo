@@ -383,9 +383,9 @@ class WebPerformanceMonitor {
   }
 
   private calculatePerformanceScore(): PerformanceScore {
-    let lcpScore = 100;
-    let fidScore = 100;
-    let clsScore = 100;
+    let lcpScore: number;
+    let fidScore: number;
+    let clsScore: number;
 
     // LCP scoring (Good: <2.5s, Needs Improvement: 2.5s-4s, Poor: >4s)
     if (this.metrics.lcp !== undefined && this.metrics.lcp > 4000) lcpScore = 0;
