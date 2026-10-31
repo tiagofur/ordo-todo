@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { type Note } from "@ordo-todo/api-client";
-import { cn, Button } from "@ordo-todo/ui";
+import { cn, Button, NOTE_COLORS } from "@ordo-todo/ui";
 import { X, GripVertical } from "lucide-react";
 import { useDeleteNote, useUpdateNote } from "@/hooks/api";
-import { NOTE_PASTELS } from "./NoteBoard";
 
 interface NoteItemProps {
   note: Note;
@@ -67,7 +66,7 @@ export function NoteItem({ note }: NoteItemProps) {
         <div className="flex items-center gap-1">
           {/* ODD 025 S6: cambiar color de la nota */}
           <div className="hidden group-hover:flex items-center gap-1 mr-1">
-            {NOTE_PASTELS.map((pastel) => (
+            {NOTE_COLORS.map((pastel) => (
               <button
                 key={pastel}
                 type="button"

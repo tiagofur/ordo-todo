@@ -31,7 +31,11 @@ export interface StickyNoteProps {
   className?: string;
 }
 
-const NOTE_COLORS = [
+/**
+ * Pastels canónicos de notas (ODD 025 S6): única fuente para los tableros
+ * de notas y sus selectores de color.
+ */
+export const NOTE_COLORS = [
   '#feff9c', // Yellow
   '#ffadad', // Red
   '#ffd6a5', // Orange

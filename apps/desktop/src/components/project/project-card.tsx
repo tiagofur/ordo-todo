@@ -328,6 +328,16 @@ export function ProjectCard({
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEdit(true);
+                    }}
+                  >
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleArchive}>
                     {project.archived ? (
                       <>
@@ -394,6 +404,19 @@ export function ProjectCard({
         </div>
       </div>
       <ConfirmModal />
+      {project.id && (
+        <ProjectSettingsDialog
+          open={showEdit}
+          onOpenChange={setShowEdit}
+          project={{
+            id: String(project.id),
+            name: project.name,
+            description: project.description,
+            color: project.color,
+            icon: (project as { icon?: string | null }).icon,
+          }}
+        />
+      )}
     </>
   );
 }

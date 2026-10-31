@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Sparkles, Sun, Moon, Sunset } from "lucide-react";
 import { useCreateHabit, useUpdateHabit } from "@/hooks/api";
 import { toast } from "sonner";
-import type { Habit, HabitFrequency, TimeOfDay } from "@ordo-todo/api-client";
+import type { Habit, HabitFrequency, TimeOfDay, UpdateHabitDto } from "@ordo-todo/api-client";
 import {
   Dialog,
   DialogContent,
@@ -98,24 +98,38 @@ export function CreateHabitDialog({ open, onOpenChange, habitToEdit }: CreateHab
 
   const onSubmit = async (data: CreateHabitForm) => {
     try {
-      const payload = {
-        name: data.name,
-        description: data.description || undefined,
-        frequency: data.frequency.toUpperCase() as HabitFrequency,
-        targetDaysOfWeek: data.daysOfWeek,
-        timeOfDay: data.timeOfDay?.toUpperCase() as TimeOfDay | undefined,
-        color: data.color,
-        preferredTime: data.reminderTime || undefined,
-        icon: data.icon || undefined,
-      };
+      // "custom" no existe en el enum del backend: mapear a SPECIFIC_DAYS.
+      const frequency = (data.frequency === "custom"
+        ? "SPECIFIC_DAYS"
+        : data.frequency.toUpperCase()) as HabitFrequency;
       if (isEdit && habitToEdit) {
         await updateHabitMutation.mutateAsync({
           habitId: habitToEdit.id,
-          data: payload,
+          data: {
+            name: data.name,
+            description: data.description || undefined,
+            frequency,
+            targetDaysOfWeek: data.daysOfWeek,
+            timeOfDay: data.timeOfDay?.toUpperCase() as TimeOfDay | undefined,
+            color: data.color,
+            // null (no undefined) para poder limpiar el recordatorio guardado;
+            // @IsOptional del DTO lo salta en runtime.
+            preferredTime: (data.reminderTime || null) as UpdateHabitDto["preferredTime"],
+            icon: data.icon || undefined,
+          },
         });
         toast.success(t("Habits.toast.updated", "Hábito atualizado"));
       } else {
-        await createHabitMutation.mutateAsync(payload);
+        await createHabitMutation.mutateAsync({
+          name: data.name,
+          description: data.description || undefined,
+          frequency,
+          targetDaysOfWeek: data.daysOfWeek,
+          timeOfDay: data.timeOfDay?.toUpperCase() as TimeOfDay | undefined,
+          color: data.color,
+          preferredTime: data.reminderTime || undefined,
+          icon: data.icon || undefined,
+        });
         toast.success(t("Habits.toast.created", "Hábito criado!"));
       }
       onOpenChange(false);

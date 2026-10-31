@@ -60,15 +60,18 @@ export function ProjectSettingsDialog({
   });
 
   useEffect(() => {
-    if (open) {
-      reset({
-        name: project.name,
-        description: project.description || "",
-      });
-      setSelectedColor(project.color || "#3B82F6");
-      setSelectedIcon(project.icon || "📁");
-    }
-  }, [open, project, reset]);
+    if (!open) return;
+    // Resetea solo al abrir: `project` es un literal inline de la tarjeta
+    // (identidad nueva en cada render) y resetear con él en vivo borraría
+    // las ediciones en curso.
+    reset({
+      name: project.name,
+      description: project.description || "",
+    });
+    setSelectedColor(project.color || "#3B82F6");
+    setSelectedIcon(project.icon || "📁");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const onSubmit = async (data: ProjectSettingsForm) => {
     try {

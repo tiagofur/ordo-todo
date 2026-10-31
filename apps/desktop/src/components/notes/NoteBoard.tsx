@@ -1,17 +1,10 @@
 import { DndContext, useSensor, useSensors, PointerSensor, DragEndEvent } from '@dnd-kit/core';
 import { NoteItem } from './NoteItem';
 import { useCreateNote, useUpdateNote } from '@/hooks/api';
-import { Button } from '@ordo-todo/ui';
+import { Button, NOTE_COLORS } from '@ordo-todo/ui';
 import { Plus, Loader2 } from 'lucide-react';
 import type { Note } from '@ordo-todo/api-client';
 import { useTranslation } from 'react-i18next';
-
-// ODD 025 S6: pastels canónicos de notas (los de StickyNote en packages/ui).
-// El color se elige al azar al crear y se puede cambiar desde la nota.
-export const NOTE_PASTELS = [
-  '#feff9c', '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf',
-  '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff', '#fffffc',
-];
 
 interface NoteBoardProps {
   workspaceId: string;
@@ -57,7 +50,7 @@ export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps)
       x: 100 + Math.random() * 50,
       y: 100 + Math.random() * 50,
       // ODD 025 S6: pastel al azar en vez del amarillo fijo.
-      color: NOTE_PASTELS[Math.floor(Math.random() * NOTE_PASTELS.length)],
+      color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)],
       width: 300,
       height: 300,
     });

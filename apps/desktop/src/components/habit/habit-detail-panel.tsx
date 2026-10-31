@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Sparkles,
@@ -29,8 +28,6 @@ import {
   SheetHeader,
   SheetTitle,
   Label,
-  Input,
-  Textarea,
   Button,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
