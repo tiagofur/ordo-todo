@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@tanstack/react-query": "^5.104.5",
+    "@tanstack/react-query": "^5.105.0",
     "@testing-library/jest-dom": "^6.10.0",
     "@testing-library/react": "^16.3.3",
     "@types/lodash-es": "^4.17.12",

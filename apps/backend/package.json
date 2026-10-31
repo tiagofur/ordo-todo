@@ -44,13 +44,13 @@
     "@ordo-todo/core": "*",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
-    "@slack/web-api": "8.2.0",
+    "@slack/web-api": "8.3.0",
     "@types/compression": "^1.8.1",
     "@types/csurf": "^1.11.5",
     "bcrypt": "^6.0.0",
     "cache-manager": "^7.2.9",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.4",
+    "class-validator": "^0.15.1",
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "csurf": "^1.11.0",
@@ -60,7 +60,7 @@
     "ioredis": "^5.11.1",
     "multer": "^2.5.0",
     "nest-winston": "^1.10.2",
-    "nodemailer": "^10.2.1",
+    "nodemailer": "^10.3.1",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
@@ -73,7 +73,7 @@
     "rxjs": "^7.8.2",
     "sharp": "^0.35.5",
     "socket.io": "^4.8.4",
-    "stripe": "^23.0.1",
+    "stripe": "^23.1.0",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
@@ -114,7 +114,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.0"
+    "typescript-eslint": "^8.72.1"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useForm, type UseFormSetValue, type UseFormGetValues } from "react-hook-form";
+import {
+  useForm,
+  type Resolver,
+  type UseFormSetValue,
+  type UseFormGetValues,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Calendar, Clock, Flag, FolderKanban, Plus } from "lucide-react";
@@ -261,7 +266,7 @@ export function CreateTaskDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as any,
+    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
       title: initialTitle ?? "",
       description: initialDescription ?? "",
@@ -290,8 +295,15 @@ export function CreateTaskDialog({
   const formHelpers: FormActionHelpers = React.useMemo(
     () => ({
       setValue: (name, value, options) =>
-        setValue(name as keyof FormValues, value as any, options),
-      getValues: (field?: any) => getValues(field) as any,
+        setValue(
+          name as keyof FormValues,
+          value as FormValues[keyof FormValues],
+          options,
+        ),
+      getValues: ((field?: string) =>
+        (getValues as (name?: string) => unknown)(
+          field,
+        )) as UseFormGetValues<CreateTaskFormData>,
     }),
     [setValue, getValues]
   );
