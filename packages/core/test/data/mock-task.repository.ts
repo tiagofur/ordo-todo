@@ -36,6 +36,16 @@ export class MockTaskRepository implements TaskRepository {
     return item ? item.task : null;
   }
 
+  async findByIds(ids: string[]): Promise<Map<string, Task>> {
+    const grouped = new Map<string, Task>();
+    for (const item of this.tasksWithUsers) {
+      if (ids.includes(item.task.id as string)) {
+        grouped.set(item.task.id as string, item.task);
+      }
+    }
+    return grouped;
+  }
+
   async save(task: Task, userId: string): Promise<void> {
     this.saveCalls.push({ task, userId });
 
