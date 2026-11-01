@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
     "@ordo-todo/online-status",
     "@ordo-todo/auth-provider",
     "@ordo-todo/api-client",
-    "@ordo-todo/validations",
   ],
 
   // Bundle optimization with webpack
