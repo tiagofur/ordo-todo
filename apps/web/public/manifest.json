@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4F46E5",
+  "theme_color": "#AD46FF",
   "orientation": "portrait-primary",
   "categories": ["productivity", "utilities"],
   "lang": "en",
@@ -48,20 +48,6 @@
           "sizes": "192x192"
         }
       ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
     }
   ]
 }
