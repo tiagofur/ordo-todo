@@ -1,7 +1,7 @@
 # =============================================================================
 # Stage 1: Dependencies
 # =============================================================================
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 
 # Install dependencies needed for native modules
@@ -43,7 +43,7 @@ CMD ["npm", "run", "dev", "--workspace=@ordo-todo/backend"]
 # =============================================================================
 # Stage 3: Builder
 # =============================================================================
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies from deps stage
@@ -70,7 +70,7 @@ RUN npm run build
 # =============================================================================
 # Stage 3: Production Runner
 # =============================================================================
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 # Create non-root user for security

@@ -36,11 +36,24 @@ CI con tests para los 11 modulos en cero".
 
 ## Tasks
 
-- [ ] T1 (S1, inline): CustomFieldGuard + spec. Estado: pending.
-- [ ] T2 (S1, inline): Changelog AdminGuard + poblar role en JWT. Estado: pending.
-- [ ] T3 (S1, inline): WS authz por evento. Estado: pending.
-- [ ] T4 (S2, inline): CSRF + uploads + magic bytes. Estado: pending.
-- [ ] T5 (S3, inline): Plataforma (Dockerfile, env, start:prod, dead deps, logs). Estado: pending.
+- [x] T1 (S1, inline): CustomFieldGuard + spec. Estado: done en 3d8ac07d
+  (guard spec 8/8, guards 74/74, tsc sin errores en archivos tocados).
+- [x] T2 (S1, inline): Changelog/FAQ/KB tras AdminGuard. Estado: done
+  en a2e092d1 (faq+kb+changelog+admin 54/54, tsc limpio). Decision: no se
+  puebla `role` en el JWT porque los roles son por workspace; el contenido
+  global (changelog/FAQ/KB) usa AdminGuard (ODD 019); el @Roles/
+  RolesGuard queda solo para membership via WorkspaceGuard.
+- [x] T3 (S1, inline): WS authz por evento. Estado: done en 1d5f074f
+  (gateways 32/32, tsc limpio).
+- [x] T4 (S2, inline): CSRF + uploads + magic bytes. Estado: done en
+  ee12f4e1 (csrf/file-signature/upload/attachments 41/41, tsc limpio).
+  Alcance recortado: la descarga de /uploads/ sigue publica (nombres
+  aleatorios); URLs firmadas o endpoint con auth requieren coordinacion
+  con clientes -> follow-up, no se finge cerrado.
+- [x] T5 (S3, inline): Plataforma. Estado: done (full suite 145/1548,
+  tsc limpio). Dockerfile a Node 24, start:prod a dist/src/main.js,
+  compose dev con REDIS_URL/JWT_EXPIRATION, fuera csurf/ioredis +
+  src/redis/ muerto, 16 logs fuera del indice.
 - [ ] T6 (S4, inline): Datos (paginacion, N+1, tx, indices). Estado: pending.
 - [ ] T7 (S4, inline): Crons con batch + anti-solape. Estado: pending.
 - [ ] T8 (S5, inline): Cache/ops + CI gates. Estado: pending.
