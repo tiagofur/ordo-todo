@@ -54,8 +54,17 @@ CI con tests para los 11 modulos en cero".
   tsc limpio). Dockerfile a Node 24, start:prod a dist/src/main.js,
   compose dev con REDIS_URL/JWT_EXPIRATION, fuera csurf/ioredis +
   src/redis/ muerto, 16 logs fuera del indice.
-- [ ] T6 (S4, inline): Datos (paginacion, N+1, tx, indices). Estado: pending.
-- [ ] T7 (S4, inline): Crons con batch + anti-solape. Estado: pending.
+- [x] T6 (S4, inline): Datos. Estado: done en 94e0935c (N+1 batch +
+  tx atomicas: 281 tests) y bf24809d (duration batch + 11 indices FK con
+  migracion). Recorte honesto: paginacion con take en los 154 findMany
+  queda follow-up (cambia comportamiento y exige e2e + decision de
+  producto sobre tamanos); migracion SQL sin DB para `migrate diff`,
+  revisar antes de desplegar.
+- [x] T7 (S4, inline): Crons. Estado: done (full suite 147/1560,
+  tsc limpio). Decorador @SkipOnOverlap en 9 ticks (risk, 6 smart,
+  ritual, webhook, plan, executeJob por jobId) + escaneo paginado en los
+  6 barridos por usuario. Recorte honesto: lock distribuido entre
+  replicas queda follow-up (requiere Redis obligatorio).
 - [ ] T8 (S5, inline): Cache/ops + CI gates. Estado: pending.
 
 Lineas acumuladas: 0. Commits: ninguno aun.

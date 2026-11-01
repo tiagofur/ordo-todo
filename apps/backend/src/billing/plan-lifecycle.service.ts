@@ -4,6 +4,7 @@ import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 import { GRACE_PERIOD_DAYS, TRIAL } from '@ordo-todo/config';
 import { PrismaService } from '../database/prisma.service';
 import { EmailService } from '../email/email.service';
+import { SkipOnOverlap } from '../scheduling/cron-batch';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const REMINDER_DAYS_BEFORE = 3;
@@ -155,6 +156,7 @@ export class PlanLifecycleService {
   }
 
   /** Barrido horario: expira trials, cierra gracias y envía recordatorios. */
+  @SkipOnOverlap('runLifecycleSweeps')
   @Cron(CronExpression.EVERY_HOUR)
   async runLifecycleSweeps(): Promise<void> {
     // Nota de despliegue: el barrido asume UNA instancia del backend

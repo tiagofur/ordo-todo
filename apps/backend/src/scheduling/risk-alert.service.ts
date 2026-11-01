@@ -6,6 +6,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { SchedulingService } from './scheduling.service';
 import { toDateKey } from './candidate-criteria';
 import { assessRisks, type RiskAlert } from './risk-alerts';
+import { SkipOnOverlap, forEachUserBatched } from './cron-batch';
 
 // ODD 005 S4: Nest wrapper around the pure assessRisks (T4).
 //
@@ -81,6 +82,7 @@ export class RiskAlertService {
   // Proactive deadline-risk notifications, days ahead (smart-notifications
   // pattern: cron + dedup by type+resourceId). Runs daily; the endpoint
   // above stays the on-demand path.
+  @SkipOnOverlap('notifyDeadlineRisks')
   @Cron(CronExpression.EVERY_DAY_AT_8AM)
   async notifyDeadlineRisks(): Promise<void> {
     if (!this.taskRepository || !this.prisma) {
@@ -90,8 +92,10 @@ export class RiskAlertService {
       return;
     }
     const now = new Date();
-    const users = await this.prisma.user.findMany({ select: { id: true } });
-    for (const user of users) {
+    const prisma = this.prisma;
+    const notifications = this.notifications;
+    // Batched user scan: the table is never loaded whole into memory.
+    await forEachUserBatched(prisma, async (user) => {
       let alerts: RiskAlert[];
       try {
         alerts = await this.assessForUser(user.id);
@@ -100,22 +104,24 @@ export class RiskAlertService {
           `Risk assessment failed for user ${user.id}`,
           error as Error,
         );
-        continue;
+        return;
       }
       for (const alert of alerts) {
         if (alert.kind !== 'deadline-at-risk') continue;
         for (const taskId of alert.taskIds) {
-          const existing = await this.prisma.notification.findFirst({
+          const existing = await prisma.notification.findFirst({
             where: {
               userId: user.id,
               type: 'DUE_DATE_APPROACHING',
               resourceId: taskId,
-              createdAt: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
+              createdAt: {
+                gte: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+              },
             },
           });
           if (existing) continue;
-          if (this.notifications) {
-            await this.notifications.create({
+          if (notifications) {
+            await notifications.create({
               userId: user.id,
               type: 'DUE_DATE_APPROACHING',
               title: 'Deadline at risk',
@@ -125,7 +131,7 @@ export class RiskAlertService {
             });
           } else {
             // @Optional fallback: persist directly (no WebSocket push).
-            await this.prisma.notification.create({
+            await prisma.notification.create({
               data: {
                 userId: user.id,
                 type: 'DUE_DATE_APPROACHING',
@@ -141,6 +147,6 @@ export class RiskAlertService {
           );
         }
       }
-    }
+    });
   }
 }

@@ -10,6 +10,7 @@ import { PrismaService } from '../database/prisma.service';
 import { AIService } from '../ai/ai.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AgentJobsScheduler } from './agent-jobs.scheduler';
+import { SkipOnOverlap } from '../scheduling/cron-batch';
 import { parseScheduleNl } from './agent-nl-schedule.parser';
 import type {
   CreateAgentJobDto,
@@ -167,6 +168,10 @@ export class AgentJobsService implements OnModuleInit {
     return this.executeJob(job.id);
   }
 
+  @SkipOnOverlap((jobId: unknown) => `executeJob:${String(jobId)}`, {
+    ok: false as const,
+    error: 'Job already running',
+  })
   async executeJob(jobId: string) {
     const job = await this.prisma.agentJob.findUnique({
       where: { id: jobId },

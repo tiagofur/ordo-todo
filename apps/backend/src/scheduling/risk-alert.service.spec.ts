@@ -142,7 +142,8 @@ describe('RiskAlertService (ODD 005 S4)', () => {
   });
 
   it('notifyDeadlineRisks persists once per task and dedups repeats', async () => {
-    prisma.user.findMany.mockResolvedValue([{ id: 'user-1' }]);
+    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
+        Promise.resolve(args?.cursor ? [] : [{ id: 'user-1' }]));
     scheduling.replanOnDayStart.mockResolvedValue({
       plan: { blocks: [], unscheduled: [] },
       changes: [],
@@ -180,7 +181,8 @@ describe('RiskAlertService (ODD 005 S4)', () => {
       notifications as never,
     );
 
-    prisma.user.findMany.mockResolvedValue([{ id: 'user-1' }]);
+    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
+        Promise.resolve(args?.cursor ? [] : [{ id: 'user-1' }]));
     scheduling.replanOnDayStart.mockResolvedValue({
       plan: { blocks: [], unscheduled: [] },
       changes: [],

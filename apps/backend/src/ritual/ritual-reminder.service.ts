@@ -1,5 +1,9 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import {
+  SkipOnOverlap,
+  forEachUserBatched,
+} from '../scheduling/cron-batch';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { startOfTodayIn } from '../tasks/day-plan.service';
@@ -23,25 +27,23 @@ export class RitualReminderService {
   ) {}
 
   // Every 15 minutes: windows are 15 minutes, so each window is hit once.
+  @SkipOnOverlap('ritualReminders')
   @Cron('*/15 * * * *')
   async handleCron(): Promise<void> {
     await this.checkReminders(new Date());
   }
 
   async checkReminders(now: Date): Promise<void> {
-    const users = await this.prisma.user.findMany({
-      select: { id: true, timezone: true },
-    });
-    for (const user of users) {
+    await forEachUserBatched(this.prisma, async (user) => {
       try {
-        await this.checkUser(user.id, user.timezone ?? null, now);
+        await this.checkUser(user.id, user.timezone, now);
       } catch (error) {
         this.logger.error(
           `Ritual reminders failed for user ${user.id}`,
           error as Error,
         );
       }
-    }
+    });
   }
 
   private async checkUser(
