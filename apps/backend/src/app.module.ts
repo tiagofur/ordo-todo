@@ -55,6 +55,7 @@ import { RitualModule } from './ritual/ritual.module';
 import { BillingModule } from './billing/billing.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { CsrfGuard } from './common/guards/csrf.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
@@ -137,6 +138,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     {
       provide: APP_GUARD,
       useClass: CustomThrottleGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
     },
   ],
 })

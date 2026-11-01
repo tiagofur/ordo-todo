@@ -26,7 +26,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { open, unlink } from 'fs/promises';
 import { generateUuid } from '../common/utils/uuid.util';
+import { isSavedUploadSignatureValid } from '../common/utils/file-signature';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AttachmentGuard } from '../common/guards/attachment.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -181,6 +183,27 @@ export class AttachmentsController {
     }
     if (!taskId) {
       throw new BadRequestException('No taskId provided');
+    }
+
+    // Extension allowlist runs pre-save; verify content matches the claimed
+    // type post-save and remove mismatches before they are servable.
+    const readHead = async (length: number): Promise<Buffer> => {
+      const handle = await open(file.path, 'r');
+      try {
+        const buffer = Buffer.alloc(length);
+        await handle.read(buffer, 0, length, 0);
+        return buffer;
+      } finally {
+        await handle.close();
+      }
+    };
+    if (
+      !(await isSavedUploadSignatureValid(readHead, extname(file.originalname)))
+    ) {
+      await unlink(file.path).catch(() => undefined);
+      throw new BadRequestException(
+        'File content does not match its extension',
+      );
     }
 
     // SECURITY: Validate taskId is a valid CUID, UUID, or task ID format (prevents injection attacks)

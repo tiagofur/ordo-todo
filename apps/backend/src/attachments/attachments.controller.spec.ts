@@ -1,3 +1,6 @@
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { writeFileSync } from 'fs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AttachmentsController } from './attachments.controller';
 import { AttachmentsService } from './attachments.service';
@@ -57,11 +60,17 @@ describe('AttachmentsController', () => {
 
   describe('uploadFile', () => {
     it('should upload file and create attachment', async () => {
+      const tmpPath = join(
+        tmpdir(),
+        `spec-attachment-${Date.now()}.pdf`,
+      );
+      writeFileSync(tmpPath, Buffer.from('%PDF-1.4 spec payload'));
       const mockFile = {
         originalname: 'test.pdf',
         mimetype: 'application/pdf',
         size: 1024,
         filename: 'task-123-123456789-test.pdf',
+        path: tmpPath,
         buffer: Buffer.from('test'),
       } as Express.Multer.File;
       const taskId = '550e8400-e29b-41d4-a716-446655440000'; // Valid UUID

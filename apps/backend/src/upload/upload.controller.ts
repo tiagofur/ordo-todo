@@ -20,7 +20,9 @@ import {
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { open, unlink } from 'fs/promises';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { isSavedUploadSignatureValid } from '../common/utils/file-signature';
 
 @ApiTags('Upload')
 @ApiBearerAuth()
@@ -128,12 +130,34 @@ export class UploadController {
       },
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     this.logger.log(`Upload request received`);
 
     if (!file) {
       this.logger.error('No file uploaded');
       throw new BadRequestException('No file uploaded');
+    }
+
+    // The extension allowlist runs pre-save in fileFilter; verify the
+    // content matches the claimed type post-save (a renamed binary would
+    // otherwise be served from the public /uploads/ prefix).
+    const readHead = async (length: number): Promise<Buffer> => {
+      const handle = await open(file.path, 'r');
+      try {
+        const buffer = Buffer.alloc(length);
+        await handle.read(buffer, 0, length, 0);
+        return buffer;
+      } finally {
+        await handle.close();
+      }
+    };
+    if (
+      !(await isSavedUploadSignatureValid(readHead, extname(file.originalname)))
+    ) {
+      await unlink(file.path).catch(() => undefined);
+      throw new BadRequestException(
+        'File content does not match its extension',
+      );
     }
 
     this.logger.log(`File uploaded successfully: ${file.filename}`);
