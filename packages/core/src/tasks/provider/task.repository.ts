@@ -129,6 +129,9 @@ export interface TaskRepository {
       projectId?: string;
       tags?: string[];
       withoutProject?: boolean;
+      assigneeId?: string;
+      take?: number;
+      skip?: number;
     },
   ): Promise<Task[]>;
 

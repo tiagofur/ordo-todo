@@ -13,6 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { QueryTasksDto } from './dto/query-tasks.dto';
 import { DayPlanService } from './day-plan.service';
 import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { TagsService } from '../tags/tags.service';
@@ -131,7 +132,7 @@ describe('TasksController', () => {
 
       (tasksService.create as jest.Mock).mockResolvedValue(expectedResult);
 
-      const result = await controller.create(dto as any, user as any);
+      const result = await controller.create(dto, user as any);
 
       expect(result).toEqual(expectedResult);
       expect(tasksService.create).toHaveBeenCalledWith(dto, user.id);
@@ -161,7 +162,7 @@ describe('TasksController', () => {
 
       (tasksService.findAll as jest.Mock).mockResolvedValue(mockTasks);
 
-      const result = await controller.findAll(user as any);
+      const result = await controller.findAll(user as any, {});
 
       expect(result).toEqual(mockTasks);
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -170,6 +171,27 @@ describe('TasksController', () => {
         undefined,
         false,
         false,
+        { take: undefined, skip: undefined },
+      );
+    });
+
+    it('passes limit/page through as take/skip', async () => {
+      const user = { id: 'user-1', email: 'test@example.com' };
+      (tasksService.findAll as jest.Mock).mockResolvedValue([]);
+      const query = Object.assign(new QueryTasksDto(), {
+        limit: 10,
+        page: 2,
+      });
+
+      await controller.findAll(user as any, query);
+
+      expect(tasksService.findAll).toHaveBeenCalledWith(
+        user.id,
+        undefined,
+        undefined,
+        false,
+        false,
+        { take: 10, skip: 20 },
       );
     });
 
@@ -180,7 +202,12 @@ describe('TasksController', () => {
 
       (tasksService.findAll as jest.Mock).mockResolvedValue(mockTasks);
 
-      const result = await controller.findAll(user as any, projectId);
+      const result = await controller.findAll(
+        user as any,
+        {
+          projectId,
+        } as any,
+      );
 
       expect(result).toEqual(mockTasks);
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -189,6 +216,7 @@ describe('TasksController', () => {
         undefined,
         false,
         false,
+        { take: undefined, skip: undefined },
       );
     });
 
@@ -199,7 +227,7 @@ describe('TasksController', () => {
 
       (tasksService.findAll as jest.Mock).mockResolvedValue(mockTasks);
 
-      const result = await controller.findAll(user as any, undefined, tags);
+      const result = await controller.findAll(user as any, { tags } as any);
 
       expect(result).toEqual(mockTasks);
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -208,6 +236,7 @@ describe('TasksController', () => {
         tags,
         false,
         false,
+        { take: undefined, skip: undefined },
       );
     });
 
@@ -217,10 +246,9 @@ describe('TasksController', () => {
 
       await controller.findAll(
         user as any,
-        undefined,
-        undefined,
-        undefined,
-        'true',
+        {
+          withoutProject: 'true',
+        } as any,
       );
 
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -229,6 +257,7 @@ describe('TasksController', () => {
         undefined,
         false,
         true,
+        { take: undefined, skip: undefined },
       );
     });
 
@@ -238,10 +267,10 @@ describe('TasksController', () => {
       expect(() =>
         controller.findAll(
           user as any,
-          'project-1',
-          undefined,
-          undefined,
-          'true',
+          {
+            projectId: 'project-1',
+            withoutProject: 'true',
+          } as any,
         ),
       ).toThrow(BadRequestException);
       expect(tasksService.findAll).not.toHaveBeenCalled();
@@ -338,7 +367,7 @@ describe('TasksController', () => {
 
       (tasksService.update as jest.Mock).mockResolvedValue(expectedResult);
 
-      const result = await controller.update(taskId, dto as any, user as any);
+      const result = await controller.update(taskId, dto, user as any);
 
       expect(result).toEqual(expectedResult);
       expect(tasksService.update).toHaveBeenCalledWith(taskId, dto, user.id);
@@ -466,7 +495,7 @@ describe('TasksController', () => {
 
       const result = await controller.createSubtask(
         parentTaskId,
-        dto as any,
+        dto,
         user as any,
       );
 
@@ -574,7 +603,7 @@ describe('TasksController', () => {
       async (daysAhead) => {
         (riskAlertService.assessForUser as jest.Mock).mockResolvedValue([]);
 
-        await controller.getDayPlanRisks(user, daysAhead as any);
+        await controller.getDayPlanRisks(user, daysAhead);
 
         expect(riskAlertService.assessForUser).toHaveBeenCalledWith(
           'user-1',

@@ -279,6 +279,7 @@ export class TasksService {
     tags?: string[],
     assignedToMe?: boolean,
     withoutProject?: boolean,
+    pagination?: { take?: number; skip?: number },
   ) {
     try {
       this.logger.debug(
@@ -292,6 +293,9 @@ export class TasksService {
           projectId,
           tags,
           withoutProject,
+          ...(assignedToMe ? { assigneeId: userId } : {}),
+          ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
+          ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
         },
       );
       this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
