@@ -43,15 +43,15 @@ Restricciones durables:
 - Toda superficie nueva sale trilingüe (EN/ES/PT-BR) desde el día uno, sin textos en duro.
 - Los agentes (MCP) comparten los mismos permisos que el usuario: la UI y la API no revelan datos que el token no autorice.
 
-Abierto: migración del primario in-app de cian a violeta para paridad total con la marca (ver Brand Commitments).
+Decidido (01-nov-2026): primario in-app violeta para paridad total con la marca (ver Brand Commitments).
 
 ## Brand Commitments
 
 - Nombre: **Ordo Todo**.
 - **BrandMark**: cuadrado morado `#AD46FF` con radio `rounded-2xl`, icono CheckSquare blanco (`stroke-[2.2]`) y sombra `#AD46FF/30` — presente en login, registro, authorize y como `themeColor` del viewport y favicon/apple-icon.
-- **Primario semántico in-app**: cian `#06B6D4` (claro) / `#22D3EE` (oscuro) — estado real de `packages/styles/src/variables.css`, confirmado por el owner (30-oct-2026) como verdad a documentar.
-- **Sitio público** (`apps/webpage`, decisión 25-oct-2026): primario violeta `#7C3AED`; allí "el cian deja de ser la marca". Esa decisión no revoca el cian in-app.
-- **Abierto (owner, 30-oct-2026)**: posible migración futura del primario in-app a violeta `#7C3AED` para paridad de marca total. Hasta decidirse, DESIGN.md documenta el sistema actual y ningún PR cambia tokens por su cuenta.
+- **Primario semántico in-app**: violeta `#7C3AED` (claro) / `#A78BFA` (oscuro) — estado real de `packages/styles/src/variables.css` tras la migración decidida por el owner (01-nov-2026). El cian sobrevive solo como firma de sección del dashboard (`--theme-dashboard`), no como voz de acción.
+- **Sitio público** (`apps/webpage`, decisión 25-oct-2026): primario violeta `#7C3AED`; app y sitio comparten familia desde el 01-nov-2026 (la app en voz semántica, el sitio en voz editorial).
+- **Cerrado (owner, 01-nov-2026)**: la migración cian→violeta quedó decidida y aplicada en `packages/styles` (+ `tokens.ts` con test de paridad `tokens-parity.test.ts`). Pendiente con verificación visual: normalizar los hex crudos de acción en páginas a `bg-primary`/`ring-ring` y revisar los tiles decorativos que quedaron en morados vecinos (`purple-500/600`).
 - Tono: claro y directo, trilingüe.
 
 ## Evidence on Hand
