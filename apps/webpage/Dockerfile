@@ -4,7 +4,7 @@
 # Misma estructura que apps/web/Dockerfile: la etapa `manifests` recoge todos
 # los package.json del monorepo para que `npm ci` enlace cada workspace sin
 # lista a mano, y `turbo run build --filter=webpage` construye antes los
-# paquetes de los que depende (config, styles, ui, ui-shared, core…).
+# paquetes de los que depende (config, styles, ui, core…).
 # =============================================================================
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
