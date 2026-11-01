@@ -33,7 +33,8 @@ S5: Decisiones de producto abiertas (NO tocar sin respuesta): migración del pri
 - [x] T18 (S2,S4-P1.2) eliminar @ordo-todo/ui-shared muerto + dep en ui + trigger CI — route: inline — status: done — commit: 9f71b318 (suite ui 135 verdes)
 - [x] T19 (S2,S4-P1.2) eliminar @ordo-todo/validations muerto (3 package.json + transpile + trigger CI) — route: inline — status: done — commit: 8eac52bf + 03b16ba6 (fix COPY en Dockerfile backend para no romper su build + comentario webpage)
 - [x] T20 (S2,S4-P2.3) web: header HSTS (sin preload; CSP queda para pase con browser) — route: inline — status: done — commit: 05c64fe3 (tsc aislado limpio)
-- [ ] T10 (resto) cn/cva en ui-shared (obsoleto con T18), CI gates de packages, CSP, doble HTTP, triple sync-store — route: pendientes — status: pending
+- [x] T21 (S2,S4-P2.3) ci: correr suites de packages en CI + script test en api-client + fix test timer desactualizado (`/timers/task/:id`, respalda el backend) — route: inline — status: done — commit: 42b93dec (gate turbo 11/11 verde local: api-client 200, core 516, db 256, hooks 166, online-status 8, openclaw 13, stores 22, styles 122, ui 135)
+- [ ] T10 (resto) CSP enforcing, doble cliente HTTP, triple sync-store, tiles/tintes del pase visual — route: pendientes (diseño o browser requerido) — status: pending
 
 ## Log
 
