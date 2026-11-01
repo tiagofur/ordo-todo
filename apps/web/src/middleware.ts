@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/navigation';
 import { LOCALE_COOKIE } from './i18n/locales';
 import { resolvePreferredLocale } from './lib/locale-resolve';
+import { isTokenValid } from './lib/auth-token';
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -26,26 +27,6 @@ function preferredLocaleFromRequest(request: NextRequest): string {
         request.cookies.get(LOCALE_COOKIE)?.value ??
         request.cookies.get('NEXT_LOCALE')?.value;
     return resolvePreferredLocale(browserLocales, stored);
-}
-
-function isTokenValid(token?: string): boolean {
-    if (!token) return false;
-    try {
-        const parts = token.split('.');
-        if (parts.length !== 3 || !parts[1]) return false;
-        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        const payload = JSON.parse(jsonPayload);
-        if (!payload.exp) return true;
-        return payload.exp * 1000 > Date.now();
-    } catch {
-        return false;
-    }
 }
 
 export default function middleware(request: NextRequest) {
