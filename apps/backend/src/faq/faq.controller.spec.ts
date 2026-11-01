@@ -96,7 +96,7 @@ describe('FAQController', () => {
 
   describe('remove', () => {
     it('should remove an FAQ', async () => {
-      service.remove.mockResolvedValue({ success: true } as any);
+      service.remove.mockResolvedValue({ success: true });
 
       const result = await controller.remove('1');
 

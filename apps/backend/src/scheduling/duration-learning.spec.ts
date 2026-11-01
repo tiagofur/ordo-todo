@@ -75,7 +75,8 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       durations.map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
-    taskForId = (id: string) => task(id, { tags: [{ name: 'dev', color: '#000' }] });
+    taskForId = (id: string) =>
+      task(id, { tags: [{ name: 'dev', color: '#000' }] });
 
     const out = await service.predict('user-1', { category: 'dev' });
 
@@ -96,9 +97,13 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     const out = await service.predict('user-1', { category: 'dev' });
 
     expect(taskRepo.findByIds).toHaveBeenCalledTimes(1);
-    expect(taskRepo.findByIds).toHaveBeenCalledWith(
-      ['t0', 't1', 't2', 't3', 't4'],
-    );
+    expect(taskRepo.findByIds).toHaveBeenCalledWith([
+      't0',
+      't1',
+      't2',
+      't3',
+      't4',
+    ]);
     expect(out.source).toBe('history');
   });
 
@@ -146,13 +151,13 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     ]);
     taskForId = (id: string) =>
       task(id, {
-          tags: [
-            {
-              name: id === 't1' || id === 't2' ? 'dev' : 'other',
-              color: '#000',
-            },
-          ],
-        });
+        tags: [
+          {
+            name: id === 't1' || id === 't2' ? 'dev' : 'other',
+            color: '#000',
+          },
+        ],
+      });
 
     const out = await service.predict('user-1', { category: 'dev' });
 
@@ -183,9 +188,9 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     );
     taskForId = (id: string) =>
       task(id, {
-          tags: [],
-          project: { id: 'p9', name: 'Backend API', color: '#000' },
-        });
+        tags: [],
+        project: { id: 'p9', name: 'Backend API', color: '#000' },
+      });
 
     const out = await service.predict('user-1', { category: 'backend api' });
 

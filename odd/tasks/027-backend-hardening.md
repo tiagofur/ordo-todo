@@ -65,7 +65,13 @@ CI con tests para los 11 modulos en cero".
   ritual, webhook, plan, executeJob por jobId) + escaneo paginado en los
   6 barridos por usuario. Recorte honesto: lock distribuido entre
   replicas queda follow-up (requiere Redis obligatorio).
-- [ ] T8 (S5, inline): Cache/ops + CI gates. Estado: pending.
+- [x] T8 (S5, inline): Cache/ops + CI. Estado: done (full suite
+  147/1554, tsc limpio, 0 errores eslint en archivos tocados). Fuera
+  CacheService muerto + spec, readiness 503 real, timeouts
+  Gemini/SMTP/Stripe/Slack, fix leak de subscribers, shutdown
+  idempotente, check-types bloqueante en CI. Recorte honesto: lint sigue
+  no-bloqueante por errores preexistentes fuera del scope; audit sigue
+  informativo.
 
 Lineas acumuladas: 0. Commits: ninguno aun.
 

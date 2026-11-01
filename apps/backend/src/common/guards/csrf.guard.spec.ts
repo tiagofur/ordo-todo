@@ -43,9 +43,9 @@ describe('CsrfGuard', () => {
 
   it('allows safe methods without a token', () => {
     for (const method of ['GET', 'HEAD', 'OPTIONS']) {
-      expect(
-        guard.canActivate(createContext({ method, headers: {} })),
-      ).toBe(true);
+      expect(guard.canActivate(createContext({ method, headers: {} }))).toBe(
+        true,
+      );
     }
     expect(csrfService.validateToken).not.toHaveBeenCalled();
   });
@@ -67,9 +67,9 @@ describe('CsrfGuard', () => {
   });
 
   it('allows /auth/* flows without a token', () => {
-    expect(
-      guard.canActivate(createContext({ url: '/auth/refresh' })),
-    ).toBe(true);
+    expect(guard.canActivate(createContext({ url: '/auth/refresh' }))).toBe(
+      true,
+    );
     expect(csrfService.validateToken).not.toHaveBeenCalled();
   });
 
@@ -77,26 +77,22 @@ describe('CsrfGuard', () => {
     csrfService.validateToken.mockReturnValue(true);
 
     expect(
-      guard.canActivate(
-        createContext({ headers: { 'x-csrf-token': 'good' } }),
-      ),
+      guard.canActivate(createContext({ headers: { 'x-csrf-token': 'good' } })),
     ).toBe(true);
     expect(csrfService.validateToken).toHaveBeenCalledWith('good');
   });
 
   it('denies cookie-authenticated mutations with a missing token', () => {
-    expect(() =>
-      guard.canActivate(createContext({ headers: {} })),
-    ).toThrow(expect.objectContaining({ status: 403 }));
+    expect(() => guard.canActivate(createContext({ headers: {} }))).toThrow(
+      expect.objectContaining({ status: 403 }),
+    );
   });
 
   it('denies cookie-authenticated mutations with an invalid token', () => {
     csrfService.validateToken.mockReturnValue(false);
 
     expect(() =>
-      guard.canActivate(
-        createContext({ headers: { 'x-csrf-token': 'bad' } }),
-      ),
+      guard.canActivate(createContext({ headers: { 'x-csrf-token': 'bad' } })),
     ).toThrow(expect.objectContaining({ status: 403 }));
   });
 

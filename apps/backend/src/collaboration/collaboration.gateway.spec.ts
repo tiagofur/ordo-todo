@@ -229,7 +229,7 @@ describe('CollaborationGateway', () => {
 
       await gateway.handleTaskUpdate(mockSocket, {
         taskId: 'task-789',
-        changes: 'COMPLETED' as never,
+        changes: 'COMPLETED',
       });
 
       expect(mockSocket.emit).toHaveBeenCalledWith(

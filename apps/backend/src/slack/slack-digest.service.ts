@@ -10,7 +10,7 @@ type SlackClient = Pick<WebClient, 'chat'>;
 type SlackClientFactory = (token: string) => SlackClient;
 
 const defaultFactory: SlackClientFactory = (token) =>
-  new WebClient(token) as unknown as SlackClient;
+  new WebClient(token, { timeout: 15_000 });
 
 /**
  * Posts the daily briefing to subscribed Slack channels (S5).

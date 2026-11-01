@@ -60,10 +60,7 @@ describe('AttachmentsController', () => {
 
   describe('uploadFile', () => {
     it('should upload file and create attachment', async () => {
-      const tmpPath = join(
-        tmpdir(),
-        `spec-attachment-${Date.now()}.pdf`,
-      );
+      const tmpPath = join(tmpdir(), `spec-attachment-${Date.now()}.pdf`);
       writeFileSync(tmpPath, Buffer.from('%PDF-1.4 spec payload'));
       const mockFile = {
         originalname: 'test.pdf',

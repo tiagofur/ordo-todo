@@ -245,14 +245,21 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
     console.log(`API documentation at: http://localhost:${port}/api-docs`);
   }
 
-  // Graceful shutdown
+  // Graceful shutdown: one shared handler (SIGTERM/SIGINT), idempotent so
+  // a second signal while closing is a no-op, and the forced-exit timer is
+  // cancelled when close() resolves instead of firing after a clean exit.
   const gracefulShutdownTimeout = 10000; // 10 seconds
 
   app.enableShutdownHooks();
 
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    setTimeout(() => {
+  let shuttingDown = false;
+  const shutdown = (signal: string) => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
+    console.log(`${signal} signal received: closing HTTP server`);
+    const forcedExit = setTimeout(() => {
       console.error('Forced shutdown after timeout');
       process.exit(1);
     }, gracefulShutdownTimeout);
@@ -260,33 +267,19 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
     app
       .close()
       .then(() => {
+        clearTimeout(forcedExit);
         console.log('HTTP server closed');
         process.exit(0);
       })
       .catch((error) => {
+        clearTimeout(forcedExit);
         console.error('Error during shutdown:', error);
         process.exit(1);
       });
-  });
+  };
 
-  process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    setTimeout(() => {
-      console.error('Forced shutdown after timeout');
-      process.exit(1);
-    }, gracefulShutdownTimeout);
-
-    app
-      .close()
-      .then(() => {
-        console.log('HTTP server closed');
-        process.exit(0);
-      })
-      .catch((error) => {
-        console.error('Error during shutdown:', error);
-        process.exit(1);
-      });
-  });
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 bootstrap();
 // Build: 2025-12-16 - rxjs dependency fix

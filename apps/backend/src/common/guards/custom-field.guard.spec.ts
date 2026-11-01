@@ -74,9 +74,7 @@ describe('CustomFieldGuard', () => {
       prisma.project.findUnique.mockResolvedValue(null);
 
       await expect(
-        guard.canActivate(
-          createContext({ params: { projectId: 'missing' } }),
-        ),
+        guard.canActivate(createContext({ params: { projectId: 'missing' } })),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 

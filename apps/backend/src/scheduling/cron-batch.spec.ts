@@ -19,7 +19,13 @@ describe('cron-batch', () => {
     });
 
     it('pages through every user exactly once', async () => {
-      const users = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }];
+      const users = [
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+        { id: 'd' },
+        { id: 'e' },
+      ];
       const prisma = pages(users) as unknown as PrismaService;
       const seen: string[] = [];
 

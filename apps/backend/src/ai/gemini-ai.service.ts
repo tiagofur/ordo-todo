@@ -160,9 +160,12 @@ export class GeminiAIService {
       throw new ServiceUnavailableException('AI service is not initialized');
     }
 
+    // Bound the request: without an abort signal a hung Gemini call blocks
+    // the caller (cron tick, request) indefinitely.
     const response = await this.ai.models.generateContent({
       model: modelName,
       contents: prompt,
+      config: { abortSignal: AbortSignal.timeout(60_000) },
     });
 
     return response.text || '';

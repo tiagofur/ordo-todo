@@ -126,9 +126,7 @@ describe('HabitsService', () => {
 
       await service.findAll(userId);
 
-      expect(
-        habitRepository.getCompletionsForHabits,
-      ).toHaveBeenCalledTimes(1);
+      expect(habitRepository.getCompletionsForHabits).toHaveBeenCalledTimes(1);
       expect(habitRepository.getCompletions).not.toHaveBeenCalled();
     });
   });
@@ -159,7 +157,7 @@ describe('HabitsService', () => {
       const habitId = 'habit-123';
 
       habitRepository.findById.mockResolvedValue(mockHabit);
-      habitRepository.delete.mockResolvedValue(undefined as never);
+      habitRepository.delete.mockResolvedValue(undefined);
 
       const result = await service.remove(habitId, 'user-123');
 

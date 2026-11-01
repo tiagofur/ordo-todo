@@ -36,9 +36,7 @@ describe('SmartNotificationsService crons (ODD 027 T7)', () => {
       ],
     }).compile();
 
-    service = module.get<SmartNotificationsService>(
-      SmartNotificationsService,
-    );
+    service = module.get<SmartNotificationsService>(SmartNotificationsService);
   });
 
   it('sendDailyPlanningReminder scans users in batches and notifies once', async () => {

@@ -210,9 +210,7 @@ export class SmartNotificationsService {
     this.logger.log('Checking burnout risk for all users...');
     await forEachUserBatched(this.prisma, async (user) => {
       try {
-        const intervention = await burnoutService.checkForIntervention(
-          user.id,
-        );
+        const intervention = await burnoutService.checkForIntervention(user.id);
 
         if (intervention && intervention.shouldNotify) {
           // Check if we already sent a burnout notification today
@@ -278,8 +276,9 @@ export class SmartNotificationsService {
     this.logger.log('Sending weekly wellbeing reports...');
     await forEachUserBatched(this.prisma, async (user) => {
       try {
-        const summary =
-          await burnoutService.generateWeeklyWellbeingSummary(user.id);
+        const summary = await burnoutService.generateWeeklyWellbeingSummary(
+          user.id,
+        );
 
         // Build a nice summary message
         const scoreEmoji =
@@ -356,8 +355,9 @@ export class SmartNotificationsService {
       if (sessionMinutes < 75) return;
 
       try {
-        const recommendations =
-          await burnoutService.getRestRecommendations(user.id);
+        const recommendations = await burnoutService.getRestRecommendations(
+          user.id,
+        );
 
         const breakRec = recommendations.find(
           (r) => r.type === 'TAKE_BREAK' && r.priority === 'HIGH',

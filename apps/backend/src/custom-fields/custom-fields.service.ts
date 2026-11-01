@@ -54,7 +54,7 @@ export class CustomFieldsService {
 
     const field = CustomField.create({
       name: dto.name,
-      type: dto.type as unknown as CustomFieldType,
+      type: dto.type,
       projectId,
       description: dto.description,
       options: dto.options,

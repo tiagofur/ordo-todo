@@ -22,19 +22,14 @@ describe('file-signature', () => {
     });
 
     it('rejects truncated buffers', () => {
-      expect(matchesMagicBytes(Buffer.from([0xff, 0xd8]), 'jpeg')).toBe(
-        false,
-      );
+      expect(matchesMagicBytes(Buffer.from([0xff, 0xd8]), 'jpeg')).toBe(false);
     });
   });
 
   describe('hasValidSignatureForExtension', () => {
     it('accepts matching image/pdf/office signatures', () => {
       expect(
-        hasValidSignatureForExtension(
-          withPayload([0xff, 0xd8, 0xff]),
-          '.jpg',
-        ),
+        hasValidSignatureForExtension(withPayload([0xff, 0xd8, 0xff]), '.jpg'),
       ).toBe(true);
       expect(
         hasValidSignatureForExtension(
@@ -72,9 +67,9 @@ describe('file-signature', () => {
     });
 
     it('keeps extension-only check for txt', () => {
-      expect(
-        hasValidSignatureForExtension(Buffer.from('hello'), '.txt'),
-      ).toBe(true);
+      expect(hasValidSignatureForExtension(Buffer.from('hello'), '.txt')).toBe(
+        true,
+      );
     });
   });
 });

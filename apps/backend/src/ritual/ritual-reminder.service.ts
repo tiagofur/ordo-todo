@@ -1,9 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import {
-  SkipOnOverlap,
-  forEachUserBatched,
-} from '../scheduling/cron-batch';
+import { SkipOnOverlap, forEachUserBatched } from '../scheduling/cron-batch';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { startOfTodayIn } from '../tasks/day-plan.service';

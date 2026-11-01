@@ -51,7 +51,7 @@ describe('BlogPostService', () => {
       findCommentById: jest.fn(),
       createComment: jest.fn(),
       deleteComment: jest.fn(),
-    } as any;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -144,7 +144,9 @@ describe('BlogPostService', () => {
 
       expect(prisma.client.user.findMany).toHaveBeenCalledTimes(1);
       expect(prisma.client.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: { in: ['user-1', 'user-2'] } } }),
+        expect.objectContaining({
+          where: { id: { in: ['user-1', 'user-2'] } },
+        }),
       );
       expect(result.comments).toHaveLength(3);
       expect(result.comments[0].user).toMatchObject({ id: 'user-1' });

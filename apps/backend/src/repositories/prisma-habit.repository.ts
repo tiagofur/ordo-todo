@@ -143,7 +143,7 @@ export class PrismaHabitRepository implements IHabitRepository {
         color: habit.props.color,
         userId: habit.props.userId,
         workspaceId: habit.props.workspaceId ?? null,
-        frequency: habit.props.frequency as PrismaHabitFrequency,
+        frequency: habit.props.frequency,
         targetDaysOfWeek: habit.props.targetDaysOfWeek,
         targetCount: habit.props.targetCount,
         preferredTime: habit.props.preferredTime ?? null,
@@ -174,16 +174,14 @@ export class PrismaHabitRepository implements IHabitRepository {
     if (data.color !== undefined) updateData.color = data.color;
     if (data.workspaceId !== undefined)
       updateData.workspaceId = data.workspaceId;
-    if (data.frequency !== undefined)
-      updateData.frequency = data.frequency as PrismaHabitFrequency;
+    if (data.frequency !== undefined) updateData.frequency = data.frequency;
     if (data.targetDaysOfWeek !== undefined)
       updateData.targetDaysOfWeek = data.targetDaysOfWeek;
     if (data.targetCount !== undefined)
       updateData.targetCount = data.targetCount;
     if (data.preferredTime !== undefined)
       updateData.preferredTime = data.preferredTime;
-    if (data.timeOfDay !== undefined)
-      updateData.timeOfDay = data.timeOfDay as PrismaTimeOfDay;
+    if (data.timeOfDay !== undefined) updateData.timeOfDay = data.timeOfDay;
     if (data.currentStreak !== undefined)
       updateData.currentStreak = data.currentStreak;
     if (data.longestStreak !== undefined)
@@ -504,7 +502,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       color: prismaHabit.color,
       userId: prismaHabit.userId,
       workspaceId: prismaHabit.workspaceId ?? undefined,
-      frequency: prismaHabit.frequency as CoreHabitFrequency,
+      frequency: prismaHabit.frequency,
       targetDaysOfWeek: prismaHabit.targetDaysOfWeek,
       targetCount: prismaHabit.targetCount,
       preferredTime: prismaHabit.preferredTime ?? undefined,

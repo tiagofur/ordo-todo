@@ -1,10 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import {
-  CacheModule as NestCacheModule,
-  CacheInterceptor,
-} from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { CacheService } from './cache.service';
+import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { RedisModule } from './redis.module';
 
 /**
@@ -29,7 +24,10 @@ import { RedisModule } from './redis.module';
     }),
     RedisModule, // Redis for distributed caching and token blacklist
   ],
-  providers: [CacheService],
-  exports: [CacheService, RedisModule],
+  // NOTE (ODD 027 T8): the in-memory CacheService was dead code (zero
+  // injectors) with broken substring invalidation; RedisService in
+  // ./redis.service.ts is the single cache implementation.
+  providers: [],
+  exports: [RedisModule],
 })
 export class CacheModule {}

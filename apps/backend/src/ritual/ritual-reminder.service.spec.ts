@@ -52,8 +52,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
 
   it('sends the morning reminder once inside the window (TZ-aware)', async () => {
     // 08:05 UTC; user in UTC with morning time 08:00 → inside window.
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
 
     await service.checkReminders(at('2026-10-21T08:05:00Z'));
 
@@ -67,8 +71,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('sends nothing outside work hours (total silence)', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
 
     // 03:00 UTC: no ritual window open.
     await service.checkReminders(at('2026-10-21T03:00:00Z'));
@@ -77,8 +85,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('sends nothing when notifications are disabled', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
     prisma.userPreferences.findUnique.mockResolvedValue(
       prefs({ enableNotifications: false }),
     );
@@ -89,8 +101,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('skips the morning reminder when already DONE', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
     prisma.ritualDay.findUnique.mockResolvedValue({
       morningStatus: 'DONE',
       eveningStatus: 'PENDING',
@@ -102,8 +118,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('dedups: no second reminder within 24h', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
     prisma.notification.findFirst.mockResolvedValue({ id: 'n-1' });
 
     await service.checkReminders(at('2026-10-21T08:05:00Z'));
@@ -124,8 +144,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('sends the evening reminder in its window', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
 
     await service.checkReminders(at('2026-10-21T21:05:00Z'));
 
@@ -138,8 +162,12 @@ describe('RitualReminderService (ODD 006 S5)', () => {
   });
 
   it('sends with schema defaults when the user has no prefs row (B2)', async () => {
-    prisma.user.findMany.mockImplementation((args?: { cursor?: { id: string } }) =>
-      Promise.resolve(args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }]));
+    prisma.user.findMany.mockImplementation(
+      (args?: { cursor?: { id: string } }) =>
+        Promise.resolve(
+          args?.cursor ? [] : [{ id: 'user-1', timezone: 'UTC' }],
+        ),
+    );
     prisma.userPreferences.findUnique.mockResolvedValue(null);
 
     await service.checkReminders(at('2026-10-21T08:05:00Z'));

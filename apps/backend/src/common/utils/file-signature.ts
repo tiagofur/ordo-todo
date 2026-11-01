@@ -7,12 +7,7 @@
  * content cannot be verified here — callers keep the extension check for it.
  */
 export type VerifiableUploadKind =
-  | 'jpeg'
-  | 'png'
-  | 'gif'
-  | 'pdf'
-  | 'zip-office'
-  | 'ole-office';
+  'jpeg' | 'png' | 'gif' | 'pdf' | 'zip-office' | 'ole-office';
 
 const SIGNATURES: { kind: VerifiableUploadKind; magic: number[] }[] = [
   { kind: 'jpeg', magic: [0xff, 0xd8, 0xff] },
