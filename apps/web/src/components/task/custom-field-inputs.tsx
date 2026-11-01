@@ -207,7 +207,7 @@ function CustomFieldInput({ field, value, onChange }: CustomFieldInputProps) {
                 mode="single"
                 selected={dateValue}
                 onSelect={(date) => onChange(date?.toISOString() || "")}
-                initialFocus
+                autoFocus
               />
             </PopoverContent>
           </Popover>

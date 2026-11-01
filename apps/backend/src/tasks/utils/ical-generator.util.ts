@@ -61,8 +61,8 @@ export function generateIcsFeed(
       const desc = escapeIcs(descParts.join('\n\n'));
       const isCompleted = task.status === 'COMPLETED';
 
-      let dtStart = '';
-      let dtEnd = '';
+      let dtStart: string;
+      let dtEnd: string;
 
       if (task.scheduledDate && task.scheduledTime) {
         const start = new Date(task.scheduledDate);

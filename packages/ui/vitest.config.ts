@@ -23,11 +23,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@ordo-todo/core': path.resolve(__dirname, '../core/src'),
-      '@ordo-todo/hooks': path.resolve(__dirname, '../hooks/src'),
-      '@ordo-todo/stores': path.resolve(__dirname, '../stores/src'),
-      '@ordo-todo/api-client': path.resolve(__dirname, '../api-client/src'),
-      '@ordo-todo/i18n': path.resolve(__dirname, '../i18n/src'),
+      '@ordo-todo/core': path.resolve(import.meta.dirname, '../core/src'),
+      '@ordo-todo/hooks': path.resolve(import.meta.dirname, '../hooks/src'),
+      '@ordo-todo/stores': path.resolve(import.meta.dirname, '../stores/src'),
+      '@ordo-todo/api-client': path.resolve(import.meta.dirname, '../api-client/src'),
+      '@ordo-todo/i18n': path.resolve(import.meta.dirname, '../i18n/src'),
     },
   },
 });

@@ -69,7 +69,7 @@ export function SyncStatusIndicator({
   };
 
   // Map store status to UI status
-  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline' = 'idle';
+  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline';
   if (!isOnline) uiStatus = 'offline';
   else if (isSyncing) uiStatus = 'syncing';
   else if (status === 'error') uiStatus = 'error';
@@ -110,7 +110,7 @@ export function SyncStatusDot({ className }: { className?: string }) {
     return null;
   }
 
-  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline' = 'idle';
+  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline';
   if (!isOnline) uiStatus = 'offline';
   else if (isSyncing) uiStatus = 'syncing';
   else if (status === 'error') uiStatus = 'error';

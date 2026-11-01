@@ -36,12 +36,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/hooks': path.resolve(__dirname, './src/hooks'),
-      '@/stores': path.resolve(__dirname, './src/stores'),
-      '@/lib': path.resolve(__dirname, './src/lib'),
-      '@ordo-todo/online-status': path.resolve(__dirname, '../../packages/online-status/src/index.ts'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@/components': path.resolve(import.meta.dirname, './src/components'),
+      '@/hooks': path.resolve(import.meta.dirname, './src/hooks'),
+      '@/stores': path.resolve(import.meta.dirname, './src/stores'),
+      '@/lib': path.resolve(import.meta.dirname, './src/lib'),
+      '@ordo-todo/online-status': path.resolve(import.meta.dirname, '../../packages/online-status/src/index.ts'),
     },
   },
 });

@@ -33,8 +33,8 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@ordo-todo/core': path.resolve(__dirname, '../core/src'),
-            '@ordo-todo/api-client': path.resolve(__dirname, '../api-client/src'),
+            '@ordo-todo/core': path.resolve(import.meta.dirname, '../core/src'),
+            '@ordo-todo/api-client': path.resolve(import.meta.dirname, '../api-client/src'),
         },
     },
 });

@@ -21,7 +21,6 @@ export function usePreselectedTop3(
   const planKey = planBlocks.map((b) => b.taskId).join(',');
   useEffect(() => {
     setSelected(filter(suggestedTop3));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, planKey]);
 
   const toggle = (taskId: string) => {

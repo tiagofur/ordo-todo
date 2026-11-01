@@ -50,8 +50,8 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@types/node": "^25.9.9",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.12"
+    "@types/node": "^26.6.6",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   }
 }

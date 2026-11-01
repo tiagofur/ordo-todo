@@ -1,0 +1,40 @@
+# Dependabot: mantiene npm y GitHub Actions actualizados con PRs semanales.
+# - minor/patch agrupados en un solo PR (bajo riesgo, merge rapido).
+# - major version updates llegan en PRs individuales para revision caso por caso
+#   (ver odd/tasks/026-dependency-hygiene.md: los majors se proponen por separado).
+# Nota: los security updates de Dependabot se activan en repo Settings;
+# este archivo activa los version updates sin importar ese ajuste.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(ci)"

@@ -312,7 +312,7 @@ export class TimersService {
     const totalPauseTime = session.props.totalPauseTime ?? 0;
     const currentPauseStart = session.props.currentPauseStart;
 
-    let elapsedSeconds = 0;
+    let elapsedSeconds: number;
 
     if (currentPauseStart) {
       // If paused, elapsed time is time from start to pause start, minus previous pauses

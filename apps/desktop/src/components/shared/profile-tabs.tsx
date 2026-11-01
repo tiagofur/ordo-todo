@@ -17,7 +17,6 @@ import {
   Download,
   Trash2,
   Calendar,
-  Github,
   MessageSquare,
   AlertTriangle,
   CheckCircle,
@@ -73,6 +72,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  GithubIcon as Github,
 } from "@ordo-todo/ui";
 
 

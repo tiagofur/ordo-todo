@@ -57,7 +57,7 @@ export function DatePicker({
             setDate(selectedDate);
             onOpenChange?.(false);
           }}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>

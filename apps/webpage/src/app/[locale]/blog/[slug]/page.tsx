@@ -5,7 +5,7 @@ import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getBlogPost(slug);
 

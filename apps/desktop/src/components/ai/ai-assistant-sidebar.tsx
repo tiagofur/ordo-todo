@@ -81,7 +81,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
              setConversationId(currentConversationId);
          } catch (err) {
              console.error("Failed to create conversation", err);
-             throw new Error("Could not start conversation");
+             throw new Error("Could not start conversation", { cause: err });
          }
       }
 

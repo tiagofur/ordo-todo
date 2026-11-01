@@ -549,7 +549,7 @@ export class RitualService {
         `Invalid start time for ${block.taskId} (want HH:mm)`,
       );
     }
-    let endMin: number | null = null;
+    let endMin: number | null;
     if (block.end !== undefined) {
       endMin = parseHHMM(block.end);
       if (endMin === null || endMin <= startMin) {

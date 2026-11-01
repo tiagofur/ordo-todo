@@ -5,8 +5,6 @@ import {
   Mail,
   Lock,
   User,
-  Github,
-  Chrome,
   ArrowRight,
   Sparkles,
   Check,
@@ -19,7 +17,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button, Input, Label, Separator } from "@ordo-todo/ui";
+import { Button, Input, Label, Separator, GithubIcon as Github, ChromeIcon as Chrome } from "@ordo-todo/ui";
 import TitleBar from "@/components/TitleBar";
 import { apiClient } from "@/lib/api-client";
 import { useRegistrationMode } from "@/hooks/use-registration-mode";

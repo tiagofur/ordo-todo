@@ -18,6 +18,7 @@
 
 // Base UI Components
 export * from './ui/index.js';
+export * from './icons/index.js';
 
 // Domain-specific components (Phase 2)
 export * from './timer/index.js';

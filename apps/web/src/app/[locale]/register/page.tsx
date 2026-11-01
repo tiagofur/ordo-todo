@@ -9,8 +9,6 @@ import {
   Lock,
   User,
   AtSign,
-  Github,
-  Chrome,
   ArrowRight,
   Check,
   X,
@@ -22,7 +20,7 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@ordo-todo/auth-provider";
-import { UsernameInput } from "@ordo-todo/ui";
+import { UsernameInput, GithubIcon as Github, ChromeIcon as Chrome } from "@ordo-todo/ui";
 import {
   useUsernameValidation,
   generateUsernameSuggestions,
