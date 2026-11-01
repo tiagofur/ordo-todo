@@ -15,7 +15,6 @@ on:
       - 'apps/webpage/**'
       - 'apps/webpage/Dockerfile'
       - 'packages/ui/**'
-      - 'packages/ui-shared/**'
       - 'packages/styles/**'
       - 'packages/core/**'
       - 'packages/config/**'
