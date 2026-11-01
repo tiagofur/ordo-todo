@@ -25,7 +25,7 @@ jobs:
             DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
@@ -34,7 +34,7 @@ jobs:
                   cache: npm
 
             - name: Setup Python (for native modules)
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
                   python-version: '3.x'
 
@@ -126,7 +126,7 @@ jobs:
                     --health-retries 5
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
@@ -135,7 +135,7 @@ jobs:
                   cache: npm
 
             - name: Setup Python (for native modules)
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
                   python-version: '3.x'
 
@@ -220,7 +220,7 @@ jobs:
                 working-directory: apps/web
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
@@ -229,7 +229,7 @@ jobs:
                   cache: npm
 
             - name: Setup Python (for native modules)
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
                   python-version: '3.x'
 
@@ -306,7 +306,7 @@ jobs:
                 working-directory: apps/desktop
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
@@ -315,7 +315,7 @@ jobs:
                   cache: npm
 
             - name: Setup Python (for native modules)
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
                   python-version: '3.x'
 
@@ -384,7 +384,7 @@ jobs:
                 working-directory: apps/mobile
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
@@ -393,7 +393,7 @@ jobs:
                   cache: npm
 
             - name: Setup Python (for native modules)
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
                   python-version: '3.x'
 
@@ -459,7 +459,7 @@ jobs:
                 working-directory: apps/extension
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v7
 
             - name: Setup Node.js
               uses: actions/setup-node@v5
