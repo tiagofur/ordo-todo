@@ -24,11 +24,12 @@ import {
   SetMultipleCustomFieldValuesDto,
 } from './dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CustomFieldGuard } from '../common/guards/custom-field.guard';
 
 @ApiTags('CustomFields')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CustomFieldGuard)
 export class CustomFieldsController {
   constructor(private readonly customFieldsService: CustomFieldsService) {}
 
