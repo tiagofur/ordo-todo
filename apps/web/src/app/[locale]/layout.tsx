@@ -1,5 +1,5 @@
 import "../globals.css";
-import { Montserrat } from "next/font/google";
+import { Inter } from "next/font/google";
 import type { Viewport } from "next";
 import { Providers } from "@/components/providers";
 import { PWAProvider } from "@/components/providers/pwa-provider";
@@ -8,7 +8,7 @@ import { getMessages } from 'next-intl/server';
 import { WebVitalsReporter } from "@/components/analytics/web-vitals";
 import { defaultMetadata } from "@/lib/seo";
 
-const font = Montserrat({
+const font = Inter({
   subsets: ["latin"],
 });
 
