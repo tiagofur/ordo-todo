@@ -19,7 +19,7 @@ import {
 import { ChangelogService } from './changelog.service';
 import { CreateChangelogDto } from './dto/create-changelog.dto';
 import { UpdateChangelogDto } from './dto/update-changelog.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AdminGuard } from '../admin/admin.guard';
 import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Changelog')
@@ -61,9 +61,9 @@ export class ChangelogController {
     return this.changelogService.findOne(id);
   }
 
-  // Admin Endpoints protected by JwtAuthGuard
+  // Admin endpoints: global JwtAuthGuard authenticates, AdminGuard authorizes.
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new changelog entry' })
   @ApiResponse({ status: 201, description: 'Changelog entry created.' })
@@ -72,7 +72,7 @@ export class ChangelogController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a changelog entry' })
   @ApiResponse({ status: 200, description: 'Changelog entry updated.' })
@@ -84,7 +84,7 @@ export class ChangelogController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a changelog entry' })
   @ApiResponse({ status: 200, description: 'Changelog entry deleted.' })

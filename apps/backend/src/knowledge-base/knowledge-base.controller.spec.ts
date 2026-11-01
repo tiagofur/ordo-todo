@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { KnowledgeBaseController } from './knowledge-base.controller';
 import { KnowledgeBaseService } from './knowledge-base.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminGuard } from '../admin/admin.guard';
 import { CreateKBCategoryDto } from './dto/create-category.dto';
 import { CreateKBArticleDto } from './dto/create-article.dto';
 
@@ -32,7 +32,7 @@ describe('KnowledgeBaseController', () => {
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
-      .overrideGuard(RolesGuard)
+      .overrideGuard(AdminGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

@@ -13,17 +13,14 @@ import { FAQService } from './faq.service';
 import { CreateFAQDto } from './dto/create-faq.dto';
 import { UpdateFAQDto } from './dto/update-faq.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { MemberRole } from '@prisma/client';
+import { AdminGuard } from '../admin/admin.guard';
 
 @Controller('faq')
 export class FAQController {
   constructor(private readonly faqService: FAQService) {}
 
   @Post()
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   create(@Body() createDto: CreateFAQDto) {
     return this.faqService.create(createDto);
   }
@@ -50,15 +47,13 @@ export class FAQController {
   }
 
   @Patch(':id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   update(@Param('id') id: string, @Body() updateDto: UpdateFAQDto) {
     return this.faqService.update(id, updateDto);
   }
 
   @Delete(':id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   remove(@Param('id') id: string) {
     return this.faqService.remove(id);
   }

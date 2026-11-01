@@ -15,10 +15,8 @@ import { UpdateKBCategoryDto } from './dto/update-category.dto';
 import { CreateKBArticleDto } from './dto/create-article.dto';
 import { UpdateKBArticleDto } from './dto/update-article.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { AdminGuard } from '../admin/admin.guard';
 import { Public } from '../common/decorators/public.decorator';
-import { MemberRole } from '@prisma/client';
 
 @Controller('kb')
 export class KnowledgeBaseController {
@@ -26,8 +24,7 @@ export class KnowledgeBaseController {
 
   // Categories
   @Post('categories')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   createCategory(@Body() dto: CreateKBCategoryDto) {
     return this.kbService.createCategory(dto);
   }
@@ -45,23 +42,20 @@ export class KnowledgeBaseController {
   }
 
   @Patch('categories/:id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   updateCategory(@Param('id') id: string, @Body() dto: UpdateKBCategoryDto) {
     return this.kbService.updateCategory(id, dto);
   }
 
   @Delete('categories/:id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   removeCategory(@Param('id') id: string) {
     return this.kbService.removeCategory(id);
   }
 
   // Articles
   @Post('articles')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   createArticle(@Body() dto: CreateKBArticleDto) {
     return this.kbService.createArticle(dto);
   }
@@ -91,15 +85,13 @@ export class KnowledgeBaseController {
   }
 
   @Patch('articles/:id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   updateArticle(@Param('id') id: string, @Body() dto: UpdateKBArticleDto) {
     return this.kbService.updateArticle(id, dto);
   }
 
   @Delete('articles/:id')
-  @Roles(MemberRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   removeArticle(@Param('id') id: string) {
     return this.kbService.removeArticle(id);
   }

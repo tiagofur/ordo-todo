@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FAQController } from './faq.controller';
 import { FAQService } from './faq.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminGuard } from '../admin/admin.guard';
 import { CreateFAQDto } from './dto/create-faq.dto';
 import { UpdateFAQDto } from './dto/update-faq.dto';
 
@@ -26,7 +26,7 @@ describe('FAQController', () => {
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
-      .overrideGuard(RolesGuard)
+      .overrideGuard(AdminGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
