@@ -22,9 +22,15 @@ export const TASK_PRIORITIES = {
         color: "#EF4444", // red
         order: 3,
     },
+    URGENT: {
+        value: "URGENT" as const,
+        label: "Urgent",
+        color: "#B91C1C", // dark red, escalates HIGH within the same hue
+        order: 4,
+    },
 } as const;
 
-export const PRIORITY_VALUES = ["LOW", "MEDIUM", "HIGH"] as const;
+export const PRIORITY_VALUES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
 /**
  * Task priority type
