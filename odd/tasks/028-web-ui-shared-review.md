@@ -26,7 +26,14 @@ S5: Decisiones de producto abiertas (NO tocar sin respuesta): migración del pri
 - [ ] T7 (deferido, S5) recolor violeta→acción semántica en páginas — route: hecho en T13 para CTAs; resto decorativo pendiente de pase visual — status: partially-done
 - [ ] T8 (deferido, S5) eliminar ui-shared/validations o absorberlos — route: pendiente decisión — status: blocked
 - [ ] T9 (deferido, S5) unificar cliente HTTP y sync-store — route: pendiente diseño — status: blocked
-- [ ] T10 (deferido) Switch doble-toggle, cn/cva x3, paridad tokens, CI gates, CSP/HSTS — route: próximos commits — status: pending
+- [x] T14 (S2,S4-P1.6) ui: dedup cn (lib/utils re-exporta canónico) — route: inline — status: done — commit: 2ae3296b (suite ui 129 verdes)
+- [x] T15 (S2,S4-P1.6) ui: Switch en Radix (disabled respetado, sin input anidado) + test — route: inline — status: done — commit: 949f6f28 (RED→GREEN vitest; tsc sin errores nuevos)
+- [x] T16 (S2,S4-P2.4) ui a11y: Skeleton aria-hidden + StatsCard operable por teclado + tests — route: inline — status: done — commit: f1829e90
+- [x] T17 (S2,S4-P0.2) web: eliminar QueryProvider + ClientProviders muertos — route: inline — status: done — commit: 4b440d08 (0 importadores; purge en api-client queda como no-op hasta unificar HTTP)
+- [x] T18 (S2,S4-P1.2) eliminar @ordo-todo/ui-shared muerto + dep en ui + trigger CI — route: inline — status: done — commit: 9f71b318 (suite ui 135 verdes)
+- [x] T19 (S2,S4-P1.2) eliminar @ordo-todo/validations muerto (3 package.json + transpile + trigger CI) — route: inline — status: done — commit: 8eac52bf + 03b16ba6 (fix COPY en Dockerfile backend para no romper su build + comentario webpage)
+- [x] T20 (S2,S4-P2.3) web: header HSTS (sin preload; CSP queda para pase con browser) — route: inline — status: done — commit: 05c64fe3 (tsc aislado limpio)
+- [ ] T10 (resto) cn/cva en ui-shared (obsoleto con T18), CI gates de packages, CSP, doble HTTP, triple sync-store — route: pendientes — status: pending
 
 ## Log
 
