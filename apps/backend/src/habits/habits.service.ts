@@ -96,26 +96,27 @@ export class HabitsService {
       ? await this.habitRepository.findByUserId(userId)
       : await this.habitRepository.findActiveByUserId(userId);
 
-    // Get completions for this week for each habit
+    // One query for every habit's week completions (no N+1)
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
     const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
 
-    const habitsWithCompletions = await Promise.all(
-      habits.map(async (habit) => {
-        const completions = await this.habitRepository.getCompletions(
-          habit.id,
-          weekStart,
-          weekEnd,
-        );
-        return {
-          ...habit.props,
-          completions: completions.map((c) => ({
-            ...c,
-            completedDate: new Date(c.completedDate),
-          })),
-        };
-      }),
-    );
+    const completionsByHabit =
+      await this.habitRepository.getCompletionsForHabits(
+        habits.map((habit) => habit.id),
+        weekStart,
+        weekEnd,
+      );
+
+    const habitsWithCompletions = habits.map((habit) => {
+      const completions = completionsByHabit.get(habit.id) ?? [];
+      return {
+        ...habit.props,
+        completions: completions.map((c) => ({
+          ...c,
+          completedDate: new Date(c.completedDate),
+        })),
+      };
+    });
 
     // Sort by isPaused, timeOfDay, createdAt
     return habitsWithCompletions.sort((a, b) => {
@@ -150,19 +151,19 @@ export class HabitsService {
           h.props.frequency === 'MONTHLY'),
     );
 
-    // Get today's completions for each habit
-    const habitsWithCompletions = await Promise.all(
-      filteredHabits.map(async (habit) => {
-        const completion = await this.habitRepository.getCompletionForDate(
-          habit.id,
-          parseCalendarDateToUtcMidnight(today),
-        );
-        return {
-          ...habit.props,
-          completions: completion ? [completion] : [],
-        };
-      }),
-    );
+    // One query for every habit's completion today (no N+1)
+    const completionsByHabit =
+      await this.habitRepository.getCompletionsForHabitsOnDate(
+        filteredHabits.map((habit) => habit.id),
+        parseCalendarDateToUtcMidnight(today),
+      );
+    const habitsWithCompletions = filteredHabits.map((habit) => {
+      const completion = completionsByHabit.get(habit.id);
+      return {
+        ...habit.props,
+        completions: completion ? [completion] : [],
+      };
+    });
 
     // Group by time of day
     const grouped = {
@@ -311,7 +312,7 @@ export class HabitsService {
     const newStreak = isConsecutive ? (habit.props.currentStreak || 0) + 1 : 1;
     const newLongest = Math.max(habit.props.longestStreak || 0, newStreak);
 
-    // Create completion using repository (handles transaction internally)
+    // Create completion using repository (atomic inside $transaction)
     const updatedHabit = await this.habitRepository.createCompletion(id, {
       habitId: id,
       completedAt,

@@ -26,6 +26,7 @@ describe('BlogPostService', () => {
     client: {
       user: {
         findUnique: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       blogComment: {
         findUnique: jest.fn(),
@@ -108,6 +109,46 @@ describe('BlogPostService', () => {
       await expect(service.findOne('non-existent')).rejects.toThrow(
         NotFoundException,
       );
+    });
+
+    it('should resolve comment authors in a single batch query', async () => {
+      blogRepository.findPostBySlug.mockResolvedValue(mockPost);
+      blogRepository.findCommentsByPostId.mockResolvedValue([
+        new BlogComment({
+          id: 'comment-1',
+          content: 'First!',
+          userId: 'user-1',
+          postId: mockPost.id as string,
+          createdAt: new Date(),
+        }),
+        new BlogComment({
+          id: 'comment-2',
+          content: 'Agreed',
+          userId: 'user-1',
+          postId: mockPost.id as string,
+          createdAt: new Date(),
+        }),
+        new BlogComment({
+          id: 'comment-3',
+          content: 'Nice',
+          userId: 'user-2',
+          postId: mockPost.id as string,
+          createdAt: new Date(),
+        }),
+      ]);
+      prisma.client.user.findMany.mockResolvedValue([
+        { id: 'user-1', name: 'John', image: null },
+      ]);
+
+      const result = await service.findOne('test-post');
+
+      expect(prisma.client.user.findMany).toHaveBeenCalledTimes(1);
+      expect(prisma.client.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: { in: ['user-1', 'user-2'] } } }),
+      );
+      expect(result.comments).toHaveLength(3);
+      expect(result.comments[0].user).toMatchObject({ id: 'user-1' });
+      expect(result.comments[2].user).toBeNull();
     });
   });
 

@@ -156,36 +156,53 @@ export class WorkspacesService {
   async findAll(userId: string) {
     const workspaces = await this.workspaceRepository.findByUserId(userId);
 
-    const results = await Promise.all(
-      workspaces.map(async (workspace) => {
-        const owner = await this.userRepository.findById(
-          workspace.props.ownerId as string,
-        );
+    // One query for every distinct owner (no N+1)
+    const ownerIds = [
+      ...new Set(
+        workspaces
+          .map((workspace) => workspace.props.ownerId as string)
+          .filter(Boolean),
+      ),
+    ];
+    const owners = ownerIds.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: ownerIds } },
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        })
+      : [];
+    const ownersById = new Map(owners.map((owner) => [owner.id, owner]));
 
-        return {
-          id: workspace.id,
-          name: workspace.props.name,
-          slug: workspace.props.slug,
-          description: workspace.props.description,
-          tier: workspace.props.tier,
-          color: workspace.props.color,
-          icon: workspace.props.icon,
-          ownerId: workspace.props.ownerId,
-          owner: owner
-            ? {
-                id: owner.id,
-                username: owner.props.username,
-                name: owner.props.name,
-                email: owner.props.email,
-              }
-            : null,
-          isArchived: workspace.props.isArchived,
-          createdAt: workspace.props.createdAt,
-          updatedAt: workspace.props.updatedAt,
-          stats: workspace.props.stats,
-        };
-      }),
-    );
+    const results = workspaces.map((workspace) => {
+      const owner = ownersById.get(workspace.props.ownerId as string);
+
+      return {
+        id: workspace.id,
+        name: workspace.props.name,
+        slug: workspace.props.slug,
+        description: workspace.props.description,
+        tier: workspace.props.tier,
+        color: workspace.props.color,
+        icon: workspace.props.icon,
+        ownerId: workspace.props.ownerId,
+        owner: owner
+          ? {
+              id: owner.id,
+              username: owner.username,
+              name: owner.name,
+              email: owner.email,
+            }
+          : null,
+        isArchived: workspace.props.isArchived,
+        createdAt: workspace.props.createdAt,
+        updatedAt: workspace.props.updatedAt,
+        stats: workspace.props.stats,
+      };
+    });
 
     return results;
   }

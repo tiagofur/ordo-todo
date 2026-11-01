@@ -84,6 +84,7 @@ describe('WorkspacesService', () => {
     },
     user: {
       findUnique: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
     },
   };
 
@@ -496,19 +497,20 @@ describe('WorkspacesService', () => {
       mockWorkspaceRepository.findByUserId.mockResolvedValue(
         mockWorkspaces as any,
       );
-      mockUserRepository.findById.mockResolvedValue({
-        id: userId,
-        props: {
+      mockPrismaService.user.findMany.mockResolvedValue([
+        {
+          id: userId,
           username: 'testuser',
           name: 'Test User',
           email: 'test@example.com',
         },
-      });
+      ]);
 
       const result = await service.findAll(userId);
 
       expect(result).toHaveLength(1);
       expect(result[0].ownerId).toBe(userId);
+      expect(mockPrismaService.user.findMany).toHaveBeenCalledTimes(1);
     });
 
     it('should return all workspaces where user is a member', async () => {
@@ -534,18 +536,23 @@ describe('WorkspacesService', () => {
       mockWorkspaceRepository.findByUserId.mockResolvedValue(
         mockWorkspaces as any,
       );
-      mockUserRepository.findById.mockResolvedValue({
-        id: ownerId,
-        props: {
+      mockPrismaService.user.findMany.mockResolvedValue([
+        {
+          id: ownerId,
           username: 'owner',
           name: 'Owner User',
           email: 'owner@example.com',
         },
-      });
+      ]);
 
       const result = await service.findAll(userId);
 
       expect(result).toHaveLength(1);
+      expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: { in: [ownerId] } },
+        }),
+      );
     });
 
     it('should not return deleted workspaces', async () => {

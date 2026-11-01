@@ -41,6 +41,8 @@ describe('HabitsService', () => {
       deleteCompletion: jest.fn(),
       getCompletions: jest.fn(),
       getCompletionForDate: jest.fn(),
+      getCompletionsForHabits: jest.fn().mockResolvedValue(new Map()),
+      getCompletionsForHabitsOnDate: jest.fn().mockResolvedValue(new Map()),
       getStats: jest.fn(),
     };
 
@@ -110,12 +112,24 @@ describe('HabitsService', () => {
       const userId = 'user-123';
 
       habitRepository.findActiveByUserId.mockResolvedValue([mockHabit]);
-      habitRepository.getCompletions.mockResolvedValue([]);
 
       const result = await service.findAll(userId);
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(mockHabit.id);
+    });
+
+    it('should fetch week completions in a single batch query', async () => {
+      const userId = 'user-123';
+
+      habitRepository.findActiveByUserId.mockResolvedValue([mockHabit]);
+
+      await service.findAll(userId);
+
+      expect(
+        habitRepository.getCompletionsForHabits,
+      ).toHaveBeenCalledTimes(1);
+      expect(habitRepository.getCompletions).not.toHaveBeenCalled();
     });
   });
 
