@@ -149,7 +149,7 @@ export default function CalendarPage() {
             <button
               type="button"
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-purple-600/25 transition-all duration-200 hover:bg-purple-700 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>Nueva Tarea</span>

@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const t = useTranslations("Dashboard");
   const format = useFormatter();
   const router = useRouter();
-  const accentColor = "#9333ea"; // Purple
+  const accentColor = "#7C3AED"; // Violet (primary)
 
   const dashboardOnboardingSteps: OnboardingStep[] = useMemo(
     () => [
@@ -528,7 +528,7 @@ export default function DashboardPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
                 >
                   <option value="priority">{t("sortOptions.priority")}</option>
                   <option value="duration">{t("sortOptions.duration")}</option>
@@ -594,7 +594,7 @@ export default function DashboardPage() {
               ) : (
                 <button
                   onClick={() => setShowCreateTaskDialog(true)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-purple-600 text-white shadow-sm shadow-purple-600/25 hover:bg-purple-700 transition-all duration-200"
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 transition-all duration-200"
                 >
                   <Plus className="h-4 w-4" />
                   {t("createTask")}
@@ -721,7 +721,7 @@ export default function DashboardPage() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-600/30 hover:bg-purple-700 transition-all duration-300",
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all duration-300",
             showQuickActions ? "rotate-45" : "rotate-0",
           )}
         >

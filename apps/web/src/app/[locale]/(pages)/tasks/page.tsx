@@ -298,7 +298,7 @@ function TasksPageContent() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("newTask")}</span>
@@ -316,7 +316,7 @@ function TasksPageContent() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar tareas..."
-              className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
+              className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring transition-all"
             />
             {searchQuery && (
               <button
@@ -548,7 +548,7 @@ function TasksPageContent() {
             ) : (
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-purple-500 text-white px-6 py-3 text-sm font-medium shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02]"
+                className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-sm font-medium shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02]"
               >
                 <Plus className="h-4 w-4" />
                 {t("newTask")}
