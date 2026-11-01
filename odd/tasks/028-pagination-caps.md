@@ -30,7 +30,12 @@ activities, habits, comments, tags, meetings, changelog, faq, kb".
   GET /tasks pagina con defaults (limit 20/max 100); /v1/tasks queda
   ilimitado a proposito. Recorte honesto: e2e no ejecutable aqui (sin
   PG) — correr `test:e2e` de tasks antes de mergear.
-- [ ] T3 (S2): resto de listados. Estado: pending (requiere su propio slice).
+- [x] T3a (S2): projects + notifications. Estado: done (full suite
+  1567, backend+web tsc limpios, 0 errores eslint). GET /projects,
+  /projects/all y /notifications paginan con defaults. Quedan T3b+:
+  activities, habits, comments, tags, meetings, changelog, faq, kb,
+  contact, roadmap, templates, newsletter, webhooks, api-tokens, search,
+  workspaces, sessions (+ deleted-projects).
 
 ## Log
 

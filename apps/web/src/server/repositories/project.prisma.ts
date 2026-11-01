@@ -70,17 +70,19 @@ export class PrismaProjectRepository implements ProjectRepository {
         return project ? this.toDomain(project) : null;
     }
 
-    async findByWorkspaceId(workspaceId: string): Promise<Project[]> {
+    async findByWorkspaceId(workspaceId: string, pagination?: { take?: number; skip?: number }): Promise<Project[]> {
         const projects = await this.prisma.project.findMany({
             where: {
                 workspaceId,
                 isDeleted: false,
             },
+            ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
+            ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
         });
         return projects.map(p => this.toDomain(p));
     }
 
-    async findAllByUserId(userId: string): Promise<Project[]> {
+    async findAllByUserId(userId: string, pagination?: { take?: number; skip?: number }): Promise<Project[]> {
         const projects = await this.prisma.project.findMany({
             where: {
                 isDeleted: false,
@@ -91,7 +93,9 @@ export class PrismaProjectRepository implements ProjectRepository {
                         }
                     }
                 }
-            }
+            },
+            ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
+            ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
         });
         return projects.map(p => this.toDomain(p));
     }

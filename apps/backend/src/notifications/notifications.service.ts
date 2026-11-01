@@ -48,7 +48,7 @@ export class NotificationsService {
     if (this.gateway) {
       this.gateway.sendNotification(data.userId, {
         id: notification.id as string,
-        type: notification.type as unknown as NotificationType,
+        type: notification.type,
         title: notification.title,
         message: notification.message ?? undefined,
         resourceId: notification.resourceId ?? undefined,
@@ -82,9 +82,11 @@ export class NotificationsService {
     return notification;
   }
 
-  async findAll(userId: string) {
-    const notifications =
-      await this.notificationRepository.findByUserId(userId);
+  async findAll(userId: string, pagination?: { take?: number; skip?: number }) {
+    const notifications = await this.notificationRepository.findByUserId(
+      userId,
+      pagination,
+    );
     return notifications.map((n) => n.props);
   }
 

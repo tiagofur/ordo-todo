@@ -4,9 +4,11 @@ import {
   Post,
   Patch,
   Param,
+  Query,
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -63,8 +65,11 @@ export class NotificationsController {
     status: 401,
     description: 'Unauthorized - Invalid or missing JWT token',
   })
-  findAll(@Request() req) {
-    return this.notificationsService.findAll(req.user.id);
+  findAll(@Request() req, @Query() pagination: PaginationDto) {
+    return this.notificationsService.findAll(req.user.id, {
+      take: pagination.take,
+      skip: pagination.skip,
+    });
   }
 
   @Get('unread-count')

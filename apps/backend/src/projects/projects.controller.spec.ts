@@ -59,9 +59,16 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'findAll').mockResolvedValue(mockProjects as any);
 
-      const result = await controller.findAll('ws-123');
+      const result = await controller.findAll({
+        workspaceId: 'ws-123',
+        take: 20,
+        skip: 0,
+      });
 
-      expect(service.findAll).toHaveBeenCalledWith('ws-123');
+      expect(service.findAll).toHaveBeenCalledWith('ws-123', {
+        take: 20,
+        skip: 0,
+      });
       expect(result).toEqual(mockProjects);
     });
   });
@@ -155,7 +162,7 @@ describe('ProjectsController', () => {
     it('should delete a project', async () => {
       const mockDeleted = { success: true };
 
-      jest.spyOn(service, 'remove').mockResolvedValue(mockDeleted as any);
+      jest.spyOn(service, 'remove').mockResolvedValue(mockDeleted);
 
       const result = await controller.remove('proj-123');
 

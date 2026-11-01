@@ -414,10 +414,16 @@ export class PrismaTaskRepository implements TaskRepository {
       projectId?: string;
       tags?: string[];
       withoutProject?: boolean;
+      assigneeId?: string;
+      take?: number;
+      skip?: number;
     },
   ): Promise<Task[]> {
     const where: any = {
       isDeleted: false,
+      // Main tasks only: subtasks were previously dropped in memory after a
+      // full fetch; filtering here keeps pages correct once take applies.
+      parentTaskId: null,
       OR: [
         { ownerId: userId },
         { assigneeId: userId },
@@ -455,8 +461,14 @@ export class PrismaTaskRepository implements TaskRepository {
       };
     }
 
+    if (filters?.assigneeId) {
+      where.assigneeId = filters.assigneeId;
+    }
+
     const tasks = await this.prisma.task.findMany({
       where,
+      ...(filters?.take !== undefined ? { take: filters.take } : {}),
+      ...(filters?.skip !== undefined ? { skip: filters.skip } : {}),
       include: {
         subTasks: true,
         recurrence: true,

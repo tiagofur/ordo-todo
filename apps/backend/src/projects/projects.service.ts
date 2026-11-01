@@ -88,14 +88,25 @@ export class ProjectsService {
       .replace(/[^\w-]+/g, '');
   }
 
-  async findAll(workspaceId: string) {
-    const projects =
-      await this.projectRepository.findByWorkspaceId(workspaceId);
+  async findAll(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ) {
+    const projects = await this.projectRepository.findByWorkspaceId(
+      workspaceId,
+      pagination,
+    );
     return projects.map((p) => p.props);
   }
 
-  async findAllByUser(userId: string) {
-    const projects = await this.projectRepository.findAllByUserId(userId);
+  async findAllByUser(
+    userId: string,
+    pagination?: { take?: number; skip?: number },
+  ) {
+    const projects = await this.projectRepository.findAllByUserId(
+      userId,
+      pagination,
+    );
     return projects.map((p) => p.props);
   }
 
