@@ -13,12 +13,13 @@ S5: Decisiones de producto abiertas (NO tocar sin respuesta): migración del pri
 
 ## Tasks
 
-- [ ] T1 (S2,S4-P3) higiene web: retirar artefactos build-error*/build-output*/next.config.old.ts — route: inline — status: pending — commit: —
-- [ ] T2 (S2,S4-P1.6) ui: reparar export ./providers roto (quitar o implementar + test de exports) — route: inline — status: pending — commit: —
-- [ ] T3 (S2,S4-P0.1) web middleware: fail-closed sin exp + documentar que la API es la autoridad — route: inline — status: pending — commit: —
-- [ ] T4 (S2,S4-P1.4) core: alinear PRIORITY_VALUES con URGENT (entity ya lo admite) + test — route: inline — status: pending — commit: —
-- [ ] T5 (S2,S4-P0.3) web: fuente Montserrat→Inter según DESIGN.md — route: inline — status: pending — commit: —
-- [ ] T6 (S2,S4-P1.5) web: noindex en app privada (defaultMetadata) — route: inline — status: pending — commit: —
+- [x] T1 (S2,S4-P3) higiene web: retirar artefactos build-error*/build-output*/next.config.old.ts — route: inline — status: done — commit: 6c6436a8
+- [x] T2 (S2,S4-P1.6) ui: reparar export ./providers roto (quitar o implementar + test de exports) — route: inline — status: done — commit: 9fa3c2aa (quitado; 0 importadores)
+- [x] T3 (S2,S4-P0.1) web middleware: fail-closed sin exp + documentar que la API es la autoridad — route: inline — status: done — commit: 77a6e916 (RED→GREEN con probe node; vitest no corrió: sin node_modules en worktree)
+- [x] T4 (S2,S4-P1.4) core: alinear PRIORITY_VALUES con URGENT (entity ya lo admite) + test — route: inline — status: done — commit: b8ae93bf (RED→GREEN con probe; jest no corrió: sin node_modules)
+- [x] T5 (S2,S4-P0.3) web: fuente Montserrat→Inter según DESIGN.md — route: inline — status: done — commit: 54a13bae
+- [x] T6 (S2,S4-P1.5) web: noindex en app privada (defaultMetadata) — route: inline — status: done — commit: 671ae4fa (+test noindex en seo.test.ts)
+- [x] T6b (S4-P3) web manifest: theme_color a marca #AD46FF + retirar screenshots inexistentes — route: inline — status: done — commit: d6842ce6
 - [ ] T7 (deferido, S5) recolor violeta→acción semántica en páginas — route: pendiente decisión producto — status: blocked
 - [ ] T8 (deferido, S5) eliminar ui-shared/validations o absorberlos — route: pendiente decisión — status: blocked
 - [ ] T9 (deferido, S5) unificar cliente HTTP y sync-store — route: pendiente diseño — status: blocked
