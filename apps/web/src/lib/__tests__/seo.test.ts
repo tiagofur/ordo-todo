@@ -108,6 +108,13 @@ describe("SEO Utilities", () => {
             expect(defaultMetadata.robots).toBeDefined();
         });
 
+        it("defaults to noindex (authenticated app)", () => {
+            expect(defaultMetadata.robots).toMatchObject({
+                index: false,
+                follow: false,
+            });
+        });
+
         it("has icons configuration", () => {
             expect(defaultMetadata.icons).toBeDefined();
         });
