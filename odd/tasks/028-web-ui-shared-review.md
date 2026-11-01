@@ -20,7 +20,10 @@ S5: Decisiones de producto abiertas (NO tocar sin respuesta): migración del pri
 - [x] T5 (S2,S4-P0.3) web: fuente Montserrat→Inter según DESIGN.md — route: inline — status: done — commit: 54a13bae
 - [x] T6 (S2,S4-P1.5) web: noindex en app privada (defaultMetadata) — route: inline — status: done — commit: 671ae4fa (+test noindex en seo.test.ts)
 - [x] T6b (S4-P3) web manifest: theme_color a marca #AD46FF + retirar screenshots inexistentes — route: inline — status: done — commit: d6842ce6
-- [ ] T7 (deferido, S5) recolor violeta→acción semántica en páginas — route: pendiente decisión producto — status: blocked
+- [x] T11 (S5-violeta) styles: voz semántica cian→violeta (#7C3AED/#A78BFA, secondary #F5F3FF/#2E1065) + paridad tokens.ts/test — route: inline — status: done — commit: 8cccebdb (paridad 16/16 con probe; vitest sin correr: sin node_modules)
+- [x] T12 (S5-violeta) docs: cerrar decisión en PRODUCT.md + DESIGN.md — route: inline — status: done — commit: c93e1be0
+- [x] T13 (S5-violeta) web: normalizar CTAs sólidos y focos hardcoded a bg-primary/ring-ring en dashboard/tasks/tasks-view/calendar + accentColor — route: inline — status: done — commit: b1a8985f (tiles/tintes decorativos quedan para pase visual)
+- [ ] T7 (deferido, S5) recolor violeta→acción semántica en páginas — route: hecho en T13 para CTAs; resto decorativo pendiente de pase visual — status: partially-done
 - [ ] T8 (deferido, S5) eliminar ui-shared/validations o absorberlos — route: pendiente decisión — status: blocked
 - [ ] T9 (deferido, S5) unificar cliente HTTP y sync-store — route: pendiente diseño — status: blocked
 - [ ] T10 (deferido) Switch doble-toggle, cn/cva x3, paridad tokens, CI gates, CSP/HSTS — route: próximos commits — status: pending
@@ -30,3 +33,4 @@ S5: Decisiones de producto abiertas (NO tocar sin respuesta): migración del pri
 L1 (2026-11-01, request verbatim que autoriza este trabajo): "haga todo que puedas hacer, haciendo commits de cada tarea, ojo, hay otro agente trabajando en backend asi que worktrees separados"
 L2: request original del review: "hagamos un review completo de la app web y el package de UI y cosas compartidas entre apps".
 L3: worktree /tmp/ordo-web-ui-review creado desde main (84d3dd4) + rama feat/028-web-ui-shared-review; checkout original queda intacto para el agente de backend (feat/027-backend-hardening).
+L4 (2026-11-01, decisión producto verbatim): "migramos a violeta" — cierra el abierto S5/violeta: primario in-app pasa a #7C3AED (claro) / #A78BFA (oscuro). Escala elegida: secondary/accent #F5F3FF con fg #6D28D9, secondary oscuro #2E1065. Contrastes WCAG calculados: blanco/#7C3AED 5.70, #6D28D9/#F5F3FF 6.48, #1A1A24/#A78BFA 6.34, #A78BFA/#2E1065 5.60 (todos AA; el primario claro arregla el 2.43 del cian).
