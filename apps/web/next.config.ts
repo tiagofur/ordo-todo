@@ -92,6 +92,12 @@ const nextConfig: NextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
+          {
+            // Ignored by browsers on http (localhost); enforced on https.
+            // No `preload` flag: that requires submission to the HSTS list.
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains',
+          },
         ],
       },
     ];
