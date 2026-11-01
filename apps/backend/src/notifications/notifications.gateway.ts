@@ -225,7 +225,14 @@ export class NotificationsGateway
    */
   @SubscribeMessage('notification:read')
   handleMarkAsRead(client: Socket, data: { notificationId: string }): void {
-    // This is handled by the REST API, but we acknowledge the event
+    // This is handled by the REST API, but we acknowledge the event.
+    // Payload shape is not trusted: a missing body must not throw.
+    if (!data || typeof data.notificationId !== 'string') {
+      this.logger.warn(
+        `User ${client.data.userId} sent malformed notification:read event`,
+      );
+      return;
+    }
     this.logger.debug(
       `User ${client.data.userId} marked notification ${data.notificationId} as read`,
     );

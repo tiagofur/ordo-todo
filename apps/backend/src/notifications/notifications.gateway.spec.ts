@@ -214,6 +214,27 @@ describe('NotificationsGateway', () => {
     });
   });
 
+  describe('handleMarkAsRead', () => {
+    it('should ignore malformed payloads instead of throwing', () => {
+      const mockSocket = createMockSocket('socket-123', { userId: 'user-1' });
+
+      expect(() =>
+        gateway.handleMarkAsRead(mockSocket, undefined as never),
+      ).not.toThrow();
+      expect(() =>
+        gateway.handleMarkAsRead(mockSocket, {} as never),
+      ).not.toThrow();
+    });
+
+    it('should acknowledge a well-formed read event', () => {
+      const mockSocket = createMockSocket('socket-123', { userId: 'user-1' });
+
+      expect(() =>
+        gateway.handleMarkAsRead(mockSocket, { notificationId: 'notif-1' }),
+      ).not.toThrow();
+    });
+  });
+
   describe('handlePing', () => {
     it('should return pong response', () => {
       const mockSocket = createMockSocket('socket-123', { userId: 'user-123' });
