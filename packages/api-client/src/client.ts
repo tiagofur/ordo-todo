@@ -1505,6 +1505,34 @@ export class OrdoApiClient {
     await this.axios.delete(`/projects/${projectId}`);
   }
 
+  /**
+   * List soft-deleted projects scoped by workspace (trash)
+   * GET /projects/deleted
+   */
+  async getDeletedProjects(workspaceId: string): Promise<Project[]> {
+    const response = await this.axios.get<Project[]>("/projects/deleted", {
+      params: { workspaceId },
+    });
+    return response.data;
+  }
+
+  /**
+   * Restore a soft-deleted project
+   * POST /projects/:id/restore
+   */
+  async restoreProject(id: string): Promise<Project> {
+    const response = await this.axios.post<Project>(`/projects/${id}/restore`);
+    return response.data;
+  }
+
+  /**
+   * Permanently delete a project from trash
+   * DELETE /projects/:id/permanent
+   */
+  async permanentDeleteProject(id: string): Promise<void> {
+    await this.axios.delete(`/projects/${id}/permanent`);
+  }
+
   // ============ TASK ENDPOINTS (8) ============
 
   /**
@@ -1633,6 +1661,34 @@ export class OrdoApiClient {
    */
   async deleteTask(taskId: string): Promise<void> {
     await this.axios.delete(`/tasks/${taskId}`);
+  }
+
+  /**
+   * List soft-deleted tasks, optionally scoped by project (trash)
+   * GET /tasks/deleted
+   */
+  async getDeletedTasks(projectId?: string): Promise<Task[]> {
+    const response = await this.axios.get<Task[]>("/tasks/deleted", {
+      params: projectId ? { projectId } : {},
+    });
+    return response.data;
+  }
+
+  /**
+   * Restore a soft-deleted task
+   * POST /tasks/:id/restore
+   */
+  async restoreTask(id: string): Promise<Task> {
+    const response = await this.axios.post<Task>(`/tasks/${id}/restore`);
+    return response.data;
+  }
+
+  /**
+   * Permanently delete a task from trash
+   * DELETE /tasks/:id/permanent
+   */
+  async permanentDeleteTask(id: string): Promise<void> {
+    await this.axios.delete(`/tasks/${id}/permanent`);
   }
 
   /**
