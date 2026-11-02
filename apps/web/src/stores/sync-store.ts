@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
-  getAllPendingActions,
   getPendingActionsCount,
-  addPendingAction,
-  removePendingAction,
-  incrementRetryCount,
   getLastSyncTime,
   setLastSyncTime,
   PendingAction,
@@ -16,6 +12,39 @@ import {
   getOnlineStatus,
   subscribeOnlineStatus,
 } from "@ordo-todo/online-status";
+import {
+  createSyncEngine,
+  type PendingAction as EngineAction,
+} from "@ordo-todo/stores";
+import { createWebSyncQueueAdapter } from "./sync-queue-adapter";
+
+// Matches the `maxRetries: 3` default that `addPendingAction` stores and the
+// adapter re-applies when the engine saves new actions.
+const WEB_SYNC_MAX_RETRIES = 3;
+
+type StoreSet = (partial: Partial<SyncState>) => void;
+
+/**
+ * Portable engine wired to the web platform: IndexedDB queue via the
+ * adapter, HTTP execution with CSRF + cookies, connectivity from the
+ * online-status monitor. Progress events feed the store's UI state.
+ */
+function createStoreEngine(set: StoreSet) {
+  return createSyncEngine({
+    adapter: createWebSyncQueueAdapter(),
+    execute: executeQueuedAction,
+    isOnline: getOnlineStatus,
+    maxRetries: WEB_SYNC_MAX_RETRIES,
+    events: {
+      onAction: (label) => set({ currentAction: label }),
+      onProgress: (done, total) =>
+        set({
+          syncProgress:
+            total === 0 ? 100 : Math.round((done / total) * 100),
+        }),
+    },
+  });
+}
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
@@ -146,14 +175,15 @@ export const useSyncStore = create<SyncState>()(
         entityType,
         entityId,
       ) => {
-        const id = await addPendingAction({
+        const action = await createStoreEngine(set).queue({
           type,
-          endpoint,
+          url: endpoint,
           method,
-          payload,
+          data: (payload ?? {}) as Record<string, unknown>,
           entityType,
           entityId,
         });
+        const id = action.id;
 
         // Update pending count
         const count = await getPendingActionsCount();
@@ -178,7 +208,7 @@ export const useSyncStore = create<SyncState>()(
 
       // Remove an action
       removeAction: async (id) => {
-        await removePendingAction(id);
+        await createStoreEngine(set).remove(id);
         const count = await getPendingActionsCount();
         set({ pendingCount: count });
       },
@@ -207,59 +237,21 @@ export const useSyncStore = create<SyncState>()(
         };
 
         try {
-          const actions = await getAllPendingActions();
-          const total = actions.length;
+          // The portable engine owns the queue loop: sequential execution,
+          // per-action retry counting against WEB_SYNC_MAX_RETRIES, and
+          // progress events. The store keeps the UI state around it.
+          const engineResult = await createStoreEngine(set).syncAll();
+          result.synced = engineResult.synced;
+          result.failed = engineResult.failed;
+          result.errors = engineResult.errors;
+          result.success = engineResult.success;
 
-          if (total === 0) {
+          if (result.synced + result.failed === 0) {
             logger.log("[SyncStore] No pending actions to sync");
-            await setLastSyncTime();
-            const time = await getLastSyncTime();
-            set({
-              isSyncing: false,
-              status: "idle",
-              syncProgress: 100,
-              lastSyncTime: time,
-            });
-            return result;
-          }
-
-          logger.log(`[SyncStore] Syncing ${total} pending actions...`);
-
-          for (let i = 0; i < actions.length; i++) {
-            const action = actions[i];
-            set({
-              currentAction: `${action.type} ${action.entityType}`,
-              syncProgress: Math.round((i / total) * 100),
-            });
-
-            try {
-              await processPendingAction(action);
-              await removePendingAction(action.id);
-              result.synced++;
-              logger.log(`[SyncStore] Synced action: ${action.id}`);
-            } catch (err) {
-              const errorMessage =
-                err instanceof Error ? err.message : "Unknown error";
-              logger.error(
-                `[SyncStore] Failed to sync action ${action.id}:`,
-                err,
-              );
-
-              const updated = await incrementRetryCount(
-                action.id,
-                errorMessage,
-              );
-
-              if (updated && updated.retryCount >= updated.maxRetries) {
-                // Max retries exceeded, mark as failed
-                result.failed++;
-                result.errors.push({
-                  actionId: action.id,
-                  error: errorMessage,
-                });
-                result.success = false;
-              }
-            }
+          } else {
+            logger.log(
+              `[SyncStore] Sync complete: ${result.synced} synced, ${result.failed} failed`,
+            );
           }
 
           // Update sync time
@@ -288,10 +280,6 @@ export const useSyncStore = create<SyncState>()(
               }),
             );
           }
-
-          logger.log(
-            `[SyncStore] Sync complete: ${result.synced} synced, ${result.failed} failed`,
-          );
         } catch (err) {
           logger.error("[SyncStore] Sync failed:", err);
           set({
@@ -320,6 +308,25 @@ export const useSyncStore = create<SyncState>()(
     },
   ),
 );
+
+/**
+ * Engine `execute`: maps one package-contract action back to the web shape
+ * and runs it through the existing HTTP path (CSRF + cookies).
+ */
+async function executeQueuedAction(action: EngineAction): Promise<void> {
+  await processPendingAction({
+    id: action.id,
+    type: action.type as PendingActionType,
+    endpoint: action.url,
+    method: action.method,
+    payload: action.data,
+    entityType: action.entityType,
+    entityId: action.entityId,
+    timestamp: action.createdAt,
+    retryCount: action.retryCount,
+    maxRetries: WEB_SYNC_MAX_RETRIES,
+  });
+}
 
 /**
  * Process a single pending action by making the API call

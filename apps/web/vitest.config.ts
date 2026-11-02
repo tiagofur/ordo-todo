@@ -26,6 +26,9 @@ export default defineConfig({
             '@': path.resolve(import.meta.dirname, './src'),
             '@ordo-todo/api-client': path.resolve(import.meta.dirname, '../../packages/api-client/src/index.ts'),
             '@ordo-todo/online-status': path.resolve(import.meta.dirname, '../../packages/online-status/src/index.ts'),
+            // Web runtime-imports the sync engine now: test the source, not a
+            // possibly stale dist (same pattern as api-client/online-status).
+            '@ordo-todo/stores': path.resolve(import.meta.dirname, '../../packages/stores/src/index.ts'),
         },
     },
 });
