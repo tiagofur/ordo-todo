@@ -9,6 +9,7 @@ describe('CollaborationGateway', () => {
   let gateway: CollaborationGateway;
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
+  let prisma: { task: { findUnique: jest.Mock; findFirst: jest.Mock } };
 
   const mockServer = {
     to: jest.fn().mockReturnThis(),
@@ -54,11 +55,13 @@ describe('CollaborationGateway', () => {
         findFirst: jest.fn().mockResolvedValue({ id: 'workspace-1' }),
       },
       task: {
+        findUnique: jest.fn(),
         findFirst: jest
           .fn()
           .mockResolvedValue({ id: 'task-1', workspaceId: 'workspace-1' }),
       },
     };
+    prisma = mockPrismaService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -146,6 +149,15 @@ describe('CollaborationGateway', () => {
 
       expect(mockSocket.leave).toHaveBeenCalledWith('workspace:ws-456');
     });
+
+    it('should ignore a missing payload instead of throwing', () => {
+      const mockSocket = createMockSocket('user-123');
+
+      expect(() =>
+        gateway.handleLeaveWorkspace(mockSocket, undefined as never),
+      ).not.toThrow();
+      expect(mockSocket.leave).not.toHaveBeenCalled();
+    });
   });
 
   describe('handleJoinTask', () => {
@@ -168,6 +180,15 @@ describe('CollaborationGateway', () => {
 
       expect(mockSocket.leave).toHaveBeenCalledWith('task:task-789');
     });
+
+    it('should ignore a missing payload instead of throwing', () => {
+      const mockSocket = createMockSocket('user-123');
+
+      expect(() =>
+        gateway.handleLeaveTask(mockSocket, undefined as never),
+      ).not.toThrow();
+      expect(mockSocket.leave).not.toHaveBeenCalled();
+    });
   });
 
   describe('handleTaskUpdate', () => {
@@ -177,13 +198,45 @@ describe('CollaborationGateway', () => {
       const data = {
         taskId: 'task-789',
         changes: { status: 'COMPLETED' },
-        workspaceId: 'ws-123',
       };
 
-      gateway.handleTaskUpdate(mockSocket, data);
+      await gateway.handleTaskUpdate(mockSocket, data);
 
       // Should broadcast to task room using client.to()
       expect(mockSocket.to).toHaveBeenCalledWith('task:task-789');
+    });
+
+    it('should refuse broadcast when membership was revoked since join', async () => {
+      const mockSocket = createMockSocket('user-123');
+      mockSocket.data.currentTaskId = 'task-789';
+      prisma.task.findFirst.mockResolvedValueOnce(null);
+
+      await gateway.handleTaskUpdate(mockSocket, {
+        taskId: 'task-789',
+        changes: { status: 'COMPLETED' },
+      });
+
+      expect(mockSocket.emit).toHaveBeenCalledWith(
+        'error',
+        expect.objectContaining({ message: 'Unauthorized access to task' }),
+      );
+      expect(mockSocket.to).not.toHaveBeenCalled();
+    });
+
+    it('should reject non-object changes payloads', async () => {
+      const mockSocket = createMockSocket('user-123');
+      mockSocket.data.currentTaskId = 'task-789';
+
+      await gateway.handleTaskUpdate(mockSocket, {
+        taskId: 'task-789',
+        changes: 'COMPLETED',
+      });
+
+      expect(mockSocket.emit).toHaveBeenCalledWith(
+        'error',
+        expect.objectContaining({ message: 'Invalid changes payload' }),
+      );
+      expect(mockSocket.to).not.toHaveBeenCalled();
     });
   });
 

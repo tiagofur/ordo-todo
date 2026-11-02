@@ -49,6 +49,15 @@ export interface TaskRepository {
   findById(id: string): Promise<Task | null>;
 
   /**
+   * Batch variant of {@link findById}: one query for many tasks.
+   * Used to avoid N+1 reads (e.g. resolving tasks behind timer sessions).
+   *
+   * @param ids - Task IDs to fetch
+   * @returns Map from task ID to task (absent when not found/deleted)
+   */
+  findByIds(ids: string[]): Promise<Map<string, Task>>;
+
+  /**
    * Finds a task by its unique ID, including soft-deleted tasks.
    *
    * @param id - The unique identifier of the task
@@ -120,6 +129,9 @@ export interface TaskRepository {
       projectId?: string;
       tags?: string[];
       withoutProject?: boolean;
+      assigneeId?: string;
+      take?: number;
+      skip?: number;
     },
   ): Promise<Task[]>;
 

@@ -111,6 +111,8 @@ describe('CreditsService (ODD 004 S6)', () => {
         balance: 0,
         trialUsed: true,
       });
+      // Atomic decrement runs first; the overdraft rolls the tx back.
+      mockAccount.update.mockResolvedValue({ balance: -5 });
 
       const error = await service
         .charge('u1', 'report', 'daily')
@@ -118,7 +120,10 @@ describe('CreditsService (ODD 004 S6)', () => {
       expect(error).toBeInstanceOf(HttpException);
       expect((error as HttpException).getStatus()).toBe(402);
       expect((error as HttpException).message).toMatch(/créditos|credits/i);
-      expect(mockAccount.update).not.toHaveBeenCalled();
+      expect(mockAccount.update).toHaveBeenCalledWith({
+        where: { id: 'a1' },
+        data: { balance: { decrement: 5 } },
+      });
       expect(mockEvent.create).not.toHaveBeenCalled();
     });
 

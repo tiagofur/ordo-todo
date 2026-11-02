@@ -14,7 +14,7 @@ type SlackClient = Pick<WebClient, 'users' | 'dnd'>;
 type SlackClientFactory = (token: string) => SlackClient;
 
 const defaultFactory: SlackClientFactory = (token) =>
-  new WebClient(token) as unknown as SlackClient;
+  new WebClient(token, { timeout: 15_000 });
 
 /**
  * Syncs Ordo focus sessions to the Slack status (S4).
@@ -55,10 +55,10 @@ export class SlackFocusSyncService implements SlackFocusSync {
             status_text: `foco hasta ${time}`,
             status_emoji: ':tomato:',
             status_expiration: Math.floor(endsAt.getTime() / 1000),
-          } as never,
+          },
         });
         if (target.dnd) {
-          await client.dnd.setSnooze({ num_minutes: minutes } as never);
+          await client.dnd.setSnooze({ num_minutes: minutes });
         }
       } catch (error) {
         this.logger.warn(
@@ -74,7 +74,7 @@ export class SlackFocusSyncService implements SlackFocusSync {
       const client = this.clientFactory(target.token);
       try {
         await client.users.profile.set({
-          profile: { status_text: '', status_emoji: '' } as never,
+          profile: { status_text: '', status_emoji: '' },
         });
         if (target.dnd) {
           await client.dnd.endSnooze();

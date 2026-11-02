@@ -14,12 +14,12 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
 import { ChangelogService } from './changelog.service';
 import { CreateChangelogDto } from './dto/create-changelog.dto';
 import { UpdateChangelogDto } from './dto/update-changelog.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AdminGuard } from '../admin/admin.guard';
 import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Changelog')
@@ -30,13 +30,10 @@ export class ChangelogController {
   @Get()
   @Public()
   @ApiOperation({ summary: 'Get all changelog entries' })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'take', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return all changelog entries.' })
-  findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
+  findAll(@Query() pagination: PaginationDto) {
     return this.changelogService.findAll({
-      skip: skip ? Number(skip) : 0,
-      take: take ? Number(take) : 20,
+      ...toTakeSkip(pagination),
       orderBy: 'publishedAt',
     });
   }
@@ -61,9 +58,9 @@ export class ChangelogController {
     return this.changelogService.findOne(id);
   }
 
-  // Admin Endpoints protected by JwtAuthGuard
+  // Admin endpoints: global JwtAuthGuard authenticates, AdminGuard authorizes.
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new changelog entry' })
   @ApiResponse({ status: 201, description: 'Changelog entry created.' })
@@ -72,7 +69,7 @@ export class ChangelogController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a changelog entry' })
   @ApiResponse({ status: 200, description: 'Changelog entry updated.' })
@@ -84,7 +81,7 @@ export class ChangelogController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a changelog entry' })
   @ApiResponse({ status: 200, description: 'Changelog entry deleted.' })

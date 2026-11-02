@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { PrismaService } from '../database/prisma.service';
 
@@ -401,17 +406,27 @@ El resumen debe estar en español y ser profesional pero accesible.`;
    */
   async getMeetings(
     userId: string,
-    options?: { projectId?: string; limit?: number },
+    options?: {
+      projectId?: string;
+      take?: number;
+      skip?: number;
+      /** @deprecated Use take. Kept for the MCP caller. */
+      limit?: number;
+    },
   ): Promise<MeetingRecord[]> {
     const where: any = { userId };
     if (options?.projectId) {
       where.projectId = options.projectId;
     }
+    // `limit` predates pagination and stays as a take alias.
+    const take = options?.take ?? options?.limit;
 
     const meetings = await this.prisma.meeting.findMany({
       where,
-      orderBy: { date: 'desc' },
-      take: options?.limit ?? 50,
+      // Stable order (id tiebreaker) so offset pages never skip/repeat rows.
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
+      ...(take !== undefined ? { take } : {}),
+      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
     });
 
     return meetings.map((m) => ({

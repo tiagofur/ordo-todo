@@ -31,7 +31,7 @@ const TASK_NOTIFICATION_TYPES = new Set([
 const ACTION_TTL_MS = 7 * 24 * 3600 * 1000;
 
 const defaultFactory: SlackClientFactory = (token) =>
-  new WebClient(token) as Pick<WebClient, 'chat'>;
+  new WebClient(token, { timeout: 15_000 });
 
 /**
  * Routes task notifications to Slack DMs/channels (S2).

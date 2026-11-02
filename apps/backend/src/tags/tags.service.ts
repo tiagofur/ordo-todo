@@ -35,10 +35,15 @@ export class TagsService {
     return tag.props;
   }
 
-  async findAll(workspaceId: string) {
+  async findAll(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ) {
     // Use TagRepository to get tags with task count
-    const tags =
-      await this.tagRepository.findByWorkspaceIdWithTaskCount(workspaceId);
+    const tags = await this.tagRepository.findByWorkspaceIdWithTaskCount(
+      workspaceId,
+      pagination,
+    );
 
     this.logger.debug(`Found ${tags.length} tags for workspace ${workspaceId}`);
     return tags;

@@ -1,4 +1,10 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
 import { HealthService } from './health.service';
@@ -107,13 +113,12 @@ export class HealthController {
   })
   async getReadiness() {
     const result = await this.healthService.isReady();
-    return result.ready
-      ? result
-      : new (class extends Error {
-          constructor() {
-            super('Service not ready');
-            this.name = 'ServiceNotReadyError';
-          }
-        })();
+    if (!result.ready) {
+      throw new ServiceUnavailableException({
+        status: 'not ready',
+        ready: false,
+      });
+    }
+    return result;
   }
 }

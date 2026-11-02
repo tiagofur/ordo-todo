@@ -13,8 +13,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
 import { NewsletterService } from './newsletter.service';
 import { SubscribeDto } from './dto/subscribe.dto';
 import { UnsubscribeDto } from './dto/unsubscribe.dto';
@@ -96,13 +96,10 @@ export class NewsletterController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List all newsletter subscribers' })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'take', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Returns list of subscribers.' })
-  findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
+  findAll(@Query() pagination: PaginationDto) {
     return this.newsletterService.findAll({
-      skip: skip ? Number(skip) : 0,
-      take: take ? Number(take) : 20,
+      ...toTakeSkip(pagination),
     });
   }
 }

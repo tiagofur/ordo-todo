@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// @ts-ignore
 import * as nodemailer from 'nodemailer';
-// @ts-ignore
 import type { Transporter } from 'nodemailer';
 import { SendEmailDto } from './dto/send-email.dto';
 import { workspaceInvitationTemplate } from './templates/workspace-invitation.template';
@@ -31,13 +29,16 @@ export class EmailService {
       'Ordo-Todo <no-reply@ordo-todo.app>';
 
     const resendApiKey =
-      this.configService.get<string>('RESEND_API_KEY') || process.env.RESEND_API_KEY;
+      this.configService.get<string>('RESEND_API_KEY') ||
+      process.env.RESEND_API_KEY;
     const smtpHost =
       this.configService.get<string>('SMTP_HOST') ||
       process.env.SMTP_HOST ||
       (resendApiKey ? 'smtp.resend.com' : undefined);
     const smtpPort = parseInt(
-      this.configService.get<string>('SMTP_PORT') || process.env.SMTP_PORT || '587',
+      this.configService.get<string>('SMTP_PORT') ||
+        process.env.SMTP_PORT ||
+        '587',
       10,
     );
     const smtpUser =
@@ -63,13 +64,19 @@ export class EmailService {
             user: smtpUser,
             pass: smtpPass,
           },
+          // Bound SMTP phases: no single phase may hang the sender forever.
+          connectionTimeout: 10_000,
+          greetingTimeout: 10_000,
+          socketTimeout: 30_000,
         });
         this.isConfigured = true;
         this.logger.log(
           `Email service initialized with SMTP transport: ${smtpHost}:${smtpPort} (user: ${smtpUser})`,
         );
       } catch (err: any) {
-        this.logger.error(`Failed to initialize SMTP transporter: ${err.message}`);
+        this.logger.error(
+          `Failed to initialize SMTP transporter: ${err.message}`,
+        );
         this.isConfigured = false;
       }
     } else {
@@ -103,7 +110,9 @@ export class EmailService {
           html: dto.html,
         });
 
-        this.logger.log(`Email sent to ${dto.to} [subject: "${dto.subject}"]: id=${info.messageId}`);
+        this.logger.log(
+          `Email sent to ${dto.to} [subject: "${dto.subject}"]: id=${info.messageId}`,
+        );
         return {
           success: true,
           messageId: info.messageId,
@@ -115,7 +124,9 @@ export class EmailService {
         `[DEV EMAIL DISPATCHED] To: ${dto.to} | Subject: "${dto.subject}" | From: ${this.fromAddress}`,
       );
       if (dto.text) {
-        this.logger.debug(`[DEV EMAIL TEXT PREVIEW]\n${dto.text.slice(0, 300)}...`);
+        this.logger.debug(
+          `[DEV EMAIL TEXT PREVIEW]\n${dto.text.slice(0, 300)}...`,
+        );
       }
 
       return {
@@ -123,7 +134,10 @@ export class EmailService {
         messageId: `mock-${Date.now()}`,
       };
     } catch (error: any) {
-      this.logger.error(`Error sending email to ${dto.to}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error sending email to ${dto.to}: ${error.message}`,
+        error.stack,
+      );
       return {
         success: false,
         error: error.message,

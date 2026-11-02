@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { createHmac } from 'crypto';
+import { SkipOnOverlap } from '../scheduling/cron-batch';
 import { PrismaService } from '../database/prisma.service';
 import { webhookDelegates } from './webhook.delegate';
 import { WebhookCryptoService } from './webhook-crypto.service';
@@ -97,6 +98,7 @@ export class WebhookDispatcherService {
     return { id: delivery.id, status: 'pending' as const };
   }
 
+  @SkipOnOverlap('retryDueDeliveries')
   @Cron(CronExpression.EVERY_MINUTE)
   async retryDueDeliveries(): Promise<void> {
     const delegates = webhookDelegates(this.prisma);

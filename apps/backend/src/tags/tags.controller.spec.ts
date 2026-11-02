@@ -70,7 +70,7 @@ describe('TagsController', () => {
         updatedAt: new Date(),
       };
 
-      tagsService.create.mockResolvedValue(mockTag as any);
+      tagsService.create.mockResolvedValue(mockTag);
 
       const result = await controller.create(createDto);
 
@@ -104,18 +104,27 @@ describe('TagsController', () => {
 
       tagsService.findAll.mockResolvedValue(mockTags as any);
 
-      const result = await controller.findAll('ws-123');
+      const result = await controller.findAll({
+        workspaceId: 'ws-123',
+        limit: 20,
+        page: 0,
+      });
 
-      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123');
+      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123', {
+        take: 20,
+        skip: 0,
+      });
       expect(result).toEqual(mockTags);
     });
 
     it('should return empty array if no tags', async () => {
       tagsService.findAll.mockResolvedValue([]);
 
-      const result = await controller.findAll('ws-123');
+      const result = await controller.findAll({
+        workspaceId: 'ws-123',
+      });
 
-      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123');
+      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123', undefined);
       expect(result).toEqual([]);
     });
   });
@@ -172,7 +181,7 @@ describe('TagsController', () => {
         color: '#3b82f6',
       };
 
-      tagsService.update.mockResolvedValue(updatedTag as any);
+      tagsService.update.mockResolvedValue(updatedTag);
 
       const result = await controller.update('tag-123', updateDto);
 
@@ -191,7 +200,7 @@ describe('TagsController', () => {
         color: '#ef4444',
       };
 
-      tagsService.update.mockResolvedValue(updatedTag as any);
+      tagsService.update.mockResolvedValue(updatedTag);
 
       const result = await controller.update('tag-123', updateDto);
 
@@ -216,7 +225,7 @@ describe('TagsController', () => {
 
   describe('remove', () => {
     it('should delete tag', async () => {
-      tagsService.remove.mockResolvedValue({ success: true } as any);
+      tagsService.remove.mockResolvedValue({ success: true });
 
       const result = await controller.remove('tag-123');
 
@@ -287,7 +296,7 @@ describe('TagsController', () => {
 
   describe('removeFromTask', () => {
     it('should remove tag from task', async () => {
-      tagsService.removeFromTask.mockResolvedValue({ success: true } as any);
+      tagsService.removeFromTask.mockResolvedValue({ success: true });
 
       const result = await controller.removeFromTask('tag-123', 'task-123');
 

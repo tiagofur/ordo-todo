@@ -307,6 +307,33 @@ export interface IHabitRepository {
   ): Promise<HabitCompletionProps | null>;
 
   /**
+   * Batch variant of {@link getCompletions}: one query for many habits.
+   * Used to avoid N+1 reads when rendering completion calendars.
+   *
+   * @param habitIds - Habit IDs to fetch
+   * @param startDate - Start of the date range (inclusive)
+   * @param endDate - End of the date range (inclusive)
+   * @returns Map from habit ID to its completions (missing IDs map to [])
+   */
+  getCompletionsForHabits(
+    habitIds: string[],
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Map<string, HabitCompletionProps[]>>;
+
+  /**
+   * Batch variant of {@link getCompletionForDate}: one query for many habits.
+   *
+   * @param habitIds - Habit IDs to fetch
+   * @param date - The date to check for completion
+   * @returns Map from habit ID to its completion (absent when not completed)
+   */
+  getCompletionsForHabitsOnDate(
+    habitIds: string[],
+    date: Date,
+  ): Promise<Map<string, HabitCompletionProps>>;
+
+  /**
    * Calculates comprehensive statistics for a habit.
    *
    * Used for displaying habit metrics and insights, such as current streak,

@@ -61,6 +61,16 @@ export class MockUserRepository implements UserRepository {
     return user || null;
   }
 
+  async findByIds(ids: string[]): Promise<Map<string, User>> {
+    const grouped = new Map<string, User>();
+    for (const user of this.users) {
+      if (ids.includes(user.id as string)) {
+        grouped.set(user.id as string, user);
+      }
+    }
+    return grouped;
+  }
+
   // Test helper methods
   getSaveCalls(): User[] {
     return [...this.saveCalls];

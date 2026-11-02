@@ -44,6 +44,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
+import { QueryTasksDto } from './dto/query-tasks.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 import { DayPlanService } from './day-plan.service';
 import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { TagsService } from '../tags/tags.service';
@@ -338,7 +340,10 @@ export class TasksController {
   })
   @ApiResponseDecorator({ status: 200, description: 'Deleted tasks retrieved' })
   @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
-  getDeleted(@Query('projectId') projectId?: string, @CurrentUser() user?: RequestUser) {
+  getDeleted(
+    @Query('projectId') projectId?: string,
+    @CurrentUser() user?: RequestUser,
+  ) {
     // ODD 021: sin projectId devuelve las tareas express borradas del usuario
     return this.tasksService.getDeleted(projectId, user?.id);
   }
@@ -425,13 +430,8 @@ export class TasksController {
   // The service currently filters by 'ownerId' which is WRONG for a team app (should be workspace based).
   // But fixing that service logic is a bigger refactor of the 'findAll' method.
   // For now, let's keep it but ideally we should update findAll to filter by workspace permissions.
-  findAll(
-    @CurrentUser() user: RequestUser,
-    @Query('projectId') projectId?: string,
-    @Query('tags') tags?: string | string[],
-    @Query('assignedToMe') assignedToMe?: string,
-    @Query('withoutProject') withoutProject?: string,
-  ) {
+  findAll(@CurrentUser() user: RequestUser, @Query() query: QueryTasksDto) {
+    const { projectId, tags, assignedToMe, withoutProject } = query;
     const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
     const filterAssignedToMe = assignedToMe === 'true';
     const filterWithoutProject = withoutProject === 'true';
@@ -449,6 +449,7 @@ export class TasksController {
       tagList,
       filterAssignedToMe,
       filterWithoutProject,
+      toTakeSkip(query),
     );
   }
 

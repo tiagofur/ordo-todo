@@ -328,6 +328,7 @@ describe('PrismaTaskRepository', () => {
       expect(mockPrismaService.task.findMany).toHaveBeenCalledWith({
         where: {
           isDeleted: false,
+          parentTaskId: null,
           OR: [
             { ownerId: userId },
             { assigneeId: userId },
@@ -350,6 +351,28 @@ describe('PrismaTaskRepository', () => {
         include: expect.any(Object),
       });
       expect(result).toHaveLength(1);
+    });
+
+    it('passes take/skip and assigneeId through to findMany', async () => {
+      const userId = 'user-123';
+      mockPrismaService.task.findMany.mockResolvedValue([]);
+
+      await repository.findByWorkspaceMemberships(userId, {
+        assigneeId: userId,
+        take: 10,
+        skip: 20,
+      });
+
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            assigneeId: userId,
+            parentTaskId: null,
+          }),
+          take: 10,
+          skip: 20,
+        }),
+      );
     });
   });
 

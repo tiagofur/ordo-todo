@@ -275,6 +275,47 @@ export class PrismaTaskRepository implements TaskRepository {
     return this.toDomain(task);
   }
 
+  async findByIds(ids: string[]): Promise<Map<string, Task>> {
+    const grouped = new Map<string, Task>();
+    const uniqueIds = [...new Set(ids)];
+    if (uniqueIds.length === 0) {
+      return grouped;
+    }
+    const tasks = await this.prisma.task.findMany({
+      where: { id: { in: uniqueIds }, isDeleted: false },
+      include: {
+        subTasks: true,
+        recurrence: true,
+        tags: { include: { tag: true } },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+    for (const task of tasks) {
+      grouped.set(task.id, this.toDomain(task));
+    }
+    return grouped;
+  }
+
   async findByIdIncludeDeleted(id: string): Promise<Task | null> {
     const task = await this.prisma.task.findFirst({
       where: { id },
@@ -373,10 +414,16 @@ export class PrismaTaskRepository implements TaskRepository {
       projectId?: string;
       tags?: string[];
       withoutProject?: boolean;
+      assigneeId?: string;
+      take?: number;
+      skip?: number;
     },
   ): Promise<Task[]> {
     const where: any = {
       isDeleted: false,
+      // Main tasks only: subtasks were previously dropped in memory after a
+      // full fetch; filtering here keeps pages correct once take applies.
+      parentTaskId: null,
       OR: [
         { ownerId: userId },
         { assigneeId: userId },
@@ -414,8 +461,14 @@ export class PrismaTaskRepository implements TaskRepository {
       };
     }
 
+    if (filters?.assigneeId) {
+      where.assigneeId = filters.assigneeId;
+    }
+
     const tasks = await this.prisma.task.findMany({
       where,
+      ...(filters?.take !== undefined ? { take: filters.take } : {}),
+      ...(filters?.skip !== undefined ? { skip: filters.skip } : {}),
       include: {
         subTasks: true,
         recurrence: true,

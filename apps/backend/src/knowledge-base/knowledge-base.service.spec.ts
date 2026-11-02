@@ -89,5 +89,22 @@ describe('KnowledgeBaseService', () => {
       expect(result.helpfulYes).toBe(1);
       expect(repository.updateArticle).toHaveBeenCalled();
     });
+
+    it('should thread take/skip to the repository', async () => {
+      repository.findAllArticles.mockResolvedValue([mockArticle]);
+
+      const result = await service.findAllArticles({
+        publishedOnly: true,
+        take: 10,
+        skip: 20,
+      });
+
+      expect(repository.findAllArticles).toHaveBeenCalledWith({
+        publishedOnly: true,
+        take: 10,
+        skip: 20,
+      });
+      expect(result).toHaveLength(1);
+    });
   });
 });

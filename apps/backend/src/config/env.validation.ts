@@ -1,9 +1,12 @@
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 import {
+  IsBooleanString,
   IsEnum,
   IsIn,
+  IsInt,
   IsNumber,
   IsString,
+  IsUrl,
   Min,
   Max,
   MinLength,
@@ -124,6 +127,130 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   OPENAI_APPS_CHALLENGE_TOKEN?: string;
+
+  // ODD 029 T1: URLs/infra. Todas opcionales (el código trae fallbacks),
+  // pero con formato validado cuando vienen seteadas. `require_tld:
+  // false` para permitir http://localhost en desarrollo y
+  // `require_protocol: true` para rechazar strings sin esquema.
+  @IsUrl({ require_tld: false, require_protocol: true })
+  @IsOptional()
+  FRONTEND_URL?: string;
+
+  @IsUrl({ require_tld: false, require_protocol: true })
+  @IsOptional()
+  API_URL?: string;
+
+  @IsString()
+  @IsOptional()
+  TZ?: string;
+
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  @IsOptional()
+  DB_POOL_MAX?: number;
+
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  @IsOptional()
+  DB_POOL_MIN?: number;
+
+  @IsString()
+  @IsOptional()
+  REDIS_URL?: string;
+
+  @IsBooleanString()
+  @IsOptional()
+  REDIS_ENABLED?: string;
+
+  // ODD 029 T2: email. Todo opcional (EmailService cae a no-reply y a
+  // Resend cuando hay API key); formato validado cuando viene seteado.
+  @IsString()
+  @IsOptional()
+  EMAIL_FROM?: string;
+
+  @IsString()
+  @IsOptional()
+  RESEND_API_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  SMTP_HOST?: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  @Type(() => Number)
+  @IsOptional()
+  SMTP_PORT?: number;
+
+  @IsString()
+  @IsOptional()
+  SMTP_USER?: string;
+
+  @IsString()
+  @IsOptional()
+  SMTP_PASS?: string;
+
+  @IsBooleanString()
+  @IsOptional()
+  SMTP_SECURE?: string;
+
+  // ODD 029 T3: billing/seguridad/misc. Todo opcional: Stripe es lazy
+  // (falla solo al usarse), ADMIN_API_KEY convive con ADMIN_EMAILS,
+  // WEBHOOK_SECRET_KEY exige >=32 solo al cifrar (igual que el crypto
+  // service) y el resto tiene defaults en código.
+  @IsString()
+  @IsOptional()
+  STRIPE_SECRET_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  STRIPE_WEBHOOK_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  STRIPE_PRICE_PRO_ANNUAL?: string;
+
+  @IsString()
+  @IsOptional()
+  ADMIN_API_KEY?: string;
+
+  @IsString()
+  @MinLength(32)
+  @IsOptional()
+  WEBHOOK_SECRET_KEY?: string;
+
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  @IsOptional()
+  JWT_SECRET_ROTATION_DAYS?: number;
+
+  @IsString()
+  @IsOptional()
+  GOOGLE_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  GOOGLE_CLIENT_SECRET?: string;
+
+  @IsUrl({ require_tld: false, require_protocol: true })
+  @IsOptional()
+  GOOGLE_CALLBACK_URL?: string;
+
+  @IsString()
+  @IsOptional()
+  GITHUB_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  GITHUB_CLIENT_SECRET?: string;
+
+  @IsUrl({ require_tld: false, require_protocol: true })
+  @IsOptional()
+  GITHUB_CALLBACK_URL?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

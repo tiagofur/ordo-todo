@@ -10,7 +10,8 @@ import { DurationLearningService } from './duration-learning.service';
 describe('DurationLearningService (ODD 005 S5)', () => {
   let service: DurationLearningService;
   let timerRepo: { findByUserIdAndDateRange: jest.Mock };
-  let taskRepo: { findById: jest.Mock };
+  let taskRepo: { findByIds: jest.Mock };
+  let taskForId: (id: string) => Task;
 
   const session = (
     id: string,
@@ -50,7 +51,12 @@ describe('DurationLearningService (ODD 005 S5)', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     timerRepo = { findByUserIdAndDateRange: jest.fn().mockResolvedValue([]) };
-    taskRepo = { findById: jest.fn().mockResolvedValue(null) };
+    taskForId = (id: string) => task(id);
+    taskRepo = {
+      findByIds: jest.fn((ids: string[]) =>
+        Promise.resolve(new Map(ids.map((id) => [id, taskForId(id)] as const))),
+      ),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DurationLearningService,
@@ -69,9 +75,8 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       durations.map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(task(id, { tags: [{ name: 'dev', color: '#000' }] })),
-    );
+    taskForId = (id: string) =>
+      task(id, { tags: [{ name: 'dev', color: '#000' }] });
 
     const out = await service.predict('user-1', { category: 'dev' });
 
@@ -82,15 +87,33 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     expect(out.reasoning).toMatch(/atípicas/i);
   });
 
+  it('resolves tasks behind sessions in a single batch query (no N+1)', async () => {
+    timerRepo.findByUserIdAndDateRange.mockResolvedValue(
+      [44, 45, 46, 47, 48].map((d, i) => session(`s${i}`, `t${i}`, d)),
+    );
+    taskForId = (id: string) =>
+      task(id, { tags: [{ name: 'dev', color: '#000' }] });
+
+    const out = await service.predict('user-1', { category: 'dev' });
+
+    expect(taskRepo.findByIds).toHaveBeenCalledTimes(1);
+    expect(taskRepo.findByIds).toHaveBeenCalledWith([
+      't0',
+      't1',
+      't2',
+      't3',
+      't4',
+    ]);
+    expect(out.source).toBe('history');
+  });
+
   it('mean error vs baseline improves with real history (ODD S5 check)', async () => {
     // Baseline: the old static default (30min). History says ~120min.
     const durations = [110, 115, 120, 125, 130];
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       durations.map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(task(id)),
-    );
+    taskForId = (id: string) => task(id);
 
     const out = await service.predict('user-1', {});
     const baseline = 30;
@@ -126,18 +149,15 @@ describe('DurationLearningService (ODD 005 S5)', () => {
       session('s5', 't5', 30),
       session('s6', 't6', 35),
     ]);
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(
-        task(id, {
-          tags: [
-            {
-              name: id === 't1' || id === 't2' ? 'dev' : 'other',
-              color: '#000',
-            },
-          ],
-        }),
-      ),
-    );
+    taskForId = (id: string) =>
+      task(id, {
+        tags: [
+          {
+            name: id === 't1' || id === 't2' ? 'dev' : 'other',
+            color: '#000',
+          },
+        ],
+      });
 
     const out = await service.predict('user-1', { category: 'dev' });
 
@@ -152,9 +172,7 @@ describe('DurationLearningService (ODD 005 S5)', () => {
       session('s2', 't2', 15, { type: 'SHORT_BREAK' }), // a break, not work
       ...[50, 52, 55, 58, 60].map((d, i) => session(`w${i}`, `t${i}`, d)),
     ]);
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(task(id)),
-    );
+    taskForId = (id: string) => task(id);
 
     const out = await service.predict('user-1', {});
 
@@ -168,14 +186,11 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       [44, 45, 46, 47, 48].map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(
-        task(id, {
-          tags: [],
-          project: { id: 'p9', name: 'Backend API', color: '#000' },
-        }),
-      ),
-    );
+    taskForId = (id: string) =>
+      task(id, {
+        tags: [],
+        project: { id: 'p9', name: 'Backend API', color: '#000' },
+      });
 
     const out = await service.predict('user-1', { category: 'backend api' });
 
@@ -190,9 +205,7 @@ describe('DurationLearningService (ODD 005 S5)', () => {
           session(`s${i}`, `t${i}`, 45 + (i % 5)),
         ),
       );
-      taskRepo.findById.mockImplementation((id: string) =>
-        Promise.resolve(task(id)),
-      );
+      taskForId = (id: string) => task(id);
       return service.predict('user-1', {});
     };
 
@@ -207,9 +220,7 @@ describe('DurationLearningService (ODD 005 S5)', () => {
     timerRepo.findByUserIdAndDateRange.mockResolvedValue(
       [44, 45, 46, 47, 48].map((d, i) => session(`s${i}`, `t${i}`, d)),
     );
-    taskRepo.findById.mockImplementation((id: string) =>
-      Promise.resolve(task(id)),
-    );
+    taskForId = (id: string) => task(id);
 
     const out = await service.predict('user-1', { category: '   ' });
 

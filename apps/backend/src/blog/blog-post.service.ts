@@ -75,18 +75,20 @@ export class BlogPostService {
     // To maintain compatibility with existing controller/frontend, we might need to return a plain object
     // with comments included and populated.
 
-    const commentsWithUser = await Promise.all(
-      comments.map(async (c) => {
-        const user = await this.prisma.client.user.findUnique({
-          where: { id: c.userId },
+    // One query for every distinct comment author (no N+1)
+    const authorIds = [...new Set(comments.map((c) => c.userId))];
+    const authors = authorIds.length
+      ? await this.prisma.client.user.findMany({
+          where: { id: { in: authorIds } },
           select: { id: true, name: true, image: true },
-        });
-        return {
-          ...c.props,
-          user,
-        };
-      }),
-    );
+        })
+      : [];
+    const authorsById = new Map(authors.map((author) => [author.id, author]));
+
+    const commentsWithUser = comments.map((c) => ({
+      ...c.props,
+      user: authorsById.get(c.userId) ?? null,
+    }));
 
     return {
       ...post.props,

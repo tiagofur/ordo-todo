@@ -5,6 +5,7 @@ import { NotificationsGateway } from './notifications.gateway';
 import { PrismaService } from '../database/prisma.service';
 import { BurnoutPreventionService } from '../ai/burnout-prevention.service';
 import type { TimerRepository } from '@ordo-todo/core';
+import { SkipOnOverlap, forEachUserBatched } from '../scheduling/cron-batch';
 
 @Injectable()
 export class SmartNotificationsService {
@@ -19,6 +20,7 @@ export class SmartNotificationsService {
     @Optional() private readonly burnoutService?: BurnoutPreventionService,
   ) {}
 
+  @SkipOnOverlap('checkUpcomingTasks')
   @Cron(CronExpression.EVERY_10_MINUTES)
   async checkUpcomingTasks() {
     this.logger.log('Checking upcoming tasks...');
@@ -96,6 +98,7 @@ export class SmartNotificationsService {
     }
   }
 
+  @SkipOnOverlap('checkLongWorkSessions')
   @Cron(CronExpression.EVERY_30_MINUTES)
   async checkLongWorkSessions() {
     this.logger.log('Checking for long work sessions...');
@@ -144,17 +147,14 @@ export class SmartNotificationsService {
     }
   }
 
+  @SkipOnOverlap('sendDailyPlanningReminder')
   @Cron('0 9 * * 1-5')
   async sendDailyPlanningReminder() {
     this.logger.log('Sending daily planning reminders...');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const users = await this.prisma.user.findMany({
-      select: { id: true },
-    });
-
-    for (const user of users) {
+    await forEachUserBatched(this.prisma, async (user) => {
       const tasksCreatedToday = await this.prisma.task.count({
         where: {
           ownerId: user.id,
@@ -187,7 +187,7 @@ export class SmartNotificationsService {
           this.logger.log(`Sent daily planning reminder to user ${user.id}`);
         }
       }
-    }
+    });
   }
 
   // ============ BURNOUT PREVENTION CRON JOBS ============
@@ -196,9 +196,11 @@ export class SmartNotificationsService {
    * Check for burnout risk daily at 6pm
    * Sends proactive notifications to users at risk
    */
+  @SkipOnOverlap('checkBurnoutRisk')
   @Cron('0 18 * * *')
   async checkBurnoutRisk() {
-    if (!this.burnoutService) {
+    const burnoutService = this.burnoutService;
+    if (!burnoutService) {
       this.logger.warn(
         'BurnoutPreventionService not available, skipping burnout check',
       );
@@ -206,15 +208,9 @@ export class SmartNotificationsService {
     }
 
     this.logger.log('Checking burnout risk for all users...');
-    const users = await this.prisma.user.findMany({
-      select: { id: true },
-    });
-
-    for (const user of users) {
+    await forEachUserBatched(this.prisma, async (user) => {
       try {
-        const intervention = await this.burnoutService.checkForIntervention(
-          user.id,
-        );
+        const intervention = await burnoutService.checkForIntervention(user.id);
 
         if (intervention && intervention.shouldNotify) {
           // Check if we already sent a burnout notification today
@@ -260,15 +256,17 @@ export class SmartNotificationsService {
       } catch (error) {
         this.logger.error(`Failed to check burnout for user ${user.id}`, error);
       }
-    }
+    });
   }
 
   /**
    * Send weekly wellbeing report every Sunday at 8pm
    */
+  @SkipOnOverlap('sendWeeklyWellbeingReport')
   @Cron('0 20 * * 0')
   async sendWeeklyWellbeingReport() {
-    if (!this.burnoutService) {
+    const burnoutService = this.burnoutService;
+    if (!burnoutService) {
       this.logger.warn(
         'BurnoutPreventionService not available, skipping weekly report',
       );
@@ -276,14 +274,11 @@ export class SmartNotificationsService {
     }
 
     this.logger.log('Sending weekly wellbeing reports...');
-    const users = await this.prisma.user.findMany({
-      select: { id: true },
-    });
-
-    for (const user of users) {
+    await forEachUserBatched(this.prisma, async (user) => {
       try {
-        const summary =
-          await this.burnoutService.generateWeeklyWellbeingSummary(user.id);
+        const summary = await burnoutService.generateWeeklyWellbeingSummary(
+          user.id,
+        );
 
         // Build a nice summary message
         const scoreEmoji =
@@ -326,32 +321,30 @@ export class SmartNotificationsService {
           error,
         );
       }
-    }
+    });
   }
 
   /**
    * Smart break reminder - checks every 15 minutes for users who need breaks
    * More intelligent than the 2-hour fixed timer
    */
+  @SkipOnOverlap('smartBreakReminder')
   @Cron('*/15 * * * *')
   async smartBreakReminder() {
-    if (!this.burnoutService) return;
+    const burnoutService = this.burnoutService;
+    if (!burnoutService) return;
 
     this.logger.debug('Running smart break reminder check...');
     const now = new Date();
 
     // Find active work sessions using TimerRepository
     // Get all users first, then check each for active sessions
-    const users = await this.prisma.user.findMany({
-      select: { id: true },
-    });
-
-    for (const user of users) {
+    await forEachUserBatched(this.prisma, async (user) => {
       const activeSession = await this.timerRepository.findActiveSession(
         user.id,
       );
 
-      if (!activeSession || activeSession.props.type !== 'WORK') continue;
+      if (!activeSession || activeSession.props.type !== 'WORK') return;
 
       const sessionMinutes = Math.floor(
         (now.getTime() - new Date(activeSession.props.startedAt).getTime()) /
@@ -359,11 +352,12 @@ export class SmartNotificationsService {
       );
 
       // Only check if session is at least 75 minutes (give buffer before 90min threshold)
-      if (sessionMinutes < 75) continue;
+      if (sessionMinutes < 75) return;
 
       try {
-        const recommendations =
-          await this.burnoutService.getRestRecommendations(user.id);
+        const recommendations = await burnoutService.getRestRecommendations(
+          user.id,
+        );
 
         const breakRec = recommendations.find(
           (r) => r.type === 'TAKE_BREAK' && r.priority === 'HIGH',
@@ -408,6 +402,6 @@ export class SmartNotificationsService {
           error,
         );
       }
-    }
+    });
   }
 }

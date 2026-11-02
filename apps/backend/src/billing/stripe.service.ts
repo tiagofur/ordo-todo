@@ -23,7 +23,7 @@ export class StripeService {
       );
     }
     if (!this.client) {
-      this.client = new Stripe(key);
+      this.client = new Stripe(key, { timeout: 20_000, maxNetworkRetries: 2 });
     }
     return this.client;
   }

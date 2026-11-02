@@ -25,6 +25,8 @@ import {
   ActionItem,
   MeetingAnalysis,
 } from './meeting-assistant.service';
+import { QueryMeetingsDto } from './dto/query-meetings.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 
 // DTOs
 class AnalyzeTranscriptDto {
@@ -453,15 +455,17 @@ export class MeetingsController {
    */
   @Get()
   @ApiOperation({ summary: 'List saved meetings' })
-  @ApiResponse({ status: 200, description: 'List of meetings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of meetings retrieved successfully',
+  })
   async getMeetings(
     @CurrentUser() user: RequestUser,
-    @Query('projectId') projectId?: string,
-    @Query('limit') limit?: string,
+    @Query() query: QueryMeetingsDto,
   ) {
     return this.meetingService.getMeetings(user.id, {
-      projectId,
-      limit: limit ? parseInt(limit, 10) : undefined,
+      projectId: query.projectId,
+      ...toTakeSkip(query),
     });
   }
 
@@ -470,7 +474,10 @@ export class MeetingsController {
    */
   @Get(':id')
   @ApiOperation({ summary: 'Get meeting by ID' })
-  @ApiResponse({ status: 200, description: 'Meeting details retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Meeting details retrieved successfully',
+  })
   @ApiResponse({ status: 404, description: 'Meeting not found' })
   async getMeetingById(
     @Param('id') id: string,

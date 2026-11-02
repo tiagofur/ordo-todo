@@ -30,7 +30,9 @@ describe('ProjectsService', () => {
           useValue: {
             assertWithinWorkspaceLimit: jest.fn().mockResolvedValue(undefined),
             assertWithinProjectLimit: jest.fn().mockResolvedValue(undefined),
-            assertWithinTaskStorageLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinTaskStorageLimit: jest
+              .fn()
+              .mockResolvedValue(undefined),
           },
         },
         {
@@ -77,10 +79,23 @@ describe('ProjectsService', () => {
 
       expect(mockProjectRepository.findByWorkspaceId).toHaveBeenCalledWith(
         workspaceId,
+        undefined,
       );
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('project-1');
       expect(result[1].id).toBe('project-2');
+    });
+
+    it('passes pagination through to the repository', async () => {
+      const workspaceId = 'workspace-123';
+      mockProjectRepository.findByWorkspaceId.mockResolvedValue([]);
+
+      await service.findAll(workspaceId, { take: 10, skip: 20 });
+
+      expect(mockProjectRepository.findByWorkspaceId).toHaveBeenCalledWith(
+        workspaceId,
+        { take: 10, skip: 20 },
+      );
     });
 
     it('should return empty array when no projects found', async () => {
@@ -112,8 +127,21 @@ describe('ProjectsService', () => {
 
       expect(mockProjectRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
+        undefined,
       );
       expect(result).toHaveLength(1);
+    });
+
+    it('passes pagination through to the repository', async () => {
+      const userId = 'user-123';
+      mockProjectRepository.findAllByUserId.mockResolvedValue([]);
+
+      await service.findAllByUser(userId, { take: 5, skip: 5 });
+
+      expect(mockProjectRepository.findAllByUserId).toHaveBeenCalledWith(
+        userId,
+        { take: 5, skip: 5 },
+      );
     });
   });
 

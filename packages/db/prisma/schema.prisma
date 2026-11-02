@@ -115,6 +115,8 @@ model User {
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 
@@ -184,6 +186,8 @@ model KBArticle {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
 }
 
 // ============ NEWSLETTER ============
@@ -243,6 +247,7 @@ model RoadmapVote {
   createdAt DateTime @default(now())
 
   @@unique([itemId, userId]) // One vote per user per item
+  @@index([userId])
 }
 
 enum RoadmapStatus {
@@ -332,6 +337,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -340,6 +346,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model UserPreferences {
@@ -1122,6 +1130,7 @@ model Task {
   @@index([projectId, status, dueDate])
   @@index([assigneeId, status, priority])
   @@index([deletedAt])
+  @@index([parentTaskId])
 }
 
 enum TaskStatus {
@@ -1150,6 +1159,7 @@ model TaskDependency {
   createdAt DateTime @default(now())
 
   @@unique([blockingTaskId, blockedTaskId])
+  @@index([blockedTaskId])
 }
 
 model Recurrence {
@@ -1228,6 +1238,7 @@ model TaskTag {
   tagId String
 
   @@id([taskId, tagId])
+  @@index([tagId])
 }
 
 model Attachment {
@@ -1571,6 +1582,7 @@ model InviteCode {
 
   @@index([isActive])
   @@index([createdAt])
+  @@index([createdById])
 }
 
 model InviteRedemption {
@@ -1678,6 +1690,7 @@ model UserAchievement {
 
   @@unique([userId, achievementId])
   @@index([userId])
+  @@index([achievementId])
 }
 
 // ============ HABITS ============
@@ -2030,6 +2043,7 @@ model Meeting {
   @@index([projectId])
   @@index([date])
   @@index([userId, date])
+  @@index([workspaceId])
 }
 
 // ============ AUTH AUDIT LOGS ============

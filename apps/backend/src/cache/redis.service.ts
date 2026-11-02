@@ -33,6 +33,7 @@ export class RedisService implements OnModuleInit {
   private client: Redis.RedisClientType;
   private subscriber: Redis.RedisClientType;
   private publisher: Redis.RedisClientType;
+  private readonly extraSubscribers = new Set<Redis.RedisClientType>();
   private isConnected = false;
 
   // Metrics
@@ -245,6 +246,9 @@ export class RedisService implements OnModuleInit {
 
     try {
       const subscriber = this.subscriber.duplicate();
+      // Tracked so onModuleDestroy closes it (previously leaked one
+      // connection per subscription).
+      this.extraSubscribers.add(subscriber);
 
       await subscriber.connect();
 
@@ -372,7 +376,9 @@ export class RedisService implements OnModuleInit {
       this.client?.quit(),
       this.subscriber?.quit(),
       this.publisher?.quit(),
+      ...[...this.extraSubscribers].map((subscriber) => subscriber.quit()),
     ]);
+    this.extraSubscribers.clear();
 
     this.isConnected = false;
   }

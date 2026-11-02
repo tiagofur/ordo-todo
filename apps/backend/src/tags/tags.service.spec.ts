@@ -77,10 +77,21 @@ describe('TagsService', () => {
 
       expect(
         mockTagRepository.findByWorkspaceIdWithTaskCount,
-      ).toHaveBeenCalledWith(workspaceId);
+      ).toHaveBeenCalledWith(workspaceId, undefined);
       expect(result).toHaveLength(2);
       expect(result[0].taskCount).toBe(5);
       expect(result[1].taskCount).toBe(3);
+    });
+
+    it('passes pagination through to the repository', async () => {
+      const workspaceId = 'workspace-123';
+      mockTagRepository.findByWorkspaceIdWithTaskCount.mockResolvedValue([]);
+
+      await service.findAll(workspaceId, { take: 10, skip: 20 });
+
+      expect(
+        mockTagRepository.findByWorkspaceIdWithTaskCount,
+      ).toHaveBeenCalledWith(workspaceId, { take: 10, skip: 20 });
     });
 
     it('should return empty array when no tags found', async () => {

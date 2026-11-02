@@ -84,6 +84,7 @@ describe('WorkspacesService', () => {
     },
     user: {
       findUnique: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
     },
   };
 
@@ -96,7 +97,9 @@ describe('WorkspacesService', () => {
           useValue: {
             assertWithinWorkspaceLimit: jest.fn().mockResolvedValue(undefined),
             assertWithinProjectLimit: jest.fn().mockResolvedValue(undefined),
-            assertWithinTaskStorageLimit: jest.fn().mockResolvedValue(undefined),
+            assertWithinTaskStorageLimit: jest
+              .fn()
+              .mockResolvedValue(undefined),
           },
         },
         {
@@ -496,19 +499,20 @@ describe('WorkspacesService', () => {
       mockWorkspaceRepository.findByUserId.mockResolvedValue(
         mockWorkspaces as any,
       );
-      mockUserRepository.findById.mockResolvedValue({
-        id: userId,
-        props: {
+      mockPrismaService.user.findMany.mockResolvedValue([
+        {
+          id: userId,
           username: 'testuser',
           name: 'Test User',
           email: 'test@example.com',
         },
-      });
+      ]);
 
       const result = await service.findAll(userId);
 
       expect(result).toHaveLength(1);
       expect(result[0].ownerId).toBe(userId);
+      expect(mockPrismaService.user.findMany).toHaveBeenCalledTimes(1);
     });
 
     it('should return all workspaces where user is a member', async () => {
@@ -534,18 +538,23 @@ describe('WorkspacesService', () => {
       mockWorkspaceRepository.findByUserId.mockResolvedValue(
         mockWorkspaces as any,
       );
-      mockUserRepository.findById.mockResolvedValue({
-        id: ownerId,
-        props: {
+      mockPrismaService.user.findMany.mockResolvedValue([
+        {
+          id: ownerId,
           username: 'owner',
           name: 'Owner User',
           email: 'owner@example.com',
         },
-      });
+      ]);
 
       const result = await service.findAll(userId);
 
       expect(result).toHaveLength(1);
+      expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: { in: [ownerId] } },
+        }),
+      );
     });
 
     it('should not return deleted workspaces', async () => {
@@ -2225,12 +2234,16 @@ describe('WorkspacesService', () => {
     });
   });
 
-
   describe('Member lifecycle (ODD 018 S3 / W5-W6)', () => {
     const workspace = { id: 'ws-1', props: { id: 'ws-1', ownerId: 'owner-1' } };
     const targetMember = {
       id: 'member-2',
-      props: { id: 'member-2', workspaceId: 'ws-1', userId: 'user-2', role: 'MEMBER' },
+      props: {
+        id: 'member-2',
+        workspaceId: 'ws-1',
+        userId: 'user-2',
+        role: 'MEMBER',
+      },
     };
 
     beforeEach(() => {
@@ -2252,12 +2265,22 @@ describe('WorkspacesService', () => {
 
     describe('changeMemberRole (W5)', () => {
       it('changes the role and logs the audit event', async () => {
-        mockWorkspaceRepository.findMember.mockResolvedValue(targetMember as any);
+        mockWorkspaceRepository.findMember.mockResolvedValue(
+          targetMember as any,
+        );
 
-        const result = await service.changeMemberRole('ws-1', 'owner-1', 'user-2', 'VIEWER');
+        const result = await service.changeMemberRole(
+          'ws-1',
+          'owner-1',
+          'user-2',
+          'VIEWER',
+        );
 
         expect(result.success).toBe(true);
-        expect(mockWorkspaceMemberRepository.updateRole).toHaveBeenCalledWith('member-2', 'VIEWER');
+        expect(mockWorkspaceMemberRepository.updateRole).toHaveBeenCalledWith(
+          'member-2',
+          'VIEWER',
+        );
         expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
             props: expect.objectContaining({ action: 'MEMBER_ROLE_CHANGED' }),
@@ -2267,7 +2290,12 @@ describe('WorkspacesService', () => {
 
       it('rejects assigning the OWNER role (400)', async () => {
         await expect(
-          service.changeMemberRole('ws-1', 'owner-1', 'user-2', 'OWNER' as 'ADMIN'),
+          service.changeMemberRole(
+            'ws-1',
+            'owner-1',
+            'user-2',
+            'OWNER' as 'ADMIN',
+          ),
         ).rejects.toThrow(BadRequestException);
         expect(mockWorkspaceMemberRepository.updateRole).not.toHaveBeenCalled();
       });
@@ -2275,7 +2303,12 @@ describe('WorkspacesService', () => {
       it('rejects changing the owner role (400)', async () => {
         mockWorkspaceRepository.findMember.mockResolvedValue({
           id: 'm-owner',
-          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+          props: {
+            id: 'm-owner',
+            workspaceId: 'ws-1',
+            userId: 'owner-1',
+            role: 'OWNER',
+          },
         } as any);
 
         await expect(
@@ -2306,11 +2339,17 @@ describe('WorkspacesService', () => {
         };
         mockInvitationRepository.findById.mockResolvedValue(invitation as any);
 
-        const result = await service.cancelInvitation('ws-1', 'owner-1', 'inv-1');
+        const result = await service.cancelInvitation(
+          'ws-1',
+          'owner-1',
+          'inv-1',
+        );
 
         expect(result.success).toBe(true);
         expect(invitation.cancel).toHaveBeenCalled();
-        expect(mockInvitationRepository.update).toHaveBeenCalledWith(invitation);
+        expect(mockInvitationRepository.update).toHaveBeenCalledWith(
+          invitation,
+        );
         expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
             props: expect.objectContaining({ action: 'INVITATION_CANCELLED' }),
@@ -2340,12 +2379,17 @@ describe('WorkspacesService', () => {
 
     describe('leaveWorkspace (W6)', () => {
       it('removes the member and logs the audit event', async () => {
-        mockWorkspaceRepository.findMember.mockResolvedValue(targetMember as any);
+        mockWorkspaceRepository.findMember.mockResolvedValue(
+          targetMember as any,
+        );
 
         const result = await service.leaveWorkspace('ws-1', 'user-2');
 
         expect(result.success).toBe(true);
-        expect(mockWorkspaceRepository.removeMember).toHaveBeenCalledWith('ws-1', 'user-2');
+        expect(mockWorkspaceRepository.removeMember).toHaveBeenCalledWith(
+          'ws-1',
+          'user-2',
+        );
         expect(mockAuditLogRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
             props: expect.objectContaining({ action: 'MEMBER_LEFT' }),
@@ -2356,7 +2400,12 @@ describe('WorkspacesService', () => {
       it('blocks the owner from leaving (400)', async () => {
         mockWorkspaceRepository.findMember.mockResolvedValue({
           id: 'm-owner',
-          props: { id: 'm-owner', workspaceId: 'ws-1', userId: 'owner-1', role: 'OWNER' },
+          props: {
+            id: 'm-owner',
+            workspaceId: 'ws-1',
+            userId: 'owner-1',
+            role: 'OWNER',
+          },
         } as any);
 
         await expect(service.leaveWorkspace('ws-1', 'owner-1')).rejects.toThrow(

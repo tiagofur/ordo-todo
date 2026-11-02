@@ -73,10 +73,16 @@ export class PrismaNotificationRepository implements NotificationRepository {
     return prismaNotification ? this.toDomain(prismaNotification) : null;
   }
 
-  async findByUserId(userId: string): Promise<Notification[]> {
+  async findByUserId(
+    userId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<Notification[]> {
     const prismaNotifications = await this.prisma.notification.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      // Stable order (id tiebreaker) so offset pages never skip/repeat rows.
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
+      ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
     });
 
     return prismaNotifications.map((n) => this.toDomain(n));

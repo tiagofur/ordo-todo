@@ -29,6 +29,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ProjectGuard } from '../common/guards/project.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
+import { QueryProjectsDto } from './dto/query-projects.dto';
 import {
   CacheResult,
   CacheInvalidate,
@@ -115,10 +117,10 @@ export class ProjectsController {
     status: HttpStatus.FORBIDDEN,
     description: 'User does not have access to this workspace',
   })
-  findAll(@Query('workspaceId') workspaceId: string) {
+  findAll(@Query() query: QueryProjectsDto) {
     // Note: ProjectGuard returns false if workspaceId is missing in query.
     // So this endpoint is safe (returns 403 if no workspaceId).
-    return this.projectsService.findAll(workspaceId);
+    return this.projectsService.findAll(query.workspaceId, toTakeSkip(query));
   }
 
   @Get('all')
@@ -133,8 +135,11 @@ export class ProjectsController {
     status: HttpStatus.OK,
     description: 'Projects retrieved successfully',
   })
-  findAllByUser(@CurrentUser() user: RequestUser) {
-    return this.projectsService.findAllByUser(user.id);
+  findAllByUser(
+    @CurrentUser() user: RequestUser,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.projectsService.findAllByUser(user.id, toTakeSkip(pagination));
   }
 
   @Get('deleted')

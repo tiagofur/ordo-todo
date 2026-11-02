@@ -122,8 +122,12 @@ export class SearchController {
       };
     }
 
+    const parsedLimit = limit ? parseInt(limit, 10) : 20;
+    const safeLimit = Number.isNaN(parsedLimit)
+      ? 20
+      : Math.min(100, Math.max(1, parsedLimit));
     const options: SearchOptions = {
-      limit: limit ? parseInt(limit, 10) : 20,
+      limit: safeLimit,
       includeCompleted: includeCompleted === 'true',
       projectId,
     };

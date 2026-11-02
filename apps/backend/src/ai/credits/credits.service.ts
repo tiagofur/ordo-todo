@@ -69,30 +69,33 @@ export class CreditsService {
   ): Promise<{ cost: number; balance: number }> {
     const cost = CREDIT_COSTS[kind];
     const account = await this.ensureAccount(userId);
-    if (account.balance < cost) {
-      throw new HttpException(
-        `Te quedaste sin créditos de IA (saldo: ${account.balance}, esta acción cuesta ${cost}). Recarga tu saldo para seguir usando el agente.`,
-        HttpStatus.PAYMENT_REQUIRED,
-      );
-    }
-    const next = account.balance - cost;
-    await this.prisma.$transaction(async (tx: never) => {
+    // Atomic decrement inside the transaction: concurrent charges serialize
+    // on the row lock, and the post-update check rolls back overdrafts.
+    // Reading the balance beforehand would be a check-then-act race.
+    const balance = await this.prisma.$transaction(async (tx: never) => {
       const client = tx as unknown as PrismaService;
-      await client.aiCreditAccount.update({
+      const updated = await client.aiCreditAccount.update({
         where: { id: account.id },
-        data: { balance: next },
+        data: { balance: { decrement: cost } },
       });
+      if (updated.balance < 0) {
+        throw new HttpException(
+          `Te quedaste sin créditos de IA (saldo insuficiente para esta acción que cuesta ${cost}). Recarga tu saldo para seguir usando el agente.`,
+          HttpStatus.PAYMENT_REQUIRED,
+        );
+      }
       await client.aiUsageEvent.create({
         data: {
           accountId: account.id,
           kind,
           cost: -cost,
-          balance: next,
+          balance: updated.balance,
           detail: detail ?? null,
         },
       });
+      return updated.balance;
     });
-    return { cost, balance: next };
+    return { cost, balance };
   }
 
   /**
@@ -107,24 +110,24 @@ export class CreditsService {
       );
     }
     const account = await this.ensureAccount(userId);
-    const next = account.balance + amount;
-    await this.prisma.$transaction(async (tx: never) => {
+    const balance = await this.prisma.$transaction(async (tx: never) => {
       const client = tx as unknown as PrismaService;
-      await client.aiCreditAccount.update({
+      const updated = await client.aiCreditAccount.update({
         where: { id: account.id },
-        data: { balance: next },
+        data: { balance: { increment: amount } },
       });
       await client.aiUsageEvent.create({
         data: {
           accountId: account.id,
           kind: 'recharge',
           cost: amount,
-          balance: next,
+          balance: updated.balance,
           detail: 'Recarga manual (stub admin).',
         },
       });
+      return updated.balance;
     });
-    return { balance: next };
+    return { balance };
   }
 
   async getUsage(userId: string): Promise<UsageSummary> {

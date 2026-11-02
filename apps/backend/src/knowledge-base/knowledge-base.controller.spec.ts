@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { KnowledgeBaseController } from './knowledge-base.controller';
 import { KnowledgeBaseService } from './knowledge-base.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminGuard } from '../admin/admin.guard';
 import { CreateKBCategoryDto } from './dto/create-category.dto';
 import { CreateKBArticleDto } from './dto/create-article.dto';
+import { QueryKbArticlesDto } from './dto/query-kb-articles.dto';
 
 describe('KnowledgeBaseController', () => {
   let controller: KnowledgeBaseController;
@@ -32,7 +33,7 @@ describe('KnowledgeBaseController', () => {
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
-      .overrideGuard(RolesGuard)
+      .overrideGuard(AdminGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
@@ -84,6 +85,37 @@ describe('KnowledgeBaseController', () => {
       service.search.mockResolvedValue([{ id: '1' }] as any);
       const result = await controller.search('test');
       expect(service.search).toHaveBeenCalledWith('test');
+      expect(result).toHaveLength(1);
+    });
+
+    it('should page articles with take/skip', async () => {
+      service.findAllArticles.mockResolvedValue([{ id: '1' }] as any);
+      const query = Object.assign(new QueryKbArticlesDto(), {
+        limit: 10,
+        page: 2,
+      });
+      query.publishedOnly = 'true';
+
+      const result = await controller.findAllArticles(query);
+
+      expect(service.findAllArticles).toHaveBeenCalledWith({
+        categoryId: undefined,
+        publishedOnly: true,
+        take: 10,
+        skip: 20,
+      });
+      expect(result).toHaveLength(1);
+    });
+
+    it('should list all articles when no pagination is sent', async () => {
+      service.findAllArticles.mockResolvedValue([{ id: '1' }] as any);
+
+      const result = await controller.findAllArticles({});
+
+      expect(service.findAllArticles).toHaveBeenCalledWith({
+        categoryId: undefined,
+        publishedOnly: true,
+      });
       expect(result).toHaveLength(1);
     });
   });

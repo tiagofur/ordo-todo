@@ -186,9 +186,46 @@ describe('TasksService', () => {
       ).toHaveBeenCalledWith(userId, {
         projectId: undefined,
         tags: undefined,
+        withoutProject: undefined,
       });
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('task-1');
+    });
+
+    it('passes pagination take/skip through to the repository', async () => {
+      const userId = 'user-123';
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue([]);
+
+      await service.findAll(userId, undefined, undefined, false, false, {
+        take: 10,
+        skip: 20,
+      });
+
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
+        projectId: undefined,
+        tags: undefined,
+        withoutProject: false,
+        take: 10,
+        skip: 20,
+      });
+    });
+
+    it('moves the assignedToMe filter to the repository query', async () => {
+      const userId = 'user-123';
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue([]);
+
+      await service.findAll(userId, undefined, undefined, true, false);
+
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
+        projectId: undefined,
+        tags: undefined,
+        withoutProject: false,
+        assigneeId: userId,
+      });
     });
 
     it('passes withoutProject through to the repository (ODD 021)', async () => {
@@ -874,7 +911,7 @@ describe('TasksService', () => {
       mockTaskRepository.findById.mockResolvedValue(mockTask as any);
       mockTaskRepository.update.mockResolvedValue(undefined);
 
-      const result = await service.update(taskId, updateTaskDto as any, userId);
+      const result = await service.update(taskId, updateTaskDto, userId);
 
       expect(mockTask.update).toHaveBeenCalledWith(
         expect.objectContaining({ doDate }),
@@ -907,7 +944,7 @@ describe('TasksService', () => {
       mockTaskRepository.findById.mockResolvedValue(mockTask as any);
       mockTaskRepository.update.mockResolvedValue(undefined);
 
-      const result = await service.update(taskId, updateTaskDto as any, userId);
+      const result = await service.update(taskId, updateTaskDto, userId);
 
       expect(result.title).toBe('Updated Title');
       expect('doDate' in result).toBe(true);
@@ -919,10 +956,12 @@ describe('TasksService', () => {
     const makeTask = (props: Record<string, unknown>) => ({
       id: 'task-1',
       props: { id: 'task-1', ownerId: userId, ...props },
-      update: jest.fn().mockImplementation((patch: Record<string, unknown>) => ({
-        id: 'task-1',
-        props: { ...props, ...patch },
-      })),
+      update: jest
+        .fn()
+        .mockImplementation((patch: Record<string, unknown>) => ({
+          id: 'task-1',
+          props: { ...props, ...patch },
+        })),
     });
 
     beforeEach(() => {
@@ -1017,9 +1056,7 @@ describe('TasksService', () => {
       // el llamador SÍ es miembro del destino; el assignee externo no
       mockPrismaService.workspaceMember.findUnique.mockImplementation(
         (args: any) =>
-          args.where.workspaceId_userId.userId === userId
-            ? { id: 'm1' }
-            : null,
+          args.where.workspaceId_userId.userId === userId ? { id: 'm1' } : null,
       );
 
       await expect(
@@ -1121,7 +1158,7 @@ describe('TasksService', () => {
       mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
 
       await service.create(
-        { title: 'New Task', projectId, assigneeId: 'user-456' } as any,
+        { title: 'New Task', projectId, assigneeId: 'user-456' },
         'user-123',
       );
 
@@ -1165,7 +1202,7 @@ describe('TasksService', () => {
       mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
 
       await service.create(
-        { title: 'New Task', projectId, assigneeId: 'user-456' } as any,
+        { title: 'New Task', projectId, assigneeId: 'user-456' },
         'user-123',
       );
 
@@ -1194,7 +1231,7 @@ describe('TasksService', () => {
         .mockResolvedValue(undefined);
       mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
 
-      await service.create({ title: 'New Task', projectId } as any, 'user-123');
+      await service.create({ title: 'New Task', projectId }, 'user-123');
 
       expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
       expect(executeSpy).toHaveBeenCalled();
@@ -1221,11 +1258,7 @@ describe('TasksService', () => {
       mockTaskRepository.findById.mockResolvedValue(mockTask as any);
       mockTaskRepository.update.mockResolvedValue(undefined);
 
-      await service.update(
-        'task-123',
-        { assigneeId: 'user-456' } as any,
-        'user-123',
-      );
+      await service.update('task-123', { assigneeId: 'user-456' }, 'user-123');
 
       expect(mockPrismaService.workspaceMember.findUnique).toHaveBeenCalledWith(
         {
@@ -1251,7 +1284,7 @@ describe('TasksService', () => {
       mockTaskRepository.findById.mockResolvedValue(mockTask as any);
       mockTaskRepository.update.mockResolvedValue(undefined);
 
-      await service.update('task-123', { assigneeId: null } as any, 'user-123');
+      await service.update('task-123', { assigneeId: null }, 'user-123');
 
       expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
       expect(mockTask.update).toHaveBeenCalledWith(
@@ -1265,7 +1298,7 @@ describe('TasksService', () => {
       mockTaskRepository.findById.mockResolvedValue(mockTask as any);
       mockTaskRepository.update.mockResolvedValue(undefined);
 
-      await service.update('task-123', { title: 'Renamed' } as any, 'user-123');
+      await service.update('task-123', { title: 'Renamed' }, 'user-123');
 
       expect(mockPrismaService.project.findUnique).not.toHaveBeenCalled();
     });
@@ -1324,7 +1357,7 @@ describe('TasksService', () => {
 
       await service.createSubtask(
         'parent-123',
-        { title: 'Sub', assigneeId: 'user-456' } as any,
+        { title: 'Sub', assigneeId: 'user-456' },
         'user-123',
       );
 

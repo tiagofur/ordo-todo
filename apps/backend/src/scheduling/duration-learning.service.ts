@@ -4,8 +4,9 @@ import type { TaskRepository, TimerRepository } from '@ordo-todo/core';
 // ODD 005 S5: learn task durations from real timer history (T4).
 //
 // DECISION (documented per brief): the source is TimerRepository
-// (findByUserIdAndDateRange, read-only) crossed with TaskRepository.findById
-// per session taskId. TimerRepository exposes everything needed (sessions with
+// (findByUserIdAndDateRange, read-only) crossed with one batched
+// TaskRepository.findByIds for the distinct session taskIds (no N+1).
+// TimerRepository exposes everything needed (sessions with
 // duration + taskId) and scheduling must NOT bypass the repository layer with
 // Prisma direct for task/timer data — it imports RepositoriesModule only,
 // so no DI cycles with tasks/timers modules.
@@ -181,12 +182,12 @@ export class DurationLearningService {
       list.push(s);
       byTask.set(s.taskId, list);
     }
-    const withTask = await Promise.all(
-      [...byTask.entries()].map(async ([taskId, sess]) => ({
-        sess,
-        task: await taskRepository.findById(taskId),
-      })),
-    );
+    // One query for every distinct task (no N+1)
+    const tasksById = await taskRepository.findByIds([...byTask.keys()]);
+    const withTask = [...byTask.entries()].map(([taskId, sess]) => ({
+      sess,
+      task: tasksById.get(taskId) ?? null,
+    }));
 
     // Task has no `category` column: match query.category against tag names
     // and project name (case-insensitive, documented approximation).

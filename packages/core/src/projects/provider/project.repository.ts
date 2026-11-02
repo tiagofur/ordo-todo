@@ -133,7 +133,10 @@ export interface ProjectRepository {
    * });
    * ```
    */
-  findByWorkspaceId(workspaceId: string): Promise<Project[]>;
+  findByWorkspaceId(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<Project[]>;
 
   /**
    * Finds all projects owned by a specific user across all workspaces.
@@ -156,7 +159,10 @@ export interface ProjectRepository {
    * }, {} as Record<string, Project[]>);
    * ```
    */
-  findAllByUserId(userId: string): Promise<Project[]>;
+  findAllByUserId(
+    userId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<Project[]>;
 
   /**
    * Updates an existing project in the repository.

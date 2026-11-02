@@ -54,7 +54,7 @@ export class CustomFieldsService {
 
     const field = CustomField.create({
       name: dto.name,
-      type: dto.type as unknown as CustomFieldType,
+      type: dto.type,
       projectId,
       description: dto.description,
       options: dto.options,
@@ -122,17 +122,29 @@ export class CustomFieldsService {
       throw new NotFoundException('Task not found');
     }
 
+    // One query for every field definition (no N+1); upserts stay per-item
+    // because the repository upsert is not batch-capable.
+    const fields = await this.prisma.client.customField.findMany({
+      where: { id: { in: [...new Set(values.map((v) => v.fieldId))] } },
+    });
+    const fieldsById = new Map(fields.map((field) => [field.id, field]));
+    for (const v of values) {
+      if (!fieldsById.has(v.fieldId)) {
+        throw new NotFoundException(`Custom field ${v.fieldId} not found`);
+      }
+    }
+
     // Upsert each value
     const results = await Promise.all(
       values.map(async (v) => {
-        // Verify field exists
-        const field = await this.customFieldRepository.findById(v.fieldId);
-        if (!field) {
-          throw new NotFoundException(`Custom field ${v.fieldId} not found`);
-        }
+        const field = fieldsById.get(v.fieldId)!;
 
         // Validate value based on field type
-        this.validateFieldValue(field.type, v.value, field.options || null);
+        this.validateFieldValue(
+          field.type as unknown as CustomFieldType,
+          v.value,
+          (field.options as unknown as string[] | null) || null,
+        );
 
         const customValue = CustomFieldValue.create({
           fieldId: v.fieldId,

@@ -202,9 +202,14 @@ jobs:
               working-directory: packages/db
 
             - name: Lint
-              # Desktop lint currently emits warnings; keep non-blocking to avoid failing CI
+              # Backend lint is still non-blocking repo-wide (pre-existing
+              # errors outside ODD 027 scope); files touched by a change must
+              # be error-free. Tracked to go blocking once the backlog is down.
               run: npm run lint
               continue-on-error: true
+
+            - name: Type check
+              run: npm run check-types
 
             - name: Unit tests
               run: npm run test

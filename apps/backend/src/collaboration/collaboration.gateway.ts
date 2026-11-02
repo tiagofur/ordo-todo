@@ -180,6 +180,9 @@ export class CollaborationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { workspaceId: string },
   ) {
+    if (!data?.workspaceId) {
+      return;
+    }
     client.leave(`workspace:${data.workspaceId}`);
     if (client.data.currentWorkspaceId === data.workspaceId) {
       client.data.currentWorkspaceId = undefined;
@@ -249,6 +252,9 @@ export class CollaborationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { taskId: string },
   ) {
+    if (!data?.taskId) {
+      return;
+    }
     client.leave(`task:${data.taskId}`);
     if (client.data.currentTaskId === data.taskId) {
       client.data.currentTaskId = undefined;
@@ -265,15 +271,47 @@ export class CollaborationGateway
 
   @UseGuards(WsThrottleGuard)
   @SubscribeMessage('task-update')
-  handleTaskUpdate(
+  async handleTaskUpdate(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { taskId: string; changes: any; workspaceId: string },
+    @MessageBody() data: { taskId: string; changes: unknown },
   ) {
     // Only broadcast if client has joined this task room
-    if (client.data.currentTaskId !== data.taskId) {
+    if (!data || client.data.currentTaskId !== data.taskId) {
       client.emit('error', {
         message: 'Must join task before sending updates',
       });
+      return;
+    }
+
+    if (
+      !data.changes ||
+      typeof data.changes !== 'object' ||
+      Array.isArray(data.changes)
+    ) {
+      client.emit('error', { message: 'Invalid changes payload' });
+      return;
+    }
+
+    // Re-verify membership at broadcast time: room state is client-driven
+    // and access may have been revoked since join-task.
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: data.taskId,
+        project: {
+          workspace: {
+            isDeleted: false,
+            OR: [
+              { ownerId: client.data.userId },
+              { members: { some: { userId: client.data.userId } } },
+            ],
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!task) {
+      client.emit('error', { message: 'Unauthorized access to task' });
       return;
     }
 

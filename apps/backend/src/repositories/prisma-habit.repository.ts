@@ -143,7 +143,7 @@ export class PrismaHabitRepository implements IHabitRepository {
         color: habit.props.color,
         userId: habit.props.userId,
         workspaceId: habit.props.workspaceId ?? null,
-        frequency: habit.props.frequency as PrismaHabitFrequency,
+        frequency: habit.props.frequency,
         targetDaysOfWeek: habit.props.targetDaysOfWeek,
         targetCount: habit.props.targetCount,
         preferredTime: habit.props.preferredTime ?? null,
@@ -174,16 +174,14 @@ export class PrismaHabitRepository implements IHabitRepository {
     if (data.color !== undefined) updateData.color = data.color;
     if (data.workspaceId !== undefined)
       updateData.workspaceId = data.workspaceId;
-    if (data.frequency !== undefined)
-      updateData.frequency = data.frequency as PrismaHabitFrequency;
+    if (data.frequency !== undefined) updateData.frequency = data.frequency;
     if (data.targetDaysOfWeek !== undefined)
       updateData.targetDaysOfWeek = data.targetDaysOfWeek;
     if (data.targetCount !== undefined)
       updateData.targetCount = data.targetCount;
     if (data.preferredTime !== undefined)
       updateData.preferredTime = data.preferredTime;
-    if (data.timeOfDay !== undefined)
-      updateData.timeOfDay = data.timeOfDay as PrismaTimeOfDay;
+    if (data.timeOfDay !== undefined) updateData.timeOfDay = data.timeOfDay;
     if (data.currentStreak !== undefined)
       updateData.currentStreak = data.currentStreak;
     if (data.longestStreak !== undefined)
@@ -218,29 +216,31 @@ export class PrismaHabitRepository implements IHabitRepository {
     habitId: string,
     data: HabitCompletionProps,
   ): Promise<Habit> {
-    await this.prisma.client.habitCompletion.create({
-      data: {
-        habitId,
-        completedAt: data.completedAt,
-        completedDate: data.completedDate,
-        note: data.note ?? null,
-        value: data.value ?? null,
-      },
-    });
+    // Create + streak update run in one transaction: concurrent completions
+    // must not interleave reads and double-count the streak.
+    const updatedHabit = await this.prisma.client.$transaction(async (tx) => {
+      await tx.habitCompletion.create({
+        data: {
+          habitId,
+          completedAt: data.completedAt,
+          completedDate: data.completedDate,
+          note: data.note ?? null,
+          value: data.value ?? null,
+        },
+      });
 
-    // Update habit stats
-    const habit = await this.prisma.client.habit.findUnique({
-      where: { id: habitId },
-    });
+      // Update habit stats
+      const habit = await tx.habit.findUnique({
+        where: { id: habitId },
+      });
 
-    if (!habit) {
-      throw new NotFoundException(`Habit ${habitId} not found`);
-    }
+      if (!habit) {
+        throw new NotFoundException(`Habit ${habitId} not found`);
+      }
 
-    // Calculate new streak
-    const yesterday = subDays(new Date(), 1);
-    const yesterdayCompletion =
-      await this.prisma.client.habitCompletion.findUnique({
+      // Calculate new streak
+      const yesterday = subDays(new Date(), 1);
+      const yesterdayCompletion = await tx.habitCompletion.findUnique({
         where: {
           habitId_completedDate: {
             habitId,
@@ -249,24 +249,25 @@ export class PrismaHabitRepository implements IHabitRepository {
         },
       });
 
-    const isConsecutive = !!yesterdayCompletion || habit.currentStreak === 0;
-    const newStreak = isConsecutive ? habit.currentStreak + 1 : 1;
-    const newLongest = Math.max(habit.longestStreak, newStreak);
+      const isConsecutive = !!yesterdayCompletion || habit.currentStreak === 0;
+      const newStreak = isConsecutive ? habit.currentStreak + 1 : 1;
+      const newLongest = Math.max(habit.longestStreak, newStreak);
 
-    const updatedHabit = await this.prisma.client.habit.update({
-      where: { id: habitId },
-      data: {
-        currentStreak: newStreak,
-        longestStreak: newLongest,
-        totalCompletions: { increment: 1 },
-      },
-      include: {
-        completions: {
-          where: {
-            completedDate: parseCalendarDateToUtcMidnight(new Date()),
+      return tx.habit.update({
+        where: { id: habitId },
+        data: {
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+          totalCompletions: { increment: 1 },
+        },
+        include: {
+          completions: {
+            where: {
+              completedDate: parseCalendarDateToUtcMidnight(new Date()),
+            },
           },
         },
-      },
+      });
     });
 
     return this.toDomain(updatedHabit);
@@ -329,6 +330,53 @@ export class PrismaHabitRepository implements IHabitRepository {
     });
 
     return completion ? this.completionToDomain(completion) : null;
+  }
+
+  async getCompletionsForHabits(
+    habitIds: string[],
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Map<string, HabitCompletionProps[]>> {
+    const grouped = new Map<string, HabitCompletionProps[]>();
+    if (habitIds.length === 0) {
+      return grouped;
+    }
+    const completions = await this.prisma.client.habitCompletion.findMany({
+      where: {
+        habitId: { in: habitIds },
+        completedDate: {
+          gte: startOfDay(startDate),
+          lte: startOfDay(endDate),
+        },
+      },
+      orderBy: { completedDate: 'desc' },
+    });
+    for (const completion of completions) {
+      const list = grouped.get(completion.habitId) ?? [];
+      list.push(this.completionToDomain(completion));
+      grouped.set(completion.habitId, list);
+    }
+    return grouped;
+  }
+
+  async getCompletionsForHabitsOnDate(
+    habitIds: string[],
+    date: Date,
+  ): Promise<Map<string, HabitCompletionProps>> {
+    const grouped = new Map<string, HabitCompletionProps>();
+    if (habitIds.length === 0) {
+      return grouped;
+    }
+    const completions = await this.prisma.client.habitCompletion.findMany({
+      where: {
+        habitId: { in: habitIds },
+        completedDate: parseCalendarDateToUtcMidnight(date),
+      },
+    });
+    for (const completion of completions) {
+      grouped.set(completion.habitId, this.completionToDomain(completion));
+    }
+    return grouped;
   }
 
   async getStats(habitId: string): Promise<{
@@ -454,7 +502,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       color: prismaHabit.color,
       userId: prismaHabit.userId,
       workspaceId: prismaHabit.workspaceId ?? undefined,
-      frequency: prismaHabit.frequency as CoreHabitFrequency,
+      frequency: prismaHabit.frequency,
       targetDaysOfWeek: prismaHabit.targetDaysOfWeek,
       targetCount: prismaHabit.targetCount,
       preferredTime: prismaHabit.preferredTime ?? undefined,

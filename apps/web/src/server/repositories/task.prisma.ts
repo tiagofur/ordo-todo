@@ -126,6 +126,22 @@ export class PrismaTaskRepository implements TaskRepository {
     return this.toDomain(task);
   }
 
+  async findByIds(ids: string[]): Promise<Map<string, Task>> {
+    const grouped = new Map<string, Task>();
+    const uniqueIds = [...new Set(ids)];
+    if (uniqueIds.length === 0) {
+      return grouped;
+    }
+    const tasks = await this.prisma.task.findMany({
+      where: { id: { in: uniqueIds }, isDeleted: false },
+      include: { subTasks: true },
+    });
+    for (const task of tasks) {
+      grouped.set(task.id, this.toDomain(task));
+    }
+    return grouped;
+  }
+
   async findByIdIncludeDeleted(id: string): Promise<Task | null> {
     const task = await this.prisma.task.findFirst({
       where: { id },

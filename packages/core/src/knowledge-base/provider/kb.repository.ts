@@ -13,7 +13,7 @@ export interface IKBRepository {
     findArticleById(id: string): Promise<KBArticle | null>;
     findArticleBySlug(slug: string): Promise<KBArticle | null>;
     findArticlesByCategory(categoryId: string, options?: { publishedOnly?: boolean }): Promise<KBArticle[]>;
-    findAllArticles(options?: { publishedOnly?: boolean; categoryId?: string }): Promise<KBArticle[]>;
+    findAllArticles(options?: { publishedOnly?: boolean; categoryId?: string; take?: number; skip?: number }): Promise<KBArticle[]>;
     createArticle(article: KBArticle): Promise<KBArticle>;
     updateArticle(article: KBArticle): Promise<KBArticle>;
     deleteArticle(id: string): Promise<void>;

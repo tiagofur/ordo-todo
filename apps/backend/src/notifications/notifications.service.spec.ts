@@ -106,8 +106,21 @@ describe('NotificationsService', () => {
 
       expect(mockNotificationRepository.findByUserId).toHaveBeenCalledWith(
         userId,
+        undefined,
       );
       expect(result).toEqual(notifications.map((n) => n.props));
+    });
+
+    it('passes pagination through to the repository', async () => {
+      const userId = 'user-1';
+      mockNotificationRepository.findByUserId.mockResolvedValue([]);
+
+      await service.findAll(userId, { take: 10, skip: 20 });
+
+      expect(mockNotificationRepository.findByUserId).toHaveBeenCalledWith(
+        userId,
+        { take: 10, skip: 20 },
+      );
     });
   });
 

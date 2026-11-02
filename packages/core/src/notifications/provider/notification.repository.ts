@@ -137,7 +137,10 @@ export interface NotificationRepository {
    * });
    * ```
    */
-  findByUserId(userId: string): Promise<Notification[]>;
+  findByUserId(
+    userId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<Notification[]>;
 
   /**
    * Finds all unread notifications for a specific user.
