@@ -1,10 +1,10 @@
 /**
- * React Query Hooks for API Client
+ * React Query hooks for the web app.
  *
- * This file re-exports hooks from the shared hooks package for backwards compatibility.
- * New code should import from '@/lib/shared-hooks' directly.
- *
- * @deprecated Import from '@/lib/shared-hooks' instead
+ * Wrappers built locally with the hooks factory over the bespoke client in
+ * `./api-client`. This is the live hooks layer, not a deprecated shim: the
+ * `@/lib/shared-hooks` module it named never existed in web (only desktop
+ * has one, and it wraps a different client).
  */
 
 "use client";

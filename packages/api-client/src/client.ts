@@ -52,6 +52,8 @@ import type {
   // Task
   Task,
   TaskDetails,
+  DayPlanView,
+  DayPlanRisk,
   TaskShareResponse,
   PublicTaskResponse,
   TodayTasksResponse,
@@ -153,6 +155,50 @@ import type {
   SuggestionsResponse,
   AIAnswerResponse,
   QuickSearchResponse,
+  // Billing
+  BillingUsageOverview,
+  BillingPlanId,
+  BillingInterval,
+  CheckoutSessionResult,
+  PortalSessionResult,
+  // Meetings
+  Meeting,
+  MeetingAnalysis,
+  MeetingAnalysisOptions,
+  MeetingSummaryStyle,
+  MeetingActionItem,
+  ConvertActionsOptions,
+  ConvertTasksResult,
+  SaveMeetingDto,
+  GetMeetingsParams,
+  // Admin
+  AdminOverview,
+  AdminUsersPage,
+  GetAdminUsersParams,
+  AdminUserDetail,
+  AdminUserStatusResult,
+  AdminProResult,
+  GrantProDto,
+  AdminInviteCode,
+  CreateAdminInviteCodeDto,
+  // Integrations and OAuth
+  IntegrationActionResult,
+  IntegrationDisconnectResult,
+  OAuthClientInfo,
+  OAuthConnection,
+  OAuthDisconnectResult,
+  // Gamification
+  GamificationProfile,
+  ResetPasswordDto,
+  ResetPasswordResult,
+  CalendarFeedToken,
+  // Focus audio
+  FocusTrack,
+  FocusMode,
+  FocusPreferences,
+  UpdateFocusPreferencesDto,
+  FocusFavoriteResult,
+  FocusStats,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -250,6 +296,32 @@ export interface ClientConfig {
    * Implements exponential backoff with jitter to prevent thundering herd.
    */
   retry?: RetryConfig;
+
+  /**
+   * Authentication transport mode.
+   * - 'bearer' (default): attaches `Authorization: Bearer` from tokenStorage.
+   * - 'credentialed': cookie transport for browser apps whose backend sets
+   *   httpOnly cookies (JS cannot read those, so no Bearer header is sent).
+   *   Sends cookies via `withCredentials` and an `x-csrf-token` header from
+   *   `csrfTokenProvider` on mutating non-auth requests; refreshes the
+   *   session with `POST /auth/refresh` and an empty body.
+   * Existing consumers keep bearer behavior unless they opt in.
+   */
+  authTransport?: 'bearer' | 'credentialed';
+
+  /**
+   * Sends cookies on cross-site requests.
+   * Defaults to true in credentialed mode, false otherwise.
+   */
+  withCredentials?: boolean;
+
+  /**
+   * Provides the CSRF token for credentialed mode (e.g. fetched once from
+   * `GET /auth/csrf-token` and cached by the app, as apps/web does).
+   * A rejection or null resolves to "no header" so one failing lookup
+   * cannot break unrelated requests.
+   */
+  csrfTokenProvider?: () => string | null | Promise<string | null>;
 }
 
 /**
@@ -311,13 +383,21 @@ export class OrdoApiClient {
   private onTokenRefresh?: (tokens: AuthResponse) => void | Promise<void>;
   private onAuthError?: () => void | Promise<void>;
   private retryConfig?: RetryConfig;
-  // public testProp: string = 'test';
+  private readonly authTransport: 'bearer' | 'credentialed';
+  private readonly csrfTokenProvider?: () => string | null | Promise<string | null>;
 
   constructor(config: ClientConfig) {
     this.tokenStorage = config.tokenStorage;
     this.onTokenRefresh = config.onTokenRefresh;
     this.onAuthError = config.onAuthError;
     this.retryConfig = config.retry;
+    this.authTransport = config.authTransport ?? 'bearer';
+    this.csrfTokenProvider = config.csrfTokenProvider;
+
+    // withCredentials must stay absent (not false) in default bearer mode:
+    // existing consumers assert the exact axios.create shape.
+    const withCredentials =
+      config.withCredentials ?? (this.authTransport === 'credentialed' ? true : undefined);
 
     this.axios = axios.create({
       baseURL: config.baseURL,
@@ -325,6 +405,7 @@ export class OrdoApiClient {
       headers: {
         "Content-Type": "application/json",
       },
+      ...(withCredentials !== undefined ? { withCredentials } : {}),
     });
 
     this.setupInterceptors();
@@ -334,12 +415,20 @@ export class OrdoApiClient {
    * Setup request and response interceptors for automatic token management
    */
   private setupInterceptors(): void {
-    // Request interceptor - attach JWT token
+    // Request interceptor - attach JWT token (bearer) or CSRF token
+    // (credentialed). In credentialed mode no Authorization credential is
+    // ever attached, even when a tokenStorage is configured: the browser
+    // sends httpOnly cookies via withCredentials instead.
     this.axios.interceptors.request.use(
       async (config) => {
         // Skip for refresh endpoint to avoid circular dependency/deadlock
         // and to prevent sending expired tokens to the refresh endpoint
         if (config.url?.includes("/auth/refresh")) {
+          return config;
+        }
+
+        if (this.authTransport === 'credentialed') {
+          await this.attachCsrfToken(config);
           return config;
         }
 
@@ -374,13 +463,13 @@ export class OrdoApiClient {
           // Authorization header is pre-auth by definition — same rule.
           const requestUrl = originalRequest.url || "";
           const hadAuthHeader = !!originalRequest.headers?.Authorization;
+          const isCredentialed = this.authTransport === 'credentialed';
           const refreshToken = this.tokenStorage
             ? await this.tokenStorage.getRefreshToken()
             : null;
           if (
             requestUrl.includes("/auth/") ||
-            !hadAuthHeader ||
-            !refreshToken
+            (!isCredentialed && (!hadAuthHeader || !refreshToken))
           ) {
             return Promise.reject(error);
           }
@@ -388,11 +477,18 @@ export class OrdoApiClient {
           originalRequest._retry = true;
 
           try {
-            // Try to refresh the token
-            const newTokens = await this.handleTokenRefresh();
+            if (isCredentialed) {
+              // Cookie session: the backend rotates httpOnly cookies on
+              // POST /auth/refresh with an empty body. Nothing to store
+              // from JS; consumers are notified via onTokenRefresh.
+              await this.refreshCredentialedSession();
+            } else {
+              // Try to refresh the token
+              const newTokens = await this.handleTokenRefresh();
 
-            // Update the original request with new token
-            originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+              // Update the original request with new token
+              originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+            }
 
             // Retry the original request
             return this.axios(originalRequest);
@@ -458,6 +554,65 @@ export class OrdoApiClient {
         }
 
         return response;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
+  /**
+   * Attach the CSRF token for credentialed mode.
+   * Only mutating, non-auth requests carry it (same rule as apps/web);
+   * a failing or empty provider resolves to "no token" so the request
+   * still goes out — CSRF enforcement lives server-side.
+   */
+  private async attachCsrfToken(config: InternalAxiosRequestConfig): Promise<void> {
+    const method = config.method?.toLowerCase();
+    if (!['post', 'put', 'patch', 'delete'].includes(method ?? '')) {
+      return;
+    }
+    if (config.url?.startsWith('/auth/')) {
+      return;
+    }
+    if (!this.csrfTokenProvider) {
+      return;
+    }
+    try {
+      const token = await this.csrfTokenProvider();
+      if (token) {
+        config.headers = config.headers ?? ({} as InternalAxiosRequestConfig['headers']);
+        (config.headers as Record<string, string>)['x-csrf-token'] = token;
+      }
+    } catch {
+      // Provider failures must not break unrelated requests.
+    }
+  }
+
+  /**
+   * Refresh a cookie session: POST /auth/refresh with an empty body, the
+   * browser attaches the httpOnly refresh cookie via withCredentials.
+   * Shares the bearer refresh deduplication gate so concurrent 401s
+   * collapse into a single refresh call.
+   */
+  private async refreshCredentialedSession(): Promise<AuthResponse> {
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+
+    this.refreshPromise = (async () => {
+      try {
+        const response = await this.axios.post<AuthResponse>('/auth/refresh', {});
+
+        if (this.onTokenRefresh) {
+          await this.onTokenRefresh(response.data);
+        }
+
+        return response.data;
       } finally {
         this.isRefreshing = false;
         this.refreshPromise = null;
@@ -655,6 +810,18 @@ export class OrdoApiClient {
       success: boolean;
       message: string;
     }>("/auth/forgot-password", { email });
+    return response.data;
+  }
+
+  /**
+   * Complete a password reset with token and new password
+   * POST /auth/reset-password
+   */
+  async resetPassword(data: ResetPasswordDto): Promise<ResetPasswordResult> {
+    const response = await this.axios.post<ResetPasswordResult>(
+      "/auth/reset-password",
+      data,
+    );
     return response.data;
   }
 
@@ -1099,6 +1266,17 @@ export class OrdoApiClient {
   }
 
   /**
+   * Get a workspace by slug (public lookup)
+   * GET /workspaces/by-slug/:slug
+   */
+  async getWorkspaceBySlugOnly(slug: string): Promise<Workspace> {
+    const response = await this.axios.get<Workspace>(
+      `/workspaces/by-slug/${slug}`,
+    );
+    return response.data;
+  }
+
+  /**
    * Get a specific workspace by Slug and Username
    * GET /workspaces/:username/:slug
    */
@@ -1389,6 +1567,34 @@ export class OrdoApiClient {
     await this.axios.delete(`/projects/${projectId}`);
   }
 
+  /**
+   * List soft-deleted projects scoped by workspace (trash)
+   * GET /projects/deleted
+   */
+  async getDeletedProjects(workspaceId: string): Promise<Project[]> {
+    const response = await this.axios.get<Project[]>("/projects/deleted", {
+      params: { workspaceId },
+    });
+    return response.data;
+  }
+
+  /**
+   * Restore a soft-deleted project
+   * POST /projects/:id/restore
+   */
+  async restoreProject(id: string): Promise<Project> {
+    const response = await this.axios.post<Project>(`/projects/${id}/restore`);
+    return response.data;
+  }
+
+  /**
+   * Permanently delete a project from trash
+   * DELETE /projects/:id/permanent
+   */
+  async permanentDeleteProject(id: string): Promise<void> {
+    await this.axios.delete(`/projects/${id}/permanent`);
+  }
+
   // ============ TASK ENDPOINTS (8) ============
 
   /**
@@ -1517,6 +1723,105 @@ export class OrdoApiClient {
    */
   async deleteTask(taskId: string): Promise<void> {
     await this.axios.delete(`/tasks/${taskId}`);
+  }
+
+  /**
+   * List soft-deleted tasks, optionally scoped by project (trash)
+   * GET /tasks/deleted
+   */
+  async getDeletedTasks(projectId?: string): Promise<Task[]> {
+    const response = await this.axios.get<Task[]>("/tasks/deleted", {
+      params: projectId ? { projectId } : {},
+    });
+    return response.data;
+  }
+
+  /**
+   * Restore a soft-deleted task
+   * POST /tasks/:id/restore
+   */
+  async restoreTask(id: string): Promise<Task> {
+    const response = await this.axios.post<Task>(`/tasks/${id}/restore`);
+    return response.data;
+  }
+
+  /**
+   * Permanently delete a task from trash
+   * DELETE /tasks/:id/permanent
+   */
+  async permanentDeleteTask(id: string): Promise<void> {
+    await this.axios.delete(`/tasks/${id}/permanent`);
+  }
+
+  /**
+   * Get today's proposed day plan
+   * GET /tasks/day-plan
+   */
+  async getDayPlan(): Promise<DayPlanView> {
+    const response = await this.axios.get<DayPlanView>("/tasks/day-plan");
+    return response.data;
+  }
+
+  /**
+   * Apply a day plan proposal
+   * POST /tasks/day-plan/apply
+   */
+  async applyDayPlan(proposalId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/apply", {
+      proposalId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Dismiss a day plan proposal
+   * POST /tasks/day-plan/dismiss
+   */
+  async dismissDayPlan(proposalId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/dismiss", {
+      proposalId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Freeze a task block inside the day plan
+   * POST /tasks/day-plan/freeze
+   */
+  async freezeDayPlanBlock(taskId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/freeze", {
+      taskId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Unfreeze a task block inside the day plan
+   * POST /tasks/day-plan/unfreeze
+   */
+  async unfreezeDayPlanBlock(taskId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/unfreeze", {
+      taskId,
+    });
+    return response.data;
+  }
+
+  /**
+   * List risks detected in the current day plan
+   * GET /tasks/day-plan/risks
+   */
+  async getDayPlanRisks(): Promise<DayPlanRisk[]> {
+    const response = await this.axios.get<DayPlanRisk[]>("/tasks/day-plan/risks");
+    return response.data;
+  }
+
+  /**
+   * Get the personal calendar feed token and subscription URLs
+   * GET /tasks/calendar-token
+   */
+  async getCalendarFeedToken(): Promise<CalendarFeedToken> {
+    const response = await this.axios.get<CalendarFeedToken>("/tasks/calendar-token");
+    return response.data;
   }
 
   /**
@@ -3091,6 +3396,415 @@ export class OrdoApiClient {
    */
   async getRitualStreak(): Promise<RitualStreak> {
     const response = await this.axios.get<RitualStreak>("/ritual/streak");
+    return response.data;
+  }
+
+  /**
+   * Get the billing usage overview (plan, limits, usage, AI credits)
+   * GET /billing/usage
+   */
+  async getBillingOverview(): Promise<BillingUsageOverview> {
+    const response = await this.axios.get<BillingUsageOverview>("/billing/usage");
+    return response.data;
+  }
+
+  /**
+   * Create a Stripe checkout session for plan upgrade
+   * POST /billing/checkout-session
+   */
+  async createCheckoutSession(
+    planId: BillingPlanId,
+    interval: BillingInterval,
+    seats?: number,
+  ): Promise<CheckoutSessionResult> {
+    const response = await this.axios.post<CheckoutSessionResult>(
+      "/billing/checkout-session",
+      { planId, interval, seats },
+    );
+    return response.data;
+  }
+
+  /**
+   * Create a Stripe customer portal session
+   * POST /billing/portal-session
+   */
+  async createPortalSession(): Promise<PortalSessionResult> {
+    const response = await this.axios.post<PortalSessionResult>(
+      "/billing/portal-session",
+    );
+    return response.data;
+  }
+
+  /**
+   * Analyze a meeting transcript with AI
+   * POST /meetings/analyze
+   */
+  async analyzeMeetingTranscript(
+    transcript: string,
+    options?: MeetingAnalysisOptions,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>("/meetings/analyze", {
+      transcript,
+      ...options,
+    });
+    return response.data;
+  }
+
+  /**
+   * Extract action items from a transcript
+   * POST /meetings/extract-actions
+   */
+  async extractMeetingActions(
+    transcript: string,
+    projectContext?: string,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>(
+      "/meetings/extract-actions",
+      { transcript, projectContext },
+    );
+    return response.data;
+  }
+
+  /**
+   * Generate a meeting summary in a given style
+   * POST /meetings/summary
+   */
+  async generateMeetingSummary(
+    transcript: string,
+    style?: MeetingSummaryStyle,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>("/meetings/summary", {
+      transcript,
+      style,
+    });
+    return response.data;
+  }
+
+  /**
+   * Convert extracted action items into tasks
+   * POST /meetings/convert-to-tasks
+   */
+  async convertActionsToTasks(
+    actionItems: MeetingActionItem[],
+    options?: ConvertActionsOptions,
+  ): Promise<ConvertTasksResult> {
+    const response = await this.axios.post<ConvertTasksResult>(
+      "/meetings/convert-to-tasks",
+      { actionItems, ...options },
+    );
+    return response.data;
+  }
+
+  /**
+   * Quick AI analysis of a transcript, optionally scoped to a project
+   * POST /meetings/quick-analyze
+   */
+  async quickAnalyzeMeeting(
+    transcript: string,
+    projectId?: string,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>(
+      "/meetings/quick-analyze",
+      { transcript, projectId },
+    );
+    return response.data;
+  }
+
+  /**
+   * Save a meeting note with its analysis
+   * POST /meetings/save
+   */
+  async saveMeeting(data: SaveMeetingDto): Promise<Meeting> {
+    const response = await this.axios.post<Meeting>("/meetings/save", data);
+    return response.data;
+  }
+
+  /**
+   * List saved meeting notes
+   * GET /meetings
+   */
+  async getMeetings(params?: GetMeetingsParams): Promise<Meeting[]> {
+    const response = await this.axios.get<Meeting[]>("/meetings", { params });
+    return response.data;
+  }
+
+  /**
+   * Get a saved meeting note by id
+   * GET /meetings/:id
+   */
+  async getMeetingById(id: string): Promise<Meeting> {
+    const response = await this.axios.get<Meeting>(`/meetings/${id}`);
+    return response.data;
+  }
+
+  /**
+   * Delete a saved meeting note
+   * DELETE /meetings/:id
+   */
+  async deleteMeeting(id: string): Promise<void> {
+    await this.axios.delete(`/meetings/${id}`);
+  }
+
+  /**
+   * Get aggregated platform overview for the admin panel
+   * GET /admin/overview
+   */
+  async getAdminOverview(): Promise<AdminOverview> {
+    const response = await this.axios.get<AdminOverview>("/admin/overview");
+    return response.data;
+  }
+
+  /**
+   * List users for the admin panel, optionally searched/paginated
+   * GET /admin/users
+   */
+  async getAdminUsers(params?: GetAdminUsersParams): Promise<AdminUsersPage> {
+    const response = await this.axios.get<AdminUsersPage>("/admin/users", {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get one user's admin detail
+   * GET /admin/users/:id
+   */
+  async getAdminUser(userId: string): Promise<AdminUserDetail> {
+    const response = await this.axios.get<AdminUserDetail>(
+      `/admin/users/${userId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Block a user
+   * POST /admin/users/:id/block
+   */
+  async blockAdminUser(userId: string): Promise<AdminUserStatusResult> {
+    const response = await this.axios.post<AdminUserStatusResult>(
+      `/admin/users/${userId}/block`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Unblock a user
+   * POST /admin/users/:id/unblock
+   */
+  async unblockAdminUser(userId: string): Promise<AdminUserStatusResult> {
+    const response = await this.axios.post<AdminUserStatusResult>(
+      `/admin/users/${userId}/unblock`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Grant a pro plan to a user
+   * POST /admin/users/:id/grant-pro
+   */
+  async grantAdminPro(
+    userId: string,
+    data?: GrantProDto,
+  ): Promise<AdminProResult> {
+    const response = await this.axios.post<AdminProResult>(
+      `/admin/users/${userId}/grant-pro`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Revoke a pro plan from a user
+   * POST /admin/users/:id/revoke-pro
+   */
+  async revokeAdminPro(userId: string): Promise<AdminProResult> {
+    const response = await this.axios.post<AdminProResult>(
+      `/admin/users/${userId}/revoke-pro`,
+    );
+    return response.data;
+  }
+
+  /**
+   * List invite codes
+   * GET /admin/invite-codes
+   */
+  async getAdminInviteCodes(): Promise<AdminInviteCode[]> {
+    const response = await this.axios.get<AdminInviteCode[]>("/admin/invite-codes");
+    return response.data;
+  }
+
+  /**
+   * Create an invite code
+   * POST /admin/invite-codes
+   */
+  async createAdminInviteCode(
+    data?: CreateAdminInviteCodeDto,
+  ): Promise<AdminInviteCode> {
+    const response = await this.axios.post<AdminInviteCode>(
+      "/admin/invite-codes",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Deactivate an invite code
+   * PATCH /admin/invite-codes/:id
+   */
+  async deactivateAdminInviteCode(codeId: string): Promise<AdminInviteCode> {
+    const response = await this.axios.patch<AdminInviteCode>(
+      `/admin/invite-codes/${codeId}`,
+      { isActive: false },
+    );
+    return response.data;
+  }
+
+  /**
+   * Connect a third-party integration for the current user
+   * POST /users/me/integrations/:provider/connect
+   */
+  async connectIntegration(
+    provider: string,
+    data?: Record<string, unknown>,
+  ): Promise<IntegrationActionResult> {
+    const response = await this.axios.post<IntegrationActionResult>(
+      `/users/me/integrations/${provider}/connect`,
+      data || {},
+    );
+    return response.data;
+  }
+
+  /**
+   * Disconnect a third-party integration
+   * DELETE /users/me/integrations/:provider
+   */
+  async disconnectIntegration(provider: string): Promise<IntegrationDisconnectResult> {
+    const response = await this.axios.delete<IntegrationDisconnectResult>(
+      `/users/me/integrations/${provider}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Public facts the OAuth consent screen shows about the requesting app
+   * GET /oauth/authorize/client
+   */
+  async getOAuthClientInfo(
+    clientId: string,
+    scope?: string,
+  ): Promise<OAuthClientInfo> {
+    const response = await this.axios.get<OAuthClientInfo>("/oauth/authorize/client", {
+      params: { client_id: clientId, scope },
+    });
+    return response.data;
+  }
+
+  /**
+   * List apps/agents holding a live OAuth grant
+   * GET /oauth/connections
+   */
+  async getOAuthConnections(): Promise<OAuthConnection[]> {
+    const response = await this.axios.get<OAuthConnection[]>("/oauth/connections");
+    return response.data;
+  }
+
+  /**
+   * Revoke an OAuth client's grants
+   * DELETE /oauth/connections
+   */
+  async disconnectOAuthClient(clientId: string): Promise<OAuthDisconnectResult> {
+    const response = await this.axios.delete<OAuthDisconnectResult>(
+      "/oauth/connections",
+      { params: { client_id: clientId } },
+    );
+    return response.data;
+  }
+
+  /**
+   * Get the current user's gamification profile (XP, level, achievements)
+   * GET /gamification/me
+   */
+  async getGamificationProfile(): Promise<GamificationProfile> {
+    const response = await this.axios.get<GamificationProfile>("/gamification/me");
+    return response.data;
+  }
+
+  /**
+   * List available ambient tracks
+   * GET /focus/tracks
+   */
+  async getFocusTracks(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/tracks");
+    return response.data;
+  }
+
+  /**
+   * List recommended tracks based on time of day
+   * GET /focus/tracks/recommended
+   */
+  async getRecommendedTracks(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/tracks/recommended");
+    return response.data;
+  }
+
+  /**
+   * List available focus modes
+   * GET /focus/modes
+   */
+  async getFocusModes(): Promise<FocusMode[]> {
+    const response = await this.axios.get<FocusMode[]>("/focus/modes");
+    return response.data;
+  }
+
+  /**
+   * List the user's favorite tracks
+   * GET /focus/favorites
+   */
+  async getFocusFavorites(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/favorites");
+    return response.data;
+  }
+
+  /**
+   * Toggle a track favorite, reporting the new state
+   * POST /focus/favorites/:trackId
+   */
+  async toggleFocusFavorite(trackId: string): Promise<FocusFavoriteResult> {
+    const response = await this.axios.post<FocusFavoriteResult>(
+      `/focus/favorites/${trackId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get the user's audio preferences
+   * GET /focus/preferences
+   */
+  async getFocusPreferences(): Promise<FocusPreferences> {
+    const response = await this.axios.get<FocusPreferences>("/focus/preferences");
+    return response.data;
+  }
+
+  /**
+   * Update the user's audio preferences (all fields optional)
+   * PATCH /focus/preferences
+   */
+  async updateFocusPreferences(
+    data: UpdateFocusPreferencesDto,
+  ): Promise<FocusPreferences> {
+    const response = await this.axios.patch<FocusPreferences>(
+      "/focus/preferences",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get focus session statistics
+   * GET /focus/stats
+   */
+  async getFocusStats(): Promise<FocusStats> {
+    const response = await this.axios.get<FocusStats>("/focus/stats");
     return response.data;
   }
 }

@@ -37,21 +37,21 @@ export const lightColors = {
     popover: '#FFFFFF',
     popoverForeground: '#0A0A0B',
 
-    // Primary (Cyan - Matching Web Dashboard)
-    primary: '#06B6D4',
+    // Primary (Violet - brand parity, migrated 2026-11-01)
+    primary: '#7C3AED',
     primaryForeground: '#FFFFFF',
 
     // Secondary
-    secondary: '#ECFEFF',
-    secondaryForeground: '#0891B2',
+    secondary: '#F5F3FF',
+    secondaryForeground: '#6D28D9',
 
-    // Muted
-    muted: '#F5F3FF',
+    // Muted (neutral, matches variables.css)
+    muted: '#F3F4F6',
     mutedForeground: '#6B7280',
 
     // Accent
     accent: '#F5F3FF',
-    accentForeground: '#7C3AED',
+    accentForeground: '#6D28D9',
 
     // Destructive
     destructive: '#EF4444',
@@ -60,17 +60,17 @@ export const lightColors = {
     // Border & Input
     border: '#E5E7EB',
     input: '#E5E7EB',
-    ring: '#06B6D4',
+    ring: '#7C3AED',
 
     // Sidebar
     sidebar: '#FAFAFA',
     sidebarForeground: '#1F2937',
-    sidebarPrimary: '#06B6D4',
+    sidebarPrimary: '#7C3AED',
     sidebarPrimaryForeground: '#FFFFFF',
-    sidebarAccent: '#ECFEFF',
-    sidebarAccentForeground: '#0891B2',
+    sidebarAccent: '#F5F3FF',
+    sidebarAccentForeground: '#6D28D9',
     sidebarBorder: '#E5E7EB',
-    sidebarRing: '#06B6D4',
+    sidebarRing: '#7C3AED',
 } as const;
 
 /**
@@ -86,13 +86,13 @@ export const darkColors = {
     popover: '#1A1A24',
     popoverForeground: '#FAFAFA',
 
-    // Primary (Cyan - Bright)
-    primary: '#22D3EE',
+    // Primary (Violet-400 - brand parity, migrated 2026-11-01)
+    primary: '#A78BFA',
     primaryForeground: '#1A1A24',
 
     // Secondary
-    secondary: '#164E63', // Cyan-900 (Darker for secondary bg)
-    secondaryForeground: '#22D3EE',
+    secondary: '#2E1065', // Violet-950 (Darker for secondary bg)
+    secondaryForeground: '#A78BFA',
 
     // Muted
     muted: '#27272A',
@@ -109,7 +109,7 @@ export const darkColors = {
     // Border & Input
     border: '#27272A',
     input: '#27272A',
-    ring: '#22D3EE',
+    ring: '#A78BFA',
 
     // Sidebar
     sidebar: '#18181B',

@@ -10,6 +10,21 @@ import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { getOnlineStatus, subscribeOnlineStatus } from '@ordo-todo/online-status';
+import {
+  createSyncEngine,
+  createConflictRegistry,
+  resolveUpdateConflict as resolveUpdateStrategy,
+  resolveDeleteConflict as resolveDeleteStrategy,
+  suggestMerge as suggestMergeStrategy,
+  type PendingAction as EngineAction,
+  type SyncEngineResult,
+  type ConflictData,
+  type ConflictResolution as RegistryResolution,
+} from '@ordo-todo/stores';
+import {
+  createDesktopSyncQueueAdapter,
+  toDesktopOperation,
+} from './sync-queue-adapter';
 
 // Types
 export type SyncStatus = 'idle' | 'syncing' | 'success' | 'error' | 'conflict';
@@ -28,7 +43,7 @@ interface SyncConflict {
   resolvedAt?: number;
 }
 
-interface SyncOperation {
+export interface SyncOperation {
   id: string;
   type: 'create' | 'update' | 'delete';
   entityType: 'task' | 'project' | 'workspace' | 'session';
@@ -37,6 +52,7 @@ interface SyncOperation {
   timestamp: number;
   retryCount: number;
   lastRetry?: number;
+  lastError?: string;
   status: 'pending' | 'completed' | 'failed';
 }
 
@@ -69,7 +85,7 @@ interface OfflineSyncStore {
   startSync: () => Promise<void>;
   stopSync: () => void;
   forceSync: () => Promise<void>;
-  processQueue: () => Promise<void>;
+  processQueue: () => Promise<SyncEngineResult>;
 
   // Entity Sync Operations
   executeSyncOperation: (operation: SyncOperation) => Promise<any>;
@@ -107,6 +123,102 @@ interface OfflineSyncStore {
 }
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+type StoreGet = () => OfflineSyncStore;
+type StoreSet = (partial: Partial<{ queue: SyncQueue }>) => void;
+
+/**
+ * Portable engine wired to the desktop queue: operations stay in zustand
+ * state (persisted, inspector-visible) via the adapter, execution dispatches
+ * through the store's per-entity `executeSyncOperation`. Progress events feed
+ * the queue's progress bar.
+ *
+ * Desktop preservation notes:
+ * - no `isOnline` override: every caller already guards on `queue.isOnline`,
+ *   exactly like the previous in-store loop;
+ * - `maxRetries: 1`: desktop marks an operation failed on its first error
+ *   (manual `retryOperation` re-queues it), so the first failure already
+ *   counts.
+ */
+function createDesktopEngine(get: StoreGet, set: StoreSet) {
+  return createSyncEngine({
+    adapter: createDesktopSyncQueueAdapter({
+      getOperations: () => get().queue.operations,
+      upsertOperation: (operation) => {
+        const queue = get().queue;
+        const operations = queue.operations.some((op) => op.id === operation.id)
+          ? queue.operations.map((op) => (op.id === operation.id ? operation : op))
+          : [...queue.operations, operation];
+        set({ queue: { ...queue, operations } });
+      },
+    }),
+    execute: (action) => executeDesktopOperation(get, action),
+    maxRetries: 1,
+    events: {
+      onProgress: (done, total) =>
+        set({
+          queue: {
+            ...get().queue,
+            syncProgress: total === 0 ? 100 : Math.round((done / total) * 100),
+          },
+        }),
+    },
+  });
+}
+
+/**
+ * Conflict registry wired to the desktop dual-write: `local` wins remotely,
+ * `remote` wins locally, `merge`/`manual` write the winning data to both
+ * sides — the same pattern the store applied inline before.
+ */
+function createDesktopConflictRegistry(get: StoreGet) {
+  return createConflictRegistry({
+    applyResolution: async (entityType, entityId, data, resolution) => {
+      const store = get();
+      switch (resolution) {
+        case 'local':
+          await store.applyRemoteUpdate(entityType, entityId, data);
+          break;
+        case 'remote':
+          await store.applyLocalUpdate(entityType, entityId, data);
+          break;
+        case 'merge':
+        case 'manual':
+          await store.applyRemoteUpdate(entityType, entityId, data);
+          await store.applyLocalUpdate(entityType, entityId, data);
+          break;
+      }
+    },
+  });
+}
+
+/**
+ * Engine `execute`: runs one action through the store's per-entity
+ * execution and preserves the data-conflict hook — errors whose message
+ * mentions a conflict still open a resolution conflict before the engine
+ * records the retry.
+ */
+async function executeDesktopOperation(
+  get: StoreGet,
+  action: EngineAction,
+): Promise<unknown> {
+  const operation = toDesktopOperation(action);
+  try {
+    return await get().executeSyncOperation(operation);
+  } catch (error) {
+    const err = error as { message?: string; remoteData?: any };
+    if (err?.message?.includes('conflict')) {
+      get().addConflict({
+        type: operation.type === 'delete' ? 'delete' : 'update',
+        entityType: operation.entityType,
+        entityId: operation.entityId,
+        localData: operation.data,
+        remoteData: err.remoteData,
+      });
+    }
+    throw error;
+  }
+}
 
 export const useOfflineSyncStore = create<OfflineSyncStore>()(
   persist(
@@ -208,7 +320,10 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         });
       },
 
-      // Resolve a specific conflict
+      // Resolve a specific conflict through the portable registry: it
+      // computes the winning data with the shared strategies and applies it
+      // through the desktop dual-write below. The registry discards resolved
+      // records; desktop keeps them marked so the dialog shows history.
       resolveConflict: async (conflictId, resolution, mergedData) => {
         const { queue } = get();
         const conflict = queue.conflicts.find((c) => c.id === conflictId);
@@ -216,32 +331,19 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         if (!conflict) return;
 
         try {
-          let finalData: any;
-
-          switch (resolution) {
-            case 'local':
-              finalData = conflict.localData;
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'remote':
-              finalData = conflict.remoteData;
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'merge':
-              finalData = mergedData || get().suggestMerge(conflict.localData, conflict.remoteData);
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'manual':
-              // Data already provided by user
-              finalData = mergedData;
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-          }
+          const registry = createDesktopConflictRegistry(get);
+          const recorded = registry.addConflict({
+            type: conflict.type,
+            entityType: conflict.entityType,
+            entityId: conflict.entityId,
+            localData: conflict.localData as ConflictData,
+            remoteData: conflict.remoteData as ConflictData,
+          });
+          await registry.resolve(
+            recorded.id,
+            resolution as RegistryResolution,
+            mergedData as ConflictData | undefined,
+          );
 
           // Update conflict status
           set((state) => ({
@@ -347,12 +449,21 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         await get().startSync();
       },
 
-      // Process the sync queue
-      processQueue: async () => {
-        const { queue } = get();
-        const pendingOperations = queue.operations.filter(op => op.status === 'pending');
+      // Process the sync queue through the portable engine: sequential
+      // execution, per-action retry accounting, progress events. Operations
+      // stay in zustand state (completed/failed, never deleted) via the
+      // adapter, so the inspector and the persisted queue see the same
+      // shapes as before.
+      processQueue: async (): Promise<SyncEngineResult> => {
+        let result: SyncEngineResult;
+        try {
+          result = await createDesktopEngine(get, set).syncAll();
+        } catch (error) {
+          console.error('Failed to process sync queue:', error);
+          result = { success: false, synced: 0, failed: 0, errors: [] };
+        }
 
-        if (pendingOperations.length === 0) {
+        if (result.synced + result.failed === 0) {
           set((state) => ({
             queue: {
               ...state.queue,
@@ -360,60 +471,15 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
               syncProgress: 100,
             },
           }));
-          return;
+        } else {
+          set((state) => ({
+            queue: {
+              ...state.queue,
+              syncProgress: 100,
+            },
+          }));
         }
-
-        let processedCount = 0;
-
-        for (const operation of pendingOperations) {
-          try {
-            await get().executeSyncOperation(operation);
-
-            // Mark as completed
-            set((state) => ({
-              queue: {
-                ...state.queue,
-                operations: state.queue.operations.map((op) =>
-                  op.id === operation.id
-                    ? { ...op, status: 'completed' }
-                    : op
-                ),
-                syncProgress: Math.round((++processedCount / state.queue.totalOperations) * 100),
-              },
-            }));
-          } catch (error) {
-            console.error(`Failed to sync operation ${operation.id}:`, error);
-
-            // Mark as failed and increment retry count
-            set((state) => ({
-              queue: {
-                ...state.queue,
-                operations: state.queue.operations.map((op) =>
-                  op.id === operation.id
-                    ? {
-                      ...op,
-                      status: 'failed',
-                      retryCount: op.retryCount + 1,
-                      lastRetry: Date.now(),
-                    }
-                    : op
-                ),
-              },
-            }));
-
-            // Add to conflict queue if it's a data conflict
-            const err = error as { message?: string; remoteData?: any };
-            if (err.message?.includes('conflict')) {
-              get().addConflict({
-                type: operation.type === 'delete' ? 'delete' : 'update',
-                entityType: operation.entityType,
-                entityId: operation.entityId,
-                localData: operation.data,
-                remoteData: err.remoteData,
-              });
-            }
-          }
-        }
+        return result;
       },
 
       // Execute individual sync operation
@@ -517,47 +583,29 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         return unsubscribe;
       },
 
-      // Resolve update conflict with intelligent merging
-      resolveUpdateConflict: (conflict) => {
-        const { localData, remoteData } = conflict;
+      // Conflict strategies now live in the portable registry; the store
+      // keeps these methods as the public entry points over them.
+      resolveUpdateConflict: (conflict) =>
+        resolveUpdateStrategy({
+          ...conflict,
+          localData: conflict.localData as ConflictData,
+          remoteData: conflict.remoteData as ConflictData,
+        }),
 
-        // Merge strategy: prefer most recent changes, combine non-conflicting fields
-        const merged = {
-          ...remoteData,
-          ...localData,
-          // Preserve server timestamps
-          updated_at: Math.max(
-            new Date(localData.updated_at).getTime(),
-            new Date(remoteData.updated_at).getTime()
-          ),
-          // Merge arrays (tags, custom fields, etc.)
-          tags: [...new Set([...(localData.tags || []), ...(remoteData.tags || [])])],
-          custom_fields: {
-            ...(remoteData.custom_fields || {}),
-            ...(localData.custom_fields || {}),
-          },
-        };
-
-        return merged;
-      },
-
-      // Resolve delete conflict
-      resolveDeleteConflict: (conflict) => {
-        // If local deleted but remote updated, ask user
-        // If remote deleted but local updated, ask user
-        return 'manual'; // Default to manual resolution
-      },
+      // Delete conflicts always need a human: neither side can win silently.
+      resolveDeleteConflict: (conflict) =>
+        resolveDeleteStrategy({
+          ...conflict,
+          localData: conflict.localData as ConflictData,
+          remoteData: conflict.remoteData as ConflictData,
+        }),
 
       // Suggest merge for conflicting data
-      suggestMerge: (local, remote) => {
-        // Simple merge strategy - can be made more sophisticated
-        return {
-          ...remote,
-          title: local.title || remote.title, // Prefer local title if exists
-          description: local.description || remote.description,
-          tags: [...new Set([...(local.tags || []), ...(remote.tags || [])])],
-        };
-      },
+      suggestMerge: (local, remote) =>
+        suggestMergeStrategy(
+          local as ConflictData,
+          remote as ConflictData,
+        ),
 
       // Start background sync
       startBackgroundSync: () => {

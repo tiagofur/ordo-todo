@@ -2,13 +2,13 @@
 name: Ordo Todo (App)
 description: App de productividad todo-en-uno — un cockpit sereno con firma de color por sección.
 colors:
-  primary: "#06B6D4"
+  primary: "#7C3AED"
   primary-foreground: "#FFFFFF"
-  primary-dark: "#22D3EE"
-  secondary: "#ECFEFF"
-  secondary-foreground: "#0891B2"
-  accent: "#ECFEFF"
-  accent-foreground: "#0891B2"
+  primary-dark: "#A78BFA"
+  secondary: "#F5F3FF"
+  secondary-foreground: "#6D28D9"
+  accent: "#F5F3FF"
+  accent-foreground: "#6D28D9"
   background: "oklch(1 0 0)"
   foreground: "oklch(0.141 0.005 285.823)"
   card: "oklch(1 0 0)"
@@ -16,7 +16,7 @@ colors:
   muted-foreground: "#6B7280"
   border: "#E5E7EB"
   destructive: "oklch(0.577 0.245 27.325)"
-  ring: "#06B6D4"
+  ring: "#7C3AED"
   sidebar: "#FAFAFA"
   sidebar-border: "#E5E7EB"
   brand-mark: "#AD46FF"
@@ -119,7 +119,7 @@ components:
 
 **Creative North Star: "El cockpit sereno"**
 
-La app es un panel de control tranquilo sobre un lienzo neutro: zinc y blanco en modo claro, un azul-negro profundo (`oklch(0.1 0.01 275)`) en modo oscuro. La personalidad es **precisa y cálida** — ordenada, eficiente y franca, con acentos alegres en dosis medidas. El color en Ordo **ordena, nunca decora**: cada módulo firma con su color propio (tareas violeta, proyectos rosa, hábitos verde…) para que el usuario reconozca dónde está sin leer un título, pero la acción primaria y el chrome de UI hablan un solo idioma (el cian del sistema semántico).
+La app es un panel de control tranquilo sobre un lienzo neutro: zinc y blanco en modo claro, un azul-negro profundo (`oklch(0.1 0.01 275)`) en modo oscuro. La personalidad es **precisa y cálida** — ordenada, eficiente y franca, con acentos alegres en dosis medidas. El color en Ordo **ordena, nunca decora**: cada módulo firma con su color propio (tareas violeta, proyectos rosa, hábitos verde…) para que el usuario reconozca dónde está sin leer un título, pero la acción primaria y el chrome de UI hablan un solo idioma (el violeta del sistema semántico).
 
 Es un sistema Radix/shadcn **confiado y accesible**: controles con estados completos (hover, focus-visible con anillo de 3px, disabled, aria-invalid), teclado primero, y una elevación **plana por defecto** — las superficies descansan y solo se levantan como respuesta (hover, overlays, carga). El único gesto expresivo permitido fuera de esa disciplina es el glassmorphism del dashboard (`glass-panel`, blur 12px) y las transiciones suaves de tema (300 ms).
 
@@ -133,14 +133,14 @@ Es un sistema Radix/shadcn **confiado y accesible**: controles con estados compl
 
 ## Colors
 
-Paleta neutra y calma (blanco/zinc claro, azul-negro oscuro) sobre la que hablan dos voces de color: el **cian semántico** que ejecuta acciones y el **arcoíris de sección** que firma módulos. El morado de marca existe pero no participa en la UI.
+Paleta neutra y calma (blanco/zinc claro, azul-negro oscuro) sobre la que hablan dos voces de color: el **violeta semántico** que ejecuta acciones y el **arcoíris de sección** que firma módulos. El morado de marca (`#AD46FF`) vive en la identidad y comparte familia con la voz de acción.
 
 ### Primary
-- **Cian Eléctrico** (`#06B6D4` claro / `#22D3EE` oscuro — token `--primary`): la voz de acción de toda la app. Botones primarios, enlaces, selección de texto, foco (`--ring`), badges activos, sidebar activo. Es el mismo valor en web, desktop y móvil porque vive en `@ordo-todo/styles`.
-- **Morado Ordo** (`#AD46FF` — token de marca): identidad pura, no UI. Aparece en el BrandMark (login, registro, authorize), `themeColor` del viewport, favicon y acentos de apps conectadas. Nunca en botones ni estados de acción.
+- **Violeta Ordo** (`#7C3AED` claro / `#A78BFA` oscuro — token `--primary`): la voz de acción de toda la app. Botones primarios, enlaces, selección de texto, foco (`--ring`), badges activos, sidebar activo. Es el mismo valor en web, desktop y móvil porque vive en `@ordo-todo/styles`. Contraste verificado: blanco sobre `#7C3AED` 5.70:1 (AA).
+- **Morado Marca** (`#AD46FF` — token de marca): identidad pura. Aparece en el BrandMark (login, registro, authorize), `themeColor` del viewport, favicon y acentos de apps conectadas. No se usa como fondo de botones: la acción es `#7C3AED`, un paso más oscuro y legible.
 
 ### Secondary
-- **Cian Bruma** (`#ECFEFF` claro / `#164E63` oscuro — `--secondary`/`--accent`): fondos de hover, chips secundarios, elementos seleccionados suaves. Su texto acompaña en `#0891B2` / `#22D3EE`.
+- **Bruma Violeta** (`#F5F3FF` claro / `#2E1065` oscuro — `--secondary`; `--accent` usa `#F5F3FF` claro / `#3F3F46` oscuro): fondos de hover, chips secundarios, elementos seleccionados suaves. Su texto acompaña en `#6D28D9` / `#A78BFA`.
 
 ### Tertiary (firmas por sección)
 - **Violeta Tareas** (`#8B5CF6`), **Rosa Proyectos** (`#EC4899`), **Esmeralda Hábitos** (`#10B981`), **Naranja Workspaces** (`#F97316`), **Azul Calendario** (`#3B82F6`), **Amarillo Notas** (`#EAB308`), **Rosa Bienestar** (`#F43F5E`) — tokens `--theme-*` expuestos como `bg-tasks`, `text-projects`, etc. Colorean cabeceras, iconos de navegación, tarjetas y gráficos de su módulo. Los colores de proyecto (7) y de tags (10) son paletas cerradas (`projectColors`/`tagColors` en `@ordo-todo/styles`): se eligen, no se inventan.
@@ -153,7 +153,7 @@ Paleta neutra y calma (blanco/zinc claro, azul-negro oscuro) sobre la que hablan
 
 ### Named Rules
 
-**La Regla de la Marca Púrpura.** `#AD46FF` es identidad (icono, auth, themeColor), nunca color de acción. Si un botón necesita atención, ese botón es cian.
+**La Regla de la Marca Púrpura.** `#AD46FF` es identidad (icono, auth, themeColor), nunca fondo de acción. Si un botón necesita atención, ese botón es `#7C3AED` (`bg-primary`).
 
 **La Regla de Firma por Sección.** Cada módulo usa su `--theme-*` para identificarse (iconos de sidebar, cabeceras, tarjetas) pero nunca para botones de acción: la acción es siempre del sistema semántico.
 
@@ -212,14 +212,14 @@ Primitivos Radix/shadcn en `packages/ui` (consumidos por web, desktop y móvil).
 
 ### Buttons
 - **Shape:** `rounded-md` (8 px), altura 36 px (default), iconos de 16 px.
-- **Primary:** fondo **Cian Eléctrico** (`bg-primary`), texto blanco, `px-4 py-2`; hover al 90 % de opacidad. Es el único botón que ejecuta la acción principal de una vista.
+- **Primary:** fondo **Violeta Ordo** (`bg-primary`), texto blanco, `px-4 py-2`; hover al 90 % de opacidad. Es el único botón que ejecuta la acción principal de una vista.
 - **Outline:** borde `--border/80` sobre fondo, texto en tinta; hover lleva `bg-accent`. Para acciones secundarias.
 - **Ghost:** sin fondo ni borde; hover `bg-accent` (50 % en oscuro). Para acciones de la barra superior y menús.
-- **Secondary / Destructive / Link:** `bg-secondary`; destructivo en rojo con ring propio; link cian subrayado con `underline-offset-4`.
+- **Secondary / Destructive / Link:** `bg-secondary`; destructivo en rojo con ring propio; link violeta subrayado con `underline-offset-4`.
 - **Sizes:** `sm` 32 px (padding 12 px), `lg` 40 px (padding 24 px), `icon` cuadrado 36 px.
 
 ### Chips / Badges / Tags
-- **Style:** pill `rounded-full`, `px-2 py-0.5`, label 12 px medium, borde 1 px. Variantes: primary (cian), secondary, destructive, outline.
+- **Style:** pill `rounded-full`, `px-2 py-0.5`, label 12 px medium, borde 1 px. Variantes: primary (violeta), secondary, destructive, outline.
 - **Tags de tarea:** paleta cerrada de 10 colores (`tagColors`); se muestran como pills tenues con dot de color, nunca como relleno saturado a pantalla completa.
 
 ### Cards / Containers
@@ -231,7 +231,7 @@ Primitivos Radix/shadcn en `packages/ui` (consumidos por web, desktop y móvil).
 
 ### Inputs / Fields
 - **Style:** altura 36 px, `rounded-md`, borde `--input`, fondo transparente (30 % de `--input` en oscuro), texto 14 px, placeholder `--muted-foreground`.
-- **Focus:** borde → `--ring` + anillo de 3 px `ring-ring/50`; la selección de texto usa cian con texto blanco.
+- **Focus:** borde → `--ring` + anillo de 3 px `ring-ring/50`; la selección de texto usa violeta con texto blanco.
 - **Error / Disabled:** `aria-invalid` tiñe borde y anillo de destructivo; disabled al 50 % sin puntero. Labels con `Label` de Radix y errores inline debajo.
 - **Selects/combos:** Popover/Command de Radix con búsqueda, `rounded-md`, item activo `bg-accent`.
 
@@ -241,7 +241,7 @@ Primitivos Radix/shadcn en `packages/ui` (consumidos por web, desktop y móvil).
 - **Móvil:** la sidebar pasa a drawer (Sheet) deslizante; tabs inferiores no existen — el drawer es la navegación.
 
 ### Signature: la tarjeta de tarea temática
-El patrón que define a Ordo: tarjeta `rounded-xl` con checkbox a la izquierda, título en tinta, metadatos en label gris (fecha, tags-pill, proyecto con dot de su color, avatares de asignados) y la **firma de color de su sección/proyecto** como acento lateral o de cabecera. Con subtareas muestra progreso (`Progress` fino en cian). En Kanban vive dentro de columnas custom con cabecera de color de workflow.
+El patrón que define a Ordo: tarjeta `rounded-xl` con checkbox a la izquierda, título en tinta, metadatos en label gris (fecha, tags-pill, proyecto con dot de su color, avatares de asignados) y la **firma de color de su sección/proyecto** como acento lateral o de cabecera. Con subtareas muestra progreso (`Progress` fino en violeta). En Kanban vive dentro de columnas custom con cabecera de color de workflow.
 
 ### Patrones de estado
 - **Carga:** `Skeleton` (`animate-pulse bg-muted rounded`) replicando la forma del contenido — nunca spinners genéricos sobre páginas vacías.
@@ -251,7 +251,7 @@ El patrón que define a Ordo: tarjeta `rounded-xl` con checkbox a la izquierda, 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usa siempre tokens semánticos (`bg-primary`, `text-muted-foreground`, `border`) — el modo oscuro y el future re-theming dependen de que ningún hex crudo decida colores por su cuenta.
+- **Do** usa siempre tokens semánticos (`bg-primary`, `text-muted-foreground`, `border`) — el modo oscuro y los re-themings dependen de que ningún hex crudo decida colores por su cuenta.
 - **Do** firma cada módulo con su `--theme-*` (`bg-tasks`, `text-habits`…) para iconos, cabeceras y acentos de tarjeta.
 - **Do** mantén el focus ring visible (3 px, `ring-ring/50`) en todo control interactivo; teclado primero.
 - **Do** respeta `prefers-reduced-motion` (ya global) y mantén las transiciones en la escala 150–300 ms.
@@ -260,8 +260,8 @@ El patrón que define a Ordo: tarjeta `rounded-xl` con checkbox a la izquierda, 
 
 ### Don't:
 - **Don't** uses el morado `#AD46FF` en botones, enlaces o estados de acción: es identidad (BrandMark, auth, themeColor), no voz de UI.
-- **Don't** introduzcas violeta `#7C3AED` ni ningún "nuevo primario": la migración cian→violeta está como decisión abierta en PRODUCT.md y solo un PR de tokens decidido por el owner puede cambiarla.
-- **Don't** copies el mundo visual de la webpage (violeta editorial, testimonios, CTAs de marketing): la app y el sitio público son mundos hermanos con primarios distintos hoy.
+- **Don't** introduzcas otro primario fuera de `#7C3AED`/`#A78BFA`: la migración cian→violeta se decidió el 01-nov-2026 (PRODUCT.md) y el violeta es el único primario.
+- **Don't** copies el mundo visual de la webpage (testimonios, CTAs de marketing): la app y el sitio público comparten familia violeta desde el 01-nov-2026, pero la app habla en voz semántica y el sitio en voz editorial.
 - **Don't** mezcles geometrías: nada de botones pill ni cards cuadradas; el pill es de badges/chips.
 - **Don't** metas glassmorphism (`glass-panel`) fuera del dashboard, ni sombras en reposo que no respondan a estado.
 - **Don't** dejes cadenas en duro: toda cadena visible pasa por i18n (EN/ES/PT-BR) antes de merge.

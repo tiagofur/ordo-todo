@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, type ReactNode } from 'react';
 import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2, LayoutList, CircleDot } from 'lucide-react';
 import {

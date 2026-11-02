@@ -26,14 +26,27 @@ export function StatsCard({
   trend,
   onClick,
 }: StatsCardProps) {
+  const interactive = typeof onClick === 'function';
   return (
     <div
       className={cn(
         'group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300',
         'hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20 hover:border-primary/20',
-        onClick && 'cursor-pointer'
+        interactive && 'cursor-pointer'
       )}
       onClick={onClick}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
     >
       <div className="flex items-center gap-4">
         <div

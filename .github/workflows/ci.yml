@@ -83,6 +83,13 @@ jobs:
             - name: Build packages
               run: npm run build
 
+            - name: Test packages
+              # Runs every workspace test suite under packages/* (api-client,
+              # core, db, hooks, online-status, openclaw-plugin, stores,
+              # styles, ui). Workspaces without a test script are skipped by
+              # turbo; every wired suite is green as of 028 (see odd task doc).
+              run: npx turbo run test --filter='./packages/*'
+
             - name: Cache packages
               uses: actions/cache@v6
               with:

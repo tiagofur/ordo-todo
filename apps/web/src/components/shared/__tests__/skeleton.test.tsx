@@ -22,6 +22,12 @@ describe("Skeleton Components", () => {
       const skeleton = document.querySelector(".h-10.w-20");
       expect(skeleton).toBeInTheDocument();
     });
+
+    it("is hidden from assistive tech", () => {
+      render(<Skeleton />);
+      const skeleton = document.querySelector(".animate-pulse");
+      expect(skeleton).toHaveAttribute("aria-hidden", "true");
+    });
   });
 
   describe("CardSkeleton", () => {

@@ -84,12 +84,14 @@ export const defaultMetadata: Metadata = {
     authors: [{ name: "Ordo Team" }],
     creator: "Ordo Team",
     publisher: "Ordo Todo",
+    // Authenticated app: never indexed. Public pages opt into indexing
+    // explicitly via generatePageMetadata.
     robots: {
-        index: true,
-        follow: true,
+        index: false,
+        follow: false,
         googleBot: {
-            index: true,
-            follow: true,
+            index: false,
+            follow: false,
             "max-video-preview": -1,
             "max-image-preview": "large",
             "max-snippet": -1,

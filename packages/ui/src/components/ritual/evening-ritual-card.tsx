@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import { MoonStar, Check, SkipForward } from 'lucide-react';
 import {

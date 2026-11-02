@@ -11,6 +11,8 @@ export * from './workspace-store.js';
 export * from './ui-store.js';
 export * from './timer-store.js';
 export * from './sync-store.js';
+export * from './sync-engine.js';
+export * from './sync-conflicts.js';
 export * from './types.js';
 
 export * from './onboarding-store.js';

@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
     "@ordo-todo/online-status",
     "@ordo-todo/auth-provider",
     "@ordo-todo/api-client",
-    "@ordo-todo/validations",
   ],
 
   // Bundle optimization with webpack
@@ -92,6 +91,29 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+          {
+            // Ignored by browsers on http (localhost); enforced on https.
+            // No `preload` flag: that requires submission to the HSTS list.
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains',
+          },
+          {
+            // Report-only on purpose: collects violations in the devtools
+            // console without blocking anything. Read that console during a
+            // real browser pass, tighten the directives, then switch to the
+            // enforcing `Content-Security-Policy` header. No `report-uri`:
+            // there is no reporting endpoint yet.
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob:",
+              "font-src 'self' data:",
+              "connect-src 'self'",
+              "frame-ancestors 'none'",
+            ].join('; '),
           },
         ],
       },

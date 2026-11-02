@@ -208,7 +208,7 @@ export function TasksView() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateTask(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-purple-500 text-white shadow-sm shadow-purple-500/25 hover:bg-purple-600 transition-all duration-200"
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("newTask")}</span>
@@ -303,7 +303,7 @@ export function TasksView() {
           ) : (
             <button
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02]"
+              className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02]"
             >
               <Plus className="h-4 w-4" />
               {t("newTask")}

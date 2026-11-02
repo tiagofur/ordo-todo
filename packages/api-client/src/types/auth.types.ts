@@ -38,6 +38,16 @@ export interface ChangePasswordDto {
   newPassword: string;
 }
 
+export interface ResetPasswordDto {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResult {
+  success: boolean;
+  message: string;
+}
+
 export interface SessionInfo {
   id: string;
   deviceName: string;

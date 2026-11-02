@@ -779,9 +779,7 @@ describe('OrdoApiClient', () => {
 
       const result = await client.getTimerSessions('task-1');
 
-      expect(mockAxios.get).toHaveBeenCalledWith('/timers', {
-        params: { taskId: 'task-1' },
-      });
+      expect(mockAxios.get).toHaveBeenCalledWith('/timers/task/task-1');
       expect(result).toHaveLength(1);
     });
 

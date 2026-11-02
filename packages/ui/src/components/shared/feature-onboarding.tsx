@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { ArrowRight, X, CheckCircle2 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
