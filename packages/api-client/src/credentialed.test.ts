@@ -154,4 +154,26 @@ describe('credentialed transport (cookie + CSRF)', () => {
         ).rejects.toThrow('refresh expired');
         expect(onAuthError).toHaveBeenCalledTimes(1);
     });
+
+    it('clears the server session on logout in credentialed mode', async () => {
+        const { client, mockAxios } = setup({ authTransport: 'credentialed' });
+        mockAxios.post.mockResolvedValue({});
+
+        await client.logout();
+
+        // The httpOnly cookie only dies server-side: without this POST the
+        // user stays logged in (logout button appears to do nothing).
+        expect(mockAxios.post).toHaveBeenCalledWith('/auth/logout', {});
+    });
+
+    it('stays client-side-only on logout in bearer mode', async () => {
+        const storage = new MemoryTokenStorage();
+        storage.setToken('stored-token');
+        const { client, mockAxios } = setup({ tokenStorage: storage });
+
+        await client.logout();
+
+        expect(mockAxios.post).not.toHaveBeenCalled();
+        expect(storage.getToken()).toBeNull();
+    });
 });
