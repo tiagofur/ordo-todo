@@ -375,7 +375,10 @@
     "aiInsights": "Insights de IA",
     "noInsights": "Sem insights no momento",
     "aiSuggestion": "Continue concluindo tarefas para receber sugestões inteligentes",
-    "viewAllInsights": "Ver todos os insights"
+    "viewAllInsights": "Ver todos os insights",
+    "confirmDeleteTask": "Tem certeza de que deseja excluir esta tarefa?",
+    "taskDeleted": "Tarefa excluída com sucesso",
+    "taskDeleteError": "Erro ao excluir a tarefa"
   },
   "Tasks": {
     "title": "Tarefas",
