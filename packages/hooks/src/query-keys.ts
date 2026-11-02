@@ -83,6 +83,7 @@ export const queryKeys = {
     category?: string;
     priority?: string;
   }) => ['ai', 'predict-duration', params] as const,
+  allReports: ['ai', 'reports'] as const,
   reports: (params?: { scope?: string; limit?: number; offset?: number }) =>
     ['ai', 'reports', params] as const,
   report: (id: string) => ['ai', 'reports', id] as const,

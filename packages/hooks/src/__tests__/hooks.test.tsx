@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
-import { renderHook, waitFor, cleanup } from '@testing-library/react';
+import { renderHook, waitFor, cleanup, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createHooks, type CreateHooksConfig } from '../hooks';
 
@@ -1704,6 +1704,63 @@ describe('createHooks', () => {
       });
 
       expect(result.current.error.message).toBe('Request timeout');
+    });
+  });
+
+  describe('List invalidation after mutations (realtime lists)', () => {
+    it('refetches the project task list after creating a task', async () => {
+      mockApiClient.getTasks.mockResolvedValue([]);
+      mockApiClient.createTask.mockResolvedValue({ id: 't-new', title: 'Nueva' });
+
+      const { result: list } = renderHook(() => hooks.useTasks('project-1'), {
+        wrapper,
+      });
+      await waitFor(() => {
+        expect(list.current.isSuccess).toBe(true);
+      });
+      expect(mockApiClient.getTasks).toHaveBeenCalledTimes(1);
+
+      const { result: creator } = renderHook(() => hooks.useCreateTask(), {
+        wrapper,
+      });
+      await act(async () => {
+        await creator.current.mutateAsync({
+          title: 'Nueva',
+          projectId: 'project-1',
+        });
+      });
+
+      // The project list must refetch: invalidating ['tasks', {undefined…}]
+      // never prefix-matches ['tasks', {projectId: 'project-1', …}].
+      await waitFor(() => {
+        expect(mockApiClient.getTasks).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('refetches the reports list after generating a weekly report', async () => {
+      mockApiClient.getReports.mockResolvedValue([]);
+      mockApiClient.generateWeeklyReport.mockResolvedValue({ id: 'r-1' });
+
+      const { result: list } = renderHook(
+        () => hooks.useReports({ scope: 'week' }),
+        { wrapper },
+      );
+      await waitFor(() => {
+        expect(list.current.isSuccess).toBe(true);
+      });
+      expect(mockApiClient.getReports).toHaveBeenCalledTimes(1);
+
+      const { result: generator } = renderHook(
+        () => hooks.useGenerateWeeklyReport(),
+        { wrapper },
+      );
+      await act(async () => {
+        await generator.current.mutateAsync('2026-01-01');
+      });
+
+      await waitFor(() => {
+        expect(mockApiClient.getReports).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });
