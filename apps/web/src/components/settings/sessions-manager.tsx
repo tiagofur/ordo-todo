@@ -18,7 +18,7 @@ import {
 import { Button, Label } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SessionInfo } from "@ordo-todo/api-client";
 import { useTranslations } from "next-intl";

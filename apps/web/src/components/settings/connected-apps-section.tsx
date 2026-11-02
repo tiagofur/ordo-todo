@@ -7,7 +7,8 @@ import { Button, Label } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
-import { apiClient, type OAuthConnection } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
+import type { OAuthConnection } from "@ordo-todo/api-client";
 
 /** Scope → i18n key under `Connect.scopes` (shared with the consent screen). */
 const SCOPE_KEYS: Record<string, string> = {
