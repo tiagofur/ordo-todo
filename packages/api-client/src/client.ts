@@ -385,7 +385,6 @@ export class OrdoApiClient {
   private retryConfig?: RetryConfig;
   private readonly authTransport: 'bearer' | 'credentialed';
   private readonly csrfTokenProvider?: () => string | null | Promise<string | null>;
-  // public testProp: string = 'test';
 
   constructor(config: ClientConfig) {
     this.tokenStorage = config.tokenStorage;
