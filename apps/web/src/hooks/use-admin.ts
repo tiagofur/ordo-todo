@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import type {
   AdminOverview,
   AdminUserDetail,
@@ -10,7 +10,7 @@ import type {
   CreateAdminInviteCodeDto,
   GetAdminUsersParams,
   GrantProDto,
-} from "@/lib/api-client";
+} from "@ordo-todo/api-client";
 
 /** Query keys for every admin surface, all rooted under ["admin", ...]. */
 export const adminKeys = {

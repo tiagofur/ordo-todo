@@ -19,44 +19,21 @@ import {
   CheckSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { AppLayout } from "@/components/shared/app-layout";
 import { useWorkspaces } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 
-interface MemberWorkload {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  avatarUrl?: string;
-  workloadScore: number;
-  assignedTasks: number;
-  completedTasks: number;
-  hoursWorkedThisWeek: number;
-  trend: "INCREASING" | "STABLE" | "DECREASING";
-  workloadLevel: "LOW" | "MODERATE" | "HIGH" | "OVERLOADED";
-}
+import type { WorkspaceWorkload } from "@ordo-todo/api-client";
 
-interface WorkloadSuggestion {
-  type: "REDISTRIBUTE" | "URGENT_HELP" | "BALANCE";
-  message: string;
-  reason?: string;
-  fromMember?: string;
-  toMember?: string;
-  fromUserName?: string;
-  toUserName?: string;
-  taskCount?: number;
-}
-
-interface TeamWorkloadData {
-  workspaceId: string;
-  workspaceName: string;
-  members: MemberWorkload[];
-  averageWorkload: number;
+// The backend sends no balance score; the gauge renders its default (100)
+// until the API provides it. Everything else mirrors the API shapes.
+type WorkloadView = WorkspaceWorkload & {
   balanceScore?: number;
-  redistributionSuggestions: WorkloadSuggestion[];
-}
+};
+
+
 
 type LevelFilter = "ALL" | "LOW" | "MODERATE" | "HIGH" | "OVERLOADED";
 
@@ -66,9 +43,7 @@ export default function WorkloadPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("ALL");
-  const [workloadData, setWorkloadData] = useState<TeamWorkloadData | null>(
-    null,
-  );
+  const [workloadData, setWorkloadData] = useState<WorkloadView | null>(null);
 
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const { data: workspaces = [] } = useWorkspaces();
@@ -472,7 +447,7 @@ export default function WorkloadPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-2">
-                              {suggestion.reason || suggestion.message}
+                              {suggestion.reason}
                             </p>
                             {suggestion.fromUserName &&
                               suggestion.toUserName && (

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -133,7 +133,10 @@ export function MeetingAnalyzer() {
 
     try {
       const result = await apiClient.analyzeMeetingTranscript(transcript);
-      setAnalysis(result);
+      // The dialog tolerates AI-schema variants the contract does not
+      // enumerate (object unions, extra fields); the backend shape renders
+      // through the same string/fallback branches as before.
+      setAnalysis(result as unknown as MeetingAnalysis);
       toast.success(t("analysisCompleted"));
 
       // Auto-save meeting note to database

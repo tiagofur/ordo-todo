@@ -48,7 +48,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { AdminUserDetailDialog } from "./admin-user-detail-dialog";
 import { getErrorMessage } from "@/lib/error-handler";
-import type { AdminUserListItem } from "@/lib/api-client";
+import type { AdminUserListItem } from "@ordo-todo/api-client";
 
 const PAGE_LIMIT = 10;
 

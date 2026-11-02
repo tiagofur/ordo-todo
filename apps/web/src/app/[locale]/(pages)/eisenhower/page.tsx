@@ -23,7 +23,7 @@ import {
   useProjects,
   useCreateTask,
 } from "@/lib/api-hooks";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TaskPriority } from "@ordo-todo/api-client";

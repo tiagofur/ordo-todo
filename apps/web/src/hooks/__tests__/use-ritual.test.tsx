@@ -21,8 +21,8 @@ import {
 } from '../use-ritual';
 
 // Mock the API client (only the ritual surface).
-vi.mock('@/lib/api-client', () => ({
-  apiClient: {
+vi.mock('@/lib/package-api-client', () => ({
+  packageApiClient: {
     getMorningRitual: vi.fn(),
     completeMorningRitual: vi.fn(),
     skipMorningRitual: vi.fn(),
@@ -35,7 +35,7 @@ vi.mock('@/lib/api-client', () => ({
   },
 }));
 
-import { apiClient } from '@/lib/api-client';
+import { packageApiClient as apiClient } from '@/lib/package-api-client';
 
 const MORNING: RitualMorningView = {
   plan: { proposalId: 'p', status: 'PROPOSED', blocks: [], frozenTaskIds: [], changes: [] },

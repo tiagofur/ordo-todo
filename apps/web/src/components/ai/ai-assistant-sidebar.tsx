@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button, Input } from "@ordo-todo/ui";
 import { Sparkles, Send, X, Bot, User } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 

@@ -25,7 +25,7 @@ import {
   useUsernameValidation,
   generateUsernameSuggestions,
 } from "@ordo-todo/hooks";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { cn } from "@/lib/utils";
 import { API_CONFIG } from "@/config";
 import {
@@ -89,7 +89,7 @@ function SignUpForm() {
   // Real API client for username validation
   const { validationResult, validateUsername, resetValidation } =
     useUsernameValidation({
-      apiClient: apiClient as any, // Hook uses fetch internally, type mismatch
+      apiClient,
       minLength: 3,
       maxLength: 20,
       debounceMs: 500,

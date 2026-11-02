@@ -14,12 +14,12 @@ import { Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { PLANS } from "@ordo-todo/config";
-import {
-  apiClient,
-  type BillingInterval,
-  type BillingPlanId,
-  type BillingUsageOverview,
-} from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
+import type {
+  BillingInterval,
+  BillingPlanId,
+  BillingUsageOverview,
+} from "@ordo-todo/api-client";
 
 const GB = 1e9;
 const DAY = 24 * 60 * 60 * 1000;

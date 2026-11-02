@@ -14,7 +14,7 @@ import {
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { cn } from "@ordo-todo/ui";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { toast } from "sonner";
 import { AuthLocaleSwitcher } from "@/components/auth/auth-locale-switcher";
 

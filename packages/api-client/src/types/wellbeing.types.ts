@@ -1,66 +1,83 @@
 /**
- * Burnout prevention / Wellbeing types
+ * Burnout prevention / Wellbeing types.
+ *
+ * Mirrors the backend (`BurnoutPreventionService`): these are the shapes the
+ * API actually returns. Do not extend them with aspirational fields — the UI
+ * covers display fallbacks on its side.
  */
 
-export type BurnoutRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type BurnoutRiskLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+
+export interface BurnoutWarning {
+    type:
+        | 'LATE_NIGHTS'
+        | 'WEEKEND_WORK'
+        | 'NO_BREAKS'
+        | 'OVERLOAD'
+        | 'DECLINING_PERFORMANCE'
+        | 'LONG_HOURS';
+    severity: 'MILD' | 'MODERATE' | 'SEVERE';
+    message: string;
+    recommendation: string;
+}
+
+export interface WorkPatternAnalysis {
+    lateNightPercentage: number;
+    lateNightDays: number;
+    weekendWorkPercentage: number;
+    weekendDays: number;
+    avgSessionWithoutBreak: number;
+    longestSessionWithoutBreak: number;
+    avgDailyWorkHours: number;
+    urgentTaskCount: number;
+    overdueTaskCount: number;
+    taskLoadTrend: 'INCREASING' | 'STABLE' | 'DECLINING';
+    completionRateTrend: 'IMPROVING' | 'STABLE' | 'DECLINING';
+    recentCompletionRate: number;
+}
 
 export interface BurnoutAnalysis {
     riskLevel: BurnoutRiskLevel;
     riskScore: number;
-    riskFactors: string[];
-    metrics: {
-        avgDailyFocusTime: number;
-        avgDailyBreakTime: number;
-        consecutiveWorkingDays: number;
-        weekendWorkFrequency: number;
-        overtimeHoursLastWeek: number;
-    };
-    recommendations: string[];
-    lastAnalyzedAt: string | Date;
-}
-
-export interface WorkPatterns {
-    peakHours: number[];
-    peakDays: number[];
-    avgSessionDuration: number;
-    mostProductiveTime: 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT';
-    avgTasksPerDay: number;
-    focusSessionsPerDay: number;
-    breakFrequency: number;
+    patterns: WorkPatternAnalysis;
+    warnings: BurnoutWarning[];
+    aiInsights?: string;
 }
 
 export interface RestRecommendation {
-    type: 'BREAK' | 'SHORT_WALK' | 'MEAL' | 'EXERCISE' | 'SLEEP' | 'VACATION';
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    type:
+        | 'TAKE_BREAK'
+        | 'END_DAY'
+        | 'WEEKEND_OFF'
+        | 'DELEGATE_TASKS'
+        | 'REDUCE_WORKLOAD';
+    priority: 'LOW' | 'MEDIUM' | 'HIGH';
     message: string;
-    suggestedDuration?: number;
-    suggestedTime?: string;
+    suggestedAction?: string;
 }
 
 export interface BurnoutIntervention {
-    needsIntervention: boolean;
-    severity: 'NONE' | 'MILD' | 'MODERATE' | 'SEVERE';
-    suggestedActions: string[];
-    immediateBreakNeeded: boolean;
-    suggestedBreakDuration?: number;
-    alertMessage?: string;
+    type: 'GENTLE_REMINDER' | 'STRONG_WARNING' | 'CRITICAL_ALERT';
+    title: string;
+    message: string;
+    recommendations: string[];
+    shouldNotify: boolean;
 }
 
-export type WellbeingTrend = 'IMPROVING' | 'STABLE' | 'DECLINING';
-
-export interface WeeklyWellbeingSummary {
-    weekStartDate: string | Date;
-    weekEndDate: string | Date;
+export interface WellbeingSummary {
+    weekStart: string | Date;
+    weekEnd: string | Date;
     overallScore: number;
-    trend: WellbeingTrend;
-    focusTimeTotal: number;
-    breakTimeTotal: number;
-    tasksCompleted: number;
-    averageStressLevel: number;
-    insights: string[];
-    comparedToLastWeek: {
-        focusTime: number;
-        productivity: number;
-        breaks: number;
+    burnoutRisk: BurnoutRiskLevel;
+    highlights: string[];
+    concerns: string[];
+    recommendations: string[];
+    metrics: {
+        totalHoursWorked: number;
+        tasksCompleted: number;
+        avgFocusSessionLength: number;
+        breaksTaken: number;
+        latestWorkTime: string;
+        weekendHours: number;
     };
 }

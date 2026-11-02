@@ -20,52 +20,31 @@ import {
 } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
+import type {
+  BurnoutAnalysis,
+  WorkPatternAnalysis,
+  WellbeingSummary,
+  RestRecommendation,
+} from "@ordo-todo/api-client";
 import { useTranslations } from "next-intl";
 
-interface BurnoutAnalysis {
-  riskScore: number;
-  riskLevel: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
-  warnings: {
-    type: string;
-    severity: "MILD" | "MODERATE" | "SEVERE";
-    message: string;
-    recommendation: string;
-  }[];
-  aiInsights?: string;
-  patterns: any;
-}
-
-interface WorkPattern {
-  avgDailyWorkHours?: number;
-  averageHoursPerDay?: number;
-  lateNightPercentage?: number;
-  nightWorkPercentage?: number;
-  weekendWorkPercentage?: number;
-  avgSessionWithoutBreak?: number;
-  averageBreakMinutes?: number;
-  longestSessionWithoutBreak?: number;
-  urgentTaskCount?: number;
-  overdueTaskCount?: number;
-  consistencyScore?: number;
-}
-
-interface WeeklySummary {
-  overallScore: number;
-  trend: "IMPROVING" | "STABLE" | "DECLINING";
-  highlights: string[];
-  concerns: string[];
-  recommendations: string[];
-}
+// The backend does not send a trend yet; the slot renders its default until
+// it does. Everything else mirrors the API shapes.
+type WeeklySummaryView = WellbeingSummary & {
+  trend?: "IMPROVING" | "STABLE" | "DECLINING";
+};
 
 export function WellbeingTab() {
   const t = useTranslations("Wellbeing");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [burnout, setBurnout] = useState<BurnoutAnalysis | null>(null);
-  const [patterns, setPatterns] = useState<WorkPattern | null>(null);
-  const [weekly, setWeekly] = useState<WeeklySummary | null>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [patterns, setPatterns] = useState<WorkPatternAnalysis | null>(null);
+  const [weekly, setWeekly] = useState<WeeklySummaryView | null>(null);
+  const [recommendations, setRecommendations] = useState<RestRecommendation[]>(
+    [],
+  );
 
   const fetchData = async () => {
     setIsRefreshing(true);
@@ -130,7 +109,7 @@ export function WellbeingTab() {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const getTrendIcon = (trend?: string) => {
     switch (trend) {
       case "IMPROVING":
         return <TrendingUp className="h-5 w-5 text-emerald-500" />;
@@ -293,7 +272,7 @@ export function WellbeingTab() {
               </div>
             </div>
             <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {(patterns.avgDailyWorkHours ?? patterns.averageHoursPerDay ?? 0).toFixed(1)}h
+              {(patterns.avgDailyWorkHours ?? 0).toFixed(1)}h
             </p>
             <p className="mt-1 text-xs text-muted-foreground truncate">
               Promedio de horas diarias
@@ -321,7 +300,7 @@ export function WellbeingTab() {
               </div>
             </div>
             <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {(patterns.lateNightPercentage ?? patterns.nightWorkPercentage ?? 0).toFixed(0)}%
+              {(patterns.lateNightPercentage ?? 0).toFixed(0)}%
             </p>
             <p className="mt-1 text-xs text-muted-foreground truncate">
               Sesiones fuera de horario
@@ -377,7 +356,7 @@ export function WellbeingTab() {
               </div>
             </div>
             <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {(patterns.avgSessionWithoutBreak ?? patterns.averageBreakMinutes ?? 0).toFixed(0)}m
+              {(patterns.avgSessionWithoutBreak ?? 0).toFixed(0)}m
             </p>
             <p className="mt-1 text-xs text-muted-foreground truncate">
               Tiempo medio de descanso

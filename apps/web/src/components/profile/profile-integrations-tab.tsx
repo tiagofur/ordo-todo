@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Link2, Calendar, Loader2, Check, Copy, ExternalLink } from "lucide-react";
-import { apiClient, type UserIntegration } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
+import type { UserIntegration } from "@ordo-todo/api-client";
 import {
   Card,
   CardContent,
