@@ -181,6 +181,12 @@ import type {
   GrantProDto,
   AdminInviteCode,
   CreateAdminInviteCodeDto,
+  // Integrations and OAuth
+  IntegrationActionResult,
+  IntegrationDisconnectResult,
+  OAuthClientInfo,
+  OAuthConnection,
+  OAuthDisconnectResult,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3606,6 +3612,67 @@ export class OrdoApiClient {
     const response = await this.axios.patch<AdminInviteCode>(
       `/admin/invite-codes/${codeId}`,
       { isActive: false },
+    );
+    return response.data;
+  }
+
+  /**
+   * Connect a third-party integration for the current user
+   * POST /users/me/integrations/:provider/connect
+   */
+  async connectIntegration(
+    provider: string,
+    data?: Record<string, unknown>,
+  ): Promise<IntegrationActionResult> {
+    const response = await this.axios.post<IntegrationActionResult>(
+      `/users/me/integrations/${provider}/connect`,
+      data || {},
+    );
+    return response.data;
+  }
+
+  /**
+   * Disconnect a third-party integration
+   * DELETE /users/me/integrations/:provider
+   */
+  async disconnectIntegration(provider: string): Promise<IntegrationDisconnectResult> {
+    const response = await this.axios.delete<IntegrationDisconnectResult>(
+      `/users/me/integrations/${provider}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Public facts the OAuth consent screen shows about the requesting app
+   * GET /oauth/authorize/client
+   */
+  async getOAuthClientInfo(
+    clientId: string,
+    scope?: string,
+  ): Promise<OAuthClientInfo> {
+    const response = await this.axios.get<OAuthClientInfo>("/oauth/authorize/client", {
+      params: { client_id: clientId, scope },
+    });
+    return response.data;
+  }
+
+  /**
+   * List apps/agents holding a live OAuth grant
+   * GET /oauth/connections
+   */
+  async getOAuthConnections(): Promise<OAuthConnection[]> {
+    const response = await this.axios.get<OAuthConnection[]>("/oauth/connections");
+    return response.data;
+  }
+
+  /**
+   * Revoke an OAuth client's grants
+   * DELETE /oauth/connections
+   */
+  async disconnectOAuthClient(clientId: string): Promise<OAuthDisconnectResult> {
+    const response = await this.axios.delete<OAuthDisconnectResult>(
+      "/oauth/connections",
+      { params: { client_id: clientId } },
     );
     return response.data;
   }

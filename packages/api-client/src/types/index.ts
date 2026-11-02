@@ -37,3 +37,6 @@ export * from './meeting.types';
 
 // Admin panel types
 export * from './admin.types';
+
+// User integrations and OAuth connection types
+export * from './oauth.types';
