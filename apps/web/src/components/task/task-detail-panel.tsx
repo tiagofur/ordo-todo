@@ -29,7 +29,7 @@ import { RecurrenceSelector, type RecurrenceValue } from './recurrence-selector'
 import { AssigneeSelector } from './assignee-selector';
 import { PresenceAvatars } from '@/components/collaboration/presence-avatars';
 import { useCollaborationSocket } from '@/hooks/use-collaboration-socket';
-import { apiClient } from '@/lib/api-client';
+import { packageApiClient as apiClient } from '@/lib/package-api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
 import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';

@@ -1914,8 +1914,9 @@ describe('OrdoApiClient', () => {
     it('should get burnout analysis', async () => {
       const mockAnalysis = {
         riskLevel: 'LOW',
-        score: 20,
-        factors: ['good work-life balance'],
+        riskScore: 20,
+        patterns: { avgDailyWorkHours: 5 },
+        warnings: [],
       };
       mockAxios.get.mockResolvedValue({ data: mockAnalysis });
 
@@ -1923,25 +1924,25 @@ describe('OrdoApiClient', () => {
 
       expect(mockAxios.get).toHaveBeenCalledWith('/ai/burnout/analysis');
       expect(result.riskLevel).toBe('LOW');
+      expect(result.warnings).toEqual([]);
     });
 
     it('should get work patterns', async () => {
       const mockPatterns = {
-        mostProductiveDay: 'Tuesday',
-        averageFocusTime: 2700,
-        peakHours: [9, 10, 11],
+        avgDailyWorkHours: 5.5,
+        weekendWorkPercentage: 10,
       };
       mockAxios.get.mockResolvedValue({ data: mockPatterns });
 
       const result = await client.getWorkPatterns();
 
       expect(mockAxios.get).toHaveBeenCalledWith('/ai/burnout/patterns');
-      expect(result.mostProductiveDay).toBe('Tuesday');
+      expect(result.avgDailyWorkHours).toBe(5.5);
     });
 
     it('should get rest recommendations', async () => {
       const mockRecommendations = [
-        { type: 'BREAK', duration: 15, frequency: 'hourly' },
+        { type: 'TAKE_BREAK', priority: 'HIGH', message: 'Descansa' },
       ];
       mockAxios.get.mockResolvedValue({ data: mockRecommendations });
 
@@ -1953,22 +1954,27 @@ describe('OrdoApiClient', () => {
 
     it('should check burnout intervention', async () => {
       const mockIntervention = {
-        needsIntervention: false,
-        message: 'You are doing well!',
+        type: 'GENTLE_REMINDER',
+        title: 'Un recordatorio',
+        message: 'Descansa',
+        recommendations: [],
+        shouldNotify: false,
       };
       mockAxios.get.mockResolvedValue({ data: mockIntervention });
 
       const result = await client.checkBurnoutIntervention();
 
       expect(mockAxios.get).toHaveBeenCalledWith('/ai/burnout/intervention');
-      expect(result.needsIntervention).toBe(false);
+      expect(result?.shouldNotify).toBe(false);
     });
 
     it('should get weekly wellbeing summary', async () => {
       const mockSummary = {
         overallScore: 85,
-        stressLevel: 'LOW',
-        recommendations: ['Keep up the good work'],
+        burnoutRisk: 'LOW',
+        highlights: ['Buena semana'],
+        concerns: [],
+        recommendations: [],
       };
       mockAxios.get.mockResolvedValue({ data: mockSummary });
 

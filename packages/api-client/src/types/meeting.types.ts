@@ -23,8 +23,13 @@ export interface MeetingActionItem {
 }
 
 export interface MeetingAnalysis {
-  summary?: string;
-  actionItems?: MeetingActionItem[];
+  summary: string;
+  keyPoints: string[];
+  actionItems: MeetingActionItem[];
+  decisions: Array<{ description: string }>;
+  participants: string[];
+  topics: Array<{ title: string; summary: string }>;
+  sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE' | 'MIXED';
 }
 
 export interface ConvertActionsOptions {

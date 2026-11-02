@@ -138,10 +138,10 @@ import type {
   SetMultipleCustomFieldValuesDto,
   // Wellbeing
   BurnoutAnalysis,
-  WorkPatterns,
+  WorkPatternAnalysis,
   RestRecommendation,
   BurnoutIntervention,
-  WeeklyWellbeingSummary,
+  WellbeingSummary,
   // Workload
   WorkspaceWorkload,
   MemberWorkload,
@@ -932,8 +932,8 @@ export class OrdoApiClient {
    * Get search suggestions based on partial input
    * GET /search/suggestions
    */
-  async searchSuggestions(query: string): Promise<SuggestionsResponse> {
-    const response = await this.axios.get<SuggestionsResponse>(
+  async searchSuggestions(query: string): Promise<{ suggestions: string[] }> {
+    const response = await this.axios.get<{ suggestions: string[] }>(
       "/search/suggestions",
       {
         params: { q: query },
@@ -1865,8 +1865,10 @@ export class OrdoApiClient {
    * Get task dependencies
    * GET /tasks/:id/dependencies
    */
-  async getTaskDependencies(taskId: string): Promise<Task[]> {
-    const response = await this.axios.get<Task[]>(
+  async getTaskDependencies(
+    taskId: string,
+  ): Promise<{ blockedBy: Task[]; blocking: Task[] }> {
+    const response = await this.axios.get<{ blockedBy: Task[]; blocking: Task[] }>(
       `/tasks/${taskId}/dependencies`,
     );
     return response.data;
@@ -3144,8 +3146,10 @@ export class OrdoApiClient {
    * Get work patterns for current user
    * GET /ai/burnout/patterns
    */
-  async getWorkPatterns(): Promise<WorkPatterns> {
-    const response = await this.axios.get<WorkPatterns>("/ai/burnout/patterns");
+  async getWorkPatterns(): Promise<WorkPatternAnalysis> {
+    const response = await this.axios.get<WorkPatternAnalysis>(
+      "/ai/burnout/patterns",
+    );
     return response.data;
   }
 
@@ -3164,8 +3168,8 @@ export class OrdoApiClient {
    * Check for burnout intervention needs
    * GET /ai/burnout/intervention
    */
-  async checkBurnoutIntervention(): Promise<BurnoutIntervention> {
-    const response = await this.axios.get<BurnoutIntervention>(
+  async checkBurnoutIntervention(): Promise<BurnoutIntervention | null> {
+    const response = await this.axios.get<BurnoutIntervention | null>(
       "/ai/burnout/intervention",
     );
     return response.data;
@@ -3175,8 +3179,8 @@ export class OrdoApiClient {
    * Get weekly wellbeing summary
    * GET /ai/burnout/weekly-summary
    */
-  async getWeeklyWellbeingSummary(): Promise<WeeklyWellbeingSummary> {
-    const response = await this.axios.get<WeeklyWellbeingSummary>(
+  async getWeeklyWellbeingSummary(): Promise<WellbeingSummary> {
+    const response = await this.axios.get<WellbeingSummary>(
       "/ai/burnout/weekly-summary",
     );
     return response.data;

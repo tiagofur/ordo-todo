@@ -15,7 +15,7 @@ import {
   Coffee,
   ArrowUp,
 } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
