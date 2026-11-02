@@ -23,7 +23,7 @@ export interface SyncQueueAdapter {
     load(): Promise<PendingAction[]>;
     save(action: PendingAction): Promise<void>;
     remove(actionId: string): Promise<void>;
-    updateRetry(actionId: string, retryCount: number): Promise<void>;
+    updateRetry(actionId: string, retryCount: number, lastError?: string): Promise<void>;
 }
 
 export interface SyncEngineResult {
@@ -128,7 +128,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
                         const message =
                             err instanceof Error ? err.message : 'Unknown error';
                         const retryCount = action.retryCount + 1;
-                        await adapter.updateRetry(action.id, retryCount);
+                        await adapter.updateRetry(action.id, retryCount, message);
                         if (retryCount >= maxRetries) {
                             result.failed++;
                             result.errors.push({ actionId: action.id, error: message });
