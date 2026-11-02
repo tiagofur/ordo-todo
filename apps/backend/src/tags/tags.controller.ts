@@ -35,6 +35,7 @@ import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { QueryTagsDto } from './dto/query-tags.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 
 @ApiTags('Tags')
 @ApiBearerAuth()
@@ -169,10 +170,7 @@ export class TagsController {
     description: 'Forbidden - Not a member of the workspace',
   })
   findAll(@Query() query: QueryTagsDto) {
-    return this.tagsService.findAll(query.workspaceId, {
-      take: query.take,
-      skip: query.skip,
-    });
+    return this.tagsService.findAll(query.workspaceId, toTakeSkip(query));
   }
 
   /**

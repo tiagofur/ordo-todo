@@ -45,6 +45,7 @@ import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
 import { QueryTasksDto } from './dto/query-tasks.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 import { DayPlanService } from './day-plan.service';
 import { RiskAlertService } from '../scheduling/risk-alert.service';
 import { TagsService } from '../tags/tags.service';
@@ -448,7 +449,7 @@ export class TasksController {
       tagList,
       filterAssignedToMe,
       filterWithoutProject,
-      { take: query.take, skip: query.skip },
+      toTakeSkip(query),
     );
   }
 

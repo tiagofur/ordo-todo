@@ -73,9 +73,16 @@ describe('TemplatesController', () => {
       ];
       templatesService.findAll.mockResolvedValue(mockTemplates as any);
 
-      const result = await controller.findAll(workspaceId);
+      const result = await controller.findAll({
+        workspaceId,
+        limit: 10,
+        page: 1,
+      });
 
-      expect(templatesService.findAll).toHaveBeenCalledWith(workspaceId);
+      expect(templatesService.findAll).toHaveBeenCalledWith(workspaceId, {
+        take: 10,
+        skip: 10,
+      });
       expect(result).toEqual(mockTemplates);
     });
   });

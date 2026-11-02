@@ -61,8 +61,8 @@ describe('ProjectsController', () => {
 
       const result = await controller.findAll({
         workspaceId: 'ws-123',
-        take: 20,
-        skip: 0,
+        limit: 20,
+        page: 0,
       });
 
       expect(service.findAll).toHaveBeenCalledWith('ws-123', {

@@ -57,7 +57,7 @@ describe('TemplatesService', () => {
         name: dto.name,
       } as any);
 
-      const result = await service.create(dto as any);
+      const result = await service.create(dto);
 
       expect(templateRepository.create).toHaveBeenCalled();
       expect(result.name).toBe(dto.name);
@@ -72,9 +72,25 @@ describe('TemplatesService', () => {
 
       expect(templateRepository.findByWorkspaceId).toHaveBeenCalledWith(
         mockWorkspaceId,
+        undefined,
       );
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(mockTemplateId);
+    });
+
+    it('should thread take/skip to the repository', async () => {
+      templateRepository.findByWorkspaceId.mockResolvedValue([mockTemplate]);
+
+      const result = await service.findAll(mockWorkspaceId, {
+        take: 10,
+        skip: 20,
+      });
+
+      expect(templateRepository.findByWorkspaceId).toHaveBeenCalledWith(
+        mockWorkspaceId,
+        { take: 10, skip: 20 },
+      );
+      expect(result).toHaveLength(1);
     });
   });
 
@@ -107,7 +123,7 @@ describe('TemplatesService', () => {
 
       const result = await service.update(mockTemplateId, {
         name: 'Updated',
-      } as any);
+      });
 
       expect(templateRepository.update).toHaveBeenCalled();
       expect(result.name).toBe('Updated');

@@ -91,23 +91,48 @@ export class HabitsService {
   /**
    * Get all habits for a user
    */
-  async findAll(userId: string, includeArchived = false) {
+  async findAll(
+    userId: string,
+    includeArchived = false,
+    pagination?: { take?: number; skip?: number },
+  ) {
     const habits = includeArchived
       ? await this.habitRepository.findByUserId(userId)
       : await this.habitRepository.findActiveByUserId(userId);
 
-    // One query for every habit's week completions (no N+1)
+    // Sort by isPaused, timeOfDay, createdAt (stable: id tiebreaker)
+    const sorted = [...habits].sort((a, b) => {
+      if (a.props.isPaused !== b.props.isPaused)
+        return a.props.isPaused ? 1 : -1;
+      if ((a.props.timeOfDay || '') !== (b.props.timeOfDay || ''))
+        return (a.props.timeOfDay || '').localeCompare(b.props.timeOfDay || '');
+      const byDate =
+        new Date(a.props.createdAt || 0).getTime() -
+        new Date(b.props.createdAt || 0).getTime();
+      if (byDate !== 0) return byDate;
+      return String(a.id ?? '').localeCompare(String(b.id ?? ''));
+    });
+
+    const page =
+      pagination?.take !== undefined || pagination?.skip !== undefined
+        ? sorted.slice(
+            pagination?.skip ?? 0,
+            (pagination?.skip ?? 0) + (pagination?.take ?? sorted.length),
+          )
+        : sorted;
+
+    // One query for the page's week completions (no N+1)
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
     const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
 
     const completionsByHabit =
       await this.habitRepository.getCompletionsForHabits(
-        habits.map((habit) => habit.id),
+        page.map((habit) => habit.id),
         weekStart,
         weekEnd,
       );
 
-    const habitsWithCompletions = habits.map((habit) => {
+    return page.map((habit) => {
       const completions = completionsByHabit.get(habit.id) ?? [];
       return {
         ...habit.props,
@@ -116,17 +141,6 @@ export class HabitsService {
           completedDate: new Date(c.completedDate),
         })),
       };
-    });
-
-    // Sort by isPaused, timeOfDay, createdAt
-    return habitsWithCompletions.sort((a, b) => {
-      if (a.isPaused !== b.isPaused) return a.isPaused ? 1 : -1;
-      if ((a.timeOfDay || '') !== (b.timeOfDay || ''))
-        return (a.timeOfDay || '').localeCompare(b.timeOfDay || '');
-      return (
-        new Date(a.createdAt || 0).getTime() -
-        new Date(b.createdAt || 0).getTime()
-      );
     });
   }
 

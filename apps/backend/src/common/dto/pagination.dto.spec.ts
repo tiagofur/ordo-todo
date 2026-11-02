@@ -1,44 +1,38 @@
 import 'reflect-metadata';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { PaginationDto } from './pagination.dto';
+import { PaginationDto, toTakeSkip } from './pagination.dto';
 
-describe('PaginationDto', () => {
-  const parse = async (query: Record<string, unknown>) => {
-    const dto = plainToInstance(PaginationDto, query, {
-      enableImplicitConversion: false,
+describe('toTakeSkip', () => {
+  it('should return undefined when no pagination is sent (opt-in)', () => {
+    expect(toTakeSkip(undefined)).toBeUndefined();
+    expect(toTakeSkip(null)).toBeUndefined();
+    expect(toTakeSkip({})).toBeUndefined();
+    expect(toTakeSkip(new PaginationDto())).toBeUndefined();
+  });
+
+  it('should map limit/page to take/skip', () => {
+    expect(toTakeSkip({ limit: 10, page: 2 })).toEqual({ take: 10, skip: 20 });
+    expect(toTakeSkip({ limit: 10 })).toEqual({ take: 10, skip: 0 });
+    expect(toTakeSkip({ page: 3 })).toEqual({ take: 20, skip: 60 });
+  });
+
+  it('should coerce string values from plain query objects', () => {
+    expect(toTakeSkip({ limit: '10', page: '2' })).toEqual({
+      take: 10,
+      skip: 20,
     });
-    const errors = await validate(dto);
-    return { dto, errors };
-  };
-
-  it('applies defaults when no params are given', async () => {
-    const { dto, errors } = await parse({});
-
-    expect(errors).toHaveLength(0);
-    expect(dto.take).toBe(20);
-    expect(dto.skip).toBe(0);
   });
 
-  it('computes skip from page and limit', async () => {
-    const { dto, errors } = await parse({ limit: '10', page: '3' });
-
-    expect(errors).toHaveLength(0);
-    expect(dto.take).toBe(10);
-    expect(dto.skip).toBe(30);
+  it('should cap take at 100 and clamp negatives', () => {
+    expect(toTakeSkip({ limit: 5000 })).toEqual({ take: 100, skip: 0 });
+    expect(toTakeSkip({ limit: -5 })).toEqual({ take: 1, skip: 0 });
+    expect(toTakeSkip({ page: -2, limit: 10 })).toEqual({ take: 10, skip: 0 });
   });
 
-  it('rejects limits above the max', async () => {
-    const { errors } = await parse({ limit: '1000' });
-
-    expect(errors.length).toBeGreaterThan(0);
-  });
-
-  it('rejects non-positive limits and negative pages', async () => {
-    const { errors: zeroLimit } = await parse({ limit: '0' });
-    const { errors: negativePage } = await parse({ page: '-1' });
-
-    expect(zeroLimit.length).toBeGreaterThan(0);
-    expect(negativePage.length).toBeGreaterThan(0);
+  it('should fall back to defaults on garbage input', () => {
+    expect(toTakeSkip({ limit: 'abc', page: 'xyz' })).toBeUndefined();
+    expect(toTakeSkip({ limit: 'abc', page: 1 })).toEqual({
+      take: 20,
+      skip: 20,
+    });
   });
 });

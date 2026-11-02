@@ -29,7 +29,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ProjectGuard } from '../common/guards/project.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
 import { QueryProjectsDto } from './dto/query-projects.dto';
 import {
   CacheResult,
@@ -120,10 +120,7 @@ export class ProjectsController {
   findAll(@Query() query: QueryProjectsDto) {
     // Note: ProjectGuard returns false if workspaceId is missing in query.
     // So this endpoint is safe (returns 403 if no workspaceId).
-    return this.projectsService.findAll(query.workspaceId, {
-      take: query.take,
-      skip: query.skip,
-    });
+    return this.projectsService.findAll(query.workspaceId, toTakeSkip(query));
   }
 
   @Get('all')
@@ -142,10 +139,7 @@ export class ProjectsController {
     @CurrentUser() user: RequestUser,
     @Query() pagination: PaginationDto,
   ) {
-    return this.projectsService.findAllByUser(user.id, {
-      take: pagination.take,
-      skip: pagination.skip,
-    });
+    return this.projectsService.findAllByUser(user.id, toTakeSkip(pagination));
   }
 
   @Get('deleted')

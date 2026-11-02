@@ -15,7 +15,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -43,8 +43,7 @@ export class ContactController {
   @ApiResponse({ status: 200, description: 'Return list of submissions.' })
   findAll(@Query() pagination: PaginationDto) {
     return this.contactService.findAll({
-      skip: pagination.skip,
-      take: pagination.take,
+      ...toTakeSkip(pagination),
     });
   }
 

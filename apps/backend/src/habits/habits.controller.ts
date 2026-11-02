@@ -26,6 +26,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { HabitsService } from './habits.service';
+import { QueryHabitsDto } from './dto/query-habits.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
@@ -130,9 +132,13 @@ export class HabitsController {
   })
   async findAll(
     @CurrentUser() user: RequestUser,
-    @Query('includeArchived') includeArchived?: string,
+    @Query() query: QueryHabitsDto,
   ) {
-    return this.habitsService.findAll(user.id, includeArchived === 'true');
+    return this.habitsService.findAll(
+      user.id,
+      query.includeArchived === 'true',
+      toTakeSkip(query),
+    );
   }
 
   /**

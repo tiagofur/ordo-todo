@@ -4,7 +4,7 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 /**
  * Query params for `GET /tasks`: the existing filters plus shared
  * offset pagination. All fields optional to preserve the current
- * contract; `limit`/`page` fall back to `PaginationDto` defaults.
+ * contract; `limit`/`page` are opt-in (absent means the full list).
  */
 export class QueryTasksDto extends PaginationDto {
   @IsOptional()

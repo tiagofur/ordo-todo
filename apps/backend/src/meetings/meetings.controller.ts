@@ -26,6 +26,7 @@ import {
   MeetingAnalysis,
 } from './meeting-assistant.service';
 import { QueryMeetingsDto } from './dto/query-meetings.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 
 // DTOs
 class AnalyzeTranscriptDto {
@@ -464,8 +465,7 @@ export class MeetingsController {
   ) {
     return this.meetingService.getMeetings(user.id, {
       projectId: query.projectId,
-      take: query.take,
-      skip: query.skip,
+      ...toTakeSkip(query),
     });
   }
 

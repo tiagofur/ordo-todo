@@ -106,8 +106,8 @@ describe('TagsController', () => {
 
       const result = await controller.findAll({
         workspaceId: 'ws-123',
-        take: 20,
-        skip: 0,
+        limit: 20,
+        page: 0,
       });
 
       expect(tagsService.findAll).toHaveBeenCalledWith('ws-123', {
@@ -122,12 +122,9 @@ describe('TagsController', () => {
 
       const result = await controller.findAll({
         workspaceId: 'ws-123',
-      } as any);
-
-      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123', {
-        take: undefined,
-        skip: undefined,
       });
+
+      expect(tagsService.findAll).toHaveBeenCalledWith('ws-123', undefined);
       expect(result).toEqual([]);
     });
   });

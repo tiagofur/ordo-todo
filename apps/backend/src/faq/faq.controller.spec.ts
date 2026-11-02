@@ -63,13 +63,11 @@ describe('FAQController', () => {
       const result = await controller.findAll({
         category: 'General',
         publishedOnly: 'true',
-      } as any);
+      });
 
       expect(service.findAll).toHaveBeenCalledWith({
         category: 'General',
         publishedOnly: true,
-        take: undefined,
-        skip: undefined,
       });
       expect(result).toEqual(faqs);
     });

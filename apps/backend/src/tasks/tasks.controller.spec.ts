@@ -171,7 +171,7 @@ describe('TasksController', () => {
         undefined,
         false,
         false,
-        { take: undefined, skip: undefined },
+        undefined,
       );
     });
 
@@ -202,12 +202,9 @@ describe('TasksController', () => {
 
       (tasksService.findAll as jest.Mock).mockResolvedValue(mockTasks);
 
-      const result = await controller.findAll(
-        user as any,
-        {
-          projectId,
-        } as any,
-      );
+      const result = await controller.findAll(user as any, {
+        projectId,
+      });
 
       expect(result).toEqual(mockTasks);
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -216,7 +213,7 @@ describe('TasksController', () => {
         undefined,
         false,
         false,
-        { take: undefined, skip: undefined },
+        undefined,
       );
     });
 
@@ -227,7 +224,7 @@ describe('TasksController', () => {
 
       (tasksService.findAll as jest.Mock).mockResolvedValue(mockTasks);
 
-      const result = await controller.findAll(user as any, { tags } as any);
+      const result = await controller.findAll(user as any, { tags });
 
       expect(result).toEqual(mockTasks);
       expect(tasksService.findAll).toHaveBeenCalledWith(
@@ -236,7 +233,7 @@ describe('TasksController', () => {
         tags,
         false,
         false,
-        { take: undefined, skip: undefined },
+        undefined,
       );
     });
 
@@ -244,12 +241,9 @@ describe('TasksController', () => {
       const user = { id: 'user-1', email: 'test@example.com' };
       (tasksService.findAll as jest.Mock).mockResolvedValue([]);
 
-      await controller.findAll(
-        user as any,
-        {
-          withoutProject: 'true',
-        } as any,
-      );
+      await controller.findAll(user as any, {
+        withoutProject: 'true',
+      });
 
       expect(tasksService.findAll).toHaveBeenCalledWith(
         user.id,
@@ -257,7 +251,7 @@ describe('TasksController', () => {
         undefined,
         false,
         true,
-        { take: undefined, skip: undefined },
+        undefined,
       );
     });
 

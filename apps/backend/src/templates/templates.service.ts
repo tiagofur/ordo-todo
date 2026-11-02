@@ -27,8 +27,11 @@ export class TemplatesService {
     return this.templateRepository.create(template);
   }
 
-  async findAll(workspaceId: string): Promise<TaskTemplate[]> {
-    return this.templateRepository.findByWorkspaceId(workspaceId);
+  async findAll(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<TaskTemplate[]> {
+    return this.templateRepository.findByWorkspaceId(workspaceId, pagination);
   }
 
   async findOne(id: string): Promise<TaskTemplate> {
@@ -49,7 +52,7 @@ export class TemplatesService {
       description: dto.description,
       icon: dto.icon,
       titlePattern: dto.titlePattern,
-      defaultPriority: dto.defaultPriority as any,
+      defaultPriority: dto.defaultPriority,
       defaultEstimatedMinutes: dto.defaultEstimatedMinutes,
       defaultDescription: dto.defaultDescription,
       defaultTags: dto.defaultTags,

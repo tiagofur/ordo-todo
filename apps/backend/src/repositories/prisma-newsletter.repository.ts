@@ -39,7 +39,7 @@ export class PrismaNewsletterRepository implements INewsletterRepository {
       skip: params?.skip,
       take: params?.take,
       where: params?.activeOnly ? { active: true } : undefined,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
 
     return subscribers.map((s) => this.toDomain(s));

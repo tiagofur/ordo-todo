@@ -13,6 +13,7 @@ import { FAQService } from './faq.service';
 import { CreateFAQDto } from './dto/create-faq.dto';
 import { UpdateFAQDto } from './dto/update-faq.dto';
 import { QueryFaqDto } from './dto/query-faq.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/admin.guard';
 
@@ -31,8 +32,7 @@ export class FAQController {
     return this.faqService.findAll({
       category: query.category,
       publishedOnly: query.publishedOnly === 'true',
-      take: query.take,
-      skip: query.skip,
+      ...toTakeSkip(query),
     });
   }
 

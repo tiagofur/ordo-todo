@@ -5,20 +5,25 @@ slice por slice, sin cambiar el comportamiento de llamadores internos
 (estadisticas, IA, crons, API publica v1) que necesitan listas completas.
 
 Convencion: `PaginationDto` en `apps/backend/src/common/dto` (limit
-default 20, max 100, page default 0 — igual que `QueryNoteDto` de notas).
-Cada endpoint migrado acepta `@Query() pagination: PaginationDto` y lo
-pasa al repositorio como `take`/`skip`. Sin paginacion explicita, el
-repositorio sigue ilimitado (opt-in por endpoint, no cap global que
-trunque estadisticas en silencio).
+max 100, page base 0 — igual que `QueryNoteDto` de notas) + helper
+`toTakeSkip()`. Opt-in estricto: sin `limit`/`page` en el query el helper
+devuelve `undefined` y el endpoint conserva su comportamiento previo
+(lista completa); con params explicitos aplica `take` (default 20, cap
+100) y `skip = page*take`. Asi el web `api-client` (que pide listas
+completas sin params) y los llamadores internos no se truncan en
+silencio, y el abuso (`take=1000000`) queda capado. Cada endpoint con
+filtros usa un DTO extendido (`QueryXxxDto extends PaginationDto`) para
+no chocar con `forbidNonWhitelisted` del pipe global.
 
 Runner: `npm run test --workspace=@ordo-todo/backend`.
 
 ## Specs
 
 S1: "Listado de tareas acotado: GET /tasks y GET /v1/tasks aceptan
-limit/page; sin params, /tasks pagina con defaults y /v1/tasks sigue
-ilimitado (API versionada estable). parentTaskId y assignedToMe se
-filtran en DB para que la pagina sea correcta".
+limit/page opt-in; sin params, /tasks sigue completo (compat con web
+api-client) y /v1/tasks sigue ilimitado (API versionada estable).
+parentTaskId y assignedToMe se filtran en DB para que la pagina sea
+correcta".
 S2: "Siguientes listados (pendiente): projects, notifications,
 activities, habits, comments, tags, meetings, changelog, faq, kb".
 
@@ -47,6 +52,22 @@ activities, habits, comments, tags, meetings, changelog, faq, kb".
   (sin cap) al DTO compartido (take cap 100); default de roadmap
   50→20. Ordenes con tiebreaker id. Sin cambios en el arbol de
   llamadas (/v1/comments se mantiene unbounded por API estable).
+- [x] T3d (S2): templates + newsletter + search + habits. Estado: done.
+  Templates gana limit/page (orden name+id); newsletter migra skip/take
+  manual al DTO; search `limit` capa 1..100 (sin page: ranking
+  semantico); habits pagina con slice post-sort + completions de la
+  pagina. Webhooks es /v1 (estable, sin cambios); api-tokens user-scoped
+  tiny (doc, sin cambios).
+- [x] T3e/f (S2): correccion opt-in de todo 028. Hallazgo: defaults 20
+  truncaban en silencio al web api-client (pide listas completas sin
+  params) y `PaginationDto` pelado + filtros extra habria dado 400 por
+  forbidNonWhitelisted. Fix: helper `toTakeSkip()` (undefined sin
+  params = lista completa, como antes) en los 14 endpoints migrados;
+  DTOs extendidos nuevos para habits, templates y kb. Search ya estaba
+  capado a mano. Suite 1584 verde, backend+web tsc limpios, 0 errores
+  eslint. Preexistentes OK sin cambios: timers history (@Max 100),
+  notes (QueryNoteDto), admin users (clamp 100 en servicio),
+  workspaces/sessions/agent-jobs/objectives (user-scoped chicos, doc).
 
 ## Log
 

@@ -23,10 +23,15 @@ export class PrismaTaskTemplateRepository implements ITaskTemplateRepository {
     return template ? this.toDomain(template) : null;
   }
 
-  async findByWorkspaceId(workspaceId: string): Promise<TaskTemplate[]> {
+  async findByWorkspaceId(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<TaskTemplate[]> {
     const templates = await this.prisma.taskTemplate.findMany({
       where: { workspaceId },
-      orderBy: { name: 'asc' },
+      take: pagination?.take,
+      skip: pagination?.skip,
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
 
     return templates.map((t) => this.toDomain(t));

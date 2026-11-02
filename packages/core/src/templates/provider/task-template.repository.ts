@@ -12,7 +12,7 @@ export interface ITaskTemplateRepository {
     /**
      * Find all templates in a workspace
      */
-    findByWorkspaceId(workspaceId: string): Promise<TaskTemplate[]>;
+    findByWorkspaceId(workspaceId: string, pagination?: { take?: number; skip?: number }): Promise<TaskTemplate[]>;
 
     /**
      * Create a new template

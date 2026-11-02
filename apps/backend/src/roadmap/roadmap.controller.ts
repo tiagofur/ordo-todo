@@ -23,7 +23,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { User } from '@prisma/client';
 import { Public } from '../common/decorators/public.decorator';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationDto, toTakeSkip } from '../common/dto/pagination.dto';
 
 @ApiTags('Roadmap')
 @Controller('roadmap')
@@ -36,8 +36,7 @@ export class RoadmapController {
   @ApiResponse({ status: 200, description: 'Return list of roadmap items.' })
   findAll(@Query() pagination: PaginationDto) {
     return this.roadmapService.findAll({
-      skip: pagination.skip,
-      take: pagination.take,
+      ...toTakeSkip(pagination),
     });
   }
 

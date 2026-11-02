@@ -23,6 +23,8 @@ import {
 import { TemplatesService } from './templates.service';
 import { CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { QueryTemplatesDto } from './dto/query-templates.dto';
+import { toTakeSkip } from '../common/dto/pagination.dto';
 
 @ApiTags('Templates')
 @ApiBearerAuth()
@@ -123,11 +125,11 @@ export class TemplatesController {
   })
   @ApiResponse({ status: 400, description: 'workspaceId is required' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(@Query('workspaceId') workspaceId: string) {
-    if (!workspaceId) {
+  findAll(@Query() query: QueryTemplatesDto) {
+    if (!query.workspaceId) {
       throw new BadRequestException('workspaceId is required');
     }
-    return this.templatesService.findAll(workspaceId);
+    return this.templatesService.findAll(query.workspaceId, toTakeSkip(query));
   }
 
   /**
