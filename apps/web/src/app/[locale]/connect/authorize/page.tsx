@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { API_CONFIG } from "@/config";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 
 /**
  * Authorize-request params the API hop forwards here and this screen

@@ -14,7 +14,7 @@ import {
 } from "@ordo-todo/ui";
 import { Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { toast } from "sonner";
 
 interface ChangePasswordDialogProps {
