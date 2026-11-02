@@ -12,8 +12,8 @@ import {
 } from '../use-day-plan';
 
 // Mock the API client (only the day-plan surface).
-vi.mock('@/lib/api-client', () => ({
-  apiClient: {
+vi.mock('@/lib/package-api-client', () => ({
+  packageApiClient: {
     getDayPlan: vi.fn(),
     getDayPlanRisks: vi.fn(),
     applyDayPlan: vi.fn(),
@@ -48,7 +48,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   );
 
   it('useDayPlan returns the plan', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     vi.mocked(apiClient.getDayPlan).mockResolvedValue(PLAN);
 
     const { result } = renderHook(() => useDayPlan(), { wrapper });
@@ -60,7 +60,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   });
 
   it('useDayPlanRisks returns the risks list', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     const risks: DayPlanRisk[] = [
       {
         kind: 'overload',
@@ -80,7 +80,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   });
 
   it('useDayPlanRisks surfaces errors', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     vi.mocked(apiClient.getDayPlanRisks).mockRejectedValue(new Error('boom'));
 
     const { result } = renderHook(() => useDayPlanRisks(), { wrapper });
@@ -91,7 +91,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   });
 
   it('useApplyDayPlan applies and invalidates', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     vi.mocked(apiClient.applyDayPlan).mockResolvedValue({ ...PLAN, status: 'APPLIED' });
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -107,7 +107,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   });
 
   it('useDismissDayPlan dismisses', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     vi.mocked(apiClient.dismissDayPlan).mockResolvedValue({ ...PLAN, status: 'DISMISSED' });
 
     const { result } = renderHook(() => useDismissDayPlan(), { wrapper });
@@ -119,7 +119,7 @@ describe('use-day-plan hooks (ODD 005 S6)', () => {
   });
 
   it('useToggleFreezeDayPlan freezes and unfreezes', async () => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { packageApiClient: apiClient } = await import('@/lib/package-api-client');
     vi.mocked(apiClient.freezeDayPlanBlock).mockResolvedValue(PLAN);
     vi.mocked(apiClient.unfreezeDayPlanBlock).mockResolvedValue(PLAN);
 

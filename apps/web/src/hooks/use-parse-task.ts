@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 /**
@@ -14,7 +14,7 @@ export function useParseTask(input: string) {
 
   const query = useQuery({
     queryKey: ["ai", "parse-task", debounced],
-    queryFn: () => apiClient.parseTask(debounced, { fast: true }),
+    queryFn: () => apiClient.parseTask({ input: debounced, fast: true }),
     enabled: debounced.length >= 3,
     staleTime: 60_000,
     retry: false,
