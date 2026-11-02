@@ -161,6 +161,16 @@ import type {
   BillingInterval,
   CheckoutSessionResult,
   PortalSessionResult,
+  // Meetings
+  Meeting,
+  MeetingAnalysis,
+  MeetingAnalysisOptions,
+  MeetingSummaryStyle,
+  MeetingActionItem,
+  ConvertActionsOptions,
+  ConvertTasksResult,
+  SaveMeetingDto,
+  GetMeetingsParams,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3364,5 +3374,115 @@ export class OrdoApiClient {
       "/billing/portal-session",
     );
     return response.data;
+  }
+
+  /**
+   * Analyze a meeting transcript with AI
+   * POST /meetings/analyze
+   */
+  async analyzeMeetingTranscript(
+    transcript: string,
+    options?: MeetingAnalysisOptions,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>("/meetings/analyze", {
+      transcript,
+      ...options,
+    });
+    return response.data;
+  }
+
+  /**
+   * Extract action items from a transcript
+   * POST /meetings/extract-actions
+   */
+  async extractMeetingActions(
+    transcript: string,
+    projectContext?: string,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>(
+      "/meetings/extract-actions",
+      { transcript, projectContext },
+    );
+    return response.data;
+  }
+
+  /**
+   * Generate a meeting summary in a given style
+   * POST /meetings/summary
+   */
+  async generateMeetingSummary(
+    transcript: string,
+    style?: MeetingSummaryStyle,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>("/meetings/summary", {
+      transcript,
+      style,
+    });
+    return response.data;
+  }
+
+  /**
+   * Convert extracted action items into tasks
+   * POST /meetings/convert-to-tasks
+   */
+  async convertActionsToTasks(
+    actionItems: MeetingActionItem[],
+    options?: ConvertActionsOptions,
+  ): Promise<ConvertTasksResult> {
+    const response = await this.axios.post<ConvertTasksResult>(
+      "/meetings/convert-to-tasks",
+      { actionItems, ...options },
+    );
+    return response.data;
+  }
+
+  /**
+   * Quick AI analysis of a transcript, optionally scoped to a project
+   * POST /meetings/quick-analyze
+   */
+  async quickAnalyzeMeeting(
+    transcript: string,
+    projectId?: string,
+  ): Promise<MeetingAnalysis> {
+    const response = await this.axios.post<MeetingAnalysis>(
+      "/meetings/quick-analyze",
+      { transcript, projectId },
+    );
+    return response.data;
+  }
+
+  /**
+   * Save a meeting note with its analysis
+   * POST /meetings/save
+   */
+  async saveMeeting(data: SaveMeetingDto): Promise<Meeting> {
+    const response = await this.axios.post<Meeting>("/meetings/save", data);
+    return response.data;
+  }
+
+  /**
+   * List saved meeting notes
+   * GET /meetings
+   */
+  async getMeetings(params?: GetMeetingsParams): Promise<Meeting[]> {
+    const response = await this.axios.get<Meeting[]>("/meetings", { params });
+    return response.data;
+  }
+
+  /**
+   * Get a saved meeting note by id
+   * GET /meetings/:id
+   */
+  async getMeetingById(id: string): Promise<Meeting> {
+    const response = await this.axios.get<Meeting>(`/meetings/${id}`);
+    return response.data;
+  }
+
+  /**
+   * Delete a saved meeting note
+   * DELETE /meetings/:id
+   */
+  async deleteMeeting(id: string): Promise<void> {
+    await this.axios.delete(`/meetings/${id}`);
   }
 }

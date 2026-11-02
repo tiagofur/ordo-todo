@@ -31,3 +31,6 @@ export * from './ritual.types';
 
 // Billing types
 export * from './billing.types';
+
+// Meeting analyzer types
+export * from './meeting.types';
