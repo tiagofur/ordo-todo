@@ -299,3 +299,9 @@ export interface DayPlanRisk {
   options: DayPlanRiskOption[];
 }
 
+export interface CalendarFeedToken {
+  token: string;
+  feedUrl: string;
+  webcalUrl: string;
+}
+

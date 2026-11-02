@@ -189,6 +189,9 @@ import type {
   OAuthDisconnectResult,
   // Gamification
   GamificationProfile,
+  ResetPasswordDto,
+  ResetPasswordResult,
+  CalendarFeedToken,
   // Focus audio
   FocusTrack,
   FocusMode,
@@ -812,6 +815,18 @@ export class OrdoApiClient {
   }
 
   /**
+   * Complete a password reset with token and new password
+   * POST /auth/reset-password
+   */
+  async resetPassword(data: ResetPasswordDto): Promise<ResetPasswordResult> {
+    const response = await this.axios.post<ResetPasswordResult>(
+      "/auth/reset-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
    * Logout (clear tokens from storage)
    * This is a client-side only operation
    */
@@ -1247,6 +1262,17 @@ export class OrdoApiClient {
   async getWorkspace(workspaceId: string): Promise<WorkspaceWithMembers> {
     const response = await this.axios.get<WorkspaceWithMembers>(
       `/workspaces/${workspaceId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get a workspace by slug (public lookup)
+   * GET /workspaces/by-slug/:slug
+   */
+  async getWorkspaceBySlugOnly(slug: string): Promise<Workspace> {
+    const response = await this.axios.get<Workspace>(
+      `/workspaces/by-slug/${slug}`,
     );
     return response.data;
   }
@@ -1787,6 +1813,15 @@ export class OrdoApiClient {
    */
   async getDayPlanRisks(): Promise<DayPlanRisk[]> {
     const response = await this.axios.get<DayPlanRisk[]>("/tasks/day-plan/risks");
+    return response.data;
+  }
+
+  /**
+   * Get the personal calendar feed token and subscription URLs
+   * GET /tasks/calendar-token
+   */
+  async getCalendarFeedToken(): Promise<CalendarFeedToken> {
+    const response = await this.axios.get<CalendarFeedToken>("/tasks/calendar-token");
     return response.data;
   }
 
