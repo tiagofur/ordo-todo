@@ -187,6 +187,8 @@ import type {
   OAuthClientInfo,
   OAuthConnection,
   OAuthDisconnectResult,
+  // Gamification
+  GamificationProfile,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3674,6 +3676,15 @@ export class OrdoApiClient {
       "/oauth/connections",
       { params: { client_id: clientId } },
     );
+    return response.data;
+  }
+
+  /**
+   * Get the current user's gamification profile (XP, level, achievements)
+   * GET /gamification/me
+   */
+  async getGamificationProfile(): Promise<GamificationProfile> {
+    const response = await this.axios.get<GamificationProfile>("/gamification/me");
     return response.data;
   }
 }

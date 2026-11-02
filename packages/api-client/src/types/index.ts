@@ -40,3 +40,6 @@ export * from './admin.types';
 
 // User integrations and OAuth connection types
 export * from './oauth.types';
+
+// Gamification types
+export * from './gamification.types';
