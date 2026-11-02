@@ -36,7 +36,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 

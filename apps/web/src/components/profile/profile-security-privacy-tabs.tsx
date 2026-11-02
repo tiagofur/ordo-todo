@@ -13,7 +13,7 @@ import {
   Trophy,
   Loader2,
 } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 import { SessionsManager } from "@/components/settings/sessions-manager";
 import {
   cn,

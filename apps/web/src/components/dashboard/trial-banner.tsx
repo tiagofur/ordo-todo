@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Sparkles, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { apiClient } from "@/lib/api-client";
+import { packageApiClient as apiClient } from "@/lib/package-api-client";
 
 const DAY = 24 * 60 * 60 * 1000;
 
