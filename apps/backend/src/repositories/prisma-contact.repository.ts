@@ -28,7 +28,7 @@ export class PrismaContactRepository implements IContactRepository {
       skip: params?.skip,
       take: params?.take,
       where: params?.unreadOnly ? { read: false } : undefined,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
 
     return submissions.map((s) => this.toDomain(s));

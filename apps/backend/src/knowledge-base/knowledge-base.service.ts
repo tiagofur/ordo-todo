@@ -72,6 +72,8 @@ export class KnowledgeBaseService {
   async findAllArticles(options?: {
     publishedOnly?: boolean;
     categoryId?: string;
+    take?: number;
+    skip?: number;
   }): Promise<KBArticle[]> {
     return this.kbRepository.findAllArticles(options);
   }

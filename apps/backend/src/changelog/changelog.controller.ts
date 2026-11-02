@@ -14,8 +14,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { ChangelogService } from './changelog.service';
 import { CreateChangelogDto } from './dto/create-changelog.dto';
 import { UpdateChangelogDto } from './dto/update-changelog.dto';
@@ -30,13 +30,11 @@ export class ChangelogController {
   @Get()
   @Public()
   @ApiOperation({ summary: 'Get all changelog entries' })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'take', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return all changelog entries.' })
-  findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
+  findAll(@Query() pagination: PaginationDto) {
     return this.changelogService.findAll({
-      skip: skip ? Number(skip) : 0,
-      take: take ? Number(take) : 20,
+      skip: pagination.skip,
+      take: pagination.take,
       orderBy: 'publishedAt',
     });
   }

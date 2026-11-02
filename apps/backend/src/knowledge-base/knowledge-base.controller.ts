@@ -17,6 +17,7 @@ import { UpdateKBArticleDto } from './dto/update-article.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/admin.guard';
 import { Public } from '../common/decorators/public.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('kb')
 export class KnowledgeBaseController {
@@ -63,12 +64,15 @@ export class KnowledgeBaseController {
   @Get('articles')
   @Public()
   findAllArticles(
+    @Query() pagination: PaginationDto,
     @Query('categoryId') categoryId?: string,
     @Query('publishedOnly') publishedOnly?: string,
   ) {
     return this.kbService.findAllArticles({
       categoryId,
       publishedOnly: publishedOnly !== 'false', // Default true for public
+      take: pagination.take,
+      skip: pagination.skip,
     });
   }
 

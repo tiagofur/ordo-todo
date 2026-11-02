@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/admin.guard';
 import { CreateKBCategoryDto } from './dto/create-category.dto';
 import { CreateKBArticleDto } from './dto/create-article.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 describe('KnowledgeBaseController', () => {
   let controller: KnowledgeBaseController;
@@ -84,6 +85,28 @@ describe('KnowledgeBaseController', () => {
       service.search.mockResolvedValue([{ id: '1' }] as any);
       const result = await controller.search('test');
       expect(service.search).toHaveBeenCalledWith('test');
+      expect(result).toHaveLength(1);
+    });
+
+    it('should page articles with take/skip', async () => {
+      service.findAllArticles.mockResolvedValue([{ id: '1' }] as any);
+      const pagination = Object.assign(new PaginationDto(), {
+        limit: 10,
+        page: 2,
+      });
+
+      const result = await controller.findAllArticles(
+        pagination,
+        undefined,
+        'true',
+      );
+
+      expect(service.findAllArticles).toHaveBeenCalledWith({
+        categoryId: undefined,
+        publishedOnly: true,
+        take: 10,
+        skip: 20,
+      });
       expect(result).toHaveLength(1);
     });
   });

@@ -35,9 +35,12 @@ export class PrismaChangelogRepository implements IChangelogRepository {
     const entries = await this.prisma.changelogEntry.findMany({
       skip: params?.skip,
       take: params?.take,
-      orderBy: params?.orderBy
-        ? { [params.orderBy]: params.order ?? 'desc' }
-        : { publishedAt: 'desc' },
+      orderBy: [
+        params?.orderBy
+          ? { [params.orderBy]: params.order ?? 'desc' }
+          : { publishedAt: 'desc' },
+        { id: 'desc' },
+      ],
     });
 
     return entries.map((e) => this.toDomain(e));

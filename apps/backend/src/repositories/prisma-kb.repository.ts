@@ -105,6 +105,8 @@ export class PrismaKBRepository implements IKBRepository {
   async findAllArticles(options?: {
     publishedOnly?: boolean;
     categoryId?: string;
+    take?: number;
+    skip?: number;
   }): Promise<KBArticle[]> {
     const where: any = {};
     if (options?.publishedOnly) {
@@ -115,7 +117,9 @@ export class PrismaKBRepository implements IKBRepository {
     }
     const articles = await this.prisma.kBArticle.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      take: options?.take,
+      skip: options?.skip,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
     return articles.map((a) => this.articleToDomain(a));
   }

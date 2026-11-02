@@ -14,7 +14,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapItemDto } from './dto/create-roadmap-item.dto';
@@ -24,6 +23,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { User } from '@prisma/client';
 import { Public } from '../common/decorators/public.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Roadmap')
 @Controller('roadmap')
@@ -34,10 +34,10 @@ export class RoadmapController {
   @Public()
   @ApiOperation({ summary: 'List all roadmap items' })
   @ApiResponse({ status: 200, description: 'Return list of roadmap items.' })
-  findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
+  findAll(@Query() pagination: PaginationDto) {
     return this.roadmapService.findAll({
-      skip: skip ? Number(skip) : 0,
-      take: take ? Number(take) : 50,
+      skip: pagination.skip,
+      take: pagination.take,
     });
   }
 

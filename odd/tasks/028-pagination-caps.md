@@ -36,9 +36,17 @@ activities, habits, comments, tags, meetings, changelog, faq, kb".
   backend+web tsc limpios, 0 errores eslint). GET /faq, /tags y
   /meetings paginan con defaults; ordenes estables (id tiebreaker);
   `limit` de meetings queda como alias de take para el caller MCP.
-  Quedan T3c+: activities, habits, comments, changelog(paginado a mano,
-  unificar?), kb, contact, roadmap, templates, newsletter, webhooks,
-  api-tokens, search, workspaces, sessions (+ deleted-projects).
+  Quedan T3d+: activities(sin endpoint GET), habits(slice en memoria?),
+  comments(solo v1 por task — estable, sin cambios), templates,
+  newsletter, webhooks, api-tokens, search, workspaces, sessions
+  (+ deleted-projects).
+- [x] T3c (S2): kb + changelog + contact + roadmap. Estado: done (suite
+  1576, backend+web tsc limpios, 0 errores nuevos eslint — 7
+  preexistentes verificados en HEAD). GET /kb/articles gana
+  limit/page; changelog/contact/roadmap migran de skip/take manual
+  (sin cap) al DTO compartido (take cap 100); default de roadmap
+  50→20. Ordenes con tiebreaker id. Sin cambios en el arbol de
+  llamadas (/v1/comments se mantiene unbounded por API estable).
 
 ## Log
 

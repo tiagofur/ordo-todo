@@ -41,7 +41,7 @@ export class PrismaRoadmapRepository implements IRoadmapRepository {
       where: params?.status
         ? { status: params.status as PrismaRoadmapStatus }
         : undefined,
-      orderBy: { totalVotes: 'desc' },
+      orderBy: [{ totalVotes: 'desc' }, { id: 'desc' }],
     });
 
     return items.map((item) => this.itemToDomain(item));
