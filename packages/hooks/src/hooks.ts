@@ -635,6 +635,9 @@ export function createHooks(config: CreateHooksConfig) {
     return useQuery({
       queryKey: queryKeys.task(taskId),
       queryFn: () => apiClient.getTask(taskId),
+      // A 404 means the task was deleted: never retry, the browser logs
+      // every attempt to the console.
+      retry: false,
       enabled: !!taskId,
     });
   }
@@ -643,6 +646,9 @@ export function createHooks(config: CreateHooksConfig) {
     return useQuery({
       queryKey: queryKeys.taskDetails(taskId),
       queryFn: () => apiClient.getTaskDetails(taskId),
+      // A 404 means the task was deleted: never retry, the browser logs
+      // every attempt to the console.
+      retry: false,
       enabled: !!taskId,
     });
   }

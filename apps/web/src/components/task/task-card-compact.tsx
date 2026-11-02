@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import {
   CheckCircle2,
@@ -127,7 +127,18 @@ export function ConnectedTaskDetailPanel({
   open: boolean; 
   onOpenChange: (open: boolean) => void; 
 }) {
-  const { data: task, isLoading } = useTaskDetails(taskId);
+  const { data: task, isLoading, error: taskError } = useTaskDetails(taskId);
+  // The task was deleted (or never existed): close the panel instead of
+  // leaving a dead view that refetches a 404 into the console.
+  useEffect(() => {
+    if (
+      open &&
+      taskError &&
+      (taskError as { response?: { status?: number } })?.response?.status === 404
+    ) {
+      onOpenChange(false);
+    }
+  }, [open, taskError, onOpenChange]);
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const assignTag = useAssignTagToTask();
