@@ -14,7 +14,7 @@ vi.mock("@/lib/offline-storage", () => ({
   incrementRetryCount: vi.fn(async () => null),
 }));
 
-vi.mock("@/lib/api-client", () => ({
+vi.mock("@/lib/package-api-client", () => ({
   getCsrfToken: vi.fn(async () => "test-csrf"),
 }));
 

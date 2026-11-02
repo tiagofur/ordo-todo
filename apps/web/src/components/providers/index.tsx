@@ -11,7 +11,7 @@ import { DevToolsProvider } from "./devtools-provider";
 import { DevToolsPanel } from "@/components/devtools";
 import { AIFeaturesTourProvider } from "@/components/onboarding/ai-features-tour";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { sharedApiClient } from "@/lib/shared-api-client";
+import { packageApiClient } from "@/lib/package-api-client";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -43,7 +43,7 @@ export function Providers({ children }: ProvidersProps) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider
           platform="web"
-          apiClient={sharedApiClient}
+          apiClient={packageApiClient}
           queryClient={queryClient}
         >
           <TimerSettingsProvider>
