@@ -1,3 +1,5 @@
+"use client";
+
 import { Sunrise, Check, SkipForward } from 'lucide-react';
 import {
   Card,

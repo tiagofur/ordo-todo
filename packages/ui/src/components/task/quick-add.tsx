@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { Loader2, AlertTriangle, Plus } from "lucide-react";
 import { cn } from "../../utils/index.js";
