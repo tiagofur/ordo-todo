@@ -52,6 +52,8 @@ import type {
   // Task
   Task,
   TaskDetails,
+  DayPlanView,
+  DayPlanRisk,
   TaskShareResponse,
   PublicTaskResponse,
   TodayTasksResponse,
@@ -1689,6 +1691,68 @@ export class OrdoApiClient {
    */
   async permanentDeleteTask(id: string): Promise<void> {
     await this.axios.delete(`/tasks/${id}/permanent`);
+  }
+
+  /**
+   * Get today's proposed day plan
+   * GET /tasks/day-plan
+   */
+  async getDayPlan(): Promise<DayPlanView> {
+    const response = await this.axios.get<DayPlanView>("/tasks/day-plan");
+    return response.data;
+  }
+
+  /**
+   * Apply a day plan proposal
+   * POST /tasks/day-plan/apply
+   */
+  async applyDayPlan(proposalId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/apply", {
+      proposalId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Dismiss a day plan proposal
+   * POST /tasks/day-plan/dismiss
+   */
+  async dismissDayPlan(proposalId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/dismiss", {
+      proposalId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Freeze a task block inside the day plan
+   * POST /tasks/day-plan/freeze
+   */
+  async freezeDayPlanBlock(taskId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/freeze", {
+      taskId,
+    });
+    return response.data;
+  }
+
+  /**
+   * Unfreeze a task block inside the day plan
+   * POST /tasks/day-plan/unfreeze
+   */
+  async unfreezeDayPlanBlock(taskId: string): Promise<DayPlanView> {
+    const response = await this.axios.post<DayPlanView>("/tasks/day-plan/unfreeze", {
+      taskId,
+    });
+    return response.data;
+  }
+
+  /**
+   * List risks detected in the current day plan
+   * GET /tasks/day-plan/risks
+   */
+  async getDayPlanRisks(): Promise<DayPlanRisk[]> {
+    const response = await this.axios.get<DayPlanRisk[]>("/tasks/day-plan/risks");
+    return response.data;
   }
 
   /**
