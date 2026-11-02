@@ -450,6 +450,9 @@
       "high": "Alta",
       "urgent": "Urgente"
     },
+    "validation": {
+      "titleRequired": "El título es obligatorio"
+    },
     "formAssignee": "Asignar a",
     "formUnassigned": "Sin asignar",
     "formEstimatedMinutes": "Estimación (min)",

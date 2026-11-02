@@ -450,6 +450,9 @@
       "high": "High",
       "urgent": "Urgent"
     },
+    "validation": {
+      "titleRequired": "Title is required"
+    },
     "formAssignee": "Assign to",
     "formUnassigned": "Unassigned",
     "formEstimatedMinutes": "Est. minutes",
