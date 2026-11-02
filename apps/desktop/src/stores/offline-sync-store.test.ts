@@ -580,4 +580,80 @@ describe('useOfflineSyncStore', () => {
     });
     expect(result.current.queue.syncStatus).toBe('error');
   });
+
+  it('should suggest a merge when resolving without merged data', async () => {
+    const { result } = renderHook(() => useOfflineSyncStore());
+    const { apiClient } = await import('@/lib/api-client');
+
+    vi.mocked(apiClient.updateTask).mockResolvedValue({ id: 'task-1' });
+
+    // Mock electron API
+    const mockUpdateTask = vi.fn().mockResolvedValue({ id: 'task-1' });
+    Object.defineProperty(window, 'electronAPI', {
+      value: {
+        ...window.electronAPI,
+        db: {
+          ...window.electronAPI?.db,
+          task: {
+            ...window.electronAPI?.db?.task,
+            update: mockUpdateTask,
+          },
+        },
+      },
+      writable: true,
+    });
+
+    act(() => {
+      result.current.addConflict({
+        type: 'update',
+        entityType: 'task',
+        entityId: 'task-1',
+        localData: { title: 'Local Title', description: 'Local Desc' },
+        remoteData: { title: 'Remote Title', priority: 'HIGH' },
+      });
+    });
+
+    const conflictId = result.current.queue.conflicts[0].id;
+
+    await act(async () => {
+      await result.current.resolveConflict(conflictId, 'merge');
+    });
+
+    const suggested = {
+      title: 'Local Title',
+      priority: 'HIGH',
+      description: 'Local Desc',
+      tags: [],
+    };
+    expect(apiClient.updateTask).toHaveBeenCalledWith('task-1', suggested);
+    expect(mockUpdateTask).toHaveBeenCalledWith('task-1', suggested);
+    expect(result.current.queue.conflicts[0].resolution).toBe('merge');
+  });
+
+  it('should fail closed on manual resolution without merged data', async () => {
+    const { result } = renderHook(() => useOfflineSyncStore());
+    const { apiClient } = await import('@/lib/api-client');
+
+    act(() => {
+      result.current.addConflict({
+        type: 'update',
+        entityType: 'task',
+        entityId: 'task-1',
+        localData: { title: 'Local Title' },
+        remoteData: { title: 'Remote Title' },
+      });
+    });
+
+    const conflictId = result.current.queue.conflicts[0].id;
+
+    await act(async () => {
+      await result.current.resolveConflict(conflictId, 'manual');
+    });
+
+    // Writing undefined to both sides is corruption: the conflict stays open
+    // and nothing is applied.
+    expect(apiClient.updateTask).not.toHaveBeenCalled();
+    expect(result.current.queue.conflicts[0].resolution).toBeUndefined();
+    expect(result.current.queue.conflicts[0].resolvedAt).toBeUndefined();
+  });
 });

@@ -12,8 +12,14 @@ import { toast } from 'sonner';
 import { getOnlineStatus, subscribeOnlineStatus } from '@ordo-todo/online-status';
 import {
   createSyncEngine,
+  createConflictRegistry,
+  resolveUpdateConflict as resolveUpdateStrategy,
+  resolveDeleteConflict as resolveDeleteStrategy,
+  suggestMerge as suggestMergeStrategy,
   type PendingAction as EngineAction,
   type SyncEngineResult,
+  type ConflictData,
+  type ConflictResolution as RegistryResolution,
 } from '@ordo-todo/stores';
 import {
   createDesktopSyncQueueAdapter,
@@ -161,6 +167,32 @@ function createDesktopEngine(get: StoreGet, set: StoreSet) {
 }
 
 /**
+ * Conflict registry wired to the desktop dual-write: `local` wins remotely,
+ * `remote` wins locally, `merge`/`manual` write the winning data to both
+ * sides — the same pattern the store applied inline before.
+ */
+function createDesktopConflictRegistry(get: StoreGet) {
+  return createConflictRegistry({
+    applyResolution: async (entityType, entityId, data, resolution) => {
+      const store = get();
+      switch (resolution) {
+        case 'local':
+          await store.applyRemoteUpdate(entityType, entityId, data);
+          break;
+        case 'remote':
+          await store.applyLocalUpdate(entityType, entityId, data);
+          break;
+        case 'merge':
+        case 'manual':
+          await store.applyRemoteUpdate(entityType, entityId, data);
+          await store.applyLocalUpdate(entityType, entityId, data);
+          break;
+      }
+    },
+  });
+}
+
+/**
  * Engine `execute`: runs one action through the store's per-entity
  * execution and preserves the data-conflict hook — errors whose message
  * mentions a conflict still open a resolution conflict before the engine
@@ -288,7 +320,10 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         });
       },
 
-      // Resolve a specific conflict
+      // Resolve a specific conflict through the portable registry: it
+      // computes the winning data with the shared strategies and applies it
+      // through the desktop dual-write below. The registry discards resolved
+      // records; desktop keeps them marked so the dialog shows history.
       resolveConflict: async (conflictId, resolution, mergedData) => {
         const { queue } = get();
         const conflict = queue.conflicts.find((c) => c.id === conflictId);
@@ -296,32 +331,19 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         if (!conflict) return;
 
         try {
-          let finalData: any;
-
-          switch (resolution) {
-            case 'local':
-              finalData = conflict.localData;
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'remote':
-              finalData = conflict.remoteData;
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'merge':
-              finalData = mergedData || get().suggestMerge(conflict.localData, conflict.remoteData);
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-
-            case 'manual':
-              // Data already provided by user
-              finalData = mergedData;
-              await get().applyRemoteUpdate(conflict.entityType, conflict.entityId, finalData);
-              await get().applyLocalUpdate(conflict.entityType, conflict.entityId, finalData);
-              break;
-          }
+          const registry = createDesktopConflictRegistry(get);
+          const recorded = registry.addConflict({
+            type: conflict.type,
+            entityType: conflict.entityType,
+            entityId: conflict.entityId,
+            localData: conflict.localData as ConflictData,
+            remoteData: conflict.remoteData as ConflictData,
+          });
+          await registry.resolve(
+            recorded.id,
+            resolution as RegistryResolution,
+            mergedData as ConflictData | undefined,
+          );
 
           // Update conflict status
           set((state) => ({
@@ -561,47 +583,29 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         return unsubscribe;
       },
 
-      // Resolve update conflict with intelligent merging
-      resolveUpdateConflict: (conflict) => {
-        const { localData, remoteData } = conflict;
+      // Conflict strategies now live in the portable registry; the store
+      // keeps these methods as the public entry points over them.
+      resolveUpdateConflict: (conflict) =>
+        resolveUpdateStrategy({
+          ...conflict,
+          localData: conflict.localData as ConflictData,
+          remoteData: conflict.remoteData as ConflictData,
+        }),
 
-        // Merge strategy: prefer most recent changes, combine non-conflicting fields
-        const merged = {
-          ...remoteData,
-          ...localData,
-          // Preserve server timestamps
-          updated_at: Math.max(
-            new Date(localData.updated_at).getTime(),
-            new Date(remoteData.updated_at).getTime()
-          ),
-          // Merge arrays (tags, custom fields, etc.)
-          tags: [...new Set([...(localData.tags || []), ...(remoteData.tags || [])])],
-          custom_fields: {
-            ...(remoteData.custom_fields || {}),
-            ...(localData.custom_fields || {}),
-          },
-        };
-
-        return merged;
-      },
-
-      // Resolve delete conflict
-      resolveDeleteConflict: (conflict) => {
-        // If local deleted but remote updated, ask user
-        // If remote deleted but local updated, ask user
-        return 'manual'; // Default to manual resolution
-      },
+      // Delete conflicts always need a human: neither side can win silently.
+      resolveDeleteConflict: (conflict) =>
+        resolveDeleteStrategy({
+          ...conflict,
+          localData: conflict.localData as ConflictData,
+          remoteData: conflict.remoteData as ConflictData,
+        }),
 
       // Suggest merge for conflicting data
-      suggestMerge: (local, remote) => {
-        // Simple merge strategy - can be made more sophisticated
-        return {
-          ...remote,
-          title: local.title || remote.title, // Prefer local title if exists
-          description: local.description || remote.description,
-          tags: [...new Set([...(local.tags || []), ...(remote.tags || [])])],
-        };
-      },
+      suggestMerge: (local, remote) =>
+        suggestMergeStrategy(
+          local as ConflictData,
+          remote as ConflictData,
+        ),
 
       // Start background sync
       startBackgroundSync: () => {
