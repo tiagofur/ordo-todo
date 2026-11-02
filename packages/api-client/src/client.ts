@@ -250,6 +250,32 @@ export interface ClientConfig {
    * Implements exponential backoff with jitter to prevent thundering herd.
    */
   retry?: RetryConfig;
+
+  /**
+   * Authentication transport mode.
+   * - 'bearer' (default): attaches `Authorization: Bearer` from tokenStorage.
+   * - 'credentialed': cookie transport for browser apps whose backend sets
+   *   httpOnly cookies (JS cannot read those, so no Bearer header is sent).
+   *   Sends cookies via `withCredentials` and an `x-csrf-token` header from
+   *   `csrfTokenProvider` on mutating non-auth requests; refreshes the
+   *   session with `POST /auth/refresh` and an empty body.
+   * Existing consumers keep bearer behavior unless they opt in.
+   */
+  authTransport?: 'bearer' | 'credentialed';
+
+  /**
+   * Sends cookies on cross-site requests.
+   * Defaults to true in credentialed mode, false otherwise.
+   */
+  withCredentials?: boolean;
+
+  /**
+   * Provides the CSRF token for credentialed mode (e.g. fetched once from
+   * `GET /auth/csrf-token` and cached by the app, as apps/web does).
+   * A rejection or null resolves to "no header" so one failing lookup
+   * cannot break unrelated requests.
+   */
+  csrfTokenProvider?: () => string | null | Promise<string | null>;
 }
 
 /**
@@ -311,6 +337,8 @@ export class OrdoApiClient {
   private onTokenRefresh?: (tokens: AuthResponse) => void | Promise<void>;
   private onAuthError?: () => void | Promise<void>;
   private retryConfig?: RetryConfig;
+  private readonly authTransport: 'bearer' | 'credentialed';
+  private readonly csrfTokenProvider?: () => string | null | Promise<string | null>;
   // public testProp: string = 'test';
 
   constructor(config: ClientConfig) {
@@ -318,6 +346,13 @@ export class OrdoApiClient {
     this.onTokenRefresh = config.onTokenRefresh;
     this.onAuthError = config.onAuthError;
     this.retryConfig = config.retry;
+    this.authTransport = config.authTransport ?? 'bearer';
+    this.csrfTokenProvider = config.csrfTokenProvider;
+
+    // withCredentials must stay absent (not false) in default bearer mode:
+    // existing consumers assert the exact axios.create shape.
+    const withCredentials =
+      config.withCredentials ?? (this.authTransport === 'credentialed' ? true : undefined);
 
     this.axios = axios.create({
       baseURL: config.baseURL,
@@ -325,6 +360,7 @@ export class OrdoApiClient {
       headers: {
         "Content-Type": "application/json",
       },
+      ...(withCredentials !== undefined ? { withCredentials } : {}),
     });
 
     this.setupInterceptors();
@@ -334,12 +370,20 @@ export class OrdoApiClient {
    * Setup request and response interceptors for automatic token management
    */
   private setupInterceptors(): void {
-    // Request interceptor - attach JWT token
+    // Request interceptor - attach JWT token (bearer) or CSRF token
+    // (credentialed). In credentialed mode no Authorization credential is
+    // ever attached, even when a tokenStorage is configured: the browser
+    // sends httpOnly cookies via withCredentials instead.
     this.axios.interceptors.request.use(
       async (config) => {
         // Skip for refresh endpoint to avoid circular dependency/deadlock
         // and to prevent sending expired tokens to the refresh endpoint
         if (config.url?.includes("/auth/refresh")) {
+          return config;
+        }
+
+        if (this.authTransport === 'credentialed') {
+          await this.attachCsrfToken(config);
           return config;
         }
 
@@ -374,13 +418,13 @@ export class OrdoApiClient {
           // Authorization header is pre-auth by definition — same rule.
           const requestUrl = originalRequest.url || "";
           const hadAuthHeader = !!originalRequest.headers?.Authorization;
+          const isCredentialed = this.authTransport === 'credentialed';
           const refreshToken = this.tokenStorage
             ? await this.tokenStorage.getRefreshToken()
             : null;
           if (
             requestUrl.includes("/auth/") ||
-            !hadAuthHeader ||
-            !refreshToken
+            (!isCredentialed && (!hadAuthHeader || !refreshToken))
           ) {
             return Promise.reject(error);
           }
@@ -388,11 +432,18 @@ export class OrdoApiClient {
           originalRequest._retry = true;
 
           try {
-            // Try to refresh the token
-            const newTokens = await this.handleTokenRefresh();
+            if (isCredentialed) {
+              // Cookie session: the backend rotates httpOnly cookies on
+              // POST /auth/refresh with an empty body. Nothing to store
+              // from JS; consumers are notified via onTokenRefresh.
+              await this.refreshCredentialedSession();
+            } else {
+              // Try to refresh the token
+              const newTokens = await this.handleTokenRefresh();
 
-            // Update the original request with new token
-            originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+              // Update the original request with new token
+              originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+            }
 
             // Retry the original request
             return this.axios(originalRequest);
@@ -458,6 +509,65 @@ export class OrdoApiClient {
         }
 
         return response;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
+  /**
+   * Attach the CSRF token for credentialed mode.
+   * Only mutating, non-auth requests carry it (same rule as apps/web);
+   * a failing or empty provider resolves to "no token" so the request
+   * still goes out — CSRF enforcement lives server-side.
+   */
+  private async attachCsrfToken(config: InternalAxiosRequestConfig): Promise<void> {
+    const method = config.method?.toLowerCase();
+    if (!['post', 'put', 'patch', 'delete'].includes(method ?? '')) {
+      return;
+    }
+    if (config.url?.startsWith('/auth/')) {
+      return;
+    }
+    if (!this.csrfTokenProvider) {
+      return;
+    }
+    try {
+      const token = await this.csrfTokenProvider();
+      if (token) {
+        config.headers = config.headers ?? ({} as InternalAxiosRequestConfig['headers']);
+        (config.headers as Record<string, string>)['x-csrf-token'] = token;
+      }
+    } catch {
+      // Provider failures must not break unrelated requests.
+    }
+  }
+
+  /**
+   * Refresh a cookie session: POST /auth/refresh with an empty body, the
+   * browser attaches the httpOnly refresh cookie via withCredentials.
+   * Shares the bearer refresh deduplication gate so concurrent 401s
+   * collapse into a single refresh call.
+   */
+  private async refreshCredentialedSession(): Promise<AuthResponse> {
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+
+    this.refreshPromise = (async () => {
+      try {
+        const response = await this.axios.post<AuthResponse>('/auth/refresh', {});
+
+        if (this.onTokenRefresh) {
+          await this.onTokenRefresh(response.data);
+        }
+
+        return response.data;
       } finally {
         this.isRefreshing = false;
         this.refreshPromise = null;
