@@ -4,8 +4,11 @@
 #
 #   ./scripts/rollback.sh <sha>        p. ej. ./scripts/rollback.sh 9152a2ee…
 #
-# - Las imágenes de los últimos 7 días siguen en el servidor (el deploy solo
-#   borra las más antiguas), así que no hace falta acceso a GHCR.
+# - Desde 26-oct-2026 el deploy borra TODAS las imágenes de Ordo sin uso
+#   (política 0 imágenes sin uso): si el SHA no está ya en el servidor, este
+#   script necesita acceso a GHCR (docker login con un PAT read:packages).
+#   Alternativa sin GHCR: Actions → Deploy → Run workflow sobre el commit
+#   anterior (reconstruye y redespliega; el histórico vive en GHCR).
 # - NO deshace migraciones de base de datos. Si la versión anterior no es
 #   compatible con el schema actual, restaura antes un backup (ver RUNBOOK).
 # - Alternativa sin tocar el servidor: Actions → Deploy → Run workflow sobre
