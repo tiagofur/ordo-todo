@@ -653,9 +653,10 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (data: CreateTaskDto) => apiClient.createTask(data),
       onSuccess: () => {
-        // La clave genérica ['tasks'] cubre por prefijo la lista del proyecto
-        // y la de tareas express (projectId null, ODD 021)
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
+        // allTasks (['tasks']) prefix-matches every task list, including the
+        // project list and the express list. Invalidating tasks() (with an
+        // explicit-undefined params object) matches nothing.
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }
@@ -1078,7 +1079,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (weekStart?: string) => apiClient.generateWeeklyReport(weekStart),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allReports });
       },
     });
   }
@@ -1104,7 +1105,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (id: string) => apiClient.deleteReport(id),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allReports });
       },
     });
   }
