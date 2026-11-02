@@ -7,8 +7,8 @@ import { useCreateSubtask } from '../api-hooks';
 import type { ReactNode } from 'react';
 
 // Mock the API client
-vi.mock('../api-client', () => ({
-  apiClient: {
+vi.mock('../package-api-client', () => ({
+  packageApiClient: {
     createSubtask: vi.fn(),
     getTasks: vi.fn(),
     getTaskDetails: vi.fn(),
@@ -50,7 +50,7 @@ describe('Subtask Hooks', () => {
         createdAt: new Date().toISOString(),
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.createSubtask).mockResolvedValue(createdSubtask as any);
 
       const { result } = renderHook(() => useCreateSubtask(), { wrapper });
@@ -75,7 +75,7 @@ describe('Subtask Hooks', () => {
         parentTaskId: 'parent-task-1',
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.createSubtask).mockResolvedValue(createdSubtask as any);
 
       const { result } = renderHook(() => useCreateSubtask(), { wrapper });
@@ -91,7 +91,7 @@ describe('Subtask Hooks', () => {
     });
 
     it('should handle errors when creating subtask', async () => {
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       const errorMessage = 'Failed to create subtask';
       vi.mocked(apiClient.createSubtask).mockRejectedValue(new Error(errorMessage));
 
@@ -127,7 +127,7 @@ describe('Subtask Hooks', () => {
         parentTaskId: 'parent-task-1',
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.createSubtask).mockResolvedValue(createdSubtask as any);
 
       const { result } = renderHook(() => useCreateSubtask(), { wrapper });

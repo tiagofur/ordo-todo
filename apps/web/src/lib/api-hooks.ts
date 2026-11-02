@@ -1,8 +1,9 @@
 /**
  * React Query hooks for the web app.
  *
- * Wrappers built locally with the hooks factory over the bespoke client in
- * `./api-client`. This is the live hooks layer, not a deprecated shim: the
+ * Wrappers built locally with the hooks factory over the package client in
+ * `./package-api-client` (credentialed transport: cookies + shared CSRF
+ * cache). This is the live hooks layer, not a deprecated shim: the
  * `@/lib/shared-hooks` module it named never existed in web (only desktop
  * has one, and it wraps a different client).
  */
@@ -10,9 +11,9 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient, QueryClient, type UseQueryResult } from "@tanstack/react-query";
-import { apiClient } from "./api-client";
+import { packageApiClient as apiClient } from "./package-api-client";
 import type { GetDailyMetricsParams, GetSessionsParams, PaginatedSessionsResponse } from "@ordo-todo/api-client";
-import { createHooks, queryKeys, type ApiClient } from "@ordo-todo/hooks";
+import { createHooks, queryKeys } from "@ordo-todo/hooks";
 
 // Re-export query keys for direct use
 export { queryKeys };
@@ -22,7 +23,7 @@ let _hooks: ReturnType<typeof createHooks> | null = null;
 
 function getHooks() {
   if (!_hooks) {
-    _hooks = createHooks({ apiClient: apiClient as unknown as ApiClient });
+    _hooks = createHooks({ apiClient });
   }
   return _hooks;
 }
