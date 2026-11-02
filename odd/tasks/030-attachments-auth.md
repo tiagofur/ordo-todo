@@ -37,7 +37,9 @@ aceptación (sin referencias a /uploads/ en el web)".
   con 4 tests RED→GREEN, controller download 2/2, suite completa 1600
   verde, tsc limpio, 0 errores nuevos eslint — 1 prettier preexistente
   verificado en HEAD en el mock de PlanLimitsService).
-- [ ] T2 (S2): prompt de handoff para el agente frontend.
+- [x] T2 (S2): prompt de handoff para el agente frontend (entregado al
+  owner en el chat; el web migra subidas y render a URLs del backend,
+  elimina su route y public/uploads).
 - [ ] T3: apagar estático (tras T2 confirmado, en otra sesión).
 
 ## Log
