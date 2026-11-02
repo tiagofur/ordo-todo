@@ -189,6 +189,13 @@ import type {
   OAuthDisconnectResult,
   // Gamification
   GamificationProfile,
+  // Focus audio
+  FocusTrack,
+  FocusMode,
+  FocusPreferences,
+  UpdateFocusPreferencesDto,
+  FocusFavoriteResult,
+  FocusStats,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3685,6 +3692,85 @@ export class OrdoApiClient {
    */
   async getGamificationProfile(): Promise<GamificationProfile> {
     const response = await this.axios.get<GamificationProfile>("/gamification/me");
+    return response.data;
+  }
+
+  /**
+   * List available ambient tracks
+   * GET /focus/tracks
+   */
+  async getFocusTracks(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/tracks");
+    return response.data;
+  }
+
+  /**
+   * List recommended tracks based on time of day
+   * GET /focus/tracks/recommended
+   */
+  async getRecommendedTracks(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/tracks/recommended");
+    return response.data;
+  }
+
+  /**
+   * List available focus modes
+   * GET /focus/modes
+   */
+  async getFocusModes(): Promise<FocusMode[]> {
+    const response = await this.axios.get<FocusMode[]>("/focus/modes");
+    return response.data;
+  }
+
+  /**
+   * List the user's favorite tracks
+   * GET /focus/favorites
+   */
+  async getFocusFavorites(): Promise<FocusTrack[]> {
+    const response = await this.axios.get<FocusTrack[]>("/focus/favorites");
+    return response.data;
+  }
+
+  /**
+   * Toggle a track favorite, reporting the new state
+   * POST /focus/favorites/:trackId
+   */
+  async toggleFocusFavorite(trackId: string): Promise<FocusFavoriteResult> {
+    const response = await this.axios.post<FocusFavoriteResult>(
+      `/focus/favorites/${trackId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get the user's audio preferences
+   * GET /focus/preferences
+   */
+  async getFocusPreferences(): Promise<FocusPreferences> {
+    const response = await this.axios.get<FocusPreferences>("/focus/preferences");
+    return response.data;
+  }
+
+  /**
+   * Update the user's audio preferences (all fields optional)
+   * PATCH /focus/preferences
+   */
+  async updateFocusPreferences(
+    data: UpdateFocusPreferencesDto,
+  ): Promise<FocusPreferences> {
+    const response = await this.axios.patch<FocusPreferences>(
+      "/focus/preferences",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get focus session statistics
+   * GET /focus/stats
+   */
+  async getFocusStats(): Promise<FocusStats> {
+    const response = await this.axios.get<FocusStats>("/focus/stats");
     return response.data;
   }
 }

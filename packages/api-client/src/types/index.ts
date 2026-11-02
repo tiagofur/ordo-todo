@@ -43,3 +43,6 @@ export * from './oauth.types';
 
 // Gamification types
 export * from './gamification.types';
+
+// Focus audio types
+export * from './focus.types';
