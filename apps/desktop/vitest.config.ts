@@ -42,6 +42,9 @@ export default defineConfig({
       '@/stores': path.resolve(import.meta.dirname, './src/stores'),
       '@/lib': path.resolve(import.meta.dirname, './src/lib'),
       '@ordo-todo/online-status': path.resolve(import.meta.dirname, '../../packages/online-status/src/index.ts'),
+      // The offline-sync store runtime-imports the sync engine: test the
+      // source, not a possibly stale dist (same pattern as web).
+      '@ordo-todo/stores': path.resolve(import.meta.dirname, '../../packages/stores/src/index.ts'),
     },
   },
 });

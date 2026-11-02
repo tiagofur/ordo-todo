@@ -496,4 +496,88 @@ describe('useOfflineSyncStore', () => {
     expect(result.current.queue.operations[0].status).toBe('failed');
     expect(result.current.queue.operations[0].retryCount).toBe(1);
   });
+
+  it('should keep synced operations as completed for the inspector', async () => {
+    const { result } = renderHook(() => useOfflineSyncStore());
+    const { apiClient } = await import('@/lib/api-client');
+
+    vi.mocked(apiClient.createTask).mockResolvedValue({ id: 'task-1', title: 'New Task' });
+
+    // Set offline to prevent auto-sync from addOperation
+    act(() => {
+      result.current.setOnlineStatus(false);
+    });
+
+    act(() => {
+      result.current.addOperation({
+        type: 'create',
+        entityType: 'task',
+        entityId: 'task-1',
+        data: { title: 'New Task' },
+      });
+    });
+
+    // Directly set isOnline in state to avoid setOnlineStatus triggering processQueue
+    act(() => {
+      useOfflineSyncStore.setState((state) => ({
+        queue: { ...state.queue, isOnline: true },
+      }));
+    });
+
+    await act(async () => {
+      await result.current.startSync();
+    });
+
+    // The engine removes on success; the desktop adapter marks completed so
+    // the queue inspector and clearCompletedOperations keep working.
+    expect(result.current.queue.operations).toHaveLength(1);
+    expect(result.current.queue.operations[0].status).toBe('completed');
+    expect(result.current.queue.syncStatus).toBe('success');
+  });
+
+  it('should open a conflict when sync fails with a data conflict', async () => {
+    const { result } = renderHook(() => useOfflineSyncStore());
+    const { apiClient } = await import('@/lib/api-client');
+
+    const conflictError = Object.assign(new Error('version conflict'), {
+      remoteData: { title: 'Remote Title' },
+    });
+    vi.mocked(apiClient.updateTask).mockRejectedValue(conflictError);
+
+    // Set offline to prevent auto-sync from addOperation
+    act(() => {
+      result.current.setOnlineStatus(false);
+    });
+
+    act(() => {
+      result.current.addOperation({
+        type: 'update',
+        entityType: 'task',
+        entityId: 'task-1',
+        data: { title: 'Local Title' },
+      });
+    });
+
+    // Directly set isOnline in state to avoid setOnlineStatus triggering processQueue
+    act(() => {
+      useOfflineSyncStore.setState((state) => ({
+        queue: { ...state.queue, isOnline: true },
+      }));
+    });
+
+    await act(async () => {
+      await result.current.startSync();
+    });
+
+    expect(result.current.queue.operations[0].status).toBe('failed');
+    expect(result.current.queue.conflicts).toHaveLength(1);
+    expect(result.current.queue.conflicts[0]).toMatchObject({
+      type: 'update',
+      entityType: 'task',
+      entityId: 'task-1',
+      localData: { title: 'Local Title' },
+      remoteData: { title: 'Remote Title' },
+    });
+    expect(result.current.queue.syncStatus).toBe('error');
+  });
 });

@@ -320,7 +320,8 @@ async function executeQueuedAction(action: EngineAction): Promise<void> {
     endpoint: action.url,
     method: action.method,
     payload: action.data,
-    entityType: action.entityType,
+    // Web only queues its own subset; the engine never invents entity types.
+    entityType: action.entityType as PendingAction['entityType'],
     entityId: action.entityId,
     timestamp: action.createdAt,
     retryCount: action.retryCount,

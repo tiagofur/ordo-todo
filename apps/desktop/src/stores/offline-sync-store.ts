@@ -10,6 +10,15 @@ import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { getOnlineStatus, subscribeOnlineStatus } from '@ordo-todo/online-status';
+import {
+  createSyncEngine,
+  type PendingAction as EngineAction,
+  type SyncEngineResult,
+} from '@ordo-todo/stores';
+import {
+  createDesktopSyncQueueAdapter,
+  toDesktopOperation,
+} from './sync-queue-adapter';
 
 // Types
 export type SyncStatus = 'idle' | 'syncing' | 'success' | 'error' | 'conflict';
@@ -28,7 +37,7 @@ interface SyncConflict {
   resolvedAt?: number;
 }
 
-interface SyncOperation {
+export interface SyncOperation {
   id: string;
   type: 'create' | 'update' | 'delete';
   entityType: 'task' | 'project' | 'workspace' | 'session';
@@ -37,6 +46,7 @@ interface SyncOperation {
   timestamp: number;
   retryCount: number;
   lastRetry?: number;
+  lastError?: string;
   status: 'pending' | 'completed' | 'failed';
 }
 
@@ -69,7 +79,7 @@ interface OfflineSyncStore {
   startSync: () => Promise<void>;
   stopSync: () => void;
   forceSync: () => Promise<void>;
-  processQueue: () => Promise<void>;
+  processQueue: () => Promise<SyncEngineResult>;
 
   // Entity Sync Operations
   executeSyncOperation: (operation: SyncOperation) => Promise<any>;
@@ -107,6 +117,76 @@ interface OfflineSyncStore {
 }
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+type StoreGet = () => OfflineSyncStore;
+type StoreSet = (partial: Partial<{ queue: SyncQueue }>) => void;
+
+/**
+ * Portable engine wired to the desktop queue: operations stay in zustand
+ * state (persisted, inspector-visible) via the adapter, execution dispatches
+ * through the store's per-entity `executeSyncOperation`. Progress events feed
+ * the queue's progress bar.
+ *
+ * Desktop preservation notes:
+ * - no `isOnline` override: every caller already guards on `queue.isOnline`,
+ *   exactly like the previous in-store loop;
+ * - `maxRetries: 1`: desktop marks an operation failed on its first error
+ *   (manual `retryOperation` re-queues it), so the first failure already
+ *   counts.
+ */
+function createDesktopEngine(get: StoreGet, set: StoreSet) {
+  return createSyncEngine({
+    adapter: createDesktopSyncQueueAdapter({
+      getOperations: () => get().queue.operations,
+      upsertOperation: (operation) => {
+        const queue = get().queue;
+        const operations = queue.operations.some((op) => op.id === operation.id)
+          ? queue.operations.map((op) => (op.id === operation.id ? operation : op))
+          : [...queue.operations, operation];
+        set({ queue: { ...queue, operations } });
+      },
+    }),
+    execute: (action) => executeDesktopOperation(get, action),
+    maxRetries: 1,
+    events: {
+      onProgress: (done, total) =>
+        set({
+          queue: {
+            ...get().queue,
+            syncProgress: total === 0 ? 100 : Math.round((done / total) * 100),
+          },
+        }),
+    },
+  });
+}
+
+/**
+ * Engine `execute`: runs one action through the store's per-entity
+ * execution and preserves the data-conflict hook — errors whose message
+ * mentions a conflict still open a resolution conflict before the engine
+ * records the retry.
+ */
+async function executeDesktopOperation(
+  get: StoreGet,
+  action: EngineAction,
+): Promise<unknown> {
+  const operation = toDesktopOperation(action);
+  try {
+    return await get().executeSyncOperation(operation);
+  } catch (error) {
+    const err = error as { message?: string; remoteData?: any };
+    if (err?.message?.includes('conflict')) {
+      get().addConflict({
+        type: operation.type === 'delete' ? 'delete' : 'update',
+        entityType: operation.entityType,
+        entityId: operation.entityId,
+        localData: operation.data,
+        remoteData: err.remoteData,
+      });
+    }
+    throw error;
+  }
+}
 
 export const useOfflineSyncStore = create<OfflineSyncStore>()(
   persist(
@@ -347,12 +427,21 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         await get().startSync();
       },
 
-      // Process the sync queue
-      processQueue: async () => {
-        const { queue } = get();
-        const pendingOperations = queue.operations.filter(op => op.status === 'pending');
+      // Process the sync queue through the portable engine: sequential
+      // execution, per-action retry accounting, progress events. Operations
+      // stay in zustand state (completed/failed, never deleted) via the
+      // adapter, so the inspector and the persisted queue see the same
+      // shapes as before.
+      processQueue: async (): Promise<SyncEngineResult> => {
+        let result: SyncEngineResult;
+        try {
+          result = await createDesktopEngine(get, set).syncAll();
+        } catch (error) {
+          console.error('Failed to process sync queue:', error);
+          result = { success: false, synced: 0, failed: 0, errors: [] };
+        }
 
-        if (pendingOperations.length === 0) {
+        if (result.synced + result.failed === 0) {
           set((state) => ({
             queue: {
               ...state.queue,
@@ -360,60 +449,15 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
               syncProgress: 100,
             },
           }));
-          return;
+        } else {
+          set((state) => ({
+            queue: {
+              ...state.queue,
+              syncProgress: 100,
+            },
+          }));
         }
-
-        let processedCount = 0;
-
-        for (const operation of pendingOperations) {
-          try {
-            await get().executeSyncOperation(operation);
-
-            // Mark as completed
-            set((state) => ({
-              queue: {
-                ...state.queue,
-                operations: state.queue.operations.map((op) =>
-                  op.id === operation.id
-                    ? { ...op, status: 'completed' }
-                    : op
-                ),
-                syncProgress: Math.round((++processedCount / state.queue.totalOperations) * 100),
-              },
-            }));
-          } catch (error) {
-            console.error(`Failed to sync operation ${operation.id}:`, error);
-
-            // Mark as failed and increment retry count
-            set((state) => ({
-              queue: {
-                ...state.queue,
-                operations: state.queue.operations.map((op) =>
-                  op.id === operation.id
-                    ? {
-                      ...op,
-                      status: 'failed',
-                      retryCount: op.retryCount + 1,
-                      lastRetry: Date.now(),
-                    }
-                    : op
-                ),
-              },
-            }));
-
-            // Add to conflict queue if it's a data conflict
-            const err = error as { message?: string; remoteData?: any };
-            if (err.message?.includes('conflict')) {
-              get().addConflict({
-                type: operation.type === 'delete' ? 'delete' : 'update',
-                entityType: operation.entityType,
-                entityId: operation.entityId,
-                localData: operation.data,
-                remoteData: err.remoteData,
-              });
-            }
-          }
-        }
+        return result;
       },
 
       // Execute individual sync operation

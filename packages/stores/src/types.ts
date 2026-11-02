@@ -151,7 +151,9 @@ export interface PendingAction {
   url: string;
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   data: Record<string, unknown>;
-  entityType: 'task' | 'project' | 'comment' | 'timer';
+  // Desktop also syncs workspaces and sessions through the same engine;
+  // consumers that only handle a subset keep narrowing on their side.
+  entityType: 'task' | 'project' | 'comment' | 'timer' | 'workspace' | 'session';
   entityId?: string;
   createdAt: number;
   retryCount: number;
