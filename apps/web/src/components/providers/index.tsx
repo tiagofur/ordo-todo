@@ -11,7 +11,10 @@ import { DevToolsProvider } from "./devtools-provider";
 import { DevToolsPanel } from "@/components/devtools";
 import { AIFeaturesTourProvider } from "@/components/onboarding/ai-features-tour";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { packageApiClient } from "@/lib/package-api-client";
+import {
+  packageApiClient,
+  invalidateCsrfToken,
+} from "@/lib/package-api-client";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -45,6 +48,11 @@ export function Providers({ children }: ProvidersProps) {
           platform="web"
           apiClient={packageApiClient}
           queryClient={queryClient}
+          onSuccess={(event) => {
+            // A logged-out session gets a fresh CSRF token on next login;
+            // holding the old one breaks the first mutating requests.
+            if (event === "logout") invalidateCsrfToken();
+          }}
         >
           <TimerSettingsProvider>
             <TimerProvider>

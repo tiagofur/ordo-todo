@@ -826,10 +826,15 @@ export class OrdoApiClient {
   }
 
   /**
-   * Logout (clear tokens from storage)
-   * This is a client-side only operation
+   * Logout: clears tokens from storage, and in credentialed mode also ends
+   * the server session (POST /auth/logout) so the httpOnly cookie dies.
    */
   async logout(): Promise<void> {
+    if (this.authTransport === 'credentialed') {
+      // The httpOnly session cookie only dies server-side: skipping this
+      // POST leaves the user logged in (logout appears to do nothing).
+      await this.axios.post('/auth/logout', {});
+    }
     if (this.tokenStorage) {
       await this.tokenStorage.removeToken();
       await this.tokenStorage.removeRefreshToken();
