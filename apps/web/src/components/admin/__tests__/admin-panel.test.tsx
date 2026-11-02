@@ -11,7 +11,7 @@ import type {
   AdminInviteCode,
   AdminUserListItem,
   AdminUsersPage,
-} from "@/lib/api-client";
+} from "@ordo-todo/api-client";
 
 // ---------------------------------------------------------------------------
 // Mocks (stable references — never fresh vi.fn() per call)

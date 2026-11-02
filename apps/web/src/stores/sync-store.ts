@@ -333,7 +333,7 @@ async function executeQueuedAction(action: EngineAction): Promise<void> {
  * Process a single pending action by making the API call
  */
 async function processPendingAction(action: PendingAction): Promise<void> {
-  const { getCsrfToken } = await import("@/lib/api-client");
+  const { getCsrfToken } = await import("@/lib/package-api-client");
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

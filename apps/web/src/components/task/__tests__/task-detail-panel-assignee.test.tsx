@@ -37,9 +37,9 @@ vi.mock('@/hooks/use-collaboration-socket', () => ({
   useCollaborationSocket: () => ({ taskUsers: [] }),
 }));
 
-vi.mock('@/lib/api-client', () => ({
-  apiClient: {
-    getTaskDependencies: vi.fn().mockResolvedValue({ dependencies: [], dependents: [] }),
+vi.mock('@/lib/package-api-client', () => ({
+  packageApiClient: {
+    getTaskDependencies: vi.fn().mockResolvedValue({ blockedBy: [], blocking: [] }),
     getTasks: vi.fn().mockResolvedValue([]),
   },
 }));
