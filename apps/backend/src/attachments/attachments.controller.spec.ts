@@ -23,6 +23,7 @@ describe('AttachmentsController', () => {
       create: jest.fn(),
       findByProject: jest.fn(),
       findOne: jest.fn(),
+      getDownload: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
     };
@@ -197,6 +198,39 @@ describe('AttachmentsController', () => {
       );
 
       await expect(controller.findOne('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('download', () => {
+    it('should stream the file with type and disposition', async () => {
+      const { Readable } = require('stream');
+      const { StreamableFile } = require('@nestjs/common');
+      attachmentsService.getDownload.mockResolvedValue({
+        stream: Readable.from(['file-bytes']),
+        mimeType: 'application/pdf',
+        filename: 'document.pdf',
+        size: 10,
+      });
+
+      const result = await controller.download('att-123');
+
+      expect(attachmentsService.getDownload).toHaveBeenCalledWith('att-123');
+      expect(result).toBeInstanceOf(StreamableFile);
+      expect(result.getHeaders()).toMatchObject({
+        type: 'application/pdf',
+        disposition: 'attachment; filename="document.pdf"',
+      });
+    });
+
+    it('should propagate NotFoundException from the service', async () => {
+      const { NotFoundException } = require('@nestjs/common');
+      attachmentsService.getDownload.mockRejectedValue(
+        new NotFoundException('Attachment not found'),
+      );
+
+      await expect(controller.download('non-existent')).rejects.toThrow(
         NotFoundException,
       );
     });

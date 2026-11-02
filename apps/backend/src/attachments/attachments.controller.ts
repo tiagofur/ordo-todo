@@ -14,6 +14,7 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  StreamableFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -339,6 +340,31 @@ export class AttachmentsController {
   @UseGuards(AttachmentGuard)
   findOne(@Param('id') id: string) {
     return this.attachmentsService.findOne(id);
+  }
+
+  /**
+   * Download the attachment file
+   * Same AttachmentGuard as the metadata endpoints: workspace members
+   * (or task owner/assignee for workspace-less tasks) only. Replaces the
+   * public /uploads/ static serving (ODD 030).
+   */
+  @Get(':id/download')
+  @ApiOperation({
+    summary: 'Download attachment file',
+    description: 'Streams the stored file. Requires workspace membership.',
+  })
+  @ApiResponse({ status: 200, description: 'File stream' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Not a member of the workspace' })
+  @ApiResponse({ status: 404, description: 'Attachment or file not found' })
+  @UseGuards(AttachmentGuard)
+  async download(@Param('id') id: string) {
+    const { stream, mimeType, filename } =
+      await this.attachmentsService.getDownload(id);
+    return new StreamableFile(stream, {
+      type: mimeType,
+      disposition: `attachment; filename="${filename}"`,
+    });
   }
 
   /**

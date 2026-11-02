@@ -6,6 +6,8 @@ import { AttachmentsService } from './attachments.service';
 import { PrismaService } from '../database/prisma.service';
 import type { AttachmentRepository } from '@ordo-todo/core';
 import { CreateAttachmentDto } from './dto/create-attachment.dto';
+import { join } from 'path';
+import { mkdir, writeFile, unlink } from 'fs/promises';
 
 describe('AttachmentsService', () => {
   let service: AttachmentsService;
@@ -171,6 +173,80 @@ describe('AttachmentsService', () => {
       attachmentRepository.findById.mockResolvedValue(null);
 
       await expect(service.findOne('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getDownload', () => {
+    const uploadsDir = join(process.cwd(), 'uploads');
+
+    it('should return a readable stream for a stored file', async () => {
+      const filename = `red-download-${Date.now()}.txt`;
+      await mkdir(uploadsDir, { recursive: true });
+      await writeFile(join(uploadsDir, filename), 'download-bytes');
+      attachmentRepository.findById.mockResolvedValue(
+        new Attachment({
+          id: 'attachment-123',
+          taskId: 'task-123',
+          userId: 'user-123',
+          fileName: filename,
+          originalName: 'document.pdf',
+          mimeType: 'application/pdf',
+          size: 14,
+          storagePath: `/uploads/${filename}`,
+          isUploaded: true,
+          uploadedAt: new Date('2025-01-01'),
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        }),
+      );
+
+      const result = await service.getDownload('attachment-123');
+
+      expect(result.mimeType).toBe('application/pdf');
+      expect(result.filename).toBe('document.pdf');
+      const chunks: Buffer[] = [];
+      for await (const chunk of result.stream) chunks.push(chunk as Buffer);
+      expect(Buffer.concat(chunks).toString()).toBe('download-bytes');
+      await unlink(join(uploadsDir, filename));
+    });
+
+    it('should throw NotFoundException when attachment is missing', async () => {
+      attachmentRepository.findById.mockResolvedValue(null);
+
+      await expect(service.getDownload('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw NotFoundException when the file is gone', async () => {
+      attachmentRepository.findById.mockResolvedValue(mockAttachment);
+
+      await expect(service.getDownload('attachment-123')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should not escape the uploads dir on traversal paths', async () => {
+      attachmentRepository.findById.mockResolvedValue(
+        new Attachment({
+          id: 'attachment-123',
+          taskId: 'task-123',
+          userId: 'user-123',
+          fileName: 'package.json',
+          originalName: 'package.json',
+          mimeType: 'application/json',
+          size: 10,
+          storagePath: '/uploads/../../package.json',
+          isUploaded: true,
+          uploadedAt: new Date('2025-01-01'),
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        }),
+      );
+
+      await expect(service.getDownload('attachment-123')).rejects.toThrow(
         NotFoundException,
       );
     });
