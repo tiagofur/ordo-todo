@@ -40,7 +40,10 @@ import {
   useWorkflows,
   useCreateWorkflow,
   useTasks,
+  useDeleteTask,
 } from "@/lib/api-hooks";
+import { useConfirm } from "@/components/shared/confirm-dialog";
+import { toast } from "sonner";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TaskCardCompact, ConnectedTaskDetailPanel } from "@/components/task/task-card-compact";
 import { useTaskIdFromUrl } from "@/lib/use-task-from-url";
@@ -133,6 +136,25 @@ export default function DashboardPage() {
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: createProject } = useCreateProject();
+  const deleteTask = useDeleteTask();
+  const { confirm, ConfirmModal } = useConfirm();
+
+  const handleDeleteTask = async (taskId: string) => {
+    const confirmed = await confirm({
+      description: t("confirmDeleteTask"),
+      variant: "destructive",
+    });
+    if (confirmed) {
+      deleteTask.mutate(taskId, {
+        onSuccess: () => {
+          toast.success(t("taskDeleted"));
+        },
+        onError: () => {
+          toast.error(t("taskDeleteError"));
+        },
+      });
+    }
+  };
 
   const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
@@ -618,6 +640,7 @@ export default function DashboardPage() {
                   showProject={true}
                   showGradient={true}
                   onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+                  onDelete={handleDeleteTask}
                 />
               ))}
             </div>
@@ -634,6 +657,7 @@ export default function DashboardPage() {
           if (!open) setSelectedTaskId(null);
         }}
       />
+      <ConfirmModal />
 
       {/* Quick Actions FAB */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">

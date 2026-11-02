@@ -469,17 +469,21 @@ export function TaskCardCompact({
             {removeFromProject}
           </DropdownMenuItem>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            if (task.id) onDelete?.(String(task.id));
-          }}
-          className="text-destructive focus:text-destructive focus:bg-red-100 dark:focus:bg-red-900"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          {deleteLabel}
-        </DropdownMenuItem>
+        {onDelete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                if (task.id) onDelete(String(task.id));
+              }}
+              className="text-destructive focus:text-destructive focus:bg-red-100 dark:focus:bg-red-900"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {deleteLabel}
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

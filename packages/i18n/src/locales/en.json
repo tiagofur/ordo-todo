@@ -375,7 +375,10 @@
     "aiInsights": "AI Insights",
     "noInsights": "No insights yet",
     "aiSuggestion": "Keep completing tasks to receive smart suggestions",
-    "viewAllInsights": "View all insights"
+    "viewAllInsights": "View all insights",
+    "confirmDeleteTask": "Are you sure you want to delete this task?",
+    "taskDeleted": "Task deleted successfully",
+    "taskDeleteError": "Failed to delete task"
   },
   "Tasks": {
     "title": "Tasks",

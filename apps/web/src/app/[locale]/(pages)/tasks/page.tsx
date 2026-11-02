@@ -27,7 +27,8 @@ import {
   isCalendarDateToday,
   isCalendarDateOverdue,
 } from "@ordo-todo/core";
-import { useTasks, useTags, useProjects, useCreateTask } from "@/lib/api-hooks";
+import { useTasks, useTags, useProjects, useCreateTask, useDeleteTask } from "@/lib/api-hooks";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import { TaskPriority } from "@ordo-todo/api-client";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { ExportDataButton } from "@/components/data/export-data";
@@ -101,7 +102,26 @@ function TasksPageContent() {
   const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: projects, isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
   const { mutateAsync: createTask } = useCreateTask();
+  const deleteTask = useDeleteTask();
+  const { confirm, ConfirmModal } = useConfirm();
   const queryClient = useQueryClient();
+
+  const handleDeleteTask = async (taskId: string) => {
+    const confirmed = await confirm({
+      description: t("confirmDeleteTask"),
+      variant: "destructive",
+    });
+    if (confirmed) {
+      deleteTask.mutate(taskId, {
+        onSuccess: () => {
+          toast.success(t("taskDeleted"));
+        },
+        onError: () => {
+          toast.error(t("taskDeleteError"));
+        },
+      });
+    }
+  };
 
   const handleEisenhowerComplete = async (taskId: string, completed: boolean) => {
     try {
@@ -510,6 +530,7 @@ function TasksPageContent() {
                 viewMode={viewMode}
                 showProject={true}
                 showGradient={true}
+                onDelete={handleDeleteTask}
               />
             ))}
           </motion.div>
@@ -575,6 +596,7 @@ function TasksPageContent() {
           setShowCreateTask(false);
         }}
       />
+      <ConfirmModal />
     </AppLayout>
   );
 }
