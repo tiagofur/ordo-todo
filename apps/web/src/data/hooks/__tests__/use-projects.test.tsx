@@ -5,8 +5,8 @@ import { useProjects } from '../../../lib/api-hooks';
 import type { ReactNode } from 'react';
 
 // Mock the API client
-vi.mock('../../../lib/api-client', () => ({
-  apiClient: {
+vi.mock('../../../lib/package-api-client', () => ({
+  packageApiClient: {
     getProjects: vi.fn(),
   }
 }));
@@ -38,7 +38,7 @@ describe('useProjects Hook', () => {
     ];
 
     // Mock the API client response
-    const { apiClient } = await import('../../../lib/api-client');
+    const { packageApiClient: apiClient } = await import('../../../lib/package-api-client');
     vi.mocked(apiClient.getProjects).mockResolvedValue(mockProjects as any);
 
     const { result } = renderHook(() => useProjects('workspace-123'), { wrapper });
@@ -59,7 +59,7 @@ describe('useProjects Hook', () => {
   });
 
   it('should handle error state', async () => {
-    const { apiClient } = await import('../../../lib/api-client');
+    const { packageApiClient: apiClient } = await import('../../../lib/package-api-client');
     vi.mocked(apiClient.getProjects).mockRejectedValue(new Error('API Error'));
 
     const { result } = renderHook(() => useProjects('workspace-123'), { wrapper });

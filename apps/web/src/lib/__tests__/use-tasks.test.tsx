@@ -5,8 +5,8 @@ import { useTasks, useCreateTask, useUpdateTask, useCompleteTask, useDeleteTask 
 import type { ReactNode } from 'react';
 
 // Mock the API client
-vi.mock('../api-client', () => ({
-  apiClient: {
+vi.mock('../package-api-client', () => ({
+  packageApiClient: {
     getTasks: vi.fn(),
     createTask: vi.fn(),
     updateTask: vi.fn(),
@@ -43,7 +43,7 @@ describe('Task Hooks', () => {
         { id: '2', title: 'Task 2', status: 'IN_PROGRESS', projectId: 'project-1' },
       ];
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
 
       const { result } = renderHook(() => useTasks('project-1'), { wrapper });
@@ -59,7 +59,7 @@ describe('Task Hooks', () => {
       const expressTasks = [
         { id: '9', title: 'Comprar pan', status: 'TODO', projectId: null },
       ];
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked((apiClient as any).getTasks).mockResolvedValue(expressTasks);
 
       const { result } = renderHook(
@@ -88,7 +88,7 @@ describe('Task Hooks', () => {
     });
 
     it('should handle error state', async () => {
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked((apiClient as any).getTasks).mockRejectedValue(new Error('API Error'));
 
       const { result } = renderHook(() => useTasks('project-1'), { wrapper });
@@ -105,7 +105,7 @@ describe('Task Hooks', () => {
         { id: '1', title: 'Task 1', status: 'TODO', tags: ['urgent'] },
       ];
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
 
       const { result } = renderHook(() => useTasks('project-1', ['urgent']), { wrapper });
@@ -122,7 +122,7 @@ describe('Task Hooks', () => {
         { id: '1', title: 'Task 1', status: 'TODO' },
       ];
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
 
       const { result } = renderHook(() => useTasks(), { wrapper });
@@ -149,7 +149,7 @@ describe('Task Hooks', () => {
         createdAt: new Date().toISOString(),
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.createTask).mockResolvedValue(createdTask as any);
 
       const { result } = renderHook(() => useCreateTask(), { wrapper });
@@ -171,7 +171,7 @@ describe('Task Hooks', () => {
         status: 'TODO',
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.createTask).mockResolvedValue(createdTask as any);
 
       const { result } = renderHook(() => useCreateTask(), { wrapper });
@@ -192,7 +192,7 @@ describe('Task Hooks', () => {
         status: 'COMPLETED',
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.completeTask).mockResolvedValue(completedTask as any);
 
       const { result } = renderHook(() => useCompleteTask(), { wrapper });
@@ -205,7 +205,7 @@ describe('Task Hooks', () => {
     });
 
     it('should use optimistic updates', async () => {
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       
       // Create a delay to test optimistic updates
       let resolvePromise: (value: any) => void;
@@ -231,7 +231,7 @@ describe('Task Hooks', () => {
 
   describe('useDeleteTask', () => {
     it('should delete a task successfully', async () => {
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.deleteTask).mockResolvedValue(undefined as any);
 
       const { result } = renderHook(() => useDeleteTask(), { wrapper });
@@ -246,7 +246,7 @@ describe('Task Hooks', () => {
     it('should invalidate tasks queries after deletion', async () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.deleteTask).mockResolvedValue(undefined as any);
 
       const { result } = renderHook(() => useDeleteTask(), { wrapper });
@@ -267,7 +267,7 @@ describe('Task Hooks', () => {
         status: 'IN_PROGRESS',
       };
 
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       vi.mocked(apiClient.updateTask).mockResolvedValue(updatedTask as any);
 
       const { result } = renderHook(() => useUpdateTask(), { wrapper });
@@ -283,7 +283,7 @@ describe('Task Hooks', () => {
     });
 
     it('should handle optimistic updates for task data', async () => {
-      const { apiClient } = await import('../api-client');
+      const { packageApiClient: apiClient } = await import('../package-api-client');
       
       let resolvePromise: (value: any) => void;
       const promise = new Promise(resolve => { resolvePromise = resolve; });
