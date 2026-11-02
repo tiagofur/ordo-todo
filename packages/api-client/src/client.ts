@@ -153,6 +153,12 @@ import type {
   SuggestionsResponse,
   AIAnswerResponse,
   QuickSearchResponse,
+  // Billing
+  BillingUsageOverview,
+  BillingPlanId,
+  BillingInterval,
+  CheckoutSessionResult,
+  PortalSessionResult,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3201,6 +3207,42 @@ export class OrdoApiClient {
    */
   async getRitualStreak(): Promise<RitualStreak> {
     const response = await this.axios.get<RitualStreak>("/ritual/streak");
+    return response.data;
+  }
+
+  /**
+   * Get the billing usage overview (plan, limits, usage, AI credits)
+   * GET /billing/usage
+   */
+  async getBillingOverview(): Promise<BillingUsageOverview> {
+    const response = await this.axios.get<BillingUsageOverview>("/billing/usage");
+    return response.data;
+  }
+
+  /**
+   * Create a Stripe checkout session for plan upgrade
+   * POST /billing/checkout-session
+   */
+  async createCheckoutSession(
+    planId: BillingPlanId,
+    interval: BillingInterval,
+    seats?: number,
+  ): Promise<CheckoutSessionResult> {
+    const response = await this.axios.post<CheckoutSessionResult>(
+      "/billing/checkout-session",
+      { planId, interval, seats },
+    );
+    return response.data;
+  }
+
+  /**
+   * Create a Stripe customer portal session
+   * POST /billing/portal-session
+   */
+  async createPortalSession(): Promise<PortalSessionResult> {
+    const response = await this.axios.post<PortalSessionResult>(
+      "/billing/portal-session",
+    );
     return response.data;
   }
 }
