@@ -34,3 +34,6 @@ export * from './billing.types';
 
 // Meeting analyzer types
 export * from './meeting.types';
+
+// Admin panel types
+export * from './admin.types';

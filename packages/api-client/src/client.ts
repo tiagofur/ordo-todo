@@ -171,6 +171,16 @@ import type {
   ConvertTasksResult,
   SaveMeetingDto,
   GetMeetingsParams,
+  // Admin
+  AdminOverview,
+  AdminUsersPage,
+  GetAdminUsersParams,
+  AdminUserDetail,
+  AdminUserStatusResult,
+  AdminProResult,
+  GrantProDto,
+  AdminInviteCode,
+  CreateAdminInviteCodeDto,
   // Ritual (ODD 006)
   RitualDayState,
   RitualEveningComplete,
@@ -3484,5 +3494,119 @@ export class OrdoApiClient {
    */
   async deleteMeeting(id: string): Promise<void> {
     await this.axios.delete(`/meetings/${id}`);
+  }
+
+  /**
+   * Get aggregated platform overview for the admin panel
+   * GET /admin/overview
+   */
+  async getAdminOverview(): Promise<AdminOverview> {
+    const response = await this.axios.get<AdminOverview>("/admin/overview");
+    return response.data;
+  }
+
+  /**
+   * List users for the admin panel, optionally searched/paginated
+   * GET /admin/users
+   */
+  async getAdminUsers(params?: GetAdminUsersParams): Promise<AdminUsersPage> {
+    const response = await this.axios.get<AdminUsersPage>("/admin/users", {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get one user's admin detail
+   * GET /admin/users/:id
+   */
+  async getAdminUser(userId: string): Promise<AdminUserDetail> {
+    const response = await this.axios.get<AdminUserDetail>(
+      `/admin/users/${userId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Block a user
+   * POST /admin/users/:id/block
+   */
+  async blockAdminUser(userId: string): Promise<AdminUserStatusResult> {
+    const response = await this.axios.post<AdminUserStatusResult>(
+      `/admin/users/${userId}/block`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Unblock a user
+   * POST /admin/users/:id/unblock
+   */
+  async unblockAdminUser(userId: string): Promise<AdminUserStatusResult> {
+    const response = await this.axios.post<AdminUserStatusResult>(
+      `/admin/users/${userId}/unblock`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Grant a pro plan to a user
+   * POST /admin/users/:id/grant-pro
+   */
+  async grantAdminPro(
+    userId: string,
+    data?: GrantProDto,
+  ): Promise<AdminProResult> {
+    const response = await this.axios.post<AdminProResult>(
+      `/admin/users/${userId}/grant-pro`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Revoke a pro plan from a user
+   * POST /admin/users/:id/revoke-pro
+   */
+  async revokeAdminPro(userId: string): Promise<AdminProResult> {
+    const response = await this.axios.post<AdminProResult>(
+      `/admin/users/${userId}/revoke-pro`,
+    );
+    return response.data;
+  }
+
+  /**
+   * List invite codes
+   * GET /admin/invite-codes
+   */
+  async getAdminInviteCodes(): Promise<AdminInviteCode[]> {
+    const response = await this.axios.get<AdminInviteCode[]>("/admin/invite-codes");
+    return response.data;
+  }
+
+  /**
+   * Create an invite code
+   * POST /admin/invite-codes
+   */
+  async createAdminInviteCode(
+    data?: CreateAdminInviteCodeDto,
+  ): Promise<AdminInviteCode> {
+    const response = await this.axios.post<AdminInviteCode>(
+      "/admin/invite-codes",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Deactivate an invite code
+   * PATCH /admin/invite-codes/:id
+   */
+  async deactivateAdminInviteCode(codeId: string): Promise<AdminInviteCode> {
+    const response = await this.axios.patch<AdminInviteCode>(
+      `/admin/invite-codes/${codeId}`,
+      { isActive: false },
+    );
+    return response.data;
   }
 }
