@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MeetingsController } from './meetings.controller';
 import { MeetingAssistantService } from './meeting-assistant.service';
+import { QueryMeetingsDto } from './dto/query-meetings.dto';
 
 describe('MeetingsController', () => {
   let controller: MeetingsController;
@@ -84,12 +85,17 @@ describe('MeetingsController', () => {
     expect(result.id).toBe('meeting-1');
   });
 
-  it('should list meetings', async () => {
-    const result = await controller.getMeetings(mockUser, undefined, '10');
+  it('should list meetings with pagination mapped to take/skip', async () => {
+    const query = Object.assign(new QueryMeetingsDto(), {
+      limit: 10,
+      page: 1,
+    });
+    const result = await controller.getMeetings(mockUser, query);
 
     expect(service.getMeetings).toHaveBeenCalledWith('user-123', {
       projectId: undefined,
-      limit: 10,
+      take: 10,
+      skip: 10,
     });
     expect(result).toHaveLength(1);
   });
@@ -97,7 +103,10 @@ describe('MeetingsController', () => {
   it('should get meeting by id', async () => {
     const result = await controller.getMeetingById('meeting-1', mockUser);
 
-    expect(service.getMeetingById).toHaveBeenCalledWith('user-123', 'meeting-1');
+    expect(service.getMeetingById).toHaveBeenCalledWith(
+      'user-123',
+      'meeting-1',
+    );
     expect(result.title).toBe('Standup');
   });
 

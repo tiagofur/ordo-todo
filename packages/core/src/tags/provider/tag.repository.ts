@@ -155,6 +155,7 @@ export interface TagRepository {
      */
     findByWorkspaceIdWithTaskCount(
         workspaceId: string,
+        pagination?: { take?: number; skip?: number },
     ): Promise<Array<{
         id: string;
         name: string;

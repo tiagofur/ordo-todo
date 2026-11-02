@@ -12,6 +12,7 @@ import {
 import { FAQService } from './faq.service';
 import { CreateFAQDto } from './dto/create-faq.dto';
 import { UpdateFAQDto } from './dto/update-faq.dto';
+import { QueryFaqDto } from './dto/query-faq.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/admin.guard';
 
@@ -26,13 +27,12 @@ export class FAQController {
   }
 
   @Get()
-  findAll(
-    @Query('category') category?: string,
-    @Query('publishedOnly') publishedOnly?: string,
-  ) {
+  findAll(@Query() query: QueryFaqDto) {
     return this.faqService.findAll({
-      category,
-      publishedOnly: publishedOnly === 'true',
+      category: query.category,
+      publishedOnly: query.publishedOnly === 'true',
+      take: query.take,
+      skip: query.skip,
     });
   }
 

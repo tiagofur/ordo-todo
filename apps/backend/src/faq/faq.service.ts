@@ -26,6 +26,8 @@ export class FAQService {
   async findAll(options?: {
     publishedOnly?: boolean;
     category?: string;
+    take?: number;
+    skip?: number;
   }): Promise<FAQ[]> {
     return this.faqRepository.findAll(options);
   }

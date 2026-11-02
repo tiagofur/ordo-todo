@@ -64,7 +64,10 @@ export class PrismaTagRepository implements TagRepository {
     return tags.map((t) => this.toDomain(t));
   }
 
-  async findByWorkspaceIdWithTaskCount(workspaceId: string): Promise<
+  async findByWorkspaceIdWithTaskCount(
+    workspaceId: string,
+    pagination?: { take?: number; skip?: number },
+  ): Promise<
     Array<{
       id: string;
       name: string;
@@ -76,6 +79,10 @@ export class PrismaTagRepository implements TagRepository {
   > {
     const tags = await this.prisma.tag.findMany({
       where: { workspaceId },
+      // Stable order (id tiebreaker) so offset pages never skip/repeat rows.
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
+      ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
       include: {
         _count: {
           select: { tasks: true },

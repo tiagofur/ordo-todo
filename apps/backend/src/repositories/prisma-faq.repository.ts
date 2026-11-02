@@ -20,6 +20,8 @@ export class PrismaFAQRepository implements IFAQRepository {
   async findAll(options?: {
     publishedOnly?: boolean;
     category?: string;
+    take?: number;
+    skip?: number;
   }): Promise<DomainFAQ[]> {
     const where: any = {};
     if (options?.publishedOnly) {
@@ -31,7 +33,10 @@ export class PrismaFAQRepository implements IFAQRepository {
 
     const faqs = await this.prisma.faq.findMany({
       where,
-      orderBy: { order: 'asc' },
+      // Stable order (id tiebreaker) so offset pages never skip/repeat rows.
+      orderBy: [{ order: 'asc' }, { id: 'asc' }],
+      ...(options?.take !== undefined ? { take: options.take } : {}),
+      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
     });
 
     return faqs.map((f) => this.toDomain(f));

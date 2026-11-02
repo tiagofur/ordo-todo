@@ -60,11 +60,16 @@ describe('FAQController', () => {
       const faqs = [{ id: '1', question: 'Q1' }];
       service.findAll.mockResolvedValue(faqs as any);
 
-      const result = await controller.findAll('General', 'true');
+      const result = await controller.findAll({
+        category: 'General',
+        publishedOnly: 'true',
+      } as any);
 
       expect(service.findAll).toHaveBeenCalledWith({
         category: 'General',
         publishedOnly: true,
+        take: undefined,
+        skip: undefined,
       });
       expect(result).toEqual(faqs);
     });
