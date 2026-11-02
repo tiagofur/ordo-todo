@@ -54,10 +54,10 @@ Desde fuera: `https://api.ordotodo.app/api/v1/health` (público) debe devolver 2
 
 ## 4. Volver atrás (rollback)
 
-Las imágenes van etiquetadas por commit y las de los últimos 7 días siguen en el servidor.
+Tras cada deploy se borran TODAS las imágenes de Ordo sin uso (política "0 imágenes sin uso", 26-oct-2026), así que en el servidor solo está la versión vigente.
 
-- **Sin tocar el servidor**: Actions → *Deploy* → *Run workflow* → elegir el commit anterior (se reconstruye y despliega esa versión).
-- **En el servidor** (más rápido): `./scripts/rollback.sh <sha-anterior>`.
+- **Vía normal**: Actions → *Deploy* → *Run workflow* → elegir el commit anterior (reconstruye esa versión desde GHCR y la despliega).
+- **Solo si la imagen anterior sigue en el servidor** (p. ej. justo tras un deploy fallido): `./scripts/rollback.sh <sha-anterior>`; si no está local, el script necesita `docker login` en GHCR (PAT read:packages) para descargarla.
 
 El rollback **no deshace migraciones**. Si la versión anterior no es compatible con el schema nuevo, restaurar antes el backup previo al deploy (§5).
 

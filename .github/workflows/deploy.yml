@@ -266,8 +266,8 @@ jobs:
             # no cambiará de imagen por accidente.
             sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
 
-            echo "[$(date)] 🧹 Limpiando imágenes antiguas de Ordo (solo las nuestras, >7 días)..."
-            docker image prune -af --filter "until=168h" \
+            echo "[$(date)] 🧹 Limpiando TODAS las imágenes de Ordo que queden sin uso (política del owner: 0 imágenes sin uso; el rollback se hace redesplegando desde GHCR)..."
+            docker image prune -af \
               --filter "label=org.opencontainers.image.source=https://github.com/tiagofur/ordo-todo" || true
 
             docker compose ps
