@@ -2192,7 +2192,9 @@
     "size": "Size",
     "uploadedBy": "Uploaded By",
     "date": "Date",
-    "actions": "Actions"
+    "actions": "Actions",
+    "download": "Download",
+    "downloadError": "Failed to download file"
   },
   "Profile": {
     "title": "Profile Settings",

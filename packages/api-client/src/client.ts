@@ -2269,6 +2269,24 @@ export class OrdoApiClient {
   }
 
   /**
+   * Download an attachment file as a Blob.
+   * GET /attachments/:id/download
+   *
+   * Returns a Blob (never a URL string) so callers can use it with the
+   * already-credentialed client instead of `<img>`/`<a>` tags, which cannot
+   * send the httpOnly session cookie cross-origin.
+   */
+  async downloadAttachment(attachmentId: string): Promise<Blob> {
+    const response = await this.axios.get<Blob>(
+      `/attachments/${attachmentId}/download`,
+      {
+        responseType: 'blob',
+      },
+    );
+    return response.data;
+  }
+
+  /**
    * Get all attachments for a task
    * GET /tasks/:taskId/attachments
    */

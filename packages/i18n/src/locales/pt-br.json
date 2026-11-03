@@ -2184,7 +2184,9 @@
     "size": "Tamanho",
     "uploadedBy": "Enviado por",
     "date": "Data",
-    "actions": "Ações"
+    "actions": "Ações",
+    "download": "Baixar",
+    "downloadError": "Erro ao baixar o arquivo"
   },
   "Profile": {
     "title": "Configurações de Perfil",

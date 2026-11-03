@@ -1053,6 +1053,18 @@ describe('OrdoApiClient', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/attachments/project/project-1');
       expect(result).toHaveLength(1);
     });
+
+    it('should download an attachment as a blob', async () => {
+      const blob = new Blob(['file-bytes'], { type: 'image/png' });
+      mockAxios.get.mockResolvedValue({ data: blob });
+
+      const result = await client.downloadAttachment('attachment-1');
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/attachments/attachment-1/download', {
+        responseType: 'blob',
+      });
+      expect(result).toBe(blob);
+    });
   });
 
   describe('Notification endpoints', () => {

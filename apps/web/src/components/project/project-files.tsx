@@ -3,9 +3,14 @@
 import { useProjectAttachments } from "@/lib/api-hooks";
 import { Button, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { format } from "date-fns";
-import { FileIcon, Download, Trash2, ExternalLink } from "lucide-react";
+import { FileIcon, Download, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import type { Attachment } from "@ordo-todo/api-client";
+import {
+  downloadAttachmentFile,
+  openAttachmentFile,
+} from "@/hooks/use-attachment-file";
 
 interface AttachmentWithTask extends Attachment {
   task?: {
@@ -35,13 +40,22 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
     );
   }
 
-  const getFullUrl = (url: string) => {
-    if (url.startsWith("/")) {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3101/api/v1";
-      const backendBaseUrl = apiUrl.replace("/api/v1", "");
-      return backendBaseUrl + url;
+  // File bytes always come from the backend download endpoint through
+  // the credentialed client (never the legacy static path).
+  const handleOpen = async (file: AttachmentWithTask) => {
+    try {
+      await openAttachmentFile(String(file.id));
+    } catch {
+      toast.error(t('downloadError'));
     }
-    return url;
+  };
+
+  const handleDownload = async (file: AttachmentWithTask) => {
+    try {
+      await downloadAttachmentFile(String(file.id), file.filename);
+    } catch {
+      toast.error(t('downloadError'));
+    }
   };
 
   return (
@@ -59,20 +73,17 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
         </TableHeader>
         <TableBody>
           {attachments.map((file: AttachmentWithTask) => {
-             const fullUrl = getFullUrl(file.url);
              return (
             <TableRow key={file.id}>
               <TableCell className="font-medium">
                 <div className="flex items-center gap-2">
                   <FileIcon className="h-4 w-4 text-muted-foreground" />
-                  <a 
-                    href={fullUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:underline"
+                  <button
+                    onClick={() => handleOpen(file)}
+                    className="hover:underline text-left"
                   >
                     {file.filename}
-                  </a>
+                  </button>
                 </div>
               </TableCell>
               <TableCell>{file.task?.title}</TableCell>
@@ -80,10 +91,13 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
               <TableCell>{file.uploadedBy?.name || 'Unknown'}</TableCell>
               <TableCell>{format(new Date(file.uploadedAt), 'PP')}</TableCell>
               <TableCell className="text-right">
-                <Button variant="ghost" size="icon" asChild>
-                  <a href={fullUrl} download target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4" />
-                  </a>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={t('download')}
+                  onClick={() => handleDownload(file)}
+                >
+                  <Download className="h-4 w-4" />
                 </Button>
               </TableCell>
             </TableRow>
