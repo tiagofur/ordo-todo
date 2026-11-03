@@ -6,8 +6,9 @@ import { AttachmentsService } from './attachments.service';
 import { PrismaService } from '../database/prisma.service';
 import type { AttachmentRepository } from '@ordo-todo/core';
 import { CreateAttachmentDto } from './dto/create-attachment.dto';
-import { join } from 'path';
+import { join, basename } from 'path';
 import { mkdir, writeFile, unlink } from 'fs/promises';
+import { existsSync } from 'fs';
 
 describe('AttachmentsService', () => {
   let service: AttachmentsService;
@@ -249,6 +250,36 @@ describe('AttachmentsService', () => {
       await expect(service.getDownload('attachment-123')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('deletePhysicalFile', () => {
+    const uploadsDir = join(process.cwd(), 'uploads');
+
+    it('should delete the stored file', async () => {
+      const filename = `red-del-${Date.now()}.txt`;
+      await mkdir(uploadsDir, { recursive: true });
+      await writeFile(join(uploadsDir, filename), 'bye');
+
+      await service.deletePhysicalFile(`/uploads/${filename}`);
+
+      expect(existsSync(join(uploadsDir, filename))).toBe(false);
+    });
+
+    it('should not delete files outside uploads on traversal paths', async () => {
+      // '/uploads/../../x' resolves (via uploads/) to the backend's parent
+      // dir — the canary lives there to catch the escape.
+      const outside = join(
+        process.cwd(),
+        '..',
+        `red-outside-${Date.now()}.txt`,
+      );
+      await writeFile(outside, 'keep me');
+
+      await service.deletePhysicalFile(`/uploads/../../${basename(outside)}`);
+
+      expect(existsSync(outside)).toBe(true);
+      await unlink(outside);
     });
   });
 
