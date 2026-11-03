@@ -135,7 +135,7 @@ export default function ProjectsPage() {
         {/* Header - Apple Style Unified Pattern (matching Tasks & Calendar) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm shadow-emerald-700/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 shrink-0">
               <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export default function ProjectsPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Live Summary Pills */}
             <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
-              <span className="h-2 w-2 rounded-full bg-emerald-700" />
+              <span className="h-2 w-2 rounded-full bg-primary" />
               <span>Total:</span>
               <span className="font-bold text-foreground">{stats.total}</span>
               <span className="text-border">|</span>
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
             <button
               type="button"
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("newProject")}</span>
@@ -189,7 +189,7 @@ export default function ProjectsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar proyectos..."
-                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition-all"
+                  className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -274,7 +274,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-card/40"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
               <FolderKanban className="h-8 w-8" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1">
@@ -379,7 +379,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border/60 bg-card/40"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
               <FolderKanban className="h-8 w-8" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1">
@@ -391,7 +391,7 @@ export default function ProjectsPage() {
             <button
               type="button"
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-700/25 transition-all duration-200 hover:bg-emerald-800 hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25 transition-all duration-200 hover:bg-primary/90 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>{t("createProject")}</span>
