@@ -19,6 +19,12 @@ import { enUS, es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui';
 import { Attachment } from '@ordo-todo/api-client';
 import { useConfirm } from '@/components/shared/confirm-dialog';
+import { toast } from 'sonner';
+import {
+  useAttachmentObjectUrls,
+  downloadAttachmentFile,
+  openAttachmentFile,
+} from '@/hooks/use-attachment-file';
 
 
 interface AttachmentListProps {
@@ -38,8 +44,7 @@ interface AttachmentListProps {
       delete?: string;
     };
     confirmDelete?: (filename: string) => string;
-    // Toast messages are handled by consumer usually, but if we wanted to show text here:
-    // toastDownloading?: (filename: string) => string;
+    downloadError?: string;
   };
 }
 
@@ -62,7 +67,11 @@ const DEFAULT_LABELS = {
     delete: 'Delete',
   },
   confirmDelete: (filename: string) => `Are you sure you want to delete ${filename}?`,
+  downloadError: 'Failed to download file',
 };
+
+const isImageMime = (type: string) => type.startsWith('image/');
+const isPdfMime = (type: string) => type.includes('pdf');
 
 export function AttachmentList({
   taskId: _taskId,
@@ -80,6 +89,29 @@ export function AttachmentList({
   };
 
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
+
+  // Image bytes through the backend download endpoint (credentialed).
+  const { urls: fileUrls } = useAttachmentObjectUrls(attachments);
+
+  const handleDownload = async (attachment: Attachment) => {
+    try {
+      await downloadAttachmentFile(String(attachment.id), attachment.filename);
+    } catch {
+      toast.error(t.downloadError);
+    }
+  };
+
+  const handlePreview = async (attachment: Attachment) => {
+    if (isImage(attachment.mimeType)) {
+      setPreviewAttachment(attachment);
+    } else {
+      try {
+        await openAttachmentFile(String(attachment.id));
+      } catch {
+        toast.error(t.downloadError);
+      }
+    }
+  };
 
   const getFileType = (mimeType: string): keyof typeof FILE_ICONS => {
     if (mimeType.startsWith('image/')) return 'image';
@@ -105,19 +137,10 @@ export function AttachmentList({
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFullUrl = (url: string) => {
-    if (resolveUrl) return resolveUrl(url);
-    return url;
-  };
-
-  const handleDownload = (attachment: Attachment) => {
-    const link = document.createElement('a');
-    link.href = getFullUrl(attachment.url);
-    link.download = attachment.filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // Explicit override wins; otherwise bytes come from the backend download
+  // endpoint through the credentialed client (never /uploads URLs).
+  const resolveFileUrl = (attachment: Attachment, fileUrl?: string) =>
+    resolveUrl ? resolveUrl(attachment.url) : fileUrl;
 
   const handleDelete = async (attachment: Attachment) => {
     const confirmMsg = t.confirmDelete ? t.confirmDelete(attachment.filename) : `Delete ${attachment.filename}?`;
@@ -137,16 +160,8 @@ export function AttachmentList({
     }
   };
 
-  const isImage = (type: string) => type.startsWith('image/');
-  const isPDF = (type: string) => type.includes('pdf');
-
-  const handlePreview = (attachment: Attachment) => {
-    if (isImage(attachment.mimeType)) {
-      setPreviewAttachment(attachment);
-    } else {
-      window.open(getFullUrl(attachment.url), '_blank');
-    }
-  };
+  const isImage = isImageMime;
+  const isPDF = isPdfMime;
 
   if (attachments.length === 0) {
     return (
@@ -189,11 +204,15 @@ export function AttachmentList({
               {/* Image Preview */}
               {isImage(attachment.mimeType) && (
                 <div className="mb-3 relative aspect-video rounded-md overflow-hidden bg-muted">
-                  <img
-                    src={getFullUrl(attachment.url)}
-                    alt={attachment.filename}
-                    className="object-cover w-full h-full"
-                  />
+                  {resolveFileUrl(attachment, fileUrls[attachment.id]) ? (
+                    <img
+                      src={resolveFileUrl(attachment, fileUrls[attachment.id])}
+                      alt={attachment.filename}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full animate-pulse bg-muted" />
+                  )}
                   <div className="absolute inset-0 bg-gray-900 dark:bg-black opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
                       variant="secondary"
@@ -298,11 +317,13 @@ export function AttachmentList({
               </Button>
 
               {/* Image - Fill viewport */}
-              <img
-                src={getFullUrl(previewAttachment.url)}
-                alt={previewAttachment.filename}
-                className="absolute inset-0 w-full h-full object-contain"
-              />
+              {resolveFileUrl(previewAttachment, fileUrls[previewAttachment.id]) && (
+                <img
+                  src={resolveFileUrl(previewAttachment, fileUrls[previewAttachment.id])}
+                  alt={previewAttachment.filename}
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              )}
 
               {/* Filename overlay */}
               <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-background px-6 py-3 rounded-full border shadow-lg z-10">
