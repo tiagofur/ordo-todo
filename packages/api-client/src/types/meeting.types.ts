@@ -13,23 +13,40 @@ export interface MeetingAnalysisOptions {
 export type MeetingSummaryStyle = 'executive' | 'detailed' | 'bullet-points';
 
 export interface MeetingActionItem {
-  title?: string;
-  action?: string;
+  title: string;
   description?: string;
   assignee?: string;
-  priority?: string;
   dueDate?: string;
-  context?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  context: string;
 }
 
 export interface MeetingAnalysis {
   summary: string;
   keyPoints: string[];
   actionItems: MeetingActionItem[];
-  decisions: Array<{ description: string }>;
-  participants: string[];
-  topics: Array<{ title: string; summary: string }>;
+  decisions: MeetingDecision[];
+  participants: MeetingParticipant[];
+  topics: MeetingTopic[];
   sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE' | 'MIXED';
+}
+
+export interface MeetingDecision {
+  decision: string;
+  context: string;
+  participants?: string[];
+}
+
+export interface MeetingParticipant {
+  name: string;
+  role?: string;
+  speakingTime?: number;
+}
+
+export interface MeetingTopic {
+  topic: string;
+  duration?: number;
+  summary: string;
 }
 
 export interface ConvertActionsOptions {

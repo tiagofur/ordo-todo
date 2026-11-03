@@ -157,7 +157,7 @@ export function ProjectCard({
         <div
           onClick={handleCardClick}
           className={cn(
-            "group flex items-center justify-between gap-4 p-3.5 sm:p-4 rounded-xl border border-border/60 bg-card hover:border-pink-500/40 hover:bg-accent/30 transition-all duration-200 cursor-pointer shadow-xs",
+            "group flex items-center justify-between gap-4 p-3.5 sm:p-4 rounded-xl border border-border/60 bg-card hover:border-emerald-500/40 hover:bg-accent/30 transition-all duration-200 cursor-pointer shadow-xs",
             project.archived && "opacity-60"
           )}
         >
@@ -289,7 +289,7 @@ export function ProjectCard({
       <div
         onClick={handleCardClick}
         className={cn(
-          "group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card/90 text-card-foreground backdrop-blur-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer h-full min-h-[210px] overflow-hidden shadow-xs hover:border-pink-500/40 hover:shadow-md",
+          "group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card/90 text-card-foreground backdrop-blur-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer h-full min-h-[210px] overflow-hidden shadow-xs hover:border-emerald-500/40 hover:shadow-md",
           project.archived && "opacity-60"
         )}
       >
@@ -362,7 +362,7 @@ export function ProjectCard({
           </div>
 
           {/* Project Title & Description */}
-          <h3 className="font-bold text-base sm:text-lg text-foreground truncate group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+          <h3 className="font-bold text-base sm:text-lg text-foreground truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
             {project.name}
           </h3>
           <p className="mt-1 text-xs sm:text-sm text-muted-foreground line-clamp-2 min-h-[2.25rem]">

@@ -271,13 +271,13 @@ export function Auth() {
   return (
     <div
       data-tauri-drag-region
-      className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-purple-500/5 to-cyan-500/5 p-4 overflow-hidden select-none"
+      className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-primary/5 to-primary/5 p-4 overflow-hidden select-none"
     >
       <TitleBar />
       {/* Decorative elements */}
-      <div className="absolute left-10 top-20 h-32 w-32 rotate-12 rounded-3xl bg-purple-500/10 blur-3xl animate-pulse" />
-      <div className="absolute right-20 top-40 h-40 w-40 -rotate-12 rounded-full bg-cyan-500/10 blur-3xl animate-pulse delay-700" />
-      <div className="absolute bottom-20 left-1/4 h-36 w-36 rotate-6 rounded-2xl bg-pink-500/10 blur-3xl animate-pulse delay-1000" />
+      <div className="absolute left-10 top-20 h-32 w-32 rotate-12 rounded-3xl bg-primary/10 blur-3xl animate-pulse" />
+      <div className="absolute right-20 top-40 h-40 w-40 -rotate-12 rounded-full bg-primary/10 blur-3xl animate-pulse delay-700" />
+      <div className="absolute bottom-20 left-1/4 h-36 w-36 rotate-6 rounded-2xl bg-primary/10 blur-3xl animate-pulse delay-1000" />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -330,7 +330,7 @@ export function Auth() {
                       {t("Auth.register.nameLabel", "Nombre Completo")}
                     </label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                         <User className="h-5 w-5" />
                       </div>
                       <input
@@ -340,7 +340,7 @@ export function Auth() {
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
-                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
+                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         placeholder={t(
                           "Auth.register.namePlaceholder",
                           "Tu nombre completo",
@@ -355,7 +355,7 @@ export function Auth() {
                       {t("Auth.register.usernameLabel", "Nombre de Usuario")}
                     </label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                         <User className="h-5 w-5" />
                       </div>
                       <input
@@ -365,7 +365,7 @@ export function Auth() {
                         onChange={(e) =>
                           setFormData({ ...formData, username: e.target.value })
                         }
-                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         placeholder={t(
                           "Auth.register.usernamePlaceholder",
                           "usuario123",
@@ -385,7 +385,7 @@ export function Auth() {
                   : t("Auth.register.emailLabel", "Correo Electrónico")}
               </label>
               <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                   <Mail className="h-5 w-5" />
                 </div>
                 <input
@@ -396,7 +396,7 @@ export function Auth() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={
                     isLogin
                       ? t(
@@ -415,7 +415,7 @@ export function Auth() {
                 {t("Auth.login.passwordLabel", "Contraseña")}
               </label>
               <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                   <Lock className="h-5 w-5" />
                 </div>
                 <input
@@ -425,7 +425,7 @@ export function Auth() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={
                     isLogin
                       ? t("Auth.login.passwordPlaceholder", "Tu contraseña")
@@ -633,7 +633,7 @@ export function Auth() {
                   onChange={(e) =>
                     setFormData({ ...formData, rememberMe: e.target.checked })
                   }
-                  className="h-4 w-4 rounded border-input text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                  className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
                 />
                 <label
                   htmlFor="remember"
@@ -648,8 +648,8 @@ export function Auth() {
               type="submit"
               className={`w-full h-12 text-lg font-medium transition-all duration-300 ${
                 isLogin
-                  ? "bg-purple-500 hover:bg-purple-600 shadow-purple-500/30"
-                  : "bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/30"
+                  ? "bg-primary hover:bg-primary/90 shadow-primary/30"
+                  : "bg-primary hover:bg-primary/90 shadow-primary/30"
               } text-white shadow-lg  hover:scale-[1.02]`}
               disabled={isLoading}
             >
@@ -680,7 +680,7 @@ export function Auth() {
             <button
               onClick={handleGoogleSignIn}
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:text-cyan-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-primary/10 hover:border-primary/30 hover:text-primary"
             >
               <Chrome className="h-5 w-5" />
               {t("Auth.login.google", "Google")}
@@ -688,7 +688,7 @@ export function Auth() {
             <button
               onClick={handleGitHubSignIn}
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-purple-500/10 hover:border-purple-500/30 hover:text-purple-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-primary/10 hover:border-primary/30 hover:text-primary"
             >
               <Github className="h-5 w-5" />
               {t("Auth.login.github", "GitHub")}
@@ -706,8 +706,8 @@ export function Auth() {
                 onClick={toggleMode}
                 className={`inline-flex items-center gap-1 font-semibold transition-colors ${
                   isLogin
-                    ? "text-purple-500 hover:text-purple-600"
-                    : "text-cyan-500 hover:text-cyan-600"
+                    ? "text-primary hover:text-primary"
+                    : "text-primary hover:text-primary"
                 }`}
               >
                 {isLogin

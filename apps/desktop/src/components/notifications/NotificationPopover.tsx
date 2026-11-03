@@ -55,7 +55,7 @@ export function NotificationPopover() {
         >
           <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadNumber > 0 && (
-            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-pink-500 ring-2 ring-background animate-pulse" />
+            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background animate-pulse" />
           )}
         </button>
       </PopoverTrigger>
