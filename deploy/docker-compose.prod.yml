@@ -155,7 +155,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     command: >
       sh -c "
-        npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma &&
+        npx -y prisma@7 migrate deploy --schema=/app/packages/db/prisma/schema.prisma &&
         echo 'Migrations completed successfully!'
       "
     networks:
