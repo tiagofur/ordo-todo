@@ -1,6 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
+import {
+  RedisCronLockBackend,
+  setCronLockBackend,
+} from '../scheduling/distributed-lock';
 
 /**
  * Redis Service for Production-Scale Caching
@@ -112,9 +116,14 @@ export class RedisService implements OnModuleInit {
       // Ping to verify connection
       const pong = await this.client.ping();
       this.logger.log(`Redis ping response: ${pong}`);
+
+      // ODD 031: cron ticks deduplicate across replicas through this
+      // client. On disconnect the decorator falls back to local-only.
+      setCronLockBackend(new RedisCronLockBackend(this.client));
     } catch (error) {
       this.logger.error('Failed to connect to Redis:', error);
       this.isConnected = false;
+      setCronLockBackend(undefined);
     }
   }
 
@@ -371,6 +380,7 @@ export class RedisService implements OnModuleInit {
    */
   async onModuleDestroy() {
     this.logger.log('Closing Redis connections...');
+    setCronLockBackend(undefined);
 
     await Promise.all([
       this.client?.quit(),

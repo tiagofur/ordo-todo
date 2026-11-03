@@ -3,7 +3,15 @@ import {
   SkipOnOverlap,
   forEachUserBatched,
 } from './cron-batch';
+import {
+  setCronLockBackend,
+  type CronLockBackend,
+} from './distributed-lock';
 import { PrismaService } from '../database/prisma.service';
+
+afterEach(() => {
+  setCronLockBackend(undefined);
+});
 
 describe('cron-batch', () => {
   describe('forEachUserBatched', () => {
@@ -98,6 +106,70 @@ describe('cron-batch', () => {
 
       const [a, b] = await Promise.all([svc.run('a'), svc.run('b')]);
       expect([a, b].sort()).toEqual(['ran:a', 'ran:b']);
+    });
+
+    it('skips a cross-instance tick when the backend lock is held', async () => {
+      const held = new Set<string>();
+      const backend: CronLockBackend = {
+        tryAcquire: jest.fn(async (key: string) => {
+          if (held.has(key)) return false;
+          held.add(key);
+          return true;
+        }),
+        release: jest.fn(async (key: string) => {
+          held.delete(key);
+        }),
+      };
+      setCronLockBackend(backend);
+
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      class Svc {
+        calls = 0;
+        @SkipOnOverlap('shared-tick', 'skipped')
+        async tick(): Promise<string> {
+          this.calls += 1;
+          await gate;
+          return 'done';
+        }
+      }
+      // Two separate instances = two replicas sharing one backend.
+      const first = new Svc();
+      const second = new Svc();
+
+      const running = first.tick();
+      const skipped = await second.tick();
+
+      expect(skipped).toBe('skipped');
+      expect(second.calls).toBe(0);
+      release();
+      await expect(running).resolves.toBe('done');
+      // After release the next tick runs and frees the lock.
+      await expect(first.tick()).resolves.toBe('done');
+      expect(held.size).toBe(0);
+    });
+
+    it('runs locally when the backend throws (fail-open)', async () => {
+      const backend: CronLockBackend = {
+        tryAcquire: jest.fn(async () => {
+          throw new Error('redis down');
+        }),
+        release: jest.fn(),
+      };
+      setCronLockBackend(backend);
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      class Svc {
+        @SkipOnOverlap('flaky-tick')
+        async tick(): Promise<string> {
+          return 'done';
+        }
+      }
+
+      await expect(new Svc().tick()).resolves.toBe('done');
+      warn.mockRestore();
     });
   });
 
