@@ -32,6 +32,17 @@ RUN npm ci --legacy-peer-deps --ignore-scripts
 RUN cd packages/db && DATABASE_URL=postgresql://localhost npx prisma generate --schema=prisma/schema.prisma
 
 # =============================================================================
+# Stage 2b: Production dependencies (ODD 033 retry)
+# Pruned copy of the install tree for the runner. Branched from `deps`
+# (pristine manifests + modules as npm created them) instead of pruning
+# inside `runner`, where package.json files are overwritten/missing and
+# arborist misclassifies hoisted CLIs. The migrations service does not
+# rely on this tree (compose pins `prisma@7` via npx).
+# =============================================================================
+FROM deps AS prod-deps
+RUN npm prune --omit=dev --legacy-peer-deps
+
+# =============================================================================
 # Stage 2: Development
 # =============================================================================
 FROM deps AS development
@@ -86,14 +97,17 @@ COPY --from=builder /app/apps/backend/dist ./dist
 COPY --from=builder /app/apps/backend/package.json ./
 COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
 COPY --from=builder /app/packages/db/prisma.config.ts ./packages/db/
-COPY --from=builder /app/node_modules ./node_modules
+
+# Pruned production node_modules (no dev toolchains). Sourced from the
+# `prod-deps` stage, not `builder`, so nothing the build needed leaks in.
+COPY --from=prod-deps /app/node_modules ./node_modules
 
 # Copy shared packages (complete packages with package.json for proper resolution)
 COPY --from=builder /app/packages/core ./node_modules/@ordo-todo/core
 COPY --from=builder /app/packages/config ./node_modules/@ordo-todo/config
 
 # Copy backend-specific node_modules (for dependencies like rxjs that may be hoisted here)
-COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=prod-deps /app/apps/backend/node_modules ./apps/backend/node_modules
 
 # Copy Prisma generated client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
