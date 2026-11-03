@@ -15,8 +15,9 @@ import {
 } from '@ordo-todo/core';
 import type { AttachmentRepository } from '@ordo-todo/core';
 import { CreateAttachmentDto } from './dto/create-attachment.dto';
-import { unlink, readdir } from 'fs/promises';
-import { join } from 'path';
+import { unlink, readdir, stat } from 'fs/promises';
+import { createReadStream } from 'fs';
+import { join, basename } from 'path';
 import { PrismaService } from '../database/prisma.service';
 import { PlanLimitsService } from '../billing/plan-limits.service';
 
@@ -286,6 +287,49 @@ export class AttachmentsService {
     await this.deletePhysicalFile(existingAttachment.storagePath);
 
     return { success: true };
+  }
+
+  /**
+   * Resolves a stored attachment to a readable file stream.
+   *
+   * Authorization lives in `AttachmentGuard` (same membership check as the
+   * metadata endpoints); this method only maps the record to disk. The
+   * file name is reduced with `basename` so a hostile `storagePath`
+   * cannot escape the uploads directory.
+   *
+   * @param id - The ID of the attachment to download
+   * @throws {NotFoundException} If the attachment or its file is missing
+   */
+  async getDownload(id: string): Promise<{
+    stream: ReturnType<typeof createReadStream>;
+    mimeType: string;
+    filename: string;
+    size: number;
+  }> {
+    const attachment = await this.attachmentRepository.findById(id);
+
+    if (!attachment) {
+      throw new NotFoundException('Attachment not found');
+    }
+
+    const filepath = join(
+      process.cwd(),
+      'uploads',
+      basename(attachment.storagePath),
+    );
+
+    try {
+      await stat(filepath);
+    } catch {
+      throw new NotFoundException('Attachment file not found');
+    }
+
+    return {
+      stream: createReadStream(filepath),
+      mimeType: attachment.mimeType,
+      filename: attachment.originalName,
+      size: attachment.size,
+    };
   }
 
   /**
