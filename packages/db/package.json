@@ -29,12 +29,12 @@
   "dependencies": {
     "@prisma/client": "^7.10.1",
     "@prisma/config": "^7.10.1",
-    "dotenv": "^18.0.9"
+    "dotenv": "^18.0.9",
+    "prisma": "^7.10.1"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
     "@types/node": "^26.6.6",
-    "prisma": "^7.10.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
