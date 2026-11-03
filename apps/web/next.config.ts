@@ -106,12 +106,10 @@ const nextConfig: NextConfig = {
             value: 'max-age=63072000; includeSubDomains',
           },
           {
-            // Report-only on purpose: collects violations in the devtools
-            // console without blocking anything. Read that console during a
-            // real browser pass, tighten the directives, then switch to the
-            // enforcing `Content-Security-Policy` header. No `report-uri`:
-            // there is no reporting endpoint yet.
-            key: 'Content-Security-Policy-Report-Only',
+            // Enforcing: the report-only console cycle came back clean, so
+            // violations are now blocked instead of just logged. No
+            // `report-uri`: there is no reporting endpoint yet.
+            key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
