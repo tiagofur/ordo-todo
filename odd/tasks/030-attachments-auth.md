@@ -40,7 +40,12 @@ aceptación (sin referencias a /uploads/ en el web)".
 - [x] T2 (S2): prompt de handoff para el agente frontend (entregado al
   owner en el chat; el web migra subidas y render a URLs del backend,
   elimina su route y public/uploads).
-- [ ] T3: apagar estático (tras T2 confirmado, en otra sesión).
+- [x] T3: apagar estático. Estado: done tras validación del owner en
+  BETA (adjuntos viejos se ven/descargan, subida nueva OK). Removido
+  `useStaticAssets` de uploads + import muerto en `main.ts`. Suite 1600
+  verde, tsc limpio, 0 errores eslint. Cambio intencional: links
+  externos /uploads/* mueren (era el leak); los archivos siguen en
+  disco y se sirven por el endpoint guardado.
 
 ## Log
 
