@@ -279,8 +279,8 @@ function SignUpForm() {
     <div className="relative flex min-h-screen items-center justify-center bg-background p-4 py-12">
       {/* Decorative elements */}
       <div className="absolute left-20 top-10 h-40 w-40 rotate-45 rounded-3xl bg-cyan-100 dark:bg-cyan-900 blur-3xl animate-pulse" />
-      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-pink-100 dark:bg-pink-900 blur-3xl animate-pulse delay-700" />
-      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-purple-100 dark:bg-purple-900 blur-3xl animate-pulse delay-1000" />
+      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-violet-200 dark:bg-violet-900 blur-3xl animate-pulse delay-700" />
+      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-violet-200 dark:bg-violet-900 blur-3xl animate-pulse delay-1000" />
 
       <div className="relative z-10 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Logo and Header */}
@@ -309,7 +309,7 @@ function SignUpForm() {
                   {tInvite("label")}
                 </label>
                 <div className="relative group">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 transition-colors">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
                     <Ticket className="h-5 w-5" />
                   </div>
                   <input
@@ -320,7 +320,7 @@ function SignUpForm() {
                     onChange={(e) =>
                       setFormData({ ...formData, inviteCode: e.target.value })
                     }
-                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all duration-200 placeholder:normal-case placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm uppercase transition-all duration-200 placeholder:normal-case placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     placeholder={tInvite("placeholder")}
                   />
                 </div>
@@ -337,7 +337,7 @@ function SignUpForm() {
                 {t("nameLabel")}
               </label>
               <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 transition-colors">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
                   <User className="h-5 w-5" />
                 </div>
                 <input
@@ -348,7 +348,7 @@ function SignUpForm() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={t("namePlaceholder")}
                 />
               </div>
@@ -407,7 +407,7 @@ function SignUpForm() {
                 {t("emailLabel")}
               </label>
               <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500 transition-colors">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
                   <Mail className="h-5 w-5" />
                 </div>
                 <input
@@ -418,7 +418,7 @@ function SignUpForm() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={t("emailPlaceholder")}
                 />
               </div>
@@ -433,7 +433,7 @@ function SignUpForm() {
                 {t("passwordLabel")}
               </label>
               <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 transition-colors">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
                   <Lock className="h-5 w-5" />
                 </div>
                 <input
@@ -444,7 +444,7 @@ function SignUpForm() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={t("passwordPlaceholder")}
                 />
                 <button
@@ -628,7 +628,7 @@ function SignUpForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full overflow-hidden rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-cyan-600 hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+              className="group relative w-full overflow-hidden rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50"
             >
               <span className="flex items-center justify-center gap-2">
                 {isLoading ? (
@@ -660,7 +660,7 @@ function SignUpForm() {
             <button
               type="button"
               onClick={() => handleSocialSignUp("google")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-900 hover:border-pink-300 dark:hover:border-pink-700 hover:text-pink-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted/80 hover:border-foreground/20"
             >
               <Chrome className="h-5 w-5" />
               Google
@@ -668,7 +668,7 @@ function SignUpForm() {
             <button
               type="button"
               onClick={() => handleSocialSignUp("github")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:border-cyan-300 dark:hover:border-cyan-700 hover:text-cyan-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted/80 hover:border-foreground/20"
             >
               <Github className="h-5 w-5" />
               GitHub
@@ -681,7 +681,7 @@ function SignUpForm() {
               {t("haveAccount")}{" "}
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1 font-semibold text-cyan-500 transition-colors hover:text-cyan-600"
+                className="inline-flex items-center gap-1 font-semibold text-primary transition-colors hover:text-primary/80 hover:underline"
               >
                 {t("signIn")}
                 <ArrowRight className="h-3 w-3" />

@@ -68,7 +68,7 @@ export default function NotificationsPage() {
         {/* Header - Apple Style Unified Pattern */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-pink-500 text-white shadow-sm shadow-pink-500/25 shrink-0">
               <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
               disabled={markAllAsRead.isPending}
               className="rounded-xl border-border/60 hover:bg-accent/50 gap-2 shrink-0 self-start sm:self-auto cursor-pointer"
             >
-              <CheckCheck className="w-4 h-4 text-primary" />
+              <CheckCheck className="w-4 h-4 text-pink-500" />
               <span>{t("markAllRead")}</span>
             </Button>
           )}
@@ -103,12 +103,11 @@ export default function NotificationsPage() {
             className={cn(
               "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer",
               filter === 'all'
-                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                ? "bg-pink-500 text-white shadow-xs font-semibold"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
             <span>{t("filterAll")}</span>
-
           </button>
           <button
             type="button"
@@ -116,7 +115,7 @@ export default function NotificationsPage() {
             className={cn(
               "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer",
               filter === 'unread'
-                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                ? "bg-pink-500 text-white shadow-xs font-semibold"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
@@ -124,7 +123,7 @@ export default function NotificationsPage() {
             {(unreadCount as number) > 0 && (
               <span className={cn(
                 "px-1.5 py-0.2 rounded-full text-[10px] font-bold tabular-nums",
-                filter === 'unread' ? "bg-white/20 text-white" : "bg-primary text-primary-foreground"
+                filter === 'unread' ? "bg-white/20 text-white" : "bg-pink-500 text-white"
               )}>
                 {unreadCount as number}
               </span>
@@ -169,14 +168,14 @@ export default function NotificationsPage() {
                   className={cn(
                     "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-default shadow-xs",
                     !notification.isRead 
-                      ? "border-primary/30 bg-card shadow-primary/5 hover:border-primary/50" 
+                      ? "border-pink-500/30 bg-card shadow-pink-500/5 hover:border-pink-500/50" 
                       : "border-border/60 bg-card/60 opacity-85 hover:border-border hover:opacity-100"
                   )}
                 >
                   <div className="flex items-start gap-3.5">
                     <div className={cn(
                       "mt-1.5 h-2 w-2 rounded-full shrink-0",
-                      !notification.isRead ? "bg-primary shadow-xs shadow-primary/50" : "bg-muted-foreground/30"
+                      !notification.isRead ? "bg-pink-500 shadow-xs shadow-pink-500/50" : "bg-muted-foreground/30"
                     )} />
                     
                     <div className="flex-1 min-w-0 space-y-1">
@@ -200,7 +199,7 @@ export default function NotificationsPage() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-7 text-xs rounded-xl hover:bg-primary/10 hover:text-primary text-muted-foreground cursor-pointer"
+                            className="h-7 text-xs rounded-xl hover:bg-pink-500/10 hover:text-pink-500 text-muted-foreground cursor-pointer"
                             onClick={(e) => handleMarkAsRead(notification.id, e)}
                           >
                             {t("markAsRead")}
