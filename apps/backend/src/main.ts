@@ -2,7 +2,6 @@ import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import { WinstonModule } from 'nest-winston';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -116,11 +115,10 @@ async function bootstrap() {
   // Apply logging interceptor globally
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  // Serve static files from uploads directory
-  // Use process.cwd() to get project root, works in both dev and prod
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
+  // ODD 030 T3: no static serving for uploads. Files are only served
+  // through GET /attachments/:id/download (AttachmentGuard). The
+  // ./uploads directory stays on disk as the storage backend; external
+  // /uploads/* links intentionally stop working (that was the leak).
 
   // Global prefix. The public /v1 surface is mounted outside it so its
   // URLs stay version-pinned and stable: /v1/... instead of /api/v1/v1/....
