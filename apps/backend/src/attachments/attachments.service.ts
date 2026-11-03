@@ -341,7 +341,8 @@ export class AttachmentsService {
    */
   async deletePhysicalFile(url: string): Promise<void> {
     try {
-      const filename = url.replace('/uploads/', '');
+      // basename: a hostile storagePath must never resolve outside uploads.
+      const filename = basename(url.replace('/uploads/', ''));
       const filepath = join(process.cwd(), 'uploads', filename);
 
       await unlink(filepath);

@@ -51,3 +51,6 @@ aceptación (sin referencias a /uploads/ en el web)".
 
 L1: "hagamos todo cordinado con frontend" (2026-11-02). Alcance completo
 en fases; T1+T2 en esta sesión, T3 espera al frontend.
+L2: fix traversal en `deletePhysicalFile` (2026-11-03): el `replace` sin
+`basename` permitía borrar fuera de uploads con un storagePath hostil
+(canario RED que lo demuestra). Mismo pin que en `getDownload`.
