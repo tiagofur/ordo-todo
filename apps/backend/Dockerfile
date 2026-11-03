@@ -95,6 +95,12 @@ COPY --from=builder /app/packages/config ./node_modules/@ordo-todo/config
 # Copy backend-specific node_modules (for dependencies like rxjs that may be hoisted here)
 COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
 
+# Drop devDependencies (test/lint toolchains and their transitive
+# advisories never ship). Runs BEFORE the @ordo-todo overlays below so
+# arborist only sees the pristine install tree. The migrations service
+# keeps working: prisma CLI is a prod dep of @ordo-todo/db.
+RUN npm prune --omit=dev --legacy-peer-deps
+
 # Copy Prisma generated client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
