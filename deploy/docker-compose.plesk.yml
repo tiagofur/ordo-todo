@@ -31,6 +31,26 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    # ODD 032: caché compartida, blacklist de tokens global, locks de
+    # cron entre réplicas y pub/sub. Sin puerto publicado: solo lo ve la
+    # red interna del compose (el backend llega vía redis://redis:6379).
+    image: redis:7-alpine
+    container_name: ordo-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "volatile-lru"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+
   migrations:
     image: *backend-image
     depends_on:
@@ -50,6 +70,8 @@ services:
     restart: unless-stopped
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       NODE_ENV: production
@@ -86,9 +108,11 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_SECURE: ${SMTP_SECURE:-false}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
-      # Redis (opcional; sin él, caché y blacklist de refresh tokens en memoria)
-      REDIS_ENABLED: ${REDIS_ENABLED:-false}
-      REDIS_URL: ${REDIS_URL:-}
+      # Redis obligatorio en producción: el compose levanta el servicio
+      # 'redis' y el backend lo espera healthy. Sin él, caché, blacklist
+      # y locks de cron caen a memoria por instancia (solo dev).
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       # Integraciones opcionales
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY:-}
@@ -155,3 +179,5 @@ volumes:
     name: ${POSTGRES_VOLUME:-ordo-todo_postgres_data}
   backend_uploads:
     name: ${UPLOADS_VOLUME:-ordo-todo_backend_uploads}
+  redis_data:
+    name: ${REDIS_VOLUME:-ordo-todo_redis_data}
