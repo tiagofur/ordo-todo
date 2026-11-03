@@ -237,7 +237,7 @@ export function UnifiedTrashView({
         {/* Apple Style Unified Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 shrink-0">
               <Trash2 className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -245,7 +245,7 @@ export function UnifiedTrashView({
                 {t("title")}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span>{t("subtitle")}</span>
               </p>
             </div>
@@ -262,7 +262,7 @@ export function UnifiedTrashView({
               }}
               className="inline-flex items-center gap-2 self-start sm:self-auto rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted/50 hover:border-border/80 shadow-xs cursor-pointer"
             >
-              <RefreshCw className="h-4 w-4 text-rose-500" />
+              <RefreshCw className="h-4 w-4 text-primary" />
               <span>{t("refresh")}</span>
             </motion.button>
           </div>
@@ -451,7 +451,7 @@ export function UnifiedTrashView({
               className={cn(
                 "gap-2 rounded-xl py-2.5 font-medium transition-all duration-200",
                 activeTab === "projects"
-                  ? "bg-pink-500 text-white shadow-sm shadow-pink-500/25 data-[state=active]:bg-pink-500 data-[state=active]:text-white"
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
               )}
             >
@@ -644,15 +644,15 @@ export function UnifiedTrashView({
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl border border-pink-500/20 bg-pink-500/10 p-4 dark:border-pink-500/30 dark:bg-pink-500/5 transition-colors"
+                className="rounded-2xl border border-primary/20 bg-primary/10 p-4 dark:border-primary/30 dark:bg-primary/5 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Building2 className="h-5 w-5 text-pink-600 dark:text-pink-400 flex-shrink-0" />
+                  <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-pink-900/80 dark:text-pink-200/80 font-medium">
+                    <p className="text-xs text-primary/80 font-medium">
                       {t("viewingProjectsFor")}
                     </p>
-                    <p className="text-base font-semibold text-pink-900 dark:text-pink-100">
+                    <p className="text-base font-semibold text-primary">
                       {selectedWorkspaceObj.name}
                     </p>
                   </div>
@@ -682,7 +682,7 @@ export function UnifiedTrashView({
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25, delay: index * 0.04 }}
-                    className="group relative rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:border-pink-500/40 hover:shadow-md"
+                    className="group relative rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md"
                   >
                     <div className="absolute -top-2.5 -right-2.5">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm shadow-rose-500/30">

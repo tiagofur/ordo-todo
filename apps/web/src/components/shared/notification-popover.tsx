@@ -74,7 +74,7 @@ export function NotificationPopover() {
         <button className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 hover:bg-muted hover:scale-105">
           <Bell className="h-5 w-5 text-muted-foreground" />
           {(unreadCount as number) > 0 && (
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
           )}
         </button>
       </PopoverTrigger>

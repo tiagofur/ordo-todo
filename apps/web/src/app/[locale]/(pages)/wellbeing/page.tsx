@@ -161,7 +161,7 @@ export default function WellbeingPage() {
         {/* Apple Style Unified Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-sm shadow-rose-500/25 shrink-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 shrink-0">
               <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0">
@@ -169,7 +169,7 @@ export default function WellbeingPage() {
                 {t("title") || "Bienestar"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span>
                   {t("subtitle") ||
                     "Mantén el equilibrio entre tu productividad y tu salud mental"}
@@ -186,7 +186,7 @@ export default function WellbeingPage() {
                   aria-label="Seleccionar espacio de trabajo"
                   value={activeWorkspaceId || ""}
                   onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-colors cursor-pointer shadow-xs"
+                  className="appearance-none bg-card border border-border/60 rounded-xl pl-3 pr-8 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary transition-colors cursor-pointer shadow-xs"
                 >
                   {workspaces.map((ws: any) => (
                     <option key={ws.id} value={ws.id}>
