@@ -41,7 +41,7 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
   }
 
   // File bytes always come from the backend download endpoint through
-  // the credentialed client (never /uploads URLs).
+  // the credentialed client (never the legacy static path).
   const handleOpen = async (file: AttachmentWithTask) => {
     try {
       await openAttachmentFile(String(file.id));

@@ -138,7 +138,7 @@ export function AttachmentList({
   };
 
   // Explicit override wins; otherwise bytes come from the backend download
-  // endpoint through the credentialed client (never /uploads URLs).
+  // endpoint through the credentialed client (never the legacy static path).
   const resolveFileUrl = (attachment: Attachment, fileUrl?: string) =>
     resolveUrl ? resolveUrl(attachment.url) : fileUrl;
 
