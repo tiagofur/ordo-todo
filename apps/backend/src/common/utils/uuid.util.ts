@@ -1,25 +1,18 @@
 /**
  * UUID v4 Generator Utility
  *
- * This module provides a UUID v4 generator that avoids bundling issues.
- * Uses crypto.randomUUID() when available (Node.js 16+),
- * with a fallback to the uuid package for older Node.js versions.
+ * Uses the Node.js built-in crypto.randomUUID() (engines require Node 22+).
+ * No external `uuid` dependency: every runtime import must be declared in
+ * apps/backend/package.json, otherwise the pruned production image crashes
+ * with MODULE_NOT_FOUND (ODD 035).
  */
-
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Generates a UUID v4 string
  * @returns A valid UUID v4 string
  */
 export function generateUuid(): string {
-  // Check if crypto.randomUUID is available (Node.js 16+)
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  // Fallback to uuid package for older Node.js versions
-  return uuidv4();
+  return crypto.randomUUID();
 }
 
 /**
