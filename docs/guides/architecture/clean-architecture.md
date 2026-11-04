@@ -60,32 +60,37 @@ Clean Architecture is a software design philosophy that separates concerns into 
 Objects with identity, lifecycle, and behavior.
 
 ```typescript
-// packages/core/src/idea/entities/idea.entity.ts
-export class Idea extends Entity<IdeaProps> {
-  constructor(props: IdeaProps, mode: EntityMode = "valid") {
-    super(props, mode);
-  }
-
-  // Domain behavior
-  moveToContentPiece(): ContentPiece {
-    return new ContentPiece({
-      title: this.title,
-      content: this.description,
-      status: ContentStatus.IDEA,
-      ideaId: this.id,
+// packages/core/src/tasks/model/task.entity.ts
+export class Task extends Entity<TaskProps> {
+  static create(
+    props: Omit<
+      TaskProps,
+      "id" | "createdAt" | "updatedAt" | "status" | "isDeleted" | "deletedAt"
+    >,
+  ): Task {
+    return new Task({
+      ...props,
+      status: "TODO",
+      priority: props.priority ?? "MEDIUM",
+      isDeleted: false,
+      deletedAt: undefined,
     });
   }
 
-  archive(): Idea {
+  // Domain behavior: immutable transitions via clone()
+  complete(): Task {
     return this.clone({
-      status: IdeaStatus.ARCHIVED,
-      archivedAt: new Date(),
+      status: "COMPLETED",
+      updatedAt: new Date(),
     });
   }
 
-  isStale(): boolean {
-    const daysSinceCreation = differenceInDays(new Date(), this.createdAt);
-    return daysSinceCreation > 30;
+  softDelete(): Task {
+    return this.clone({
+      isDeleted: true,
+      deletedAt: new Date(),
+      updatedAt: new Date(),
+    });
   }
 }
 ```
@@ -95,84 +100,27 @@ export class Idea extends Entity<IdeaProps> {
 Objects defined by their attributes, no identity.
 
 ```typescript
-// packages/core/src/shared/value-objects/content-status.vo.ts
-export class ContentStatus {
-  readonly value:
-    | "IDEA"
-    | "SCRIPTING"
-    | "FILMING"
-    | "EDITING"
-    | "SCHEDULED"
-    | "PUBLISHED";
-
-  constructor(value: string) {
-    const validStatuses = [
-      "IDEA",
-      "SCRIPTING",
-      "FILMING",
-      "EDITING",
-      "SCHEDULED",
-      "PUBLISHED",
-    ];
-    if (!validStatuses.includes(value)) {
-      throw new Error(`Invalid content status: ${value}`);
-    }
-    this.value = value as any;
-  }
-
-  // Domain behavior
-  canPublish(): boolean {
-    return this.value === "SCHEDULED";
-  }
-
-  moveToPublished(): ContentStatus {
-    return new ContentStatus("PUBLISHED");
-  }
-}
+// packages/core/src/tasks/model/task.entity.ts
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 ```
+
+Closed unions next to the entity: no class needed, the compiler
+rejects anything outside the set at every boundary.
 
 ### 3. Aggregates
 
 Cluster of entities treated as a unit.
 
+`Task` is the aggregate root: it clusters `subTasks`, tags and
+recurrence under one identity. Every transition (`complete()`,
+`updateStatus()`, `softDelete()`, `restore()`) goes through `clone()`,
+so the aggregate is never mutated in place:
+
 ```typescript
-// packages/core/src/content/entities/content-piece.aggregate.ts
-export class ContentPiece extends Entity<ContentPieceProps> {
-  constructor(props: ContentPieceProps, mode: EntityMode = "valid") {
-    super(props, mode);
-  }
-
-  // Aggregate root behavior
-  addAttachment(attachment: Attachment): ContentPiece {
-    const updatedAttachments = [...this.attachments, attachment];
-    return this.clone({ attachments: updatedAttachments });
-  }
-
-  removeAttachment(attachmentId: string): ContentPiece {
-    const updatedAttachments = this.attachments.filter(
-      (a) => a.id !== attachmentId,
-    );
-    return this.clone({ attachments: updatedAttachments });
-  }
-
-  publish(platforms: Platform[]): ContentPiece {
-    if (!this.canPublish()) {
-      throw new Error("Content cannot be published");
-    }
-
-    return this.clone({
-      status: ContentStatus.PUBLISHED,
-      publishedAt: new Date(),
-      platforms,
-    });
-  }
-
-  private canPublish(): boolean {
-    return (
-      this.status === ContentStatus.SCHEDULED && this.title && this.content
-    );
-  }
-}
+// packages/core/src/tasks/model/task.entity.ts
+const done = task.complete(); // new Task, status COMPLETED
+const renamed = task.update({ title: "New title" }); // new Task
 ```
 
 ### 4. Use Cases
@@ -180,32 +128,34 @@ export class ContentPiece extends Entity<ContentPieceProps> {
 Application-specific business rules.
 
 ```typescript
-// packages/core/src/idea/use-cases/create-idea.use-case.ts
-export interface CreateIdeaInput {
+// packages/core/src/tasks/usecase/create-task.usecase.ts
+export interface CreateTaskInput {
   title: string;
   description?: string;
-  userId: string;
+  priority?: TaskPriority;
+  projectId?: string | null;
+  ownerId: string;
+  // ...dates, assignee, recurrence
 }
 
-export class CreateIdeaUseCase implements UseCase<CreateIdeaInput, Idea> {
-  constructor(private readonly ideaRepo: IdeaRepository) {}
+export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
+  constructor(private readonly repository: TaskRepository) {}
 
-  async execute(input: CreateIdeaInput): Promise<Idea> {
-    // Domain validation
-    const idea = new Idea({
+  async execute(input: CreateTaskInput): Promise<Task> {
+    if (!input.title) {
+      throw new Error("Title is required");
+    }
+
+    const task = Task.create({
       title: input.title,
       description: input.description,
-      status: IdeaStatus.IDEA,
-      userId: input.userId,
+      priority: input.priority ?? "MEDIUM",
+      projectId: input.projectId ?? null, // null = express task, no project
+      ownerId: input.ownerId,
     });
 
-    // Persistence
-    await this.ideaRepo.save(idea);
-
-    // Domain event (if needed)
-    // ideaDomainEventBus.publish(new IdeaCreatedEvent(idea.id));
-
-    return idea;
+    await this.repository.save(task);
+    return task;
   }
 }
 ```
@@ -224,29 +174,19 @@ packages/core/src/
 │   ├── entity.ts                 # Base entity class
 │   ├── value-object.ts          # Base value object class
 │   └── use-case.ts             # Use case interface
-├── idea/
-│   ├── entities/
-│   │   ├── idea.entity.ts
-│   │   └── idea-status.vo.ts
-│   ├── value-objects/
-│   │   └── idea-priority.vo.ts
-│   ├── use-cases/
-│   │   ├── create-idea.use-case.ts
-│   │   ├── move-idea-to-content.use-case.ts
-│   │   └── archive-idea.use-case.ts
-│   ├── interfaces/
-│   │   └── idea.repository.ts
+├── tasks/
+│   ├── model/
+│   │   ├── task.entity.ts
+│   │   └── task-dependency.entity.ts
+│   ├── provider/
+│   │   └── task.repository.ts    # Port (interface)
+│   ├── usecase/
+│   │   ├── create-task.usecase.ts
+│   │   ├── complete-task.usecase.ts
+│   │   ├── soft-delete-task.usecase.ts
+│   │   ├── restore-task.usecase.ts
+│   │   └── permanent-delete-task.usecase.ts
 │   └── index.ts
-├── content/
-│   ├── entities/
-│   │   ├── content-piece.aggregate.ts
-│   │   └── content-status.vo.ts
-│   ├── use-cases/
-│   │   ├── create-content.use-case.ts
-│   │   ├── move-content-pipeline.use-case.ts
-│   │   └── publish-content.use-case.ts
-│   └── interfaces/
-│       └── content-piece.repository.ts
 └── index.ts
 ```
 
@@ -255,25 +195,23 @@ packages/core/src/
 **Orchestrates domain logic, handles HTTP**
 
 ```typescript
-// apps/backend/src/idea/idea.service.ts
+// apps/backend/src/tasks/tasks.service.ts
 @Injectable()
-export class IdeaService {
-  constructor(
-    private readonly createIdeaUseCase: CreateIdeaUseCase,
-    private readonly moveIdeaUseCase: MoveIdeaToContentUseCase,
-    private readonly ideaRepo: IdeaRepository,
-  ) {}
+export class TasksService {
+  constructor(private readonly taskRepository: TaskRepository) {}
 
-  async create(dto: CreateIdeaDto, userId: string): Promise<Idea> {
-    return await this.createIdeaUseCase.execute({
-      title: dto.title,
-      description: dto.description,
-      userId,
+  async create(createTaskDto: CreateTaskDto, userId: string) {
+    if (createTaskDto.projectId) {
+      await this.assertAssigneeIsWorkspaceMember(
+        createTaskDto.assigneeId,
+        createTaskDto.projectId,
+      );
+    }
+    const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
+    return createTaskUseCase.execute({
+      ...createTaskDto,
+      ownerId: userId,
     });
-  }
-
-  async moveToContent(ideaId: string, userId: string): Promise<ContentPiece> {
-    return await this.moveIdeaUseCase.execute(ideaId, userId);
   }
 }
 ```
@@ -283,26 +221,26 @@ export class IdeaService {
 **UI components, user interaction**
 
 ```typescript
-// apps/web/src/app/dashboard/ideas/create-idea-form.tsx
+// apps/web/src/app/dashboard/tasks/create-task-form.tsx
 'use client';
 
-import { useCreateIdea } from '@/lib/api-hooks';
+import { useCreateTask } from '@/lib/api-hooks';
 import { Button } from '@ordo-todo/ui';
 
-export function CreateIdeaForm() {
-  const createIdea = useCreateIdea();
+export function CreateTaskForm() {
+  const createTask = useCreateTask();
   const [title, setTitle] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await createIdea.mutateAsync({ title });
+    await createTask.mutateAsync({ title });
     setTitle('');
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input value={title} onChange={e => setTitle(e.target.value)} />
-      <Button type="submit">Create Idea</Button>
+      <Button type="submit">Create Task</Button>
     </form>
   );
 }
@@ -399,50 +337,40 @@ export interface UseCase<IN, OUT> {
 }
 ```
 
-### Example: Publish Content
+### Example: Complete Task
 
 ```typescript
-// packages/core/src/content/use-cases/publish-content.use-case.ts
-export interface PublishContentInput {
-  contentId: string;
-  platforms: Platform[];
-  userId: string;
+// packages/core/src/tasks/usecase/complete-task.usecase.ts
+export interface CompleteTaskInput {
+  taskId: string;
+  userId?: string;
 }
 
-export class PublishContentUseCase implements UseCase<
-  PublishContentInput,
-  ContentPiece
-> {
-  constructor(
-    private readonly contentRepo: ContentPieceRepository,
-    private readonly socialService: SocialService,
-  ) {}
+export class CompleteTaskUseCase implements UseCase<CompleteTaskInput, Task> {
+  constructor(private readonly repository: TaskRepository) {}
 
-  async execute(input: PublishContentInput): Promise<ContentPiece> {
-    // 1. Get content
-    const content = await this.contentRepo.findById(input.contentId);
+  async execute(input: CompleteTaskInput): Promise<Task> {
+    // 1. Load aggregate
+    const task = await this.repository.findById(input.taskId);
 
-    if (!content) {
-      throw new NotFoundException("Content not found");
+    if (!task) {
+      throw new Error("Task not found");
     }
 
-    if (content.userId !== input.userId) {
-      throw new ForbiddenException("You do not own this content");
+    // 2. Ownership check
+    const actingUserId = input.userId;
+    const isOwner = task.props.ownerId === actingUserId;
+    const isAssignee = task.props.assigneeId === actingUserId;
+
+    if (actingUserId && !isOwner && !isAssignee) {
+      throw new Error("Unauthorized");
     }
 
-    // 2. Domain validation
-    const publishedContent = content.publish(input.platforms);
+    // 3. Immutable transition + persistence
+    const completedTask = task.complete();
+    await this.repository.update(completedTask);
 
-    // 3. Persistence
-    await this.contentRepo.save(publishedContent);
-
-    // 4. External integration
-    await this.socialService.publish(publishedContent, input.platforms);
-
-    // 5. Trigger atomization (optional)
-    // await atomizeContentUseCase.execute(publishedContent);
-
-    return publishedContent;
+    return completedTask;
   }
 }
 ```
@@ -456,55 +384,32 @@ Repositories abstract data access.
 ### Repository Interface (Domain)
 
 ```typescript
-// packages/core/src/idea/interfaces/idea.repository.ts
-export interface IdeaRepository {
-  save(idea: Idea): Promise<Idea>;
-  findById(id: string): Promise<Idea | null>;
-  findAll(userId: string): Promise<Idea[]>;
-  findByStatus(userId: string, status: IdeaStatus): Promise<Idea[]>;
-  delete(id: string): Promise<void>;
+// packages/core/src/tasks/provider/task.repository.ts
+export interface TaskRepository {
+  save(task: Task): Promise<void>;
+  findById(id: string): Promise<Task | null>;
+  findByIds(ids: string[]): Promise<Map<string, Task>>;
+  // ...filtering, search, soft delete
 }
 ```
 
 ### Repository Implementation (Infrastructure)
 
 ```typescript
-// apps/backend/src/repositories/idea.repository.impl.ts
+// apps/backend/src/repositories/task.repository.ts
 @Injectable()
-export class PrismaIdeaRepository implements IdeaRepository {
-  constructor(private prisma: PrismaService) {}
+export class PrismaTaskRepository implements TaskRepository {
+  constructor(private readonly prisma: PrismaService) {}
 
-  async save(idea: Idea): Promise<Idea> {
-    const saved = await this.prisma.idea.create({
-      data: {
-        id: idea.id,
-        title: idea.title,
-        description: idea.description,
-        status: idea.status,
-        userId: idea.userId,
-        createdAt: idea.createdAt,
-        updatedAt: idea.updatedAt,
-      },
-    });
-
-    return this.toDomain(saved);
-  }
-
-  async findById(id: string): Promise<Idea | null> {
-    const found = await this.prisma.idea.findUnique({ where: { id } });
+  async findById(id: string): Promise<Task | null> {
+    const found = await this.prisma.task.findUnique({ where: { id } });
     return found ? this.toDomain(found) : null;
   }
 
-  private toDomain(prismaIdea: any): Idea {
-    return new Idea({
-      id: prismaIdea.id,
-      title: prismaIdea.title,
-      description: prismaIdea.description,
-      status: prismaIdea.status,
-      userId: prismaIdea.userId,
-      createdAt: prismaIdea.createdAt,
-      updatedAt: prismaIdea.updatedAt,
-    });
+  // toDomain maps Prisma enums to domain unions (TaskStatus,
+  // TaskPriority) and rebuilds the aggregate with subTasks.
+  private toDomain(prismaTask: PrismaTask): Task {
+    return new Task({ ... });
   }
 }
 ```
@@ -513,34 +418,34 @@ export class PrismaIdeaRepository implements IdeaRepository {
 
 ## 💡 Implementation Examples
 
-### Complete Flow: Create Idea
+### Complete Flow: Create Task
 
 **1. Domain Layer (packages/core)**
 
 ```typescript
-// Entity
-export class Idea extends Entity<IdeaProps> {
-  protected validate(): void {
-    if (!this.title || this.title.length < 3) {
-      throw new Error("Title must be at least 3 characters");
-    }
+// Entity (packages/core/src/tasks/model/task.entity.ts)
+export class Task extends Entity<TaskProps> {
+  static create(props: ...): Task {
+    return new Task({
+      ...props,
+      status: "TODO",
+      priority: props.priority ?? "MEDIUM",
+      isDeleted: false,
+    });
   }
 }
 
-// Use Case
-export class CreateIdeaUseCase implements UseCase<CreateIdeaInput, Idea> {
-  constructor(private readonly ideaRepo: IdeaRepository) {}
+// Use Case (packages/core/src/tasks/usecase/create-task.usecase.ts)
+export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
+  constructor(private readonly repository: TaskRepository) {}
 
-  async execute(input: CreateIdeaInput): Promise<Idea> {
-    const idea = new Idea({
-      title: input.title,
-      description: input.description,
-      status: IdeaStatus.IDEA,
-      userId: input.userId,
-    });
-
-    await this.ideaRepo.save(idea);
-    return idea;
+  async execute(input: CreateTaskInput): Promise<Task> {
+    if (!input.title) {
+      throw new Error("Title is required");
+    }
+    const task = Task.create({ ...input, projectId: input.projectId ?? null });
+    await this.repository.save(task);
+    return task;
   }
 }
 ```
@@ -548,37 +453,29 @@ export class CreateIdeaUseCase implements UseCase<CreateIdeaInput, Idea> {
 **2. Application Layer (apps/backend)**
 
 ```typescript
-// Controller
-@Controller("ideas")
+// Controller (apps/backend/src/tasks/tasks.controller.ts)
+@Controller("tasks")
 @UseGuards(JwtAuthGuard)
-@ApiTags("ideas")
-export class IdeasController {
-  constructor(private readonly ideaService: IdeaService) {}
+@ApiTags("tasks")
+export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  @ApiOperation({ summary: "Create a new idea" })
+  @ApiOperation({ summary: "Create a new task" })
   create(
     @CurrentUser() user: RequestUser,
-    @Body() dto: CreateIdeaDto,
-  ): Promise<Idea> {
-    return this.ideaService.create(dto, user.id);
+    @Body() dto: CreateTaskDto,
+  ) {
+    return this.tasksService.create(dto, user.id);
   }
 }
 
-// Service
+// Service (apps/backend/src/tasks/tasks.service.ts)
 @Injectable()
-export class IdeaService {
-  constructor(
-    private readonly createIdeaUseCase: CreateIdeaUseCase,
-    private readonly ideaRepo: IdeaRepository,
-  ) {}
-
-  async create(dto: CreateIdeaDto, userId: string): Promise<Idea> {
-    return await this.createIdeaUseCase.execute({
-      title: dto.title,
-      description: dto.description,
-      userId,
-    });
+export class TasksService {
+  async create(createTaskDto: CreateTaskDto, userId: string) {
+    const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
+    return createTaskUseCase.execute({ ...createTaskDto, ownerId: userId });
   }
 }
 ```
@@ -589,25 +486,21 @@ export class IdeaService {
 // Client Component
 'use client';
 
-import { useCreateIdea } from '@/lib/api-hooks';
-import { IdeaCard } from '@ordo-todo/ui';
+import { useCreateTask, useTasks } from '@/lib/api-hooks';
 
-export function IdeaList() {
-  const { data: ideas } = useIdeas();
-  const createIdea = useCreateIdea();
+export function TaskList() {
+  const { data: tasks } = useTasks();
+  const createTask = useCreateTask();
 
   return (
     <div>
-      <Button onClick={() => createIdea.mutate({ title: 'New Idea' })}>
-        Add Idea
+      <Button onClick={() => createTask.mutate({ title: 'New Task' })}>
+        Add Task
       </Button>
-      {ideas?.map(idea => (
-        <IdeaCard
-          key={idea.id}
-          idea={idea}
-          onClick={id => router.push(`/ideas/${id}`)}
-          labels={{ edit: 'Edit', delete: 'Delete' }}
-        />
+      {tasks?.map(task => (
+        <div key={task.id} onClick={() => router.push(`/tasks/${task.id}`)}>
+          {task.title}
+        </div>
       ))}
     </div>
   );
@@ -623,7 +516,7 @@ export function IdeaList() {
 1. **Keep domain pure**: No infrastructure dependencies in `packages/core`
 2. **Use immutable updates**: Always use `entity.clone()` to update
 3. **Validate in entities**: Domain validation in constructor
-4. **Use value objects**: For concepts without identity (e.g., `ContentStatus`)
+4. **Use value objects**: For concepts without identity (e.g., `TaskStatus`, `TaskPriority`)
 5. **Repository pattern**: Abstract data access behind interfaces
 6. **Test domain logic**: Pure functions are 100% testable
 

@@ -51,69 +51,40 @@ The factory pattern allows us to:
 ### Basic Factory
 
 ```typescript
-// ideas.ts
+// packages/hooks/src/hooks.ts (abridged)
 import {
   useQuery,
   useMutation,
   useQueryClient,
-  QueryClient,
 } from "@tanstack/react-query";
-import { ApiClient } from "@ordo-todo/api-client";
-import { Idea, CreateIdeaDto, UpdateIdeaDto } from "@ordo-todo/core";
+import type { CreateTaskDto, OrdoApiClient } from "@ordo-todo/api-client";
+import { queryKeys } from "./query-keys";
 
-export function createIdeaHooks(apiClient: ApiClient) {
+export function createHooks({ apiClient }: { apiClient: OrdoApiClient }) {
   const queryClient = useQueryClient();
 
   return {
-    useIdeas: (options = {}) =>
+    useTasks: () =>
       useQuery({
-        queryKey: ["ideas"],
-        queryFn: apiClient.ideas.getAll,
+        queryKey: queryKeys.tasks(),
+        queryFn: () => apiClient.getTasks(),
         staleTime: 5 * 60 * 1000, // 5 minutes
         gcTime: 10 * 60 * 1000, // 10 minutes
-        ...options,
       }),
 
-    useIdea: (id: string, options = {}) =>
-      useQuery({
-        queryKey: ["ideas", id],
-        queryFn: () => apiClient.ideas.getOne(id),
-        enabled: !!id,
-        ...options,
-      }),
-
-    useCreateIdea: () =>
+    useCreateTask: () =>
       useMutation({
-        mutationFn: (data: CreateIdeaDto) => apiClient.ideas.create(data),
+        mutationFn: (data: CreateTaskDto) => apiClient.createTask(data),
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         },
       }),
 
-    useUpdateIdea: () =>
+    useDeleteTask: () =>
       useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UpdateIdeaDto }) =>
-          apiClient.ideas.update(id, data),
-        onSuccess: (_, variables) => {
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
-          queryClient.invalidateQueries({ queryKey: ["ideas", variables.id] });
-        },
-      }),
-
-    useDeleteIdea: () =>
-      useMutation({
-        mutationFn: (id: string) => apiClient.ideas.delete(id),
+        mutationFn: (id: string) => apiClient.deleteTask(id),
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
-        },
-      }),
-
-    useMoveIdeaToContent: () =>
-      useMutation({
-        mutationFn: (id: string) => apiClient.ideas.moveToContent(id),
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
-          queryClient.invalidateQueries({ queryKey: ["contentPieces"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         },
       }),
   };
@@ -127,32 +98,23 @@ export function createIdeaHooks(apiClient: ApiClient) {
 ### 1. Query Hooks
 
 ```typescript
-export function createIdeaHooks(apiClient: ApiClient) {
+export function createHooks({ apiClient }: { apiClient: OrdoApiClient }) {
   return {
-    // Get all ideas
-    useIdeas: (options = {}) =>
+    // Get all tasks
+    useTasks: (options = {}) =>
       useQuery({
-        queryKey: ["ideas"],
-        queryFn: apiClient.ideas.getAll,
+        queryKey: queryKeys.tasks(),
+        queryFn: () => apiClient.getTasks(),
         staleTime: 5 * 60 * 1000, // Cache for 5 minutes
         ...options,
       }),
 
-    // Get single idea by ID
-    useIdea: (id: string, options = {}) =>
+    // Get single task by ID
+    useTask: (id: string, options = {}) =>
       useQuery({
-        queryKey: ["ideas", id],
-        queryFn: () => apiClient.ideas.getOne(id),
+        queryKey: queryKeys.task(id),
+        queryFn: () => apiClient.getTask(id),
         enabled: !!id, // Only fetch if ID exists
-        ...options,
-      }),
-
-    // Get ideas by status
-    useIdeasByStatus: (status: IdeaStatus, options = {}) =>
-      useQuery({
-        queryKey: ["ideas", "status", status],
-        queryFn: () => apiClient.ideas.getByStatus(status),
-        enabled: !!status,
         ...options,
       }),
   };
@@ -162,94 +124,95 @@ export function createIdeaHooks(apiClient: ApiClient) {
 ### 2. Mutation Hooks
 
 ```typescript
-export function createIdeaHooks(apiClient: ApiClient) {
+export function createHooks({ apiClient }: { apiClient: OrdoApiClient }) {
   const queryClient = useQueryClient();
 
   return {
-    // Create idea
-    useCreateIdea: () =>
+    // Create task
+    useCreateTask: () =>
       useMutation({
-        mutationFn: (data: CreateIdeaDto) => apiClient.ideas.create(data),
-        onSuccess: (newIdea) => {
+        mutationFn: (data: CreateTaskDto) => apiClient.createTask(data),
+        onSuccess: (newTask) => {
           // Update cache optimistically
-          queryClient.setQueryData(["ideas"], (old: Idea[] | undefined) => {
-            return old ? [newIdea, ...old] : [newIdea];
+          queryClient.setQueryData(queryKeys.allTasks, (old: Task[] | undefined) => {
+            return old ? [newTask, ...old] : [newTask];
           });
 
           // Invalidate to ensure fresh data
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         },
       }),
 
-    // Update idea
-    useUpdateIdea: () =>
+    // Update task
+    // (imports: UpdateTaskDto, Task from "@ordo-todo/api-client")
+    useUpdateTask: () =>
       useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UpdateIdeaDto }) =>
-          apiClient.ideas.update(id, data),
+        mutationFn: ({ id, data }: { id: string; data: UpdateTaskDto }) =>
+          apiClient.updateTask(id, data),
         onMutate: async ({ id, data }) => {
           // Cancel outgoing queries
-          await queryClient.cancelQueries({ queryKey: ["ideas"] });
-          await queryClient.cancelQueries({ queryKey: ["ideas", id] });
+          await queryClient.cancelQueries({ queryKey: queryKeys.allTasks });
+          await queryClient.cancelQueries({ queryKey: queryKeys.task(id) });
 
           // Snapshot previous value
-          const previousIdeas = queryClient.getQueryData<Idea[]>(["ideas"]);
-          const previousIdea = queryClient.getQueryData<Idea>(["ideas", id]);
+          const previousTasks = queryClient.getQueryData<Task[]>(queryKeys.allTasks);
+          const previousTask = queryClient.getQueryData<Task>(queryKeys.task(id));
 
           // Optimistically update
-          queryClient.setQueryData<Idea[]>(["ideas"], (old = []) => {
-            return old.map((idea) =>
-              idea.id === id ? { ...idea, ...data } : idea,
+          queryClient.setQueryData<Task[]>(queryKeys.allTasks, (old = []) => {
+            return old.map((task) =>
+              task.id === id ? { ...task, ...data } : task,
             );
           });
 
-          queryClient.setQueryData<Idea>(["ideas", id], (old) => {
+          queryClient.setQueryData<Task>(queryKeys.task(id), (old) => {
             return old ? { ...old, ...data } : undefined;
           });
 
           // Return context for rollback
-          return { previousIdeas, previousIdea };
+          return { previousTasks, previousTask };
         },
         onError: (error, variables, context) => {
           // Rollback on error
-          if (context?.previousIdeas) {
-            queryClient.setQueryData(["ideas"], context.previousIdeas);
+          if (context?.previousTasks) {
+            queryClient.setQueryData(queryKeys.allTasks, context.previousTasks);
           }
-          if (context?.previousIdea) {
+          if (context?.previousTask) {
             queryClient.setQueryData(
-              ["ideas", variables.id],
-              context.previousIdea,
+              queryKeys.task(variables.id),
+              context.previousTask,
             );
           }
         },
         onSuccess: (_, variables) => {
           // Invalidate on success
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
-          queryClient.invalidateQueries({ queryKey: ["ideas", variables.id] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+          queryClient.invalidateQueries({ queryKey: queryKeys.task(variables.id) });
         },
       }),
 
-    // Delete idea
-    useDeleteIdea: () =>
+    // Delete task
+    useDeleteTask: () =>
       useMutation({
-        mutationFn: (id: string) => apiClient.ideas.delete(id),
+        mutationFn: (id: string) => apiClient.deleteTask(id),
         onMutate: async (id) => {
-          await queryClient.cancelQueries({ queryKey: ["ideas"] });
+          await queryClient.cancelQueries({ queryKey: queryKeys.allTasks });
 
-          const previousIdeas = queryClient.getQueryData<Idea[]>(["ideas"]);
+          const previousTasks = queryClient.getQueryData<Task[]>(queryKeys.allTasks);
 
-          queryClient.setQueryData<Idea[]>(["ideas"], (old = []) => {
-            return old.filter((idea) => idea.id !== id);
+          queryClient.setQueryData<Task[]>(queryKeys.allTasks, (old = []) => {
+            return old.filter((task) => task.id !== id);
           });
 
-          return { previousIdeas };
+          return { previousTasks };
         },
         onError: (error, id, context) => {
-          if (context?.previousIdeas) {
-            queryClient.setQueryData(["ideas"], context.previousIdeas);
+          if (context?.previousTasks) {
+            queryClient.setQueryData(queryKeys.allTasks, context.previousTasks);
           }
         },
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["ideas"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         },
       }),
   };
@@ -266,48 +229,26 @@ export function createIdeaHooks(apiClient: ApiClient) {
 
 ```typescript
 // apps/web/src/lib/api-hooks.ts
-import {
-  createIdeaHooks,
-  createContentHooks,
-  createSeriesHooks,
-} from "@ordo-todo/hooks";
-import { apiClient } from "./api-client";
+import { createHooks } from "@ordo-todo/hooks";
+import { packageApiClient as apiClient } from "./package-api-client";
 
-// Initialize hooks with apiClient
-const ideaHooks = createIdeaHooks(apiClient);
-const contentHooks = createContentHooks(apiClient);
-const seriesHooks = createSeriesHooks(apiClient);
-
-// Export individual hooks
-export const useIdeas = ideaHooks.useIdeas;
-export const useIdea = ideaHooks.useIdea;
-export const useCreateIdea = ideaHooks.useCreateIdea;
-export const useUpdateIdea = ideaHooks.useUpdateIdea;
-export const useDeleteIdea = ideaHooks.useDeleteIdea;
-export const useMoveIdeaToContent = ideaHooks.useMoveIdeaToContent;
-
-export const useContentPieces = contentHooks.useContentPieces;
-export const useContentPiece = contentHooks.useContentPiece;
-export const usePublishContent = contentHooks.usePublishContent;
-export const useMoveContentPipeline = contentHooks.useMoveContentPipeline;
-
-export const useSeries = seriesHooks.useSeries;
-export const useCreateSeries = seriesHooks.useCreateSeries;
+// One factory call; destructure the hooks the app needs.
+export const { useTasks, useCreateTask, useUpdateTask, useDeleteTask } =
+  createHooks({ apiClient });
 ```
 
 **Step 2: Use in components**
 
 ```typescript
-// apps/web/src/app/dashboard/ideas/page.tsx
+// apps/web/src/app/dashboard/tasks/page.tsx
 'use client';
 
-import { useIdeas, useCreateIdea } from '@/lib/api-hooks';
-import { IdeaCard } from '@ordo-todo/ui';
+import { useTasks, useCreateTask } from '@/lib/api-hooks';
 import { useState } from 'react';
 
-export function IdeasPage() {
-  const { data: ideas, isLoading, error } = useIdeas();
-  const createIdea = useCreateIdea();
+export function TasksPage() {
+  const { data: tasks, isLoading, error } = useTasks();
+  const createTask = useCreateTask();
   const [newTitle, setNewTitle] = useState('');
 
   if (isLoading) return <div>Loading...</div>;
@@ -317,65 +258,43 @@ export function IdeasPage() {
     <div>
       <form onSubmit={(e) => {
         e.preventDefault();
-        createIdea.mutate({ title: newTitle });
+        createTask.mutate({ title: newTitle });
         setNewTitle('');
       }}>
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="New idea..."
+          placeholder="New task..."
         />
         <button type="submit">Create</button>
       </form>
 
-      <div>
-        {ideas?.map(idea => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            onClick={(id) => router.push(`/dashboard/ideas/${id}`)}
-            labels={{ view: 'View', delete: 'Delete' }}
-          />
+      <ul>
+        {tasks?.map(task => (
+          <li key={task.id}>{task.title}</li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
 ```
 
-### Mobile App (apps/mobile)
-
-Same pattern, just different file location:
-
-```typescript
-// apps/mobile/src/lib/api-hooks.ts
-import { createIdeaHooks, createContentHooks } from "@ordo-todo/hooks";
-import { apiClient } from "./api-client";
-
-const ideaHooks = createIdeaHooks(apiClient);
-const contentHooks = createContentHooks(apiClient);
-
-export const useIdeas = ideaHooks.useIdeas;
-export const useCreateIdea = ideaHooks.useCreateIdea;
-export const useContentPieces = contentHooks.useContentPieces;
-```
-
 ### Desktop App (apps/desktop)
 
-Same pattern again:
+Same factory, different client and file location:
 
 ```typescript
-// apps/desktop/src/lib/api-hooks.ts
-import { createIdeaHooks, createContentHooks } from "@ordo-todo/hooks";
+// apps/desktop/src/lib/shared-hooks.ts
+import { createHooks } from "@ordo-todo/hooks";
 import { apiClient } from "./api-client";
 
-const ideaHooks = createIdeaHooks(apiClient);
-const contentHooks = createContentHooks(apiClient);
-
-export const useIdeas = ideaHooks.useIdeas;
-export const useCreateIdea = ideaHooks.useCreateIdea;
-export const useContentPieces = contentHooks.useContentPieces;
+export const { useTasks, useCreateTask } = createHooks({ apiClient });
 ```
+
+### Mobile App (apps/mobile)
+
+No hook layer of its own: the mobile shell renders the desktop
+frontend, so it consumes the desktop hooks above.
 
 ---
 
@@ -384,24 +303,18 @@ export const useContentPieces = contentHooks.useContentPieces;
 ### Unit Test for Hooks
 
 ```typescript
-// src/__tests__/ideas.test.ts
+// src/__tests__/tasks.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createIdeaHooks } from '../ideas';
+import { createHooks } from '@ordo-todo/hooks';
 
 const mockApiClient = {
-  ideas: {
-    getAll: vi.fn(),
-    getOne: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    moveToContent: vi.fn(),
-  },
+  getTasks: vi.fn(),
+  createTask: vi.fn(),
 };
 
-describe('createIdeaHooks', () => {
+describe('createHooks', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
@@ -421,17 +334,17 @@ describe('createIdeaHooks', () => {
     </QueryClientProvider>
   );
 
-  describe('useIdeas', () => {
-    it('should fetch ideas', async () => {
-      const mockIdeas = [
-        { id: '1', title: 'Idea 1' },
-        { id: '2', title: 'Idea 2' },
+  describe('useTasks', () => {
+    it('should fetch tasks', async () => {
+      const mockTasks = [
+        { id: '1', title: 'Task 1' },
+        { id: '2', title: 'Task 2' },
       ];
 
-      mockApiClient.ideas.getAll.mockResolvedValue(mockIdeas);
+      mockApiClient.getTasks.mockResolvedValue(mockTasks);
 
       const { result } = renderHook(
-        () => createIdeaHooks(mockApiClient as any).useIdeas(),
+        () => createHooks({ apiClient: mockApiClient as any }).useTasks(),
         { wrapper }
       );
 
@@ -439,29 +352,29 @@ describe('createIdeaHooks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(result.current.data).toEqual(mockIdeas);
-      expect(mockApiClient.ideas.getAll).toHaveBeenCalledTimes(1);
+      expect(result.current.data).toEqual(mockTasks);
+      expect(mockApiClient.getTasks).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('useCreateIdea', () => {
-    it('should create idea', async () => {
-      const newIdea = { id: '3', title: 'New Idea' };
+  describe('useCreateTask', () => {
+    it('should create task', async () => {
+      const newTask = { id: '3', title: 'New Task' };
 
-      mockApiClient.ideas.create.mockResolvedValue(newIdea);
+      mockApiClient.createTask.mockResolvedValue(newTask);
 
       const { result } = renderHook(
-        () => createIdeaHooks(mockApiClient as any).useCreateIdea(),
+        () => createHooks({ apiClient: mockApiClient as any }).useCreateTask(),
         { wrapper }
       );
 
-      result.current.mutate({ title: 'New Idea' });
+      result.current.mutate({ title: 'New Task' });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(mockApiClient.ideas.create).toHaveBeenCalledWith({ title: 'New Idea' });
+      expect(mockApiClient.createTask).toHaveBeenCalledWith({ title: 'New Task' });
     });
   });
 });
@@ -473,7 +386,7 @@ describe('createIdeaHooks', () => {
 
 ### ✅ DO
 
-1. **Use factory pattern**: Create hooks with `createXxxHooks()`
+1. **Use factory pattern**: Create hooks with `createHooks({ apiClient })`
 2. **Type everything**: Use proper TypeScript types
 3. **Set stale time**: Cache data appropriately
 4. **Invalidate on mutations**: Keep cache fresh
