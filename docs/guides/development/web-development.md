@@ -30,15 +30,13 @@ apps/web/
 │   ├── (dashboard)/              # Dashboard routes group
 │   │   ├── layout.tsx           # Dashboard layout (sidebar, header)
 │   │   ├── page.tsx             # /dashboard
-│   │   ├── pipeline/
-│   │   │   └── page.tsx         # /dashboard/pipeline
-│   │   ├── ideas/
-│   │   │   ├── page.tsx         # /dashboard/ideas
+│   │   ├── tasks/
+│   │   │   ├── page.tsx         # /dashboard/tasks
 │   │   │   └── [id]/
-│   │   │       └── page.tsx     # /dashboard/ideas/[id]
-│   │   ├── content/
+│   │   │       └── page.tsx     # /dashboard/tasks/[id]
+│   │   ├── projects/
 │   │   │   └── [id]/
-│   │   │       └── page.tsx     # /dashboard/content/[id]
+│   │   │       └── page.tsx     # /dashboard/projects/[id]
 │   │   └── settings/
 │   │       └── page.tsx         # /dashboard/settings
 │   ├── api/                     # Route handlers (if needed)
@@ -54,7 +52,7 @@ apps/web/
 │   │   ├── sidebar.tsx
 │   │   └── header.tsx
 │   └── [feature]/             # Feature-specific containers
-│       └── idea-list-container.tsx
+│       └── task-list-container.tsx
 │
 ├── lib/                       # Web-specific utilities
 │   ├── api-client.ts          # Axios configuration
@@ -88,19 +86,19 @@ export default function LoginPage() {
   return <LoginForm />;
 }
 
-// app/(dashboard)/pipeline/page.tsx
-// Route: /dashboard/pipeline
-export default function PipelinePage() {
-  return <ContentPipeline />;
+// app/(dashboard)/tasks/page.tsx
+// Route: /dashboard/tasks
+export default function TasksPage() {
+  return <TaskList />;
 }
 ```
 
 ### Dynamic Routes
 
 ```typescript
-// app/dashboard/ideas/[id]/page.tsx
-export default function IdeaPage({ params }: { params: { id: string } }) {
-  return <IdeaDetails id={params.id} />;
+// app/dashboard/tasks/[id]/page.tsx
+export default function TaskPage({ params }: { params: { id: string } }) {
+  return <TaskDetails id={params.id} />;
 }
 ```
 
@@ -118,25 +116,20 @@ Server Components render on the server by default. Use them for:
 
 ```typescript
 // app/dashboard/page.tsx
-import { getIdeas } from '@/lib/api-client';
-import { IdeaCard } from '@ordo-todo/ui';
+import { packageApiClient } from '@/lib/package-api-client';
 
 export default async function DashboardPage() {
   // Direct data fetching on server
-  const ideas = await getIdeas();
+  const tasks = await packageApiClient.getTasks();
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <div>
-        {ideas.map(idea => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            onClick={id => {/* handled by client component */}}
-          />
+      <ul>
+        {tasks.map(task => (
+          <li key={task.id}>{task.title}</li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -145,25 +138,25 @@ export default async function DashboardPage() {
 ### Server Actions
 
 ```typescript
-// app/actions/ideas.ts
+// app/actions/tasks.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createIdea } from "@/lib/api-client";
+import { packageApiClient } from "@/lib/package-api-client";
 
-export async function createIdeaAction(formData: FormData) {
+export async function createTaskAction(formData: FormData) {
   const title = formData.get("title") as string;
 
   if (!title || title.length < 3) {
     return { error: "Title must be at least 3 characters" };
   }
 
-  const idea = await createIdea({ title });
+  const task = await packageApiClient.createTask({ title });
 
   // Revalidate cache
-  revalidatePath("/dashboard/ideas");
+  revalidatePath("/dashboard/tasks");
 
-  return { success: true, idea };
+  return { success: true, task };
 }
 ```
 
@@ -180,16 +173,16 @@ Client Components render on the client. Use them for:
 ### Example: Client Component
 
 ```typescript
-// components/idea-list-container.tsx
+// components/task-list-container.tsx
 'use client';
 
-import { useIdeas, useCreateIdea } from '@/lib/api-hooks';
-import { IdeaCard, Button } from '@ordo-todo/ui';
+import { useTasks, useCreateTask } from '@/lib/api-hooks';
+import { Button } from '@ordo-todo/ui';
 import { useState } from 'react';
 
-export function IdeaListContainer() {
-  const { data: ideas, isLoading, error } = useIdeas();
-  const createIdea = useCreateIdea();
+export function TaskListContainer() {
+  const { data: tasks, isLoading, error } = useTasks();
+  const createTask = useCreateTask();
   const [newTitle, setNewTitle] = useState('');
 
   if (isLoading) return <div>Loading...</div>;
@@ -199,27 +192,22 @@ export function IdeaListContainer() {
     <div>
       <form onSubmit={(e) => {
         e.preventDefault();
-        createIdea.mutate({ title: newTitle });
+        createTask.mutate({ title: newTitle });
         setNewTitle('');
       }}>
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="New idea..."
+          placeholder="New task..."
         />
         <Button type="submit">Create</Button>
       </form>
 
-      <div>
-        {ideas?.map(idea => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            onClick={(id) => router.push(`/dashboard/ideas/${id}`)}
-            labels={{ edit: 'Edit', delete: 'Delete' }}
-          />
+      <ul>
+        {tasks?.map(task => (
+          <li key={task.id}>{task.title}</li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -233,18 +221,12 @@ export function IdeaListContainer() {
 
 ```typescript
 // lib/api-hooks.ts
-import { createIdeaHooks, createContentHooks } from "@ordo-todo/hooks";
-import { apiClient } from "./api-client";
+import { createHooks } from "@ordo-todo/hooks";
+import { packageApiClient as apiClient } from "./package-api-client";
 
-// Initialize hooks with apiClient
-export const useIdeas = createIdeaHooks(apiClient).useIdeas;
-export const useCreateIdea = createIdeaHooks(apiClient).useCreateIdea;
-export const useUpdateIdea = createIdeaHooks(apiClient).useUpdateIdea;
-export const useDeleteIdea = createIdeaHooks(apiClient).useDeleteIdea;
-
-export const useContentPieces = createContentHooks(apiClient).useContentPieces;
-export const usePublishContent =
-  createContentHooks(apiClient).usePublishContent;
+// One factory call; destructure the hooks the app needs.
+export const { useTasks, useCreateTask, useUpdateTask, useDeleteTask } =
+  createHooks({ apiClient });
 ```
 
 ### Using in Components
@@ -252,30 +234,30 @@ export const usePublishContent =
 ```typescript
 'use client';
 
-import { useIdeas, useCreateIdea } from '@/lib/api-hooks';
+import { useTasks, useCreateTask } from '@/lib/api-hooks';
 
-export function IdeaList() {
-  const { data: ideas, isLoading } = useIdeas();
-  const createIdea = useCreateIdea();
+export function TaskList() {
+  const { data: tasks, isLoading } = useTasks();
+  const createTask = useCreateTask();
 
-  return <div>{/* render ideas */}</div>;
+  return <div>{/* render tasks */}</div>;
 }
 ```
 
 ### Server-Side Data Fetching
 
 ```typescript
-// app/dashboard/ideas/page.tsx
-import { apiClient } from '@/lib/api-client';
+// app/dashboard/tasks/page.tsx
+import { packageApiClient } from '@/lib/package-api-client';
 
-export default async function IdeasPage() {
+export default async function TasksPage() {
   // Server-side fetch
-  const ideas = await apiClient.ideas.getAll();
+  const tasks = await packageApiClient.getTasks();
 
   return (
     <div>
-      {ideas.map(idea => (
-        <div key={idea.id}>{idea.title}</div>
+      {tasks.map(task => (
+        <div key={task.id}>{task.title}</div>
       ))}
     </div>
   );
@@ -293,11 +275,11 @@ Use shared hooks from `packages/hooks`:
 ```typescript
 'use client';
 
-import { useIdeas, useCreateIdea } from '@/lib/api-hooks';
+import { useTasks, useCreateTask } from '@/lib/api-hooks';
 
-export function IdeaList() {
-  const { data: ideas, isLoading, error } = useIdeas();
-  const createIdea = useCreateIdea();
+export function TaskList() {
+  const { data: tasks, isLoading, error } = useTasks();
+  const createTask = useCreateTask();
 
   return <div>{/* ... */}</div>;
 }
@@ -338,21 +320,19 @@ export function Sidebar() {
 ### Using Shared UI Components
 
 ```typescript
-import { Button, Card, Input, ContentPipeline } from '@ordo-todo/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Input } from '@ordo-todo/ui';
 
 export function Dashboard() {
   return (
     <div>
-      <Button variant="primary">Primary Button</Button>
+      <Button variant="default">Primary Button</Button>
       <Card>
-        <Card.Header>Card Title</Card.Header>
-        <Card.Content>Card content</Card.Content>
+        <CardHeader>
+          <CardTitle>Card Title</CardTitle>
+        </CardHeader>
+        <CardContent>Card content</CardContent>
       </Card>
-      <ContentPipeline
-        ideas={ideas}
-        onMoveIdea={moveIdea}
-        labels={{ newIdea: 'Add Idea' }}
-      />
+      <Input placeholder="Search tasks..." />
     </div>
   );
 }
@@ -416,12 +396,12 @@ export function Dashboard() {
 
 import { useRouter } from 'next/navigation';
 
-export function IdeaCard({ idea }: { idea: Idea }) {
+export function TaskCard({ task }: { task: { id: string; title: string } }) {
   const router = useRouter();
 
   return (
-    <Card onClick={() => router.push(`/dashboard/ideas/${idea.id}`)}>
-      <h3>{idea.title}</h3>
+    <Card onClick={() => router.push(`/dashboard/tasks/${task.id}`)}>
+      <h3>{task.title}</h3>
     </Card>
   );
 }
@@ -435,8 +415,8 @@ import Link from 'next/link';
 export function Navigation() {
   return (
     <nav>
-      <Link href="/dashboard/pipeline">Pipeline</Link>
-      <Link href="/dashboard/ideas">Ideas</Link>
+      <Link href="/dashboard/tasks">Tasks</Link>
+      <Link href="/dashboard/projects">Projects</Link>
       <Link href="/dashboard/settings">Settings</Link>
     </nav>
   );
@@ -483,8 +463,8 @@ export function NavLink({
 
 import { useTranslations } from 'next-intl';
 
-export function IdeaForm() {
-  const t = useTranslations('IdeaForm');
+export function TaskForm() {
+  const t = useTranslations('CreateTask');
 
   return (
     <form>
@@ -501,27 +481,19 @@ export function IdeaForm() {
 ```typescript
 'use client';
 
-import { IdeaCard } from '@ordo-todo/ui';
 import { useTranslations } from 'next-intl';
 
-export function IdeaList() {
-  const t = useTranslations('IdeaCard');
+export function TaskList() {
+  const t = useTranslations('Tasks');
 
   return (
-    <div>
-      {ideas.map(idea => (
-        <IdeaCard
-          key={idea.id}
-          idea={idea}
-          onClick={handleClick}
-          labels={{
-            edit: t('edit'),
-            delete: t('delete'),
-            view: t('view'),
-          }}
-        />
+    <ul>
+      {tasks.map(task => (
+        <li key={task.id} onClick={() => handleClick(task.id)}>
+          {task.title} ({t('open')})
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 ```
@@ -533,28 +505,28 @@ export function IdeaList() {
 ### Component Testing with React Testing Library
 
 ```typescript
-// components/__tests__/idea-list-container.test.tsx
+// components/__tests__/task-list-container.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { IdeaListContainer } from '../idea-list-container';
+import { TaskListContainer } from '../task-list-container';
 
-describe('IdeaListContainer', () => {
-  it('renders ideas', () => {
-    render(<IdeaListContainer />);
+describe('TaskListContainer', () => {
+  it('renders tasks', () => {
+    render(<TaskListContainer />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('creates new idea', async () => {
-    render(<IdeaListContainer />);
+  it('creates new task', async () => {
+    render(<TaskListContainer />);
 
-    const input = screen.getByPlaceholderText('New idea...');
+    const input = screen.getByPlaceholderText('New task...');
     const button = screen.getByText('Create');
 
-    fireEvent.change(input, { target: { value: 'Test Idea' } });
+    fireEvent.change(input, { target: { value: 'Test Task' } });
     fireEvent.click(button);
 
     // Wait for mutation to complete
     await waitFor(() => {
-      expect(screen.getByText('Test Idea')).toBeInTheDocument();
+      expect(screen.getByText('Test Task')).toBeInTheDocument();
     });
   });
 });
@@ -563,25 +535,25 @@ describe('IdeaListContainer', () => {
 ### E2E Testing with Playwright
 
 ```typescript
-// e2e/ideas.spec.ts
+// e2e/tasks.spec.ts
 import { test, expect } from "@playwright/test";
 
-test("should create idea", async ({ page }) => {
-  await page.goto("/dashboard/ideas");
+test("should create task", async ({ page }) => {
+  await page.goto("/dashboard/tasks");
 
-  await page.fill('input[placeholder="New idea..."]', "E2E Test Idea");
+  await page.fill('input[placeholder="New task..."]', "E2E Test Task");
   await page.click('button:has-text("Create")');
 
-  await expect(page.locator("text=E2E Test Idea")).toBeVisible();
+  await expect(page.locator("text=E2E Test Task")).toBeVisible();
 });
 
-test("should navigate to idea details", async ({ page }) => {
-  await page.goto("/dashboard/ideas");
+test("should navigate to task details", async ({ page }) => {
+  await page.goto("/dashboard/tasks");
 
-  await page.click("text=Test Idea");
+  await page.click("text=Test Task");
 
-  await expect(page).toHaveURL(/\/dashboard\/ideas\/.*/);
-  await expect(page.locator("h1")).toContainText("Test Idea");
+  await expect(page).toHaveURL(/\/dashboard\/tasks\/.*/);
+  await expect(page.locator("h1")).toContainText("Test Task");
 });
 ```
 
