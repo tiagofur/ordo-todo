@@ -40,7 +40,9 @@ RUN cd packages/db && DATABASE_URL=postgresql://localhost npx prisma generate --
 # rely on this tree (compose pins `prisma@7` via npx).
 # =============================================================================
 FROM deps AS prod-deps
-RUN npm prune --omit=dev --legacy-peer-deps
+# --ignore-scripts like the deps install: prune must not execute
+# lifecycle hooks (e.g. packages/db's prisma generate) mid-prune.
+RUN npm prune --omit=dev --legacy-peer-deps --ignore-scripts
 
 # =============================================================================
 # Stage 2: Development
