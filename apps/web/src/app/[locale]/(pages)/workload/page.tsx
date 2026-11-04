@@ -26,12 +26,11 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 
 import type { WorkspaceWorkload } from "@ordo-todo/api-client";
+import { calculateBalanceScore } from "@ordo-todo/core";
 
-// The backend sends no balance score; the gauge renders its default (100)
-// until the API provides it. Everything else mirrors the API shapes.
-type WorkloadView = WorkspaceWorkload & {
-  balanceScore?: number;
-};
+// The backend sends no balance score: the gauge derives it from the real
+// load average. Everything else mirrors the API shapes.
+type WorkloadView = WorkspaceWorkload;
 
 
 
@@ -169,7 +168,9 @@ export default function WorkloadPage() {
     () => membersList.reduce((acc, m) => acc + (m.assignedTasks || 0), 0),
     [membersList],
   );
-  const balanceScore = workloadData?.balanceScore ?? 100;
+  const balanceScore = calculateBalanceScore(
+    workloadData?.averageWorkload ?? 0,
+  );
 
   const lowCount = useMemo(
     () => membersList.filter((m) => m.workloadLevel === "LOW").length,

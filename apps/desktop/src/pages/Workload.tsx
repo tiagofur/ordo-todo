@@ -18,6 +18,7 @@ import {
   CheckSquare,
 } from "lucide-react";
 import { cn } from "@ordo-todo/ui";
+import { calculateBalanceScore } from "@ordo-todo/core";
 import { apiClient } from "@/lib/api-client";
 import { PageTransition } from "@/components/motion";
 import { useWorkspaces } from "@/lib/shared-hooks";
@@ -78,57 +79,34 @@ export function Workload() {
   const fetchWorkload = async (workspaceId: string) => {
     setIsRefreshing(true);
     try {
-      const data: any = await apiClient.getWorkspaceWorkload(workspaceId);
+      // Typed response: the backend sends exactly these fields (no `id`,
+      // `activeTaskCount`, `variance` or `recommendations` variants).
+      const data = await apiClient.getWorkspaceWorkload(workspaceId);
 
-      const members: MemberWorkload[] = (data?.members || []).map((m: any) => ({
-        userId: m.userId || m.id || "",
-        userName: m.userName || m.name || "Usuario",
-        userEmail: m.userEmail || m.email || "",
-        avatarUrl: m.avatarUrl || m.image,
-        workloadScore: m.workloadScore ?? 0,
-        assignedTasks: m.assignedTasks ?? m.activeTaskCount ?? 0,
-        completedTasks: m.completedTasks ?? m.completedTaskCount ?? 0,
-        hoursWorkedThisWeek: m.hoursWorkedThisWeek ?? m.hoursLogged ?? 0,
-        trend: m.trend || "STABLE",
-        workloadLevel:
-          m.workloadLevel ||
-          (m.workloadScore > 80
-            ? "OVERLOADED"
-            : m.workloadScore > 60
-              ? "HIGH"
-              : m.workloadScore > 30
-                ? "MODERATE"
-                : "LOW"),
+      const members: MemberWorkload[] = (data.members || []).map((m) => ({
+        userId: m.userId,
+        userName: m.userName,
+        userEmail: m.userEmail,
+        avatarUrl: m.avatarUrl,
+        workloadScore: m.workloadScore,
+        assignedTasks: m.assignedTasks,
+        completedTasks: m.completedTasks,
+        hoursWorkedThisWeek: m.hoursWorkedThisWeek,
+        trend: m.trend,
+        workloadLevel: m.workloadLevel,
       }));
 
-      const averageWorkload =
-        data?.averageWorkload ??
-        (members.length > 0
-          ? Math.round(
-              members.reduce(
-                (acc: number, m: MemberWorkload) => acc + m.workloadScore,
-                0,
-              ) / members.length,
-            )
-          : 0);
-
-      const balanceScore =
-        data?.balanceScore ??
-        (data?.variance !== undefined ? Math.max(0, 100 - data.variance) : 100);
+      const averageWorkload = data.averageWorkload;
+      const balanceScore = calculateBalanceScore(averageWorkload);
 
       const redistributionSuggestions: WorkloadSuggestion[] = (
-        data?.redistributionSuggestions ||
-        (data?.recommendations || []).map((rec: string) => ({
-          type: "BALANCE",
-          reason: rec,
-          message: rec,
-        }))
-      ).map((s: any) => ({
-        type: s.type || "BALANCE",
-        message: s.message || s.reason || "",
-        reason: s.reason || s.message || "",
-        fromUserName: s.fromUserName || s.fromMember,
-        toUserName: s.toUserName || s.toMember,
+        data.redistributionSuggestions || []
+      ).map((s) => ({
+        type: "REDISTRIBUTE" as const,
+        message: s.reason,
+        reason: s.reason,
+        fromUserName: s.fromUserName,
+        toUserName: s.toUserName,
         taskCount: s.taskCount,
       }));
 
