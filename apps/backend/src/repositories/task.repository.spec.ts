@@ -348,9 +348,29 @@ describe('PrismaTaskRepository', () => {
             },
           ],
         },
+        // Deterministic order: pagination over an unordered query returns
+        // unstable pages (rows overlap or go missing between requests).
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
         include: expect.any(Object),
       });
       expect(result).toHaveLength(1);
+    });
+
+    it('orders deterministically so paged results are stable', async () => {
+      mockPrismaService.task.findMany.mockResolvedValue([]);
+
+      await repository.findByWorkspaceMemberships('user-123', {
+        take: 2,
+        skip: 2,
+      });
+
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 2,
+          skip: 2,
+          orderBy: [{ position: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+        }),
+      );
     });
 
     it('passes take/skip and assigneeId through to findMany', async () => {

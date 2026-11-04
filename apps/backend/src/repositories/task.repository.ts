@@ -467,6 +467,10 @@ export class PrismaTaskRepository implements TaskRepository {
 
     const tasks = await this.prisma.task.findMany({
       where,
+      // Deterministic order is required for correct pagination: without
+      // ORDER BY, Postgres returns rows in unspecified order and pages can
+      // overlap or miss rows between requests.
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
       ...(filters?.take !== undefined ? { take: filters.take } : {}),
       ...(filters?.skip !== undefined ? { skip: filters.skip } : {}),
       include: {
