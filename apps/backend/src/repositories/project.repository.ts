@@ -82,6 +82,10 @@ export class PrismaProjectRepository implements ProjectRepository {
   ): Promise<Project[]> {
     const projects = await this.prisma.project.findMany({
       where: { workspaceId, isDeleted: false },
+      // Deterministic order is required for correct pagination: without
+      // ORDER BY, Postgres returns rows in unspecified order and pages can
+      // overlap or miss rows between requests.
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
       ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
       ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
     });
@@ -103,6 +107,10 @@ export class PrismaProjectRepository implements ProjectRepository {
           },
         },
       },
+      // Deterministic order is required for correct pagination: without
+      // ORDER BY, Postgres returns rows in unspecified order and pages can
+      // overlap or miss rows between requests.
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
       ...(pagination?.take !== undefined ? { take: pagination.take } : {}),
       ...(pagination?.skip !== undefined ? { skip: pagination.skip } : {}),
     });
