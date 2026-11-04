@@ -8,6 +8,7 @@ export type { TokenStorage } from './utils/storage';
 
 // Types
 export * from './types';
+export { normalizeMeetingAnalysis } from './meeting-analysis';
 
 // Pre-configured instance
 export { apiClient } from './api-instance';

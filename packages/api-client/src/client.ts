@@ -4,6 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import type { TokenStorage } from "./utils/storage";
+import { normalizeMeetingAnalysis } from "./meeting-analysis";
 import type {
   // Auth
   RegisterDto,
@@ -3474,7 +3475,8 @@ export class OrdoApiClient {
       transcript,
       ...options,
     });
-    return response.data;
+    // AI output drifts from the contract: normalize, don't cast.
+    return normalizeMeetingAnalysis(response.data);
   }
 
   /**
