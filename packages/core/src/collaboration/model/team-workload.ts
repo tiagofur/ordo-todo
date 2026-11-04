@@ -30,6 +30,15 @@ export interface MemberWorkload {
     };
 }
 
+/**
+ * Balance gauge (0-100, higher = healthier) derived from the backend load
+ * average. The API sends no balance score: `averageWorkload` is a 0-100
+ * load average (higher = more loaded), so balance is its inverse.
+ */
+export function calculateBalanceScore(averageWorkload: number): number {
+    return Math.min(100, Math.max(0, Math.round(100 - averageWorkload)));
+}
+
 export interface TeamWorkloadSummary {
     workspaceId: string;
     workspaceName: string;

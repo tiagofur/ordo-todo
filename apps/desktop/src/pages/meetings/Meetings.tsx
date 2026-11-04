@@ -34,45 +34,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface ActionItem {
-  action?: string;
-  title?: string;
-  description?: string;
-  assignee?: string;
-  priority: "HIGH" | "MEDIUM" | "LOW" | "URGENT";
-  dueDate?: string;
-  context?: string;
-}
-
-interface Decision {
-  decision: string;
-  madeBy?: string;
-  context?: string;
-  participants?: string[];
-}
-
-interface Participant {
-  name: string;
-  role?: string;
-  speakingTime?: number;
-}
-
-interface Topic {
-  topic: string;
-  duration?: number;
-  summary?: string;
-}
-
-interface MeetingAnalysis {
-  summary: string;
-  keyPoints: string[];
-  actionItems: ActionItem[];
-  decisions: (Decision | string)[];
-  participants: (Participant | string)[];
-  duration?: string;
-  sentiment: "POSITIVE" | "NEUTRAL" | "NEGATIVE" | "MIXED";
-  topics: (Topic | string)[];
-}
+import type { MeetingAnalysis } from "@ordo-todo/api-client";
 
 export function Meetings() {
   const { t } = (useTranslation as any)();
@@ -215,12 +177,12 @@ export function Meetings() {
     setIsConverting(true);
     try {
       const itemsToConvert = analysis.actionItems.map((item) => ({
-        title: item.title || item.action || "Untitled Task",
+        title: item.title || "Untitled Task",
         description: item.description,
         assignee: item.assignee,
-        priority: item.priority || "MEDIUM",
+        priority: item.priority,
         dueDate: item.dueDate,
-        context: item.context || "",
+        context: item.context,
       }));
 
       const res = await apiClient.convertActionsToTasks(itemsToConvert);
@@ -722,11 +684,7 @@ export function Meetings() {
                     >
                       <div className="p-4.5 pt-0 space-y-4">
                         <p className="text-sm leading-relaxed text-foreground/90">
-                          {typeof analysis.summary === "string"
-                            ? analysis.summary
-                            : (analysis.summary as any)?.text ||
-                              (analysis.summary as any)?.summary ||
-                              String(analysis.summary)}
+                          {analysis.summary}
                         </p>
 
                         {analysis.keyPoints.length > 0 && (
@@ -736,13 +694,7 @@ export function Meetings() {
                             </h4>
                             <ul className="space-y-2">
                               {analysis.keyPoints.map((point, idx) => {
-                                const pointText =
-                                  typeof point === "string"
-                                    ? point
-                                    : (point as any)?.point ||
-                                      (point as any)?.text ||
-                                      (point as any)?.keyPoint ||
-                                      JSON.stringify(point);
+                                const pointText = point;
                                 return (
                                   <li
                                     key={idx}
@@ -763,9 +715,7 @@ export function Meetings() {
                           <div className="pt-2 flex flex-wrap gap-2">
                             {analysis.topics.map((tItem, idx) => {
                               const topicLabel =
-                                typeof tItem === "string"
-                                  ? tItem
-                                  : tItem.topic || tItem.summary || "";
+                                tItem.topic || tItem.summary || "";
                               return (
                                 <span
                                   key={idx}
@@ -816,7 +766,7 @@ export function Meetings() {
                     >
                       <div className="p-4.5 pt-0 space-y-3">
                         {analysis.actionItems.map((item, idx) => {
-                          const actionTitle = item.title || item.action || "";
+                          const actionTitle = item.title || "";
                           return (
                             <div
                               key={idx}
@@ -926,18 +876,8 @@ export function Meetings() {
                       >
                         <div className="p-4.5 pt-0 space-y-3">
                           {analysis.decisions.map((decisionItem, idx) => {
-                            const decisionText =
-                              typeof decisionItem === "string"
-                                ? decisionItem
-                                : decisionItem.decision || "";
-                            const madeBy =
-                              typeof decisionItem === "object"
-                                ? decisionItem.madeBy
-                                : undefined;
-                            const context =
-                              typeof decisionItem === "object"
-                                ? decisionItem.context
-                                : undefined;
+                            const decisionText = decisionItem.decision || "";
+                            const context = decisionItem.context || undefined;
 
                             return (
                               <div
@@ -947,19 +887,9 @@ export function Meetings() {
                                 <p className="text-sm font-medium leading-snug">
                                   {decisionText}
                                 </p>
-                                {(madeBy || context) && (
+                                {context && (
                                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
-                                    {madeBy && (
-                                      <span className="flex items-center gap-1.5">
-                                        <Users className="h-3.5 w-3.5" />
-                                        {madeBy}
-                                      </span>
-                                    )}
-                                    {context && (
-                                      <span className="italic">
-                                        "{context}"
-                                      </span>
-                                    )}
+                                    <span className="italic">"{context}"</span>
                                   </div>
                                 )}
                               </div>
@@ -1004,14 +934,8 @@ export function Meetings() {
                         <div className="p-4.5 pt-0">
                           <div className="flex flex-wrap gap-2.5">
                             {analysis.participants.map((pItem, idx) => {
-                              const name =
-                                typeof pItem === "string"
-                                  ? pItem
-                                  : pItem.name || "";
-                              const role =
-                                typeof pItem === "object"
-                                  ? pItem.role
-                                  : undefined;
+                              const name = pItem.name || "";
+                              const role = pItem.role;
 
                               return (
                                 <div

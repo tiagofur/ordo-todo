@@ -714,9 +714,9 @@ export function Wellbeing() {
                     <Sparkles className="h-4 w-4 text-emerald-500" />
                   </div>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
-                    {patterns.consistencyScore
-                      ? Math.round(patterns.consistencyScore) + "%"
-                      : "Óptima"}
+                    {/* The backend sends no consistency score; "Óptima" is what
+                        renders today. Kept static until the API provides it. */}
+                    Óptima
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground truncate">
                     Regularidad de horarios
