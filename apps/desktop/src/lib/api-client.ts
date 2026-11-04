@@ -117,8 +117,24 @@ export const apiClient = new DesktopApiClient({
     handlingAuthError = true;
     try {
       console.log("[API Client] Auth error - token expired or invalid");
+      // 1. Limpieza local síncrona PRIMERO: los guards leen localStorage en
+      // cada render; si el storage de Tauri se cuelga, esto garantiza que la
+      // próxima pintura ya ve hasToken=false en vez de un spinner eterno.
       try {
-        await apiClient.logout();
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+      } catch {
+        // Sin DOM/privacidad estricta: sigue con el resto del teardown.
+      }
+
+      // 2. Logout best-effort con techo: nunca puede colgar el teardown.
+      try {
+        await Promise.race([
+          apiClient.logout(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("logout timeout")), 5000),
+          ),
+        ]);
       } catch {
         // La sesión ya no es válida: basta con limpiar el estado local.
       }
@@ -127,7 +143,14 @@ export const apiClient = new DesktopApiClient({
         queryClientInstance.clear();
       }
 
-      // Auth context will handle logout and redirect to login because of the clear() and logout()
+      // 3. Salida dura a /auth: desmonta los guards y corta cualquier
+      // tormenta clear→refetch antes de que pinte otro spinner.
+      if (
+        typeof window !== "undefined" &&
+        !window.location.hash.startsWith("#/auth")
+      ) {
+        window.location.hash = "#/auth";
+      }
     } finally {
       handlingAuthError = false;
     }
