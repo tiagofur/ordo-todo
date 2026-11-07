@@ -3485,5 +3485,42 @@
       "cancel": "Cancelar",
       "save": "Salvar"
     }
+  },
+  "Native": {
+    "tabs": {
+      "today": "Hoje",
+      "tasks": "Tarefas",
+      "habits": "Hábitos",
+      "settings": "Ajustes"
+    },
+    "today": {
+      "progress": "{done, number} de {total, number}",
+      "sections": {
+        "overdue": "Atrasadas",
+        "morning": "Manhã",
+        "afternoon": "Tarde",
+        "evening": "Noite",
+        "anytime": "Qualquer hora",
+        "done": "Concluídas ({count, number})"
+      },
+      "empty": {
+        "title": "Agenda livre",
+        "body": "Nada planejado para hoje.",
+        "upcoming": "Ver próximas"
+      }
+    },
+    "actions": {
+      "addTask": "Adicionar tarefa",
+      "complete": "Concluir",
+      "undo": "Desfazer",
+      "moveToTomorrow": "Amanhã",
+      "delete": "Excluir",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "startFocus": "Iniciar foco"
+    },
+    "habits": {
+      "streak": "{count, plural, one {# dia} other {# dias}}"
+    }
   }
 }

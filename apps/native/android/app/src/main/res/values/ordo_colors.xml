@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED FILE — DO NOT EDIT. Source: packages/styles/src/tokens.ts. Regenerate with: npm run generate -w @ordo-todo/native-codegen -->
+<resources>
+    <color name="ordo_brand_mark">#AD46FF</color>
+    <color name="ordo_window_background">#FDF8FD</color>
+</resources>

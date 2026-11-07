@@ -3485,5 +3485,42 @@
       "cancel": "Cancelar",
       "save": "Guardar"
     }
+  },
+  "Native": {
+    "tabs": {
+      "today": "Hoy",
+      "tasks": "Tareas",
+      "habits": "Hábitos",
+      "settings": "Ajustes"
+    },
+    "today": {
+      "progress": "{done, number} de {total, number}",
+      "sections": {
+        "overdue": "Vencidas",
+        "morning": "Mañana",
+        "afternoon": "Tarde",
+        "evening": "Noche",
+        "anytime": "Cuando sea",
+        "done": "Hechas ({count, number})"
+      },
+      "empty": {
+        "title": "Día despejado",
+        "body": "No tienes nada planificado para hoy.",
+        "upcoming": "Ver próximos"
+      }
+    },
+    "actions": {
+      "addTask": "Añadir tarea",
+      "complete": "Completar",
+      "undo": "Deshacer",
+      "moveToTomorrow": "Mañana",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "startFocus": "Empezar foco"
+    },
+    "habits": {
+      "streak": "{count, plural, one {# día} other {# días}}"
+    }
   }
 }

@@ -463,6 +463,17 @@ export const sectionColors = {
     wellbeing: '#F43F5E',
 } as const;
 
+// ============ BRAND COLORS ============
+
+/**
+ * Brand identity colors (DESIGN.md "La Regla de la Marca Púrpura"):
+ * identity only — BrandMark, app icons, themeColor. Never an action color;
+ * actions use `primary`.
+ */
+export const brandColors = {
+    mark: '#AD46FF',
+} as const;
+
 // ============ HELPER FUNCTIONS ============
 
 /**
@@ -514,6 +525,7 @@ export const tokens = {
         status: statusColors,
         timer: timerColors,
         section: sectionColors,
+        brand: brandColors,
     },
     spacing,
     namedSpacing,

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED FILE — DO NOT EDIT. Source: packages/i18n/src/locales/en.json (namespace "Native"). Regenerate with: npm run generate -w @ordo-todo/native-codegen -->
+<resources>
+    <string name="tabs_today">Today</string>
+    <string name="tabs_tasks">Tasks</string>
+    <string name="tabs_habits">Habits</string>
+    <string name="tabs_settings">Settings</string>
+    <!-- args: %1$d = done, %2$d = total -->
+    <string name="today_progress">%1$d of %2$d</string>
+    <string name="today_sections_overdue">Overdue</string>
+    <string name="today_sections_morning">Morning</string>
+    <string name="today_sections_afternoon">Afternoon</string>
+    <string name="today_sections_evening">Evening</string>
+    <string name="today_sections_anytime">Anytime</string>
+    <!-- args: %1$d = count -->
+    <string name="today_sections_done">Done (%1$d)</string>
+    <string name="today_empty_title">Clear day</string>
+    <string name="today_empty_body">Nothing planned for today.</string>
+    <string name="today_empty_upcoming">See upcoming</string>
+    <string name="actions_add_task">Add task</string>
+    <string name="actions_complete">Complete</string>
+    <string name="actions_undo">Undo</string>
+    <string name="actions_move_to_tomorrow">Tomorrow</string>
+    <string name="actions_delete">Delete</string>
+    <string name="actions_save">Save</string>
+    <string name="actions_cancel">Cancel</string>
+    <string name="actions_start_focus">Start focus</string>
+    <!-- args: %1$d = count -->
+    <plurals name="habits_streak">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+</resources>
