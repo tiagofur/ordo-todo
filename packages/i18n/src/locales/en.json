@@ -3485,5 +3485,42 @@
       "cancel": "Cancel",
       "save": "Save"
     }
+  },
+  "Native": {
+    "tabs": {
+      "today": "Today",
+      "tasks": "Tasks",
+      "habits": "Habits",
+      "settings": "Settings"
+    },
+    "today": {
+      "progress": "{done, number} of {total, number}",
+      "sections": {
+        "overdue": "Overdue",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "anytime": "Anytime",
+        "done": "Done ({count, number})"
+      },
+      "empty": {
+        "title": "Clear day",
+        "body": "Nothing planned for today.",
+        "upcoming": "See upcoming"
+      }
+    },
+    "actions": {
+      "addTask": "Add task",
+      "complete": "Complete",
+      "undo": "Undo",
+      "moveToTomorrow": "Tomorrow",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "startFocus": "Start focus"
+    },
+    "habits": {
+      "streak": "{count, plural, one {# day} other {# days}}"
+    }
   }
 }

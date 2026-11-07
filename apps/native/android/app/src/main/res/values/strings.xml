@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED FILE — DO NOT EDIT. Source: packages/i18n/src/locales/es.json (namespace "Native"). Regenerate with: npm run generate -w @ordo-todo/native-codegen -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    <string name="tabs_today">Hoy</string>
+    <string name="tabs_tasks">Tareas</string>
+    <string name="tabs_habits">Hábitos</string>
+    <string name="tabs_settings">Ajustes</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="today_progress">%1$d de %2$d</string>
+    <string name="today_sections_overdue">Vencidas</string>
+    <string name="today_sections_morning">Mañana</string>
+    <string name="today_sections_afternoon">Tarde</string>
+    <string name="today_sections_evening">Noche</string>
+    <string name="today_sections_anytime">Cuando sea</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="today_sections_done">Hechas (%1$d)</string>
+    <string name="today_empty_title">Día despejado</string>
+    <string name="today_empty_body">No tienes nada planificado para hoy.</string>
+    <string name="today_empty_upcoming">Ver próximos</string>
+    <string name="actions_add_task">Añadir tarea</string>
+    <string name="actions_complete">Completar</string>
+    <string name="actions_undo">Deshacer</string>
+    <string name="actions_move_to_tomorrow">Mañana</string>
+    <string name="actions_delete">Eliminar</string>
+    <string name="actions_save">Guardar</string>
+    <string name="actions_cancel">Cancelar</string>
+    <string name="actions_start_focus">Empezar foco</string>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="habits_streak">
+        <item quantity="one">%1$d día</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
+</resources>

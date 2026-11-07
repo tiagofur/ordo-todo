@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose draws the UI; the window only needs the scheme surface so launch never flashes. -->
+    <style name="Theme.OrdoTodo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/ordo_window_background</item>
+    </style>
+</resources>

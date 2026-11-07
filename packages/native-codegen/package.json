@@ -1,0 +1,21 @@
+{
+  "name": "@ordo-todo/native-codegen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generates the native apps' design tokens and string catalogs from the shared Ordo Todo sources (packages/styles, packages/i18n)",
+  "type": "module",
+  "scripts": {
+    "generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts generate",
+    "check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts check",
+    "test": "vitest run",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@material/material-color-utilities": "^0.3.0",
+    "@ordo-todo/styles": "*",
+    "@ordo-todo/typescript-config": "*",
+    "@types/node": "^26.6.6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.0.5"
+  }
+}
