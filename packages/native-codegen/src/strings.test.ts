@@ -41,6 +41,22 @@ describe('parseIcu + toAndroidResource', () => {
     expect(stringValue("Use '{braces}' literally")).toBe('Use {braces} literally');
   });
 
+  it('matches formatjs on quoted angle brackets and apostrophes inside quotes', () => {
+    expect(stringValue("Pulsa '<' para volver")).toBe('Pulsa &lt; para volver');
+    expect(stringValue("El '>' cierra")).toBe('El &gt; cierra');
+    expect(stringValue("'{a''}'")).toBe("{a\\'}");
+  });
+
+  it('escapes backslashes first, before any other rule applies', () => {
+    expect(stringValue('a\\b')).toBe('a\\\\b');
+    expect(stringValue('100% \\ ok')).toBe('100% \\\\ ok');
+  });
+
+  it('rejects control characters, including carriage returns', () => {
+    expect(() => render('a\rb')).toThrow(/U\+000d/);
+    expect(() => render('a\u0007b')).toThrow(/U\+0007/);
+  });
+
   it('turns arguments into positional placeholders, numeric ones as %d', () => {
     expect(stringValue('{done, number} de {total, number}')).toBe('%1$d de %2$d');
     expect(stringValue('Hola, {name}')).toBe('Hola, %1$s');
@@ -69,6 +85,18 @@ describe('parseIcu + toAndroidResource', () => {
     expect([...res.items.keys()]).toEqual(['one', 'many', 'other']);
   });
 
+  it('doubles literal percent signs inside plural branches too', () => {
+    const res = render('{n, plural, other {al # %}}');
+    if (res.kind !== 'plurals') throw new Error('expected plurals');
+    expect(res.items.get('other')).toBe('al %1$d %%');
+  });
+
+  it('keeps a quoted # as literal text inside a branch', () => {
+    const res = render("{n, plural, other {'#'}}");
+    if (res.kind !== 'plurals') throw new Error('expected plurals');
+    expect(res.items.get('other')).toBe('#');
+  });
+
   it.each([
     ['{n, select, a {A} other {B}}', /"select" arguments are not supported/],
     ['{n, plural, =0 {nada} other {#}}', /exact plural matches/],
@@ -79,6 +107,7 @@ describe('parseIcu + toAndroidResource', () => {
     ['{n, number, percent}', /number styles are not supported/],
     ['{1bad}', /invalid argument name/],
     ['abre {sin cerrar', /unterminated placeholder/],
+    ["nunca '{ se cierra", /unterminated quoted literal/],
     ['cierra }', /unbalanced/],
   ])('rejects unsupported ICU: %s', (message, error) => {
     expect(() => render(message)).toThrow(error);
@@ -161,8 +190,14 @@ describe('renderStringsXml', () => {
     const xml = renderStringsXml(out.get('es')!, 'packages/i18n/src/locales/es.json', 'es');
     expect(xml).toContain('tools:locale="es"');
     expect(xml).toContain('<string name="tab">Hoy</string>');
-    expect(xml).toContain('<!-- args: %1$d = count -->');
+    expect(xml).toContain('<!-- args: %1$d = count (Int) -->');
     expect(xml).toContain('<item quantity="one">%1$d día</item>');
     expect(renderStringsXml(out.get('es')!, 'x.json')).toContain('<resources>\n');
+  });
+
+  it('marks strings with a literal % as formatted="false"', () => {
+    const out = buildAndroidResources([{ locale: 'es', messages: { sure: '100% seguro' } }]);
+    const xml = renderStringsXml(out.get('es')!, 'es.json');
+    expect(xml).toContain('<string name="sure" formatted="false">100% seguro</string>');
   });
 });

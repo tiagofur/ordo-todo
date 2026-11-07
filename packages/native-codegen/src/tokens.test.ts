@@ -1,7 +1,13 @@
 import { darkColors, lightColors, sectionColors } from '@ordo-todo/styles/tokens';
 import { describe, expect, it } from 'vitest';
-import { contrastRatio, kotlinColor } from './color.ts';
-import { M3_ROLES, buildSchemes, renderColorResources, renderKotlinTokens } from './tokens.ts';
+import { contrastRatio, hexFromToken, kotlinColor } from './color.ts';
+import {
+  M3_ROLES,
+  buildPalettes,
+  buildSchemes,
+  renderColorResources,
+  renderKotlinTokens,
+} from './tokens.ts';
 
 const { light, dark } = buildSchemes();
 
@@ -22,9 +28,10 @@ describe('buildSchemes', () => {
     expect(dark.surfaceTint).toBe(dark.primary);
   });
 
-  it('shows the other theme’s primary on inverse surfaces', () => {
-    expect(light.inversePrimary).toBe(darkColors.primary);
-    expect(dark.inversePrimary).toBe(lightColors.primary);
+  it('keeps inversePrimary on its palette tone: the brand hex misses AA as inverse text', () => {
+    const palettes = buildPalettes(lightColors.primary);
+    expect(light.inversePrimary).toBe(hexFromToken(palettes.primary.tone(80)));
+    expect(dark.inversePrimary).toBe(hexFromToken(palettes.primary.tone(40)));
   });
 
   it.each([
@@ -42,8 +49,16 @@ describe('buildSchemes', () => {
       ['surface', 'onSurfaceVariant'],
       ['surfaceContainerHighest', 'onSurface'],
       ['inverseSurface', 'inverseOnSurface'],
+      // primary as text: snackbar action, focused labels, text buttons on containers.
+      ['surface', 'primary'],
+      ['surfaceContainerHigh', 'primary'],
+      ['surfaceContainerHighest', 'primary'],
+      ['inverseSurface', 'inversePrimary'],
     ] as const;
-    for (const [bg, fg] of textPairs) {
+    const pairs = scheme === light ? [...textPairs, ['surfaceVariant', 'primary'] as const] : textPairs;
+    // (dark never pairs primary text with surfaceVariant: filled fields sit on
+    // surfaceContainerHighest, where the light violet clears AA by far.)
+    for (const [bg, fg] of pairs) {
       expect(contrastRatio(scheme[bg], scheme[fg]), `${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);
     }
   });
@@ -51,8 +66,7 @@ describe('buildSchemes', () => {
   it.each([
     ['light', light],
     ['dark', dark],
-  ] as const)('keeps interactive accents and outlines at 3:1 on the %s surface', (_, scheme) => {
-    expect(contrastRatio(scheme.surface, scheme.primary)).toBeGreaterThanOrEqual(3);
+  ] as const)('keeps outlines at 3:1 on the %s surface', (_, scheme) => {
     expect(contrastRatio(scheme.surface, scheme.outline)).toBeGreaterThanOrEqual(3);
   });
 

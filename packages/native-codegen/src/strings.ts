@@ -6,6 +6,12 @@ import { REGENERATE_COMMAND } from './paths.ts';
  * plain text, `{arg}`, `{arg, number}` and one top-level `{n, plural, …}` with
  * `#`. Anything else (select, exact `=N` matches, nested plurals, rich-text
  * tags) fails loudly instead of shipping a string that renders wrong.
+ *
+ * Quoted literals follow formatjs: a `'` before `{`, `}`, `<`, `>` (and `#`
+ * inside plurals) opens a literal, `''` is an apostrophe, a lone `'` closes it.
+ *
+ * Numeric arguments render as `%N$d`: pass Kotlin `Int` (a Float/Double throws
+ * at format time) and expect no ICU locale grouping for thousands.
  */
 
 export type IcuNode =
@@ -26,6 +32,12 @@ export class IcuSubsetError extends Error {
 
 const ARG_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const RICH_TAG = /^<\/?[A-Za-z][\w-]*\s*\/?>/;
+
+/** C0 controls (except tab and newline) and DEL: invalid XML 1.0 characters. */
+function isControlChar(ch: string): boolean {
+  const code = ch.charCodeAt(0);
+  return (code < 0x20 && ch !== '\t' && ch !== '\n') || code === 0x7f;
+}
 
 class IcuParser {
   private pos = 0;
@@ -63,11 +75,32 @@ class IcuParser {
         if (next === "'") {
           text += "'";
           this.pos += 2;
-        } else if (next === '{' || next === '}' || (inPlural && next === '#')) {
-          const end = this.src.indexOf("'", this.pos + 1);
-          if (end === -1) this.fail('unterminated quoted literal');
-          text += this.src.slice(this.pos + 1, end);
-          this.pos = end + 1;
+        } else if (
+          next === '{' ||
+          next === '}' ||
+          next === '<' ||
+          next === '>' ||
+          (inPlural && next === '#')
+        ) {
+          // ICU quoted literal (formatjs opens quotes before < and > too).
+          // Inside it, '' is an apostrophe; the literal ends at a single '.
+          this.pos += 1;
+          for (;;) {
+            const quoted = this.src[this.pos];
+            if (quoted === undefined) this.fail('unterminated quoted literal');
+            if (quoted === "'") {
+              if (this.src[this.pos + 1] === "'") {
+                text += "'";
+                this.pos += 2;
+              } else {
+                this.pos += 1;
+                break;
+              }
+            } else {
+              text += quoted;
+              this.pos += 1;
+            }
+          }
         } else {
           text += "'";
           this.pos += 1;
@@ -84,6 +117,10 @@ class IcuParser {
         this.pos += 1;
       } else if (ch === '<' && RICH_TAG.test(this.src.slice(this.pos))) {
         this.fail('rich-text tags are not supported in native strings');
+      } else if (isControlChar(ch)) {
+        this.fail(
+          `control character U+${ch.charCodeAt(0).toString(16).padStart(4, '0')} is not supported; use \\n for line breaks`,
+        );
       } else {
         text += ch;
         this.pos += 1;
@@ -380,7 +417,9 @@ export function buildAndroidResources(
 
 function argsComment(args: Map<string, ArgInfo>): string {
   const list = [...args.entries()]
-    .map(([name, info]) => `%${info.position}$${info.numeric ? 'd' : 's'} = ${name}`)
+    .map(([name, info]) =>
+      info.numeric ? `%${info.position}$d = ${name} (Int)` : `%${info.position}$s = ${name}`,
+    )
     .join(', ');
   return `    <!-- args: ${list} -->\n`;
 }

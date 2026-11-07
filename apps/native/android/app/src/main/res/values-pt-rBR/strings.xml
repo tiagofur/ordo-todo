@@ -5,14 +5,14 @@
     <string name="tabs_tasks">Tarefas</string>
     <string name="tabs_habits">Hábitos</string>
     <string name="tabs_settings">Ajustes</string>
-    <!-- args: %1$d = done, %2$d = total -->
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
     <string name="today_progress">%1$d de %2$d</string>
     <string name="today_sections_overdue">Atrasadas</string>
     <string name="today_sections_morning">Manhã</string>
     <string name="today_sections_afternoon">Tarde</string>
     <string name="today_sections_evening">Noite</string>
     <string name="today_sections_anytime">Qualquer hora</string>
-    <!-- args: %1$d = count -->
+    <!-- args: %1$d = count (Int) -->
     <string name="today_sections_done">Concluídas (%1$d)</string>
     <string name="today_empty_title">Agenda livre</string>
     <string name="today_empty_body">Nada planejado para hoje.</string>
@@ -25,7 +25,7 @@
     <string name="actions_save">Salvar</string>
     <string name="actions_cancel">Cancelar</string>
     <string name="actions_start_focus">Iniciar foco</string>
-    <!-- args: %1$d = count -->
+    <!-- args: %1$d = count (Int) -->
     <plurals name="habits_streak">
         <item quantity="one">%1$d dia</item>
         <item quantity="other">%1$d dias</item>

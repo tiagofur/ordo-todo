@@ -96,7 +96,10 @@ const LIGHT_TONES: Record<Exclude<M3Role, 'surfaceTint'>, ToneSpec> = {
   onBackground: ['neutral', 10],
   surface: ['neutral', 98],
   onSurface: ['neutral', 10],
-  surfaceVariant: ['neutralVariant', 90],
+  // The brand primary sits at HCT tone ~43 (not Material's 40), so primary-as-text
+  // misses AA (4.4:1) on the canonical tone-90 surfaces. These three move two tones
+  // lighter (4.6:1+) keeping the container ladder monotonic; everything else canonical.
+  surfaceVariant: ['neutralVariant', 92],
   onSurfaceVariant: ['neutralVariant', 30],
   inverseSurface: ['neutral', 20],
   inverseOnSurface: ['neutral', 95],
@@ -109,8 +112,8 @@ const LIGHT_TONES: Record<Exclude<M3Role, 'surfaceTint'>, ToneSpec> = {
   scrim: ['neutral', 0],
   surfaceBright: ['neutral', 98],
   surfaceContainer: ['neutral', 94],
-  surfaceContainerHigh: ['neutral', 92],
-  surfaceContainerHighest: ['neutral', 90],
+  surfaceContainerHigh: ['neutral', 93],
+  surfaceContainerHighest: ['neutral', 92],
   surfaceContainerLow: ['neutral', 96],
   surfaceContainerLowest: ['neutral', 100],
   surfaceDim: ['neutral', 87],
@@ -172,7 +175,6 @@ export function buildPalettes(seedHex: string): Record<PaletteKey, TonalPalette>
 interface BrandOverrides {
   primary: string;
   onPrimary: string;
-  inversePrimary: string;
 }
 
 function buildScheme(
@@ -187,9 +189,10 @@ function buildScheme(
     scheme[role] = hexFromToken(palettes[palette].tone(tone));
   }
   // Brand fidelity: the action voice is the exact token, not the nearest tone.
+  // inversePrimary keeps its palette tone (80 light / 40 dark): the brand hex is
+  // HCT tone ~43, which misses AA as text on the tone-90 inverse surfaces.
   scheme.primary = brand.primary;
   scheme.onPrimary = brand.onPrimary;
-  scheme.inversePrimary = brand.inversePrimary;
   scheme.surfaceTint = brand.primary;
   return scheme;
 }
@@ -201,12 +204,10 @@ export function buildSchemes(): { light: ColorScheme; dark: ColorScheme } {
     light: buildScheme(palettes, LIGHT_TONES, {
       primary: lightColors.primary,
       onPrimary: lightColors.primaryForeground,
-      inversePrimary: darkColors.primary,
     }),
     dark: buildScheme(palettes, DARK_TONES, {
       primary: darkColors.primary,
       onPrimary: darkColors.primaryForeground,
-      inversePrimary: lightColors.primary,
     }),
   };
 }
