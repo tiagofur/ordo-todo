@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Lista del Día — la agenda serena</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{font-family:Inter,-apple-system,sans-serif;background:#F4F4F6;color:#18181B;position:relative;-webkit-font-smoothing:antialiased}
+.status{height:47px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 30px 7px;font-weight:600;font-size:15px}
+.status i{display:inline-block;width:24px;height:11px;border:1.5px solid #18181B;border-radius:3px;margin-left:6px;vertical-align:middle}
+.nav{padding:6px 20px 0}
+.date{font-size:13px;font-weight:600;color:#7C3AED;text-transform:uppercase;letter-spacing:.04em}
+.titlerow{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+h1{font-size:34px;font-weight:700;letter-spacing:-.01em}
+.right{display:flex;gap:12px;align-items:center}
+.ring{position:relative;width:40px;height:40px}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:700;color:#7C3AED}
+.plus{width:36px;height:36px;border-radius:50%;background:#EDE9FE;color:#7C3AED;display:grid;place-items:center;font-size:22px;font-weight:500}
+.label{font-size:13px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin:16px 24px 7px}
+.group{margin:0 16px;background:#fff;border-radius:14px;border:1px solid #E5E7EB;overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;min-height:50px;padding:0 14px;border-top:1px solid #F1F1F3;font-size:15px}
+.item:first-child{border-top:0}
+.ck{width:20px;height:20px;border-radius:50%;border:2px solid #C4B5FD;flex:none}
+.ck.on{background:#7C3AED;border-color:#7C3AED}
+.ck.hab{border-color:#10B981}
+.t{flex:1;display:flex;flex-direction:column;gap:2px}
+.t small{font-size:12px;color:#6B7280;display:flex;align-items:center;gap:5px}
+.t small b{width:7px;height:7px;border-radius:50%;background:#EC4899}
+.h{font-size:13px;color:#6B7280}
+.struck .t{color:#A1A1AA;text-decoration:line-through}
+.line{display:flex;align-items:center;margin-top:4px}
+.st{width:10px;height:10px;border-radius:50%;border:2px solid #10B981;background:#fff;flex:none}
+.st.on{background:#10B981}
+.seg{width:14px;height:2.5px;background:#10B981}
+.seg.off{background:#D1FAE5}
+.streak{font-size:12px;font-weight:600;color:#059669;margin-left:8px}
+.block{display:flex;align-items:center;gap:12px;min-height:50px;padding:0 14px 0 0;border-top:1px solid #F1F1F3;background:#EFF6FF;font-size:15px;color:#1E3A8A}
+.block i{width:4px;align-self:stretch;background:#3B82F6}
+.block .h{color:#3B82F6}
+.mini{position:absolute;left:10px;right:10px;bottom:94px;height:62px;border-radius:18px;background:#18181B;color:#fff;display:flex;align-items:center;gap:12px;padding:0 14px;box-shadow:0 10px 30px rgba(24,24,27,.25);overflow:hidden}
+.pr{width:38px;height:38px;border-radius:50%;border:3px solid #3F3F46;border-top-color:#A78BFA;border-right-color:#A78BFA;display:grid;place-items:center;flex:none}
+.pr i{width:10px;height:12px;border-left:3px solid #fff;border-right:3px solid #fff}
+.mt{flex:1;display:flex;flex-direction:column;gap:2px}
+.mt b{font-size:15px;font-weight:600}
+.mt small{font-size:12px;color:#A1A1AA}
+.stop{width:14px;height:14px;border-radius:3px;background:#fff;opacity:.85}
+.mbar{position:absolute;left:0;bottom:0;height:3px;width:28%;background:#A78BFA}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:84px;background:rgba(250,250,250,.94);border-top:1px solid #E5E7EB;display:flex;justify-content:space-around;padding-top:8px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:500;color:#9CA3AF;width:70px}
+.tab i{width:24px;height:24px;border-radius:7px;background:#D4D4D8}
+.tab.on{color:#7C3AED}.tab.on i{background:#7C3AED}
+.home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#18181B}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>5G <i></i></span></div>
+<div class="nav">
+  <div class="date">Jueves 6 nov</div>
+  <div class="titlerow"><h1>Hoy</h1>
+    <div class="right">
+      <div class="ring"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#EDE9FE" stroke-width="4"/><circle cx="20" cy="20" r="17" fill="none" stroke="#7C3AED" stroke-width="4" stroke-linecap="round" stroke-dasharray="47.5 107" transform="rotate(-90 20 20)"/></svg><b>4/9</b></div>
+      <div class="plus">+</div>
+    </div>
+  </div>
+</div>
+<div class="label">Mañana</div>
+<div class="group">
+  <div class="item struck"><span class="ck on"></span><span class="t">Correr 5 km</span><span class="h">7:00</span></div>
+  <div class="item"><span class="ck"></span><span class="t">Revisar propuesta de onboarding<small><b></b>Rediseño web · 2/5</small></span><span class="h">11:00</span></div>
+  <div class="item"><span class="ck hab"></span><span class="t">Leer 20 min
+    <span class="line"><span class="st on"></span><span class="seg"></span><span class="st on"></span><span class="seg"></span><span class="st on"></span><span class="seg off"></span><span class="st"></span><span class="seg"></span><span class="st on"></span><span class="seg"></span><span class="st on"></span><span class="seg"></span><span class="st"></span><span class="streak">12 días</span></span></span></div>
+</div>
+<div class="label">Tarde</div>
+<div class="group">
+  <div class="block"><i></i><span class="t">Bloque de foco</span><span class="h">15:00–16:30</span></div>
+  <div class="item"><span class="ck"></span><span class="t">Enviar factura de octubre</span><span class="h">15:00</span></div>
+  <div class="item"><span class="ck"></span><span class="t">Responder a Marta — feedback Q4</span><span class="h">17:30</span></div>
+</div>
+<div class="label">Cuando sea</div>
+<div class="group">
+  <div class="item"><span class="ck"></span><span class="t">Preparar demo para el equipo</span><span class="h"></span></div>
+</div>
+<div class="mini">
+  <div class="pr"><i></i></div>
+  <div class="mt"><b>Revisar propuesta de onboarding</b><small>Pomodoro · 18:24 restantes</small></div>
+  <div class="stop"></div>
+  <div class="mbar"></div>
+</div>
+<div class="tabbar">
+  <div class="tab on"><i></i>Hoy</div>
+  <div class="tab"><i></i>Tareas</div>
+  <div class="tab"><i></i>Hábitos</div>
+  <div class="tab"><i></i>Ajustes</div>
+</div>
+<div class="home"></div>
+</body>
+</html>
