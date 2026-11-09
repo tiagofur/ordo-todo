@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Debug only: the debug backend runs on the developer's machine over plain
+    HTTP (`http://10.0.2.2:3101`). Release keeps the platform default
+    (cleartext blocked, HTTPS only).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true" />
+</manifest>

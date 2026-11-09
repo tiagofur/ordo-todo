@@ -3506,7 +3506,8 @@
       "empty": {
         "title": "Agenda livre",
         "body": "Nada planejado para hoje.",
-        "upcoming": "Ver próximas"
+        "upcoming": "Ver próximas",
+        "retry": "Tentar de novo"
       }
     },
     "actions": {
@@ -3521,6 +3522,20 @@
     },
     "habits": {
       "streak": "{count, plural, one {# dia} other {# dias}}"
+    },
+    "auth": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "username": "Nome de usuário",
+      "name": "Nome",
+      "inviteCode": "Código de convite (opcional)",
+      "login": "Entrar",
+      "register": "Criar conta",
+      "switchToRegister": "Sem conta? Crie uma",
+      "switchToLogin": "Já tem conta? Entre",
+      "errorNetwork": "Não foi possível conectar. Verifique sua conexão e tente de novo.",
+      "errorAuth": "Verifique seus dados e tente de novo."
     }
   }
 }

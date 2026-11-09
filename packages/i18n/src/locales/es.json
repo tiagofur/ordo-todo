@@ -3506,7 +3506,8 @@
       "empty": {
         "title": "Día despejado",
         "body": "No tienes nada planificado para hoy.",
-        "upcoming": "Ver próximos"
+        "upcoming": "Ver próximos",
+        "retry": "Reintentar"
       }
     },
     "actions": {
@@ -3521,6 +3522,20 @@
     },
     "habits": {
       "streak": "{count, plural, one {# día} other {# días}}"
+    },
+    "auth": {
+      "title": "Iniciar sesión",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "username": "Nombre de usuario",
+      "name": "Nombre",
+      "inviteCode": "Código de invitación (opcional)",
+      "login": "Entrar",
+      "register": "Crear cuenta",
+      "switchToRegister": "¿Sin cuenta? Crea una",
+      "switchToLogin": "¿Ya tienes cuenta? Entra",
+      "errorNetwork": "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
+      "errorAuth": "Revisa tus datos e inténtalo de nuevo."
     }
   }
 }

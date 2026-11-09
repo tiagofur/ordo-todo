@@ -3506,7 +3506,8 @@
       "empty": {
         "title": "Clear day",
         "body": "Nothing planned for today.",
-        "upcoming": "See upcoming"
+        "upcoming": "See upcoming",
+        "retry": "Retry"
       }
     },
     "actions": {
@@ -3521,6 +3522,20 @@
     },
     "habits": {
       "streak": "{count, plural, one {# day} other {# days}}"
+    },
+    "auth": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "username": "Username",
+      "name": "Name",
+      "inviteCode": "Invitation code (optional)",
+      "login": "Sign in",
+      "register": "Create account",
+      "switchToRegister": "No account? Create one",
+      "switchToLogin": "Have an account? Sign in",
+      "errorNetwork": "Couldn't connect. Check your connection and try again.",
+      "errorAuth": "Check your details and try again."
     }
   }
 }

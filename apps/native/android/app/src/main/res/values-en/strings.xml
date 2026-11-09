@@ -17,6 +17,7 @@
     <string name="today_empty_title">Clear day</string>
     <string name="today_empty_body">Nothing planned for today.</string>
     <string name="today_empty_upcoming">See upcoming</string>
+    <string name="today_empty_retry">Retry</string>
     <string name="actions_add_task">Add task</string>
     <string name="actions_complete">Complete</string>
     <string name="actions_undo">Undo</string>
@@ -30,4 +31,16 @@
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>
     </plurals>
+    <string name="auth_title">Sign in</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_name">Name</string>
+    <string name="auth_invite_code">Invitation code (optional)</string>
+    <string name="auth_login">Sign in</string>
+    <string name="auth_register">Create account</string>
+    <string name="auth_switch_to_register">No account? Create one</string>
+    <string name="auth_switch_to_login">Have an account? Sign in</string>
+    <string name="auth_error_network">Couldn\'t connect. Check your connection and try again.</string>
+    <string name="auth_error_auth">Check your details and try again.</string>
 </resources>

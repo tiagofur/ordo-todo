@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Backup stays off until F1 defines rules that exclude session tokens. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Backup stays off so session tokens never leave the device. -->
     <application
         android:allowBackup="false"
         android:enableOnBackInvokedCallback="true"

@@ -17,6 +17,7 @@
     <string name="today_empty_title">Día despejado</string>
     <string name="today_empty_body">No tienes nada planificado para hoy.</string>
     <string name="today_empty_upcoming">Ver próximos</string>
+    <string name="today_empty_retry">Reintentar</string>
     <string name="actions_add_task">Añadir tarea</string>
     <string name="actions_complete">Completar</string>
     <string name="actions_undo">Deshacer</string>
@@ -30,4 +31,16 @@
         <item quantity="one">%1$d día</item>
         <item quantity="other">%1$d días</item>
     </plurals>
+    <string name="auth_title">Iniciar sesión</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_username">Nombre de usuario</string>
+    <string name="auth_name">Nombre</string>
+    <string name="auth_invite_code">Código de invitación (opcional)</string>
+    <string name="auth_login">Entrar</string>
+    <string name="auth_register">Crear cuenta</string>
+    <string name="auth_switch_to_register">¿Sin cuenta? Crea una</string>
+    <string name="auth_switch_to_login">¿Ya tienes cuenta? Entra</string>
+    <string name="auth_error_network">No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="auth_error_auth">Revisa tus datos e inténtalo de nuevo.</string>
 </resources>
