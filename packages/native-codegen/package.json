@@ -11,11 +11,11 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@material/material-color-utilities": "^0.3.0",
+    "@material/material-color-utilities": "^0.4.0",
     "@ordo-todo/styles": "*",
     "@ordo-todo/typescript-config": "*",
     "@types/node": "^26.6.6",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   }
 }
