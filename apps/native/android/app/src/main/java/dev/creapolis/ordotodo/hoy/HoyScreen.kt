@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.HabitToday
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
 import java.time.LocalDate
@@ -84,6 +85,9 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val notifPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         }
+    val habitDoneText = stringResource(R.string.habits_done)
+    val habitUndoneText = stringResource(R.string.habits_undone)
+    val habitsState by viewModel.habitsState.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -107,6 +111,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
                     R.string.detail_updated -> updatedText
+                    R.string.habits_done -> habitDoneText
+                    R.string.habits_undone -> habitUndoneText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
@@ -164,8 +170,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                         }
                         DayList(
                             current,
+                            habits = habitsState.habits,
+                            habitsOffline = habitsState.isOffline,
                             onToggle = viewModel::toggle,
                             onOpen = viewModel::openDetail,
+                            onToggleHabit = viewModel::toggleHabit,
                         )
                     }
                 }
@@ -235,8 +244,11 @@ private fun OfflineDay(onRetry: () -> Unit) {
 @Composable
 private fun DayList(
     content: HoyUiState.Content,
+    habits: List<HabitToday>,
+    habitsOffline: Boolean,
     onToggle: (String) -> Unit,
     onOpen: (TodayTask) -> Unit,
+    onToggleHabit: (String) -> Unit,
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -307,6 +319,23 @@ private fun DayList(
                 TaskRow(task, onToggle = onToggle, onOpen = onOpen)
             }
         }
+        item(key = "habits-header") {
+            HabitsHeader(count = habits.size, offline = habitsOffline)
+        }
+        if (habits.isEmpty()) {
+            item(key = "habits-empty") {
+                Text(
+                    text = stringResource(R.string.habits_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                )
+            }
+        } else {
+            items(habits, key = { "habit-${it.id}" }) { habit ->
+                HabitRow(habit = habit, onToggle = onToggleHabit)
+            }
+        }
         item { Spacer(Modifier.height(24.dp)) }
     }
 }
@@ -350,6 +379,59 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
     )
+}
+
+@Composable
+private fun HabitsHeader(count: Int, offline: Boolean) {
+    Column(Modifier.padding(top = 12.dp, bottom = 2.dp)) {
+        Text(
+            text = stringResource(R.string.habits_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (offline) {
+            Text(
+                text = stringResource(R.string.habits_offline),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val done = habit.doneToday
+    Card(
+        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CheckDot(done = done, onToggle = { onToggle(habit.id) })
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = habit.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = if (done) TextDecoration.LineThrough else null,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                val streak = habit.currentStreak
+                if (streak > 0) {
+                    Text(
+                        text = stringResource(R.string.habits_streak, streak),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF059669),
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

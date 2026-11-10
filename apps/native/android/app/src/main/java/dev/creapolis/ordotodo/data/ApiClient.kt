@@ -38,6 +38,8 @@ class ApiClient(
 
     suspend fun patch(path: String, body: String? = null): String = request("PATCH", path, body)
 
+    suspend fun delete(path: String): String = request("DELETE", path, null)
+
     fun jsonBody(vararg pairs: Pair<String, String?>): String =
         json.encodeToString(
             kotlinx.serialization.json.JsonObject.serializer(),
@@ -77,6 +79,7 @@ class ApiClient(
         when (method) {
             "POST" -> builder.post(payload)
             "PATCH" -> builder.patch(payload)
+            "DELETE" -> builder.delete()
             else -> builder.get()
         }
         return http.newCall(builder.build()).execute()

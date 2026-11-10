@@ -3566,7 +3566,14 @@
       "startFocus": "Start focus"
     },
     "habits": {
-      "streak": "{count, plural, one {# day} other {# days}}"
+      "streak": "{count, plural, one {# day} other {# days}}",
+      "title": "Today's habits",
+      "empty": "No habits for today.",
+      "done": "Habit completed",
+      "undone": "Habit pending",
+      "offline": "Offline — local copy",
+      "check": "Complete",
+      "uncheck": "Unmark"
     },
     "auth": {
       "title": "Sign in",

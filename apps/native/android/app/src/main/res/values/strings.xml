@@ -73,6 +73,13 @@
         <item quantity="one">%1$d día</item>
         <item quantity="other">%1$d días</item>
     </plurals>
+    <string name="habits_title">Hábitos de hoy</string>
+    <string name="habits_empty">Sin hábitos para hoy.</string>
+    <string name="habits_done">Hábito cumplido</string>
+    <string name="habits_undone">Hábito pendiente</string>
+    <string name="habits_offline">Sin conexión — copia local</string>
+    <string name="habits_check">Cumplir</string>
+    <string name="habits_uncheck">Desmarcar</string>
     <string name="auth_title">Iniciar sesión</string>
     <string name="auth_title_register">Crear cuenta</string>
     <string name="auth_subtitle">Tu día, en orden</string>

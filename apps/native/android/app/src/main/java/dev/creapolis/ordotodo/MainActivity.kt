@@ -25,6 +25,7 @@ import dev.creapolis.ordotodo.data.ApiClient
 import dev.creapolis.ordotodo.data.AuthSession
 import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.SessionStore
+import dev.creapolis.ordotodo.data.HabitsRepository
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TimerRepository
 import dev.creapolis.ordotodo.focus.FocusAlarms
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
         val api = ApiClient(BuildConfig.API_BASE_URL, session)
         val auth = AuthSession(api, session)
         val tasks = TasksRepository(api)
+        val habits = HabitsRepository(api)
         val day = DayStore.from(applicationContext)
         val timers = TimerRepository(api)
         val focusStore = FocusStore.from(applicationContext)
@@ -57,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    OrdoRoot(session, auth, tasks, day, timers, focusStore, focusNotifs, focusAlarms)
+                    OrdoRoot(session, auth, tasks, habits, day, timers, focusStore, focusNotifs, focusAlarms)
                 }
             }
         }
@@ -79,6 +81,7 @@ private fun OrdoRoot(
     session: SessionStore,
     auth: AuthSession,
     tasks: TasksRepository,
+    habits: HabitsRepository,
     day: DayStore,
     timers: TimerRepository,
     focusStore: FocusStore,
@@ -97,7 +100,7 @@ private fun OrdoRoot(
     }
     if (tokens != null) {
         val appContext = androidx.compose.ui.platform.LocalContext.current.applicationContext
-        val hoy: HoyViewModel = viewModel(factory = factory { HoyViewModel(tasks, day, session) })
+        val hoy: HoyViewModel = viewModel(factory = factory { HoyViewModel(tasks, habits, day, session) })
         val focus: FocusViewModel =
             viewModel(
                 factory =

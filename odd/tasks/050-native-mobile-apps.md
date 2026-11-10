@@ -159,6 +159,7 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L19 · 2026-11-10 — F3a EN CURSO (rama `odd/050-native-f3`, base `origin/main@d09f7749`): hábitos en Hoy, lectura + check-in. `HabitsRepository` (`GET /habits/today`, `POST|DELETE /habits/:id/complete`), `ApiClient.delete()`, `HoyViewModel.habitsState + toggleHabit` optimista con reversión, sección Hábitos en `HoyScreen` con racha esmeralda. i18n: 7 claves `habits.*` × es/en/pt (codegen 45/45). Sombra: main ERRORS:0, JUnit 53/53 previos + 5/5 nuevos (HabitsToday 2 + HabitFlip 3). Límite honesto: sin cola offline de hábitos (llega en F3b) ni `./gradlew`/emulador (pendiente de aprobación).
 - L18 · 2026-11-10 — Causa raíz del «fantasma» de L15–L17: no era un dentry, era un typo de carpeta. Desde F1a (`5262d514`) git trackeaba `dev/crepolis/ordotodo/data/AuthRepository.kt` (sin la «a» de `creapolis`), con `package dev.creapolis.ordotodo.data` y su propio `sealed class AuthException` → redeclaración contra `data/AuthSession.kt` en cualquier checkout limpio. Eliminado del índice (sin referencias: `grep AuthRepository|crepolis` en `app/src` = 0; `AuthException` queda declarada una sola vez). Pendiente sin cambios: `./gradlew` real + humo en emulador.
 
 - L18 · 2026-11-10 — Login: el título no cambiaba a registro (siempre `auth_title`); añadida clave `auth.titleRegister` (ES/EN/PT) y título por modo. Canario visual para confirmar build nuevo en el emulador.

@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
 import dev.creapolis.ordotodo.data.DayStore
+import dev.creapolis.ordotodo.data.HabitToday
+import dev.creapolis.ordotodo.data.HabitsRepository
+import dev.creapolis.ordotodo.data.HabitsTodayResponse
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.SessionStore
@@ -33,8 +36,24 @@ sealed interface HoyUiState {
 
 data class Snack(val message: Int, val undoTaskId: String? = null)
 
+/** Pure flip for tests: toggles one habit's completion without Android deps. */
+fun flipHabitList(habits: List<HabitToday>, habitId: String, done: Boolean): List<HabitToday> =
+    habits.map { habit ->
+        if (habit.id != habitId) habit
+        else if (done) habit.copy(completions = listOf(dev.creapolis.ordotodo.data.HabitCompletion()))
+        else habit.copy(completions = emptyList())
+    }
+
+data class HabitsUiState(
+    val habits: List<HabitToday> = emptyList(),
+    val done: Int = 0,
+    val total: Int = 0,
+    val isOffline: Boolean = false,
+)
+
 class HoyViewModel(
     private val tasks: TasksRepository,
+    private val habits: HabitsRepository? = null,
     private val day: DayStore,
     private val session: SessionStore,
     private val sync: SyncEngine = SyncEngine(tasks),
@@ -54,6 +73,9 @@ class HoyViewModel(
 
     private val _detail = MutableStateFlow<TaskEditState?>(null)
     val detail: StateFlow<TaskEditState?> = _detail
+
+    private val _habitsState = MutableStateFlow(HabitsUiState())
+    val habitsState: StateFlow<HabitsUiState> = _habitsState
 
     init {
         refresh()
@@ -249,11 +271,70 @@ class HoyViewModel(
 
     private suspend fun pushOutbox(): SyncOutcome = sync.sync(day)
 
+    /** Habits check-in (F3a): optimistic flip, server authoritative, no queue yet. */
+    fun toggleHabit(habitId: String) {
+        val repo = habits ?: return
+        val current = _habitsState.value.habits.firstOrNull { it.id == habitId } ?: return
+        val done = !current.doneToday
+        applyHabitFlip(current, done, repo)
+    }
+
+    private fun applyHabitFlip(habit: HabitToday, done: Boolean, repo: HabitsRepository) {
+        val before = _habitsState.value.habits
+        _habitsState.value = HabitsUiState(
+            habits = flipHabitList(before, habit.id, done),
+            done = before.count { if (it.id == habit.id) done else it.doneToday },
+            total = before.size,
+        )
+        viewModelScope.launch {
+            try {
+                if (done) repo.complete(habit.id) else repo.uncomplete(habit.id)
+                pullHabits()
+                _events.send(Snack(if (done) R.string.habits_done else R.string.habits_undone))
+            } catch (_: UnauthorizedException) {
+                session.clear()
+            } catch (_: Exception) {
+                _habitsState.value = HabitsUiState(
+                    habits = before,
+                    done = before.count(HabitToday::doneToday),
+                    total = before.size,
+                    isOffline = true,
+                )
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    private suspend fun pullHabits() {
+        val repo = habits ?: return
+        try {
+            val response = repo.today()
+            showHabits(response, isOffline = false)
+        } catch (_: UnauthorizedException) {
+            session.clear()
+        } catch (_: NetworkException) {
+            _habitsState.value = _habitsState.value.copy(isOffline = true)
+        } catch (_: ApiException) {
+            // Keep last good habits; F3b adds cached copy.
+        }
+    }
+
+    private fun showHabits(response: HabitsTodayResponse, isOffline: Boolean) {
+        val all = response.habits.ifEmpty { response.grouped.all() }
+        _habitsState.value = HabitsUiState(
+            habits = all,
+            done = all.count(HabitToday::doneToday),
+            total = all.size,
+            isOffline = isOffline,
+        )
+    }
+
     private suspend fun pullDay(hasCache: Boolean) {
         try {
             val response = tasks.today()
             day.saveDay(response)
             show(response, isOffline = false)
+            pullHabits()
         } catch (_: UnauthorizedException) {
             session.clear()
         } catch (_: NetworkException) {
