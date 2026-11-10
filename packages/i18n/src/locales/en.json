@@ -3506,8 +3506,54 @@
       "empty": {
         "title": "Clear day",
         "body": "Nothing planned for today.",
-        "upcoming": "See upcoming"
-      }
+        "upcoming": "See upcoming",
+        "retry": "Retry"
+      },
+      "markedDone": "Completed",
+      "markedPending": "Marked as to do",
+      "offline": "Offline — local copy",
+      "captureTitle": "New task",
+      "captureHint": "e.g. Send invoice tomorrow 3pm",
+      "taskCreated": "Task created"
+    },
+    "detail": {
+      "title": "Task details",
+      "back": "Back",
+      "open": "Open details",
+      "groupContent": "Content",
+      "groupSchedule": "Schedule",
+      "groupClassify": "Classification",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "dateLabel": "Date",
+      "dateHint": "dd/mm/yyyy",
+      "timeLabel": "Time",
+      "dueLabel": "Due",
+      "priorityLabel": "Priority",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High",
+      "priorityUrgent": "Urgent",
+      "projectLabel": "Project",
+      "noProject": "No project",
+      "updated": "Task updated",
+      "invalidDate": "Invalid date",
+      "invalidTime": "Invalid time"
+    },
+    "timer": {
+      "title": "Focus",
+      "durationLabel": "Duration",
+      "minutes": "{minutes, number} min",
+      "openEnded": "No limit",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "completed": "Focus completed",
+      "stopped": "Focus stopped",
+      "channelOngoing": "Ongoing focus",
+      "channelAlerts": "Focus alerts",
+      "inexactNote": "No exact-alarm permission: the alert may arrive a few minutes late in doze."
     },
     "actions": {
       "addTask": "Add task",
@@ -3521,6 +3567,24 @@
     },
     "habits": {
       "streak": "{count, plural, one {# day} other {# days}}"
+    },
+    "auth": {
+      "title": "Sign in",
+      "titleRegister": "Create account",
+      "subtitle": "Your day, in order",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "email": "Email",
+      "password": "Password",
+      "username": "Username",
+      "name": "Name",
+      "inviteCode": "Invitation code (optional)",
+      "login": "Sign in",
+      "register": "Create account",
+      "switchToRegister": "No account? Create one",
+      "switchToLogin": "Have an account? Sign in",
+      "errorNetwork": "Couldn't connect. Check your connection and try again.",
+      "errorAuth": "Check your details and try again."
     }
   }
 }

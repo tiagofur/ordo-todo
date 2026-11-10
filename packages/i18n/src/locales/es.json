@@ -3506,8 +3506,54 @@
       "empty": {
         "title": "Día despejado",
         "body": "No tienes nada planificado para hoy.",
-        "upcoming": "Ver próximos"
-      }
+        "upcoming": "Ver próximos",
+        "retry": "Reintentar"
+      },
+      "markedDone": "Completada",
+      "markedPending": "Marcada como pendiente",
+      "offline": "Sin conexión — copia local",
+      "captureTitle": "Nueva tarea",
+      "captureHint": "p. ej. Enviar factura mañana 15:00",
+      "taskCreated": "Tarea creada"
+    },
+    "detail": {
+      "title": "Detalle de la tarea",
+      "back": "Atrás",
+      "open": "Abrir detalle",
+      "groupContent": "Contenido",
+      "groupSchedule": "Planificación",
+      "groupClassify": "Clasificación",
+      "titleLabel": "Título",
+      "descriptionLabel": "Descripción",
+      "dateLabel": "Fecha",
+      "dateHint": "dd/mm/aaaa",
+      "timeLabel": "Hora",
+      "dueLabel": "Vence",
+      "priorityLabel": "Prioridad",
+      "priorityLow": "Baja",
+      "priorityMedium": "Media",
+      "priorityHigh": "Alta",
+      "priorityUrgent": "Urgente",
+      "projectLabel": "Proyecto",
+      "noProject": "Sin proyecto",
+      "updated": "Tarea actualizada",
+      "invalidDate": "Fecha no válida",
+      "invalidTime": "Hora no válida"
+    },
+    "timer": {
+      "title": "Foco",
+      "durationLabel": "Duración",
+      "minutes": "{minutes, number} min",
+      "openEnded": "Sin límite",
+      "start": "Empezar",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "stop": "Detener",
+      "completed": "Foco completado",
+      "stopped": "Foco detenido",
+      "channelOngoing": "Foco en curso",
+      "channelAlerts": "Avisos de foco",
+      "inexactNote": "Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo."
     },
     "actions": {
       "addTask": "Añadir tarea",
@@ -3521,6 +3567,24 @@
     },
     "habits": {
       "streak": "{count, plural, one {# día} other {# días}}"
+    },
+    "auth": {
+      "title": "Iniciar sesión",
+      "titleRegister": "Crear cuenta",
+      "subtitle": "Tu día, en orden",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "username": "Nombre de usuario",
+      "name": "Nombre",
+      "inviteCode": "Código de invitación (opcional)",
+      "login": "Entrar",
+      "register": "Crear cuenta",
+      "switchToRegister": "¿Sin cuenta? Crea una",
+      "switchToLogin": "¿Ya tienes cuenta? Entra",
+      "errorNetwork": "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
+      "errorAuth": "Revisa tus datos e inténtalo de nuevo."
     }
   }
 }

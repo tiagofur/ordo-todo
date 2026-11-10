@@ -3506,8 +3506,54 @@
       "empty": {
         "title": "Agenda livre",
         "body": "Nada planejado para hoje.",
-        "upcoming": "Ver próximas"
-      }
+        "upcoming": "Ver próximas",
+        "retry": "Tentar de novo"
+      },
+      "markedDone": "Concluída",
+      "markedPending": "Marcada como pendente",
+      "offline": "Sem conexão — cópia local",
+      "captureTitle": "Nova tarefa",
+      "captureHint": "ex.: Enviar fatura amanhã 15:00",
+      "taskCreated": "Tarefa criada"
+    },
+    "detail": {
+      "title": "Detalhes da tarefa",
+      "back": "Voltar",
+      "open": "Abrir detalhes",
+      "groupContent": "Conteúdo",
+      "groupSchedule": "Agendamento",
+      "groupClassify": "Classificação",
+      "titleLabel": "Título",
+      "descriptionLabel": "Descrição",
+      "dateLabel": "Data",
+      "dateHint": "dd/mm/aaaa",
+      "timeLabel": "Hora",
+      "dueLabel": "Vence",
+      "priorityLabel": "Prioridade",
+      "priorityLow": "Baixa",
+      "priorityMedium": "Média",
+      "priorityHigh": "Alta",
+      "priorityUrgent": "Urgente",
+      "projectLabel": "Projeto",
+      "noProject": "Sem projeto",
+      "updated": "Tarefa atualizada",
+      "invalidDate": "Data inválida",
+      "invalidTime": "Hora inválida"
+    },
+    "timer": {
+      "title": "Foco",
+      "durationLabel": "Duração",
+      "minutes": "{minutes, number} min",
+      "openEnded": "Sem limite",
+      "start": "Começar",
+      "pause": "Pausar",
+      "resume": "Retomar",
+      "stop": "Parar",
+      "completed": "Foco concluído",
+      "stopped": "Foco interrompido",
+      "channelOngoing": "Foco em andamento",
+      "channelAlerts": "Avisos de foco",
+      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso."
     },
     "actions": {
       "addTask": "Adicionar tarefa",
@@ -3521,6 +3567,24 @@
     },
     "habits": {
       "streak": "{count, plural, one {# dia} other {# dias}}"
+    },
+    "auth": {
+      "title": "Entrar",
+      "titleRegister": "Criar conta",
+      "subtitle": "Seu dia, em ordem",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "email": "E-mail",
+      "password": "Senha",
+      "username": "Nome de usuário",
+      "name": "Nome",
+      "inviteCode": "Código de convite (opcional)",
+      "login": "Entrar",
+      "register": "Criar conta",
+      "switchToRegister": "Sem conta? Crie uma",
+      "switchToLogin": "Já tem conta? Entre",
+      "errorNetwork": "Não foi possível conectar. Verifique sua conexão e tente de novo.",
+      "errorAuth": "Verifique seus dados e tente de novo."
     }
   }
 }

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -20,6 +21,15 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".dev"
+            // Debug talks to production by default (owner, 10-nov-2026: no users yet).
+            // For a backend on this Mac: ./gradlew -Pordo.apiBaseUrl=http://10.0.2.2:3101/api/v1 …
+            val debugApi =
+                providers.gradleProperty("ordo.apiBaseUrl")
+                    .getOrElse("https://api.ordotodo.app/api/v1")
+            buildConfigField("String", "API_BASE_URL", "\"$debugApi\"")
+        }
+        release {
+            buildConfigField("String", "API_BASE_URL", "\"https://api.ordotodo.app/api/v1\"")
         }
     }
 
@@ -30,6 +40,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     androidResources {
@@ -48,4 +59,10 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
+    implementation(libs.androidx.datastore.preferences)
+    testImplementation(libs.junit)
 }
