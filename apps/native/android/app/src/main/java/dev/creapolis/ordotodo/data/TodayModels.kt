@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dev.creapolis.ordotodo.hoy.HabitOp
+import dev.creapolis.ordotodo.hoy.HabitOpStore
 import dev.creapolis.ordotodo.hoy.StatusOp
 import dev.creapolis.ordotodo.hoy.StatusStore
 import kotlinx.coroutines.flow.first
@@ -68,7 +70,8 @@ private val Context.dayDataStore: DataStore<Preferences> by preferencesDataStore
 class DayStore(
     private val store: DataStore<Preferences>,
     private val json: Json = Json { ignoreUnknownKeys = true },
-) : StatusStore {
+) : StatusStore,
+    HabitOpStore {
     suspend fun loadDay(): TodayResponse? {
         val raw = store.data.map { it[KEY_DAY] }.first() ?: return null
         return try {
@@ -102,9 +105,44 @@ class DayStore(
         store.edit { it[KEY_OPS] = json.encodeToString(ListSerializer(StatusOp.serializer()), remaining) }
     }
 
+    suspend fun saveHabits(response: HabitsTodayResponse) {
+        store.edit { it[KEY_HABITS] = json.encodeToString(HabitsTodayResponse.serializer(), response) }
+    }
+
+    suspend fun loadHabits(): HabitsTodayResponse? {
+        val raw = store.data.map { it[KEY_HABITS] }.first() ?: return null
+        return try {
+            json.decodeFromString(HabitsTodayResponse.serializer(), raw)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override suspend fun habitPending(): List<HabitOp> {
+        val raw = store.data.map { it[KEY_HABIT_OPS] }.first() ?: return emptyList()
+        return try {
+            json.decodeFromString(ListSerializer(HabitOp.serializer()), raw)
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun enqueueHabit(op: HabitOp) {
+        val ops = habitPending() + op.copy(at = System.currentTimeMillis())
+        store.edit { it[KEY_HABIT_OPS] = json.encodeToString(ListSerializer(HabitOp.serializer()), ops) }
+    }
+
+    override suspend fun acknowledgeHabits(applied: List<HabitOp>) {
+        if (applied.isEmpty()) return
+        val remaining = habitPending() - applied.toSet()
+        store.edit { it[KEY_HABIT_OPS] = json.encodeToString(ListSerializer(HabitOp.serializer()), remaining) }
+    }
+
     companion object {
         private val KEY_DAY = stringPreferencesKey("today_json")
         private val KEY_OPS = stringPreferencesKey("status_ops")
+        private val KEY_HABIT_OPS = stringPreferencesKey("habit_ops")
+        private val KEY_HABITS = stringPreferencesKey("habits_json")
 
         fun from(context: Context): DayStore = DayStore(context.dayDataStore)
     }

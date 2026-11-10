@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_add"
+        android:shortcutId="capture"
+        android:shortcutLongLabel="@string/shortcuts_new"
+        android:shortcutShortLabel="@string/shortcuts_new">
+        <intent
+            android:action="ordo.action.CAPTURE"
+            android:targetClass="dev.creapolis.ordotodo.MainActivity"
+            android:targetPackage="dev.creapolis.ordotodo.dev" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_today"
+        android:shortcutId="today"
+        android:shortcutLongLabel="@string/shortcuts_today"
+        android:shortcutShortLabel="@string/shortcuts_today">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="dev.creapolis.ordotodo.MainActivity"
+            android:targetPackage="dev.creapolis.ordotodo.dev" />
+    </shortcut>
+</shortcuts>

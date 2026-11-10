@@ -59,6 +59,16 @@ class TasksRepository(
         json.decodeFromString(api.get("/tasks/$id"))
 
     /**
+     * Whole visible list for the Tareas tab (F3b, `GET /tasks` full props).
+     * Sections, search and project grouping stay client-side: the endpoint
+     * has no status/search params, so one pull feeds every filter.
+     */
+    suspend fun all(projectId: String? = null): List<TodayTask> {
+        val path = if (projectId == null) "/tasks" else "/tasks?projectId=$projectId"
+        return json.decodeFromString(ListSerializer(TodayTask.serializer()), api.get(path))
+    }
+
+    /**
      * Partial edit (F1d): mirrors backend `UpdateTaskDto`. Only the keys in
      * [patch] are sent; explicit nulls clear dates, time and project.
      */

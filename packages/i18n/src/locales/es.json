@@ -3553,7 +3553,8 @@
       "stopped": "Foco detenido",
       "channelOngoing": "Foco en curso",
       "channelAlerts": "Avisos de foco",
-      "inexactNote": "Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo."
+      "inexactNote": "Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo.",
+      "grantExact": "Permitir alarmas exactas"
     },
     "actions": {
       "addTask": "Añadir tarea",
@@ -3566,7 +3567,26 @@
       "startFocus": "Empezar foco"
     },
     "habits": {
-      "streak": "{count, plural, one {# día} other {# días}}"
+      "streak": "{count, plural, one {# día} other {# días}}",
+      "title": "Hábitos de hoy",
+      "empty": "Sin hábitos para hoy.",
+      "done": "Hábito cumplido",
+      "undone": "Hábito pendiente",
+      "offline": "Sin conexión — copia local",
+      "check": "Cumplir",
+      "uncheck": "Desmarcar",
+      "createTitle": "Nuevo hábito",
+      "editTitle": "Editar hábito",
+      "nameHint": "p. ej. Beber agua",
+      "momentLabel": "Momento",
+      "timeLabel": "Hora (opcional)",
+      "timeHint": "HH:mm",
+      "countLabel": "Veces por día",
+      "created": "Hábito creado",
+      "updated": "Hábito actualizado",
+      "deleted": "Hábito eliminado",
+      "invalidTime": "Hora no válida",
+      "invalidCount": "Entre 1 y 10"
     },
     "auth": {
       "title": "Iniciar sesión",
@@ -3585,6 +3605,49 @@
       "switchToLogin": "¿Ya tienes cuenta? Entra",
       "errorNetwork": "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
       "errorAuth": "Revisa tus datos e inténtalo de nuevo."
+    },
+    "tasks": {
+      "title": "Tareas",
+      "searchHint": "Buscar en tareas",
+      "upcoming": "Próximas",
+      "undated": "Sin fecha",
+      "projects": "Proyectos",
+      "empty": "Nada por aquí.",
+      "offline": "Sin conexión",
+      "allDone": "Todo al día.",
+      "allProjects": "Todos"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "account": "Cuenta",
+      "signOut": "Cerrar sesión",
+      "notifications": "Notificaciones",
+      "openSettings": "Abrir ajustes del sistema",
+      "about": "Acerca de",
+      "version": "Versión",
+      "language": "Idioma",
+      "danger": "Zona de peligro",
+      "deleteAccount": "Eliminar mi cuenta",
+      "deleteTitle": "¿Eliminar tu cuenta?",
+      "deleteText": "Se borrarán tus tareas, hábitos y datos. No se puede deshacer.",
+      "deleteYes": "Sí, eliminar",
+      "deleteError": "No se pudo eliminar. Revisa tu conexión."
+    },
+    "tile": {
+      "capture": "Captura rápida"
+    },
+    "shortcuts": {
+      "new": "Nueva tarea",
+      "today": "Hoy"
+    },
+    "reminder": {
+      "channel": "Recordatorios de hábitos",
+      "text": "Toca para registrar tu avance de hoy",
+      "done": "Hecho"
+    },
+    "widget": {
+      "label": "Hoy de Ordo",
+      "desc": "Progreso de tareas y hábitos de hoy"
     }
   }
 }

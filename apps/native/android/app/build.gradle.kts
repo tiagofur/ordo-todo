@@ -64,5 +64,15 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
     implementation(libs.androidx.datastore.preferences)
+    // Glance widget (F4b): pinned to the cached 1.2.0, verified --offline.
+    // androidx.work is excluded on purpose: the widget never schedules
+    // periodic updates (the app pushes a refresh on every pull instead),
+    // and work-runtime 2.7.1 is not in the offline cache.
+    implementation("androidx.glance:glance-appwidget:1.2.0") {
+        exclude(group = "androidx.work")
+    }
+    implementation("androidx.glance:glance-material3:1.2.0") {
+        exclude(group = "androidx.work")
+    }
     testImplementation(libs.junit)
 }

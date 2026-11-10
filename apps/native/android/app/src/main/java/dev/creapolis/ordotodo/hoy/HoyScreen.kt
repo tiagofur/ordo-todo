@@ -47,14 +47,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.HabitToday
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
+import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -73,9 +76,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
     var showSheet by remember { mutableStateOf(false) }
+    var capturePrefill by remember { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
+    val captureRequest by viewModel.captureRequest.collectAsState()
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
     val focusStarting by focusViewModel.starting.collectAsState()
@@ -84,10 +89,23 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val notifPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         }
+    val habitDoneText = stringResource(R.string.habits_done)
+    val habitUndoneText = stringResource(R.string.habits_undone)
+    val habitCreatedText = stringResource(R.string.habits_created)
+    val habitUpdatedText = stringResource(R.string.habits_updated)
+    val habitDeletedText = stringResource(R.string.habits_deleted)
+    val habitsState by viewModel.habitsState.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
         if (showSheet) viewModel.ensureProjects()
+    }
+    LaunchedEffect(captureRequest) {
+        captureRequest?.let { request ->
+            capturePrefill = request.prefill
+            showSheet = true
+            viewModel.consumeCaptureRequest()
+        }
     }
     LaunchedEffect(focusViewModel) {
         focusViewModel.events.collect { snack ->
@@ -107,6 +125,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
                     R.string.detail_updated -> updatedText
+                    R.string.habits_done -> habitDoneText
+                    R.string.habits_undone -> habitUndoneText
+                    R.string.habits_created -> habitCreatedText
+                    R.string.habits_updated -> habitUpdatedText
+                    R.string.habits_deleted -> habitDeletedText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
@@ -164,8 +187,12 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                         }
                         DayList(
                             current,
+                            habits = habitsState.habits,
+                            habitsOffline = habitsState.isOffline,
                             onToggle = viewModel::toggle,
                             onOpen = viewModel::openDetail,
+                            onToggleHabit = viewModel::toggleHabit,
+                            onOpenHabit = viewModel::openHabitEdit,
                         )
                     }
                 }
@@ -196,8 +223,14 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             CaptureSheet(
                 creating = creating,
                 projects = projects,
+                initialText = capturePrefill,
                 onSave = { viewModel.createTask(it) },
-                onDismiss = { if (!creating) showSheet = false },
+                onDismiss = {
+                    if (!creating) {
+                        showSheet = false
+                        capturePrefill = ""
+                    }
+                },
             )
         }
     }
@@ -235,8 +268,12 @@ private fun OfflineDay(onRetry: () -> Unit) {
 @Composable
 private fun DayList(
     content: HoyUiState.Content,
+    habits: List<HabitToday>,
+    habitsOffline: Boolean,
     onToggle: (String) -> Unit,
     onOpen: (TodayTask) -> Unit,
+    onToggleHabit: (String) -> Unit,
+    onOpenHabit: (HabitToday) -> Unit,
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -307,6 +344,23 @@ private fun DayList(
                 TaskRow(task, onToggle = onToggle, onOpen = onOpen)
             }
         }
+        item(key = "habits-header") {
+            HabitsHeader(count = habits.size, offline = habitsOffline)
+        }
+        if (habits.isEmpty()) {
+            item(key = "habits-empty") {
+                Text(
+                    text = stringResource(R.string.habits_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                )
+            }
+        } else {
+            items(habits, key = { "habit-${it.id}" }) { habit ->
+                HabitRow(habit = habit, onToggle = onToggleHabit, onOpen = onOpenHabit)
+            }
+        }
         item { Spacer(Modifier.height(24.dp)) }
     }
 }
@@ -353,7 +407,75 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
 }
 
 @Composable
-private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
+internal fun HabitsHeader(count: Int, offline: Boolean) {
+    Column(Modifier.padding(top = 12.dp, bottom = 2.dp)) {
+        Text(
+            text = stringResource(R.string.habits_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (offline) {
+            Text(
+                text = stringResource(R.string.habits_offline),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun HabitRow(
+    habit: HabitToday,
+    onToggle: (String) -> Unit,
+    onOpen: (HabitToday) -> Unit = {},
+) {
+    val scheme = MaterialTheme.colorScheme
+    val done = habit.doneToday
+    val streakLabel = pluralStringResource(R.plurals.habits_streak, habit.currentStreak, habit.currentStreak)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CheckDot(done = done, onToggle = { onToggle(habit.id) })
+            Spacer(Modifier.width(12.dp))
+            Column(
+                Modifier.weight(1f).clickable(
+                    onClickLabel = stringResource(R.string.habits_edit_title),
+                    onClick = { onOpen(habit) },
+                ),
+            ) {
+                Text(
+                    text = habit.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = if (done) TextDecoration.LineThrough else null,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (habit.currentStreak > 0) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Canvas(Modifier.size(8.dp)) {
+                            drawCircle(OrdoSectionColors.Habits, radius = size.minDimension / 2)
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = streakLabel,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val openLabel = stringResource(R.string.detail_open)
     Card(
@@ -430,13 +552,13 @@ private fun ProjectDot(hex: String) {
 }
 
 @Composable
-private fun CheckDot(done: Boolean, onToggle: () -> Unit) {
+internal fun CheckDot(done: Boolean, onToggle: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val ring = if (done) scheme.primary else scheme.primary.copy(alpha = 0.45f)
     val description =
         stringResource(if (done) R.string.actions_undo else R.string.actions_complete)
     Canvas(
-        Modifier.size(44.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
+        Modifier.size(48.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
     ) {
         val r = size.minDimension / 2 - 11 * density
         val c = center
