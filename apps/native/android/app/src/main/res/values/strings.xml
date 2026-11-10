@@ -171,8 +171,12 @@
     <string name="shortcuts_new">Nueva tarea</string>
     <string name="shortcuts_today">Hoy</string>
     <string name="reminder_channel">Recordatorios de hábitos</string>
+    <string name="reminder_task_channel">Recordatorios de tareas</string>
     <string name="reminder_text">Toca para registrar tu avance de hoy</string>
     <string name="reminder_done">Hecho</string>
+    <string name="reminder_snooze10m">Posponer 10 min</string>
+    <string name="reminder_snooze1h">Posponer 1 h</string>
+    <string name="reminder_snooze_tomorrow">Mañana</string>
     <string name="widget_label">Hoy de Ordo</string>
     <string name="widget_desc">Progreso de tareas y hábitos de hoy</string>
 </resources>

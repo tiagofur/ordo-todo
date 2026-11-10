@@ -3677,8 +3677,12 @@
     },
     "reminder": {
       "channel": "Recordatorios de hábitos",
+      "taskChannel": "Recordatorios de tareas",
       "text": "Toca para registrar tu avance de hoy",
-      "done": "Hecho"
+      "done": "Hecho",
+      "snooze10m": "Posponer 10 min",
+      "snooze1h": "Posponer 1 h",
+      "snoozeTomorrow": "Mañana"
     },
     "widget": {
       "label": "Hoy de Ordo",

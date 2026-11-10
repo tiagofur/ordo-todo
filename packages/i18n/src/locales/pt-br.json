@@ -3677,8 +3677,12 @@
     },
     "reminder": {
       "channel": "Lembretes de hábitos",
+      "taskChannel": "Lembretes de tarefas",
       "text": "Toque para registrar o progresso de hoje",
-      "done": "Feito"
+      "done": "Feito",
+      "snooze10m": "Adiar 10m",
+      "snooze1h": "Adiar 1h",
+      "snoozeTomorrow": "Amanhã"
     },
     "widget": {
       "label": "Hoje da Ordo",

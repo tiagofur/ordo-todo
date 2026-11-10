@@ -171,8 +171,12 @@
     <string name="shortcuts_new">Nova tarefa</string>
     <string name="shortcuts_today">Hoje</string>
     <string name="reminder_channel">Lembretes de hábitos</string>
+    <string name="reminder_task_channel">Lembretes de tarefas</string>
     <string name="reminder_text">Toque para registrar o progresso de hoje</string>
     <string name="reminder_done">Feito</string>
+    <string name="reminder_snooze10m">Adiar 10m</string>
+    <string name="reminder_snooze1h">Adiar 1h</string>
+    <string name="reminder_snooze_tomorrow">Amanhã</string>
     <string name="widget_label">Hoje da Ordo</string>
     <string name="widget_desc">Progresso de tarefas e hábitos de hoje</string>
 </resources>

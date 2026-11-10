@@ -3677,8 +3677,12 @@
     },
     "reminder": {
       "channel": "Habit reminders",
+      "taskChannel": "Task reminders",
       "text": "Tap to log today's progress",
-      "done": "Done"
+      "done": "Done",
+      "snooze10m": "Snooze 10m",
+      "snooze1h": "Snooze 1h",
+      "snoozeTomorrow": "Tomorrow"
     },
     "widget": {
       "label": "Ordo Today",
