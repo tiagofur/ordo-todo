@@ -200,6 +200,7 @@ private fun OrdoNav(
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
     val projects by hoy.projects.collectAsStateWithLifecycle()
+    val availableTags by hoy.availableTags.collectAsStateWithLifecycle()
     val focusState by focus.focus.collectAsStateWithLifecycle()
     val launchIntent by launchIntents.collectAsStateWithLifecycle()
     LaunchedEffect(launchIntent) {
@@ -283,12 +284,20 @@ private fun OrdoNav(
             TaskDetailScreen(
                 state = open,
                 projects = projects,
+                availableTags = availableTags,
                 focusActive = focusState != null,
                 onEdit = hoy::updateDetail,
                 onSave = hoy::saveDetail,
                 onRetry = hoy::retryDetail,
                 onClose = hoy::closeDetail,
                 onStartFocus = { tab = OrdoTab.HOY },
+                onAddSubtask = hoy::addSubtask,
+                onToggleSubtask = hoy::toggleSubtask,
+                onDeleteSubtask = hoy::deleteSubtask,
+                onAssignTag = hoy::assignTag,
+                onRemoveTag = hoy::removeTag,
+                onCreateTag = hoy::createAndAssignTag,
+                onDeleteTask = { hoy.deleteTaskWithUndo(open.taskId) },
             )
         }
         val habitForm = habitEdit

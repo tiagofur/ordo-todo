@@ -73,6 +73,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val createdText = stringResource(R.string.today_task_created)
+    val deletedText = stringResource(R.string.today_task_deleted)
+    val restoredText = stringResource(R.string.today_task_restored)
     val savedOfflineText = stringResource(R.string.today_saved_offline)
     val pendingSyncText = stringResource(R.string.today_pending_sync)
     val updatedText = stringResource(R.string.detail_updated)
@@ -83,6 +85,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
+    val availableTags by viewModel.availableTags.collectAsState()
     val captureRequest by viewModel.captureRequest.collectAsState()
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
@@ -128,6 +131,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
+                    R.string.today_task_deleted -> deletedText
+                    R.string.today_task_restored -> restoredText
                     R.string.today_saved_offline -> savedOfflineText
                     R.string.today_pending_sync -> pendingSyncText
                     R.string.detail_updated -> updatedText
@@ -144,14 +149,21 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             ) {
                 showSheet = false
             }
-            if (snack.message == R.string.detail_updated) viewModel.closeDetail()
+            if (snack.message == R.string.detail_updated || snack.message == R.string.today_task_deleted) {
+                viewModel.closeDetail()
+            }
+            val hasUndo = snack.undoTaskId != null || snack.undoDeleteTaskId != null
             val result =
                 snackbar.showSnackbar(
                     message = text,
-                    actionLabel = if (snack.undoTaskId != null) undoLabel else null,
+                    actionLabel = if (hasUndo) undoLabel else null,
                 )
-            if (result == SnackbarResult.ActionPerformed && snack.undoTaskId != null) {
-                viewModel.toggle(snack.undoTaskId)
+            if (result == SnackbarResult.ActionPerformed) {
+                if (snack.undoDeleteTaskId != null) {
+                    viewModel.restoreTask(snack.undoDeleteTaskId)
+                } else if (snack.undoTaskId != null) {
+                    viewModel.toggle(snack.undoTaskId)
+                }
             }
         }
     }
@@ -173,12 +185,20 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 TaskDetailScreen(
                     state = open,
                     projects = projects,
+                    availableTags = availableTags,
                     focusActive = focusState != null,
                     onEdit = viewModel::updateDetail,
                     onSave = viewModel::saveDetail,
                     onRetry = viewModel::retryDetail,
                     onClose = viewModel::closeDetail,
                     onStartFocus = { focusSheet = open.taskId to open.title },
+                    onAddSubtask = viewModel::addSubtask,
+                    onToggleSubtask = viewModel::toggleSubtask,
+                    onDeleteSubtask = viewModel::deleteSubtask,
+                    onAssignTag = viewModel::assignTag,
+                    onRemoveTag = viewModel::removeTag,
+                    onCreateTag = viewModel::createAndAssignTag,
+                    onDeleteTask = { viewModel.deleteTaskWithUndo(open.taskId) },
                 )
             } else {
                 when (val current = state) {

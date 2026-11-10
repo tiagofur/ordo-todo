@@ -15,6 +15,8 @@ import dev.creapolis.ordotodo.data.OutboxOp
 import dev.creapolis.ordotodo.data.OutboxSyncEngine
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
+import dev.creapolis.ordotodo.data.SubtaskItem
+import dev.creapolis.ordotodo.data.TaskTag
 import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
@@ -24,6 +26,7 @@ import kotlinx.coroutines.channels.Channel
 import dev.creapolis.ordotodo.habits.last7Stations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -40,7 +43,11 @@ sealed interface HoyUiState {
     ) : HoyUiState
 }
 
-data class Snack(val message: Int, val undoTaskId: String? = null)
+data class Snack(
+    val message: Int,
+    val undoTaskId: String? = null,
+    val undoDeleteTaskId: String? = null,
+)
 
 /** One-shot order to open capture with prefilled text (F4a). */
 data class CaptureRequest(val prefill: String)
@@ -105,6 +112,9 @@ class HoyViewModel(
     private val _projects = MutableStateFlow<List<NativeProject>>(emptyList())
     val projects: StateFlow<List<NativeProject>> = _projects
     private var projectsLoaded = false
+
+    private val _availableTags = MutableStateFlow<List<TaskTag>>(emptyList())
+    val availableTags: StateFlow<List<TaskTag>> = _availableTags.asStateFlow()
 
     private val _detail = MutableStateFlow<TaskEditState?>(null)
     val detail: StateFlow<TaskEditState?> = _detail
@@ -302,10 +312,12 @@ class HoyViewModel(
             ensureProjects()
             try {
                 val full = tasks.taskDetail(task.id)
+                val fullTags = if (full.tags.isNotEmpty()) full.tags else tasks.taskTags(task.id)
+                val taskWithTags = full.copy(tags = fullTags)
                 _detail.value =
                     _detail.value?.copy(
                         loading = false,
-                        original = full,
+                        original = taskWithTags,
                         title = full.title,
                         description = full.description.orEmpty(),
                         scheduledDate = full.scheduledDate?.substringBefore('T').orEmpty(),
@@ -313,13 +325,134 @@ class HoyViewModel(
                         dueDate = full.dueDate?.substringBefore('T').orEmpty(),
                         priority = full.priority,
                         projectId = full.projectId ?: full.project?.id,
+                        estimatedMinutes = full.estimatedMinutes,
+                        recurrence = full.recurrence,
+                        subTasks = full.subTasks,
+                        tags = fullTags,
                     )
+                loadAvailableTags()
             } catch (_: UnauthorizedException) {
                 session.clear()
             } catch (_: NetworkException) {
                 _detail.value = _detail.value?.copy(loading = false, loadError = true)
             } catch (_: ApiException) {
                 _detail.value = _detail.value?.copy(loading = false, loadError = true)
+            }
+        }
+    }
+
+    fun loadAvailableTags() {
+        val current = _detail.value ?: return
+        val workspaceId = current.tags.firstOrNull()?.workspaceId
+            ?: _projects.value.firstOrNull { it.id == current.projectId }?.workspaceId
+            ?: _projects.value.firstOrNull { it.workspaceId != null }?.workspaceId
+        viewModelScope.launch {
+            _availableTags.value = tasks.allTags(workspaceId)
+        }
+    }
+
+    fun addSubtask(title: String) {
+        val current = _detail.value ?: return
+        if (title.isBlank()) return
+        viewModelScope.launch {
+            try {
+                val created = tasks.createSubtask(current.taskId, title.trim())
+                val newSubTasks = current.subTasks + created
+                _detail.value = current.copy(
+                    subTasks = newSubTasks,
+                    original = current.original?.copy(subTasks = newSubTasks),
+                )
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    fun toggleSubtask(subtaskId: String) {
+        val current = _detail.value ?: return
+        val item = current.subTasks.firstOrNull { it.id == subtaskId } ?: return
+        val newDone = !item.isDone
+        val newStatus = if (newDone) "COMPLETED" else "TODO"
+        val updatedList = current.subTasks.map {
+            if (it.id == subtaskId) it.copy(status = newStatus) else it
+        }
+        _detail.value = current.copy(
+            subTasks = updatedList,
+            original = current.original?.copy(subTasks = updatedList),
+        )
+        viewModelScope.launch {
+            try {
+                if (newDone) tasks.completeSubtask(subtaskId)
+                else tasks.reopenSubtask(subtaskId)
+            } catch (_: Exception) {
+                _detail.value = current
+            }
+        }
+    }
+
+    fun deleteSubtask(subtaskId: String) {
+        val current = _detail.value ?: return
+        val updatedList = current.subTasks.filter { it.id != subtaskId }
+        _detail.value = current.copy(
+            subTasks = updatedList,
+            original = current.original?.copy(subTasks = updatedList),
+        )
+        viewModelScope.launch {
+            try {
+                tasks.deleteSubtask(subtaskId)
+            } catch (_: Exception) {
+                _detail.value = current
+            }
+        }
+    }
+
+    fun assignTag(tag: TaskTag) {
+        val current = _detail.value ?: return
+        if (current.tags.any { it.id == tag.id }) return
+        val updated = current.tags + tag
+        _detail.value = current.copy(
+            tags = updated,
+            original = current.original?.copy(tags = updated),
+        )
+        viewModelScope.launch {
+            try {
+                tasks.assignTag(tag.id, current.taskId)
+            } catch (_: Exception) {
+                _detail.value = current
+            }
+        }
+    }
+
+    fun removeTag(tagId: String) {
+        val current = _detail.value ?: return
+        val updated = current.tags.filter { it.id != tagId }
+        _detail.value = current.copy(
+            tags = updated,
+            original = current.original?.copy(tags = updated),
+        )
+        viewModelScope.launch {
+            try {
+                tasks.removeTag(tagId, current.taskId)
+            } catch (_: Exception) {
+                _detail.value = current
+            }
+        }
+    }
+
+    fun createAndAssignTag(name: String) {
+        val current = _detail.value ?: return
+        if (name.isBlank()) return
+        val workspaceId = current.tags.firstOrNull()?.workspaceId
+            ?: _projects.value.firstOrNull { it.id == current.projectId }?.workspaceId
+            ?: _projects.value.firstOrNull { it.workspaceId != null }?.workspaceId
+        if (workspaceId == null) return
+        viewModelScope.launch {
+            try {
+                val created = tasks.createTag(name = name.trim(), workspaceId = workspaceId)
+                assignTag(created)
+                _availableTags.value = _availableTags.value + created
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
             }
         }
     }
@@ -495,6 +628,43 @@ class HoyViewModel(
                 SyncOutcome.WaitingForNetwork -> Unit
                 SyncOutcome.Drained -> pullDay(hasCache = true)
             }
+        }
+    }
+
+    fun deleteTaskWithUndo(taskId: String) {
+        closeDetail()
+        deleteTask(taskId)
+        viewModelScope.launch {
+            _events.send(
+                Snack(
+                    message = R.string.today_task_deleted,
+                    undoDeleteTaskId = taskId,
+                ),
+            )
+        }
+    }
+
+    fun restoreTask(taskId: String) {
+        viewModelScope.launch {
+            var wasPending = false
+            day.updateOutbox { ops ->
+                val hasDelete = ops.filterIsInstance<OutboxOp.DeleteTask>().any { it.taskId == taskId }
+                if (hasDelete) {
+                    wasPending = true
+                    ops.filterNot { it is OutboxOp.DeleteTask && it.taskId == taskId }
+                } else {
+                    ops
+                }
+            }
+            if (!wasPending) {
+                try {
+                    tasks.restoreTask(taskId)
+                } catch (_: Exception) {
+                    // best effort
+                }
+            }
+            pullDay(hasCache = true)
+            _events.send(Snack(R.string.today_task_restored))
         }
     }
 
