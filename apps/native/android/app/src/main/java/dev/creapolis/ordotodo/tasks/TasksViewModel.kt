@@ -62,6 +62,22 @@ class TasksViewModel(
         refresh()
     }
 
+    /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing: StateFlow<Boolean> = _refreshing
+
+    fun pullToRefresh() {
+        if (_refreshing.value) return
+        _refreshing.value = true
+        viewModelScope.launch {
+            try {
+                pull()
+            } finally {
+                _refreshing.value = false
+            }
+        }
+    }
+
     fun refresh() {
         _state.value = TasksUiState.Loading
         viewModelScope.launch { pull() }

@@ -124,27 +124,45 @@ class HoyViewModel(
         _captureRequest.value = null
     }
 
-    fun refresh() {
-        _state.value = HoyUiState.Loading
+    /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing: StateFlow<Boolean> = _refreshing
+
+    fun pullToRefresh() {
+        if (_refreshing.value) return
+        _refreshing.value = true
+        refresh(showLoading = false)
+    }
+
+    fun refresh(showLoading: Boolean = true) {
+        if (showLoading) _state.value = HoyUiState.Loading
         viewModelScope.launch {
-            val cached = day.loadDay()
-            if (cached != null) show(cached, isOffline = false)
-            showCachedHabits()
-            when (pushOutbox()) {
-                SyncOutcome.Unauthorized -> {
-                    session.clear()
-                    return@launch
-                }
-                SyncOutcome.WaitingForNetwork -> {
-                    if (cached != null) show(cached, isOffline = true)
-                    else _state.value = HoyUiState.Offline
-                    _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
-                    return@launch
-                }
-                SyncOutcome.Drained -> Unit
+            try {
+                reload()
+            } finally {
+                _refreshing.value = false
             }
-            pullDay(cached != null)
         }
+    }
+
+    private suspend fun reload() {
+        val cached = day.loadDay()
+        if (cached != null) show(cached, isOffline = false)
+        showCachedHabits()
+        when (pushOutbox()) {
+            SyncOutcome.Unauthorized -> {
+                session.clear()
+                return
+            }
+            SyncOutcome.WaitingForNetwork -> {
+                if (cached != null) show(cached, isOffline = true)
+                else _state.value = HoyUiState.Offline
+                _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
+                return
+            }
+            SyncOutcome.Drained -> Unit
+        }
+        pullDay(cached != null)
     }
 
     /** Project list for pickers; loaded once, empty stays express on failure. */

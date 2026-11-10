@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -95,6 +96,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val habitUpdatedText = stringResource(R.string.habits_updated)
     val habitDeletedText = stringResource(R.string.habits_deleted)
     val habitsState by viewModel.habitsState.collectAsState()
+    val refreshing by viewModel.refreshing.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -185,15 +187,21 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
-                        DayList(
-                            current,
-                            habits = habitsState.habits,
-                            habitsOffline = habitsState.isOffline,
-                            onToggle = viewModel::toggle,
-                            onOpen = viewModel::openDetail,
-                            onToggleHabit = viewModel::toggleHabit,
-                            onOpenHabit = viewModel::openHabitEdit,
-                        )
+PullToRefreshBox(
+                            isRefreshing = refreshing,
+                            onRefresh = viewModel::pullToRefresh,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                                                    DayList(
+                                current,
+                                habits = habitsState.habits,
+                                habitsOffline = habitsState.isOffline,
+                                onToggle = viewModel::toggle,
+                                onOpen = viewModel::openDetail,
+                                onToggleHabit = viewModel::toggleHabit,
+                                onOpenHabit = viewModel::openHabitEdit,
+                            )
+                        }
                     }
                 }
             }
