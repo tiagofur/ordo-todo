@@ -1,9 +1,0 @@
-# GitGuardian secret-scanning configuration (ggshield v2 format).
-version: 2
-
-secret:
-  ignored_paths:
-    # Generated Android UI strings (packages/native-codegen). Keys such as
-    # `auth_show_password` hold button labels ("Mostrar"), not credentials,
-    # and trip the Generic Password detector (PR #512, incident 39908444).
-    - 'apps/native/android/app/src/main/res/values*/strings.xml'
