@@ -159,6 +159,9 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L17 · 2026-11-10 — El borrado recurrente resultó estar atado al NOMBRE `data/AuthRepository.kt` (dentry fantasma con el contenido viejo de 94 líneas: `cat` falla pero readdir lo lista y `git status` parpadea `D`). Renombrado a `data/AuthSession.kt` + clase `AuthSession` (usos en MainActivity/AuthViewModel); sombra ERRORS:0, JUnit 53/53, nombre nuevo estable en muestreo. El árbol commiteado siempre estuvo intacto.
+
+
 - L16 · 2026-11-10 — F2 GREEN (sombra): kotlinc 2.4.21 main 0 errores; JUnit 53/53 OK (12 FocusTimer nuevos, RED honesto por compilación, 0 fallos finales). Codegen 45/45 + `check` limpio (13 `timer_*` × es/en/pt). Nota: `data/AuthRepository.kt` volvió a desaparecer del disco tras `d1303918` (fantasma recurrente); restaurado con `git checkout --` desde el blob. Real `./gradlew` + humo de timer en emulador pendientes (aprobación).
 
 

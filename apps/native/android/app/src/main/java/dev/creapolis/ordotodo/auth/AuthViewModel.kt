@@ -3,7 +3,7 @@ package dev.creapolis.ordotodo.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.data.AuthException
-import dev.creapolis.ordotodo.data.AuthRepository
+import dev.creapolis.ordotodo.data.AuthSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ data class AuthUiState(
     val error: AuthError = AuthError.NONE,
 )
 
-class AuthViewModel(private val auth: AuthRepository) : ViewModel() {
+class AuthViewModel(private val auth: AuthSession) : ViewModel() {
     private val _state = MutableStateFlow(AuthUiState())
     val state: StateFlow<AuthUiState> = _state
 

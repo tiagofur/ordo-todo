@@ -15,7 +15,7 @@ sealed class AuthException(message: String) : Exception(message) {
  * Missing credentials surface as [AuthException.Invalid]; I/O as
  * [AuthException.Network] so the screen can tell them apart.
  */
-class AuthRepository(
+class AuthSession(
     private val api: ApiClient,
     private val session: SessionStore,
     private val json: Json = Json { ignoreUnknownKeys = true },

@@ -22,7 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.creapolis.ordotodo.auth.AuthScreen
 import dev.creapolis.ordotodo.auth.AuthViewModel
 import dev.creapolis.ordotodo.data.ApiClient
-import dev.creapolis.ordotodo.data.AuthRepository
+import dev.creapolis.ordotodo.data.AuthSession
 import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
         val session = SessionStore.from(applicationContext)
         val api = ApiClient(BuildConfig.API_BASE_URL, session)
-        val auth = AuthRepository(api, session)
+        val auth = AuthSession(api, session)
         val tasks = TasksRepository(api)
         val day = DayStore.from(applicationContext)
         val timers = TimerRepository(api)
@@ -77,7 +77,7 @@ private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory 
 @Composable
 private fun OrdoRoot(
     session: SessionStore,
-    auth: AuthRepository,
+    auth: AuthSession,
     tasks: TasksRepository,
     day: DayStore,
     timers: TimerRepository,
