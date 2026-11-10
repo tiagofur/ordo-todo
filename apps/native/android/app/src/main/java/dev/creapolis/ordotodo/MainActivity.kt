@@ -98,6 +98,8 @@ class MainActivity : ComponentActivity() {
 
         launchIntents.value = intent
         setContent {
+            // Pre-051 builds stored tokens in plaintext; seal them once (ODD 051 S3).
+            LaunchedEffect(session) { session.migrateLegacy() }
             OrdoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
