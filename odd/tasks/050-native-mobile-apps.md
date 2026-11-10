@@ -159,6 +159,8 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L18 · 2026-11-10 — Causa raíz del «fantasma» de L15–L17: no era un dentry, era un typo de carpeta. Desde F1a (`5262d514`) git trackeaba `dev/crepolis/ordotodo/data/AuthRepository.kt` (sin la «a» de `creapolis`), con `package dev.creapolis.ordotodo.data` y su propio `sealed class AuthException` → redeclaración contra `data/AuthSession.kt` en cualquier checkout limpio. Eliminado del índice (sin referencias: `grep AuthRepository|crepolis` en `app/src` = 0; `AuthException` queda declarada una sola vez). Pendiente sin cambios: `./gradlew` real + humo en emulador.
+
 - L18 · 2026-11-10 — Login: el título no cambiaba a registro (siempre `auth_title`); añadida clave `auth.titleRegister` (ES/EN/PT) y título por modo. Canario visual para confirmar build nuevo en el emulador.
 
 
