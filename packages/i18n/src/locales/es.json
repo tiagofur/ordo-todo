@@ -3687,6 +3687,31 @@
     "widget": {
       "label": "Hoy de Ordo",
       "desc": "Progreso de tareas y hábitos de hoy"
+    },
+    "capacity": {
+      "title": "Capacidad del día",
+      "ofAvailable": "de {total}",
+      "overloaded": "Sobrecarga de {overage}",
+      "replan": "Replanificar"
+    },
+    "overdue": {
+      "title": "Vencidas ({count, number})",
+      "allToTomorrow": "Todas a mañana",
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "noDate": "Sin fecha",
+      "triaged": "Tarea reprogramada",
+      "allTriaged": "Tareas movidas a mañana"
+    },
+    "replan": {
+      "title": "Plan propuesto",
+      "subtitle": "Ajuste automático para equilibrar tu día",
+      "apply": "Aplicar plan",
+      "dismiss": "Descartar",
+      "noChanges": "Tu día está equilibrado. No hay cambios pendientes.",
+      "applied": "Plan aplicado",
+      "changesCount": "{count, number} cambios propuestos",
+      "close": "Cerrar"
     }
   }
 }

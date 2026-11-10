@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
+import dev.creapolis.ordotodo.data.DayPlanView
 import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.DefaultOutboxApi
 import dev.creapolis.ordotodo.data.HabitToday
@@ -40,6 +41,8 @@ sealed interface HoyUiState {
         val done: Int,
         val total: Int,
         val isOffline: Boolean = false,
+        val capacity: DayCapacity = DayCapacity(0, 480),
+        val overdueTasks: List<TodayTask> = emptyList(),
     ) : HoyUiState
 }
 
@@ -128,6 +131,15 @@ class HoyViewModel(
 
     private val _captureRequest = MutableStateFlow<CaptureRequest?>(null)
     val captureRequest: StateFlow<CaptureRequest?> = _captureRequest
+
+    private val _replanOpen = MutableStateFlow(false)
+    val replanOpen: StateFlow<Boolean> = _replanOpen.asStateFlow()
+
+    private val _replanPlan = MutableStateFlow<DayPlanView?>(null)
+    val replanPlan: StateFlow<DayPlanView?> = _replanPlan.asStateFlow()
+
+    private val _replanLoading = MutableStateFlow(false)
+    val replanLoading: StateFlow<Boolean> = _replanLoading.asStateFlow()
 
     init {
         refresh()
@@ -863,15 +875,116 @@ class HoyViewModel(
     }
 
     private fun show(response: TodayResponse, isOffline: Boolean) {
-        val sections = sectionToday(dayWithPendingCreates(response, pendingCreates, LocalDate.now()))
+        val merged = dayWithPendingCreates(response, pendingCreates, LocalDate.now())
+        val sections = sectionToday(merged)
         val all = sections.flatMap { it.tasks }
+        val capacity = calculateDayCapacity(all)
+        val overdueTasks = merged.overdue.filter { !it.isDone }
         _state.value =
             HoyUiState.Content(
                 sections = sections,
                 done = all.count(TodayTask::isDone),
                 total = all.size,
                 isOffline = isOffline,
+                capacity = capacity,
+                overdueTasks = overdueTasks,
             )
+    }
+
+    /** One-tap triage of a single overdue task (ODD 051 S10). */
+    fun triageOverdueTask(taskId: String, target: TriageTarget) {
+        viewModelScope.launch {
+            try {
+                val todayStr = LocalDate.now().toString()
+                val tomorrowStr = LocalDate.now().plusDays(1).toString()
+                val patch = triageTask(taskId, target, todayStr, tomorrowStr)
+                tasks.updateTask(
+                    taskId,
+                    mapOf(
+                        "scheduledDate" to patch.scheduledDate,
+                        "dueDate" to patch.dueDate,
+                    ),
+                )
+                _events.send(Snack(R.string.overdue_triaged))
+                pullDay(hasCache = true)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    /** Batch triage: move all active overdue tasks to tomorrow (ODD 051 S10). */
+    fun triageAllOverdueToTomorrow() {
+        val content = _state.value as? HoyUiState.Content ?: return
+        val overdue = content.overdueTasks
+        if (overdue.isEmpty()) return
+
+        viewModelScope.launch {
+            try {
+                val tomorrowStr = LocalDate.now().plusDays(1).toString()
+                val patches = batchTriageToTomorrow(overdue, tomorrowStr)
+                for (patch in patches) {
+                    tasks.updateTask(
+                        patch.taskId,
+                        mapOf(
+                            "scheduledDate" to patch.scheduledDate,
+                            "dueDate" to patch.dueDate,
+                        ),
+                    )
+                }
+                _events.send(Snack(R.string.overdue_all_triaged))
+                pullDay(hasCache = true)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    /** Opens Replan sheet and fetches proposed day-plan (ODD 051 S10). */
+    fun openReplan() {
+        _replanOpen.value = true
+        _replanLoading.value = true
+        viewModelScope.launch {
+            try {
+                val plan = tasks.getDayPlan()
+                _replanPlan.value = plan
+            } catch (_: Exception) {
+                _replanPlan.value = null
+            } finally {
+                _replanLoading.value = false
+            }
+        }
+    }
+
+    fun closeReplan() {
+        _replanOpen.value = false
+        _replanPlan.value = null
+    }
+
+    fun applyReplan() {
+        val plan = _replanPlan.value ?: return
+        viewModelScope.launch {
+            try {
+                tasks.applyDayPlan(plan.proposalId)
+                _events.send(Snack(R.string.replan_applied))
+                closeReplan()
+                pullDay(hasCache = true)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    fun dismissReplan() {
+        val plan = _replanPlan.value ?: return
+        viewModelScope.launch {
+            try {
+                tasks.dismissDayPlan(plan.proposalId)
+                closeReplan()
+            } catch (_: Exception) {
+                closeReplan()
+            }
+        }
     }
 
     /** Opens the create sheet (F3c). */

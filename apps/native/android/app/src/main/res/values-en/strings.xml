@@ -179,4 +179,27 @@
     <string name="reminder_snooze_tomorrow">Tomorrow</string>
     <string name="widget_label">Ordo Today</string>
     <string name="widget_desc">Today\'s task and habit progress</string>
+    <string name="capacity_title">Day capacity</string>
+    <!-- args: %1$s = total -->
+    <string name="capacity_of_available">of %1$s</string>
+    <!-- args: %1$s = overage -->
+    <string name="capacity_overloaded">Overload by %1$s</string>
+    <string name="capacity_replan">Replan</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="overdue_title">Overdue (%1$d)</string>
+    <string name="overdue_all_to_tomorrow">All to tomorrow</string>
+    <string name="overdue_today">Today</string>
+    <string name="overdue_tomorrow">Tomorrow</string>
+    <string name="overdue_no_date">No date</string>
+    <string name="overdue_triaged">Task rescheduled</string>
+    <string name="overdue_all_triaged">Tasks moved to tomorrow</string>
+    <string name="replan_title">Proposed plan</string>
+    <string name="replan_subtitle">Automatic adjustment to balance your day</string>
+    <string name="replan_apply">Apply plan</string>
+    <string name="replan_dismiss">Dismiss</string>
+    <string name="replan_no_changes">Your day is balanced. No adjustments needed.</string>
+    <string name="replan_applied">Plan applied</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="replan_changes_count">%1$d proposed changes</string>
+    <string name="replan_close">Close</string>
 </resources>

@@ -163,4 +163,26 @@ class TasksRepository(
     suspend fun updateTask(id: String, patch: JsonObject) {
         api.patch("/tasks/$id", json.encodeToString(JsonObject.serializer(), patch))
     }
+
+    /** Day-plan proposal retrieval (ODD 051 S10, `GET /tasks/day-plan`). */
+    suspend fun getDayPlan(): DayPlanView =
+        json.decodeFromString(api.get("/tasks/day-plan"))
+
+    /** Apply proposed day plan (`POST /tasks/day-plan/apply`). */
+    suspend fun applyDayPlan(proposalId: String): DayPlanView {
+        val body = buildJsonObject { put("proposalId", proposalId) }
+        val raw = api.post("/tasks/day-plan/apply", json.encodeToString(JsonObject.serializer(), body))
+        return json.decodeFromString(raw)
+    }
+
+    /** Dismiss proposed day plan (`POST /tasks/day-plan/dismiss`). */
+    suspend fun dismissDayPlan(proposalId: String): DayPlanView {
+        val body = buildJsonObject { put("proposalId", proposalId) }
+        val raw = api.post("/tasks/day-plan/dismiss", json.encodeToString(JsonObject.serializer(), body))
+        return json.decodeFromString(raw)
+    }
+
+    /** Day-plan risks check (ODD 051 S10, `GET /tasks/day-plan/risks`). */
+    suspend fun getDayPlanRisks(): List<DayPlanRisk> =
+        json.decodeFromString(ListSerializer(DayPlanRisk.serializer()), api.get("/tasks/day-plan/risks"))
 }

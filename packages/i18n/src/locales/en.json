@@ -3687,6 +3687,31 @@
     "widget": {
       "label": "Ordo Today",
       "desc": "Today's task and habit progress"
+    },
+    "capacity": {
+      "title": "Day capacity",
+      "ofAvailable": "of {total}",
+      "overloaded": "Overload by {overage}",
+      "replan": "Replan"
+    },
+    "overdue": {
+      "title": "Overdue ({count, number})",
+      "allToTomorrow": "All to tomorrow",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "noDate": "No date",
+      "triaged": "Task rescheduled",
+      "allTriaged": "Tasks moved to tomorrow"
+    },
+    "replan": {
+      "title": "Proposed plan",
+      "subtitle": "Automatic adjustment to balance your day",
+      "apply": "Apply plan",
+      "dismiss": "Dismiss",
+      "noChanges": "Your day is balanced. No adjustments needed.",
+      "applied": "Plan applied",
+      "changesCount": "{count, number} proposed changes",
+      "close": "Close"
     }
   }
 }

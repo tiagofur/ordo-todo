@@ -121,6 +121,9 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val habitDeletedText = stringResource(R.string.habits_deleted)
     val habitsState by viewModel.habitsState.collectAsState()
     val refreshing by viewModel.refreshing.collectAsState()
+    val replanOpen by viewModel.replanOpen.collectAsState()
+    val replanPlan by viewModel.replanPlan.collectAsState()
+    val replanLoading by viewModel.replanLoading.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -255,6 +258,9 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onDelete = viewModel::deleteTaskWithUndo,
                                 onToggleHabit = viewModel::toggleHabit,
                                 onOpenHabit = viewModel::openHabitEdit,
+                                onTriageTask = viewModel::triageOverdueTask,
+                                onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
+                                onReplan = viewModel::openReplan,
                             )
                         }
                     }
@@ -294,6 +300,15 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                         capturePrefill = ""
                     }
                 },
+            )
+        }
+        if (replanOpen) {
+            DayPlanSheet(
+                plan = replanPlan,
+                loading = replanLoading,
+                onApply = viewModel::applyReplan,
+                onDismiss = viewModel::dismissReplan,
+                onClose = viewModel::closeReplan,
             )
         }
     }
@@ -342,6 +357,9 @@ private fun DayList(
     onDelete: (String) -> Unit = {},
     onToggleHabit: (String) -> Unit,
     onOpenHabit: (HabitToday) -> Unit,
+    onTriageTask: (String, TriageTarget) -> Unit = { _, _ -> },
+    onTriageAllToTomorrow: () -> Unit = {},
+    onReplan: () -> Unit = {},
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -388,6 +406,23 @@ private fun DayList(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     )
                 }
+            }
+        }
+        if (content.overdueTasks.isNotEmpty()) {
+            item(key = "overdue_triage") {
+                OverdueTriageCard(
+                    tasks = content.overdueTasks,
+                    onTriageTask = onTriageTask,
+                    onTriageAllToTomorrow = onTriageAllToTomorrow,
+                )
+            }
+        }
+        if (content.capacity.estimatedMinutes > 0) {
+            item(key = "day_capacity") {
+                DayCapacityCard(
+                    capacity = content.capacity,
+                    onReplan = onReplan,
+                )
             }
         }
         if (content.sections.isEmpty()) {
