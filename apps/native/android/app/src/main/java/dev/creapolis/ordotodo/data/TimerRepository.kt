@@ -25,6 +25,24 @@ data class TimerSessionPayload(
 )
 
 @Serializable
+data class SwitchTaskResponse(
+    val sessionId: String,
+    val previousTaskId: String? = null,
+    val newTaskId: String,
+    val switchedAt: String,
+)
+
+@Serializable
+data class TimerStatsResponse(
+    val totalWorkMinutes: Int = 0,
+    val totalPauseMinutes: Int = 0,
+    val completedPomodoros: Int = 0,
+    val averageSessionLength: Int = 0,
+    val focusScore: Double = 0.0,
+    val mostProductiveHour: Int? = null,
+)
+
+@Serializable
 private data class UserPreferencesWire(
     val pomodoroDuration: Int? = null,
     val shortBreakDuration: Int? = null,
@@ -61,6 +79,17 @@ class TimerRepository(
     suspend fun stop(completed: Boolean) {
         val body = buildJsonObject { put("wasCompleted", completed) }
         api.post("/timers/stop", encode(body))
+    }
+
+    suspend fun switchTask(taskId: String): SwitchTaskResponse {
+        val body = buildJsonObject { put("taskId", taskId) }
+        return json.decodeFromString(api.post("/timers/switch-task", encode(body)))
+    }
+
+    suspend fun stats(date: String): TimerStatsResponse {
+        val text = api.get("/timers/stats?date=$date")
+        if (text.isBlank()) return TimerStatsResponse()
+        return json.decodeFromString(text)
     }
 
     suspend fun getPreferences(): PomodoroConfig {

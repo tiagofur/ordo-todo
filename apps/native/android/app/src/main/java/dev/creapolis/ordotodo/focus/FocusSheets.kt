@@ -3,6 +3,7 @@ package dev.creapolis.ordotodo.focus
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,11 +37,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.TimerStatsResponse
+
+data class FocusTaskItem(
+    val id: String,
+    val title: String,
+)
 
 private val PRESETS_MINUTES = listOf(15, 25, 50)
 
@@ -181,15 +191,17 @@ fun FocusStartSheet(
 
 /**
  * Ongoing focus player card: Pomodoro mode badge, task title, countdown,
- * pause/resume, skip with ODD 016 confirmation, and stop.
+ * pause/resume, skip with ODD 016 confirmation, switch task (S15), stop, and daily stats summary.
  */
 @Composable
 fun FocusMiniPlayer(
     state: FocusState,
     nowEpoch: Long,
+    todayStats: TimerStatsResponse? = null,
     onPause: () -> Unit,
     onResume: () -> Unit,
     onSkip: () -> Unit,
+    onSwitchTask: () -> Unit,
     onStop: () -> Unit,
 ) {
     val elapsed = formatElapsed(elapsedMs(state, nowEpoch))
@@ -294,11 +306,100 @@ fun FocusMiniPlayer(
                     Text(stringResource(R.string.timer_skip))
                 }
 
+                TextButton(onClick = onSwitchTask) {
+                    Text(stringResource(R.string.timer_switch_task))
+                }
+
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = onStop) {
                     Text(stringResource(R.string.timer_stop))
                 }
             }
+
+            // Today's stats summary (S15)
+            if (todayStats != null && (todayStats.completedPomodoros > 0 || todayStats.totalWorkMinutes > 0)) {
+                Spacer(Modifier.height(6.dp))
+                val pomodorosStr = pluralStringResource(
+                    R.plurals.timer_stats_pomodoros,
+                    todayStats.completedPomodoros,
+                    todayStats.completedPomodoros,
+                )
+                val minutesStr = pluralStringResource(
+                    R.plurals.timer_stats_minutes,
+                    todayStats.totalWorkMinutes,
+                    todayStats.totalWorkMinutes,
+                )
+                Text(
+                    text = "${stringResource(R.string.timer_stats_title)}: $pomodorosStr · $minutesStr",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Task picker sheet to switch the active timer to another task (S15).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FocusSwitchTaskSheet(
+    tasks: List<FocusTaskItem>,
+    onSelectTask: (taskId: String, taskTitle: String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 20.dp).imePadding(),
+        ) {
+            Text(
+                text = stringResource(R.string.timer_switch_task),
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(Modifier.height(12.dp))
+            if (tasks.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.tasks_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().height(280.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(tasks, key = { it.id }) { task ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onSelectTask(task.id, task.title)
+                                    onDismiss()
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                        ) {
+                            Text(
+                                text = task.title,
+                                modifier = Modifier.padding(14.dp),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.actions_cancel))
+                }
+            }
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

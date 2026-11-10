@@ -8,6 +8,7 @@ import dev.creapolis.ordotodo.data.ApiException
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TimerRepository
+import dev.creapolis.ordotodo.data.TimerStatsResponse
 import dev.creapolis.ordotodo.data.UnauthorizedException
 import dev.creapolis.ordotodo.hoy.Snack
 import kotlinx.coroutines.channels.Channel
@@ -16,11 +17,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /**
- * Focus session lifecycle (S13, S14). Server owns the session
+ * Focus session lifecycle (S13, S14, S15). Server owns the session
  * (timer endpoints); this VM owns the countdown display, the local
- * persistence, Pomodoro cycle transitions, and Foreground Service synchronization.
+ * persistence, Pomodoro cycle transitions, Foreground Service synchronization,
+ * task switching, and today's stats summary.
  */
 class FocusViewModel(
     private val timers: TimerRepository,
@@ -36,6 +39,9 @@ class FocusViewModel(
 
     private val _config = MutableStateFlow(PomodoroConfig())
     val config: StateFlow<PomodoroConfig> = _config
+
+    private val _todayStats = MutableStateFlow<TimerStatsResponse?>(null)
+    val todayStats: StateFlow<TimerStatsResponse?> = _todayStats
 
     /** Ticks every second while a session is active; drives the countdown. */
     private val _tick = MutableStateFlow(System.currentTimeMillis())
@@ -56,6 +62,7 @@ class FocusViewModel(
         }
         viewModelScope.launch {
             loadConfig()
+            loadTodayStats()
             restore()
         }
     }
@@ -67,6 +74,17 @@ class FocusViewModel(
             _config.value = timers.getPreferences()
         } catch (_: Exception) {
             // Keep default config
+        }
+    }
+
+    fun loadTodayStats() {
+        viewModelScope.launch {
+            try {
+                val today = LocalDate.now().toString()
+                _todayStats.value = timers.stats(today)
+            } catch (_: Exception) {
+                // Ignore stats fetch failure
+            }
         }
     }
 
@@ -93,7 +111,7 @@ class FocusViewModel(
                         startedAtEpoch = startedAt,
                         plannedDurationMs = plannedMs,
                         mode = mode,
-                        completedPomodoros = 0,
+                        completedPomodoros = _todayStats.value?.completedPomodoros ?: 0,
                     )
                 store.save(state)
                 afterChange(state)
@@ -188,6 +206,25 @@ class FocusViewModel(
                     )
                 store.save(newState)
                 afterChange(newState)
+                loadTodayStats()
+            } catch (_: UnauthorizedException) {
+                signedOut()
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    fun switchTask(taskId: String, taskTitle: String) {
+        val current = _focus.value ?: return
+        if (current.taskId == taskId) return
+        viewModelScope.launch {
+            try {
+                timers.switchTask(taskId)
+                val updated = current.copy(taskId = taskId, taskTitle = taskTitle)
+                store.save(updated)
+                afterChange(updated)
+                _events.send(Snack(R.string.timer_switch_task))
             } catch (_: UnauthorizedException) {
                 signedOut()
             } catch (_: Exception) {
@@ -212,6 +249,7 @@ class FocusViewModel(
                 return@launch
             }
             clear(current.sessionId)
+            loadTodayStats()
             _events.send(Snack(if (completed) R.string.timer_completed else R.string.timer_stopped))
         }
     }
@@ -259,7 +297,9 @@ class FocusViewModel(
                 pausedSinceEpoch = pausedSince,
                 plannedDurationMs = plannedMs,
                 mode = mode,
-                completedPomodoros = local?.takeIf { it.sessionId == active.id }?.completedPomodoros ?: 0,
+                completedPomodoros = local?.takeIf { it.sessionId == active.id }?.completedPomodoros
+                    ?: _todayStats.value?.completedPomodoros
+                    ?: 0,
             )
         store.save(state)
         afterChange(state)
