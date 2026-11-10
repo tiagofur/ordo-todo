@@ -29,23 +29,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.NativeProject
 
 /**
- * Express capture sheet (F1c): one field, local ES/EN/PT parsing with a
- * live preview, single POST on save. The caller closes the sheet on the
- * `today_task_created` event; on failure it stays open with the text kept.
+ * Express capture sheet (F1c + `#project` in F1d): one field, local ES/EN/PT
+ * parsing with a live preview, single POST on save. The caller closes the
+ * sheet on the `today_task_created` event; on failure it stays open with
+ * the text kept.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CaptureSheet(creating: Boolean, onSave: (String) -> Unit, onDismiss: () -> Unit) {
+fun CaptureSheet(
+    creating: Boolean,
+    projects: List<NativeProject>,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
     var text by remember { mutableStateOf("") }
     val parsed = remember(text) { parseCapture(text) }
+    val projectName =
+        remember(parsed, projects) {
+            resolveProjectId(parsed.projectHint, projects)?.let { id ->
+                projects.firstOrNull { it.id == id }?.name
+            }
+        }
     val preview =
-        remember(parsed) {
+        remember(parsed, projectName) {
             listOfNotNull(
                 parsed.scheduledDate?.toString(),
                 parsed.scheduledTime,
                 parsed.priority,
+                projectName,
             ).joinToString(" · ")
         }
     val focus = remember { FocusRequester() }

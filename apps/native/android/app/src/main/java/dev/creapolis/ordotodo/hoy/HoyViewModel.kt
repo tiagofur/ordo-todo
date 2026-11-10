@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
 import dev.creapolis.ordotodo.data.DayStore
+import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
@@ -47,6 +48,13 @@ class HoyViewModel(
     private val _creating = MutableStateFlow(false)
     val creating: StateFlow<Boolean> = _creating
 
+    private val _projects = MutableStateFlow<List<NativeProject>>(emptyList())
+    val projects: StateFlow<List<NativeProject>> = _projects
+    private var projectsLoaded = false
+
+    private val _detail = MutableStateFlow<TaskEditState?>(null)
+    val detail: StateFlow<TaskEditState?> = _detail
+
     init {
         refresh()
     }
@@ -72,8 +80,30 @@ class HoyViewModel(
         }
     }
 
+    /** Project list for pickers; loaded once, empty stays express on failure. */
+    fun ensureProjects() {
+        viewModelScope.launch { loadProjectsOnce() }
+    }
+
+    private suspend fun loadProjectsOnce(): List<NativeProject> {
+        if (!projectsLoaded) {
+            _projects.value =
+                try {
+                    tasks.projects()
+                } catch (_: UnauthorizedException) {
+                    session.clear()
+                    return _projects.value
+                } catch (_: Exception) {
+                    _projects.value
+                }
+            projectsLoaded = true
+        }
+        return _projects.value
+    }
+
     /**
-     * Express capture (F1c): parse locally, POST once, re-pull the day.
+     * Express capture (F1c + `#project` in F1d): parse locally, resolve the
+     * hint against the project list, POST once, re-pull the day.
      * Offline creates are NOT queued (documented F1c limit): the sheet stays
      * open on network failure so nothing is silently lost.
      *
@@ -85,7 +115,15 @@ class HoyViewModel(
         _creating.value = true
         viewModelScope.launch {
             try {
-                tasks.createTask(parsed.title, parsed.scheduledDate, parsed.scheduledTime, parsed.priority)
+                val known = loadProjectsOnce()
+                val projectId = resolveProjectId(parsed.projectHint, known)
+                tasks.createTask(
+                    parsed.title,
+                    parsed.scheduledDate,
+                    parsed.scheduledTime,
+                    parsed.priority,
+                    projectId,
+                )
                 _events.send(Snack(R.string.today_task_created))
                 pullDay(hasCache = true)
             } catch (_: UnauthorizedException) {
@@ -99,6 +137,88 @@ class HoyViewModel(
             }
         }
         return true
+    }
+
+    private var lastOpenedTask: TodayTask? = null
+
+    /** Opens the detail screen, prefilled from cache, then completed from the server. */
+    fun openDetail(task: TodayTask) {
+        lastOpenedTask = task
+        _detail.value =
+            TaskEditState(
+                taskId = task.id,
+                title = task.title,
+                scheduledDate = task.scheduledDate?.substringBefore('T').orEmpty(),
+                scheduledTime = task.scheduledTime.orEmpty(),
+                dueDate = task.dueDate?.substringBefore('T').orEmpty(),
+                priority = task.priority,
+                projectId = task.project?.id,
+            )
+        viewModelScope.launch {
+            ensureProjects()
+            try {
+                val full = tasks.taskDetail(task.id)
+                _detail.value =
+                    _detail.value?.copy(
+                        loading = false,
+                        original = full,
+                        title = full.title,
+                        description = full.description.orEmpty(),
+                        scheduledDate = full.scheduledDate?.substringBefore('T').orEmpty(),
+                        scheduledTime = full.scheduledTime.orEmpty(),
+                        dueDate = full.dueDate?.substringBefore('T').orEmpty(),
+                        priority = full.priority,
+                        projectId = full.projectId ?: full.project?.id,
+                    )
+            } catch (_: UnauthorizedException) {
+                session.clear()
+            } catch (_: NetworkException) {
+                _detail.value = _detail.value?.copy(loading = false, loadError = true)
+            } catch (_: ApiException) {
+                _detail.value = _detail.value?.copy(loading = false, loadError = true)
+            }
+        }
+    }
+
+    fun closeDetail() {
+        _detail.value = null
+    }
+
+    fun retryDetail() {
+        lastOpenedTask?.let(::openDetail)
+    }
+
+    fun updateDetail(edit: (TaskEditState) -> TaskEditState) {
+        _detail.value = _detail.value?.let(edit)
+    }
+
+    /** Saves the detail form: validates, PATCHes only the diff, re-pulls the day. */
+    fun saveDetail() {
+        val current = _detail.value ?: return
+        val original = current.original ?: return
+        if (current.saving) return
+        if (current.title.isBlank()) return
+        if (current.scheduledDate.isNotBlank() && parseDateText(current.scheduledDate) == null) return
+        if (current.scheduledTime.isNotBlank() && parseTimeText(current.scheduledTime) == null) return
+        if (current.dueDate.isNotBlank() && parseDateText(current.dueDate) == null) return
+        val patch = buildTaskPatch(original, current.edited()) ?: return
+        _detail.value = current.copy(saving = true)
+        viewModelScope.launch {
+            try {
+                tasks.updateTask(current.taskId, patch)
+                _events.send(Snack(R.string.detail_updated))
+                pullDay(hasCache = true)
+            } catch (_: UnauthorizedException) {
+                session.clear()
+                _detail.value = _detail.value?.copy(saving = false)
+            } catch (_: NetworkException) {
+                _events.send(Snack(R.string.auth_error_network))
+                _detail.value = _detail.value?.copy(saving = false)
+            } catch (_: ApiException) {
+                _events.send(Snack(R.string.auth_error_network))
+                _detail.value = _detail.value?.copy(saving = false)
+            }
+        }
     }
 
     /** Optimistic flip: UI + cache + outbox now, server when possible. */

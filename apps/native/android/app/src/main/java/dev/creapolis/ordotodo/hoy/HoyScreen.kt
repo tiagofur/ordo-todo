@@ -59,20 +59,28 @@ fun HoyScreen(viewModel: HoyViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val createdText = stringResource(R.string.today_task_created)
+    val updatedText = stringResource(R.string.detail_updated)
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
     var showSheet by remember { mutableStateOf(false) }
     val creating by viewModel.creating.collectAsState()
+    val projects by viewModel.projects.collectAsState()
+    val detail by viewModel.detail.collectAsState()
+    LaunchedEffect(showSheet) {
+        if (showSheet) viewModel.ensureProjects()
+    }
     LaunchedEffect(viewModel) {
         viewModel.events.collect { snack ->
             val text =
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
+                    R.string.detail_updated -> updatedText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
             if (snack.message == R.string.today_task_created) showSheet = false
+            if (snack.message == R.string.detail_updated) viewModel.closeDetail()
             val result =
                 snackbar.showSnackbar(
                     message = text,
@@ -86,7 +94,7 @@ fun HoyScreen(viewModel: HoyViewModel) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            if (state is HoyUiState.Content) {
+            if (state is HoyUiState.Content && detail == null) {
                 ExtendedFloatingActionButton(
                     text = { Text(addLabel) },
                     icon = { Text("+") },
@@ -96,15 +104,33 @@ fun HoyScreen(viewModel: HoyViewModel) {
         },
     ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner)) {
-            when (val current = state) {
-                is HoyUiState.Loading -> LoadingDay()
-                is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
-                is HoyUiState.Content -> DayList(current, onToggle = viewModel::toggle)
+            val open = detail
+            if (open != null) {
+                TaskDetailScreen(
+                    state = open,
+                    projects = projects,
+                    onEdit = viewModel::updateDetail,
+                    onSave = viewModel::saveDetail,
+                    onRetry = viewModel::retryDetail,
+                    onClose = viewModel::closeDetail,
+                )
+            } else {
+                when (val current = state) {
+                    is HoyUiState.Loading -> LoadingDay()
+                    is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
+                    is HoyUiState.Content ->
+                        DayList(
+                            current,
+                            onToggle = viewModel::toggle,
+                            onOpen = viewModel::openDetail,
+                        )
+                }
             }
         }
         if (showSheet) {
             CaptureSheet(
                 creating = creating,
+                projects = projects,
                 onSave = { viewModel.createTask(it) },
                 onDismiss = { if (!creating) showSheet = false },
             )
@@ -142,7 +168,11 @@ private fun OfflineDay(onRetry: () -> Unit) {
 }
 
 @Composable
-private fun DayList(content: HoyUiState.Content, onToggle: (String) -> Unit) {
+private fun DayList(
+    content: HoyUiState.Content,
+    onToggle: (String) -> Unit,
+    onOpen: (TodayTask) -> Unit,
+) {
     val dateLine =
         LocalDate.now().format(
             DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()),
@@ -209,7 +239,7 @@ private fun DayList(content: HoyUiState.Content, onToggle: (String) -> Unit) {
                 SectionHeader(kind = section.kind, count = section.tasks.size)
             }
             items(section.tasks, key = { "task-${it.id}" }) { task ->
-                TaskRow(task, onToggle = onToggle)
+                TaskRow(task, onToggle = onToggle, onOpen = onOpen)
             }
         }
         item { Spacer(Modifier.height(24.dp)) }
@@ -258,8 +288,9 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
 }
 
 @Composable
-private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit) {
+private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    val openLabel = stringResource(R.string.detail_open)
     Card(
         colors =
             CardDefaults.cardColors(
@@ -273,7 +304,13 @@ private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit) {
         ) {
             CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
+            Column(
+                Modifier.weight(1f).clickable(
+                    role = Role.Button,
+                    onClickLabel = openLabel,
+                    onClick = { onOpen(task) },
+                ),
+            ) {
                 Text(
                     text = task.title,
                     style = MaterialTheme.typography.bodyLarge,

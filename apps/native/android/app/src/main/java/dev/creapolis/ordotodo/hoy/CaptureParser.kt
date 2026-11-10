@@ -7,6 +7,7 @@ data class ParsedCapture(
     val scheduledDate: LocalDate?,
     val scheduledTime: String?,
     val priority: String?,
+    val projectHint: String? = null,
 )
 
 private data class PriorityHit(val start: Int, val end: Int, val priority: String)
@@ -63,6 +64,10 @@ private val BANG_END = Regex("(\\S+?)(!{1,2})\\s*\$")
 private val BANG_ALONE = Regex("(?:^|\\s)(!{1,2})(?:\$|\\s)")
 
 private val PRIORITY_OF_P = mapOf("1" to "URGENT", "2" to "HIGH", "3" to "MEDIUM", "4" to "LOW")
+
+private val PROJECT_TAG = Regex("(?:^|\\s)#([A-Za-z0-9_-]+)")
+
+private data class ProjectHit(val start: Int, val end: Int, val hint: String)
 
 private fun resolveYear(month: Int, day: Int, today: LocalDate): LocalDate? {
     return try {
@@ -177,11 +182,40 @@ private fun cut(text: String, start: Int, end: Int, stripPrep: Boolean = false):
     return (text.substring(0, from) + " " + text.substring(end)).replace(Regex("\\s+"), " ")
 }
 
+private fun findAllProjects(text: String): List<ProjectHit> =
+    PROJECT_TAG.findAll(text)
+        .map { m ->
+            val tag = m.groupValues[1]
+            val start = m.range.first + m.value.indexOf('#')
+            ProjectHit(start, start + 1 + tag.length, tag)
+        }
+        .toList()
+
+/** Last `#tag` wins; a lone `#` is plain text. */
+fun parseProjectHint(text: String): String? = findAllProjects(text).maxByOrNull { it.start }?.hint
+
+fun parseDateText(text: String, today: LocalDate = LocalDate.now()): LocalDate? {
+    if (text.isBlank()) return null
+    return findDate(text, today)?.date
+}
+
+fun parseTimeText(text: String): String? {
+    if (text.isBlank()) return null
+    return findTime(text)?.time
+}
+
 fun parseCapture(raw: String, today: LocalDate = LocalDate.now()): ParsedCapture {
     var text = raw
+    // Project tags first: an explicit `#p1` names a project, it is not priority P1.
+    // Every tag is cut (last one wins the hint) so none leaks into the title.
+    val projectHits = findAllProjects(text)
+    val project = projectHits.maxByOrNull { it.start }?.hint
+    for (hit in projectHits.sortedByDescending { it.start }) {
+        text = cut(text, hit.start, hit.end)
+    }
     val priority = findPriority(text)?.also { text = cut(text, it.start, it.end) }?.priority
     val date = findDate(text, today)?.also { text = cut(text, it.start, it.end) }?.date
     val time = findTime(text)?.also { text = cut(text, it.start, it.end, stripPrep = true) }?.time
     val title = text.replace(Regex("\\s+"), " ").trim().trimEnd(',', ';', ':')
-    return ParsedCapture(title, date, time, priority)
+    return ParsedCapture(title, date, time, priority, projectHint = project)
 }
