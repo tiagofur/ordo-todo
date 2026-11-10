@@ -56,6 +56,7 @@ import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.HabitToday
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
+import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -403,6 +404,7 @@ private fun HabitsHeader(count: Int, offline: Boolean) {
 private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val done = habit.doneToday
+    val streakLabel = stringResource(R.string.habits_streak, habit.currentStreak)
     Card(
         colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
         modifier = Modifier.fillMaxWidth(),
@@ -421,13 +423,18 @@ private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                val streak = habit.currentStreak
-                if (streak > 0) {
-                    Text(
-                        text = stringResource(R.string.habits_streak, streak),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF059669),
-                    )
+                if (habit.currentStreak > 0) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Canvas(Modifier.size(8.dp)) {
+                            drawCircle(OrdoSectionColors.Habits, radius = size.minDimension / 2)
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = streakLabel,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -518,7 +525,7 @@ private fun CheckDot(done: Boolean, onToggle: () -> Unit) {
     val description =
         stringResource(if (done) R.string.actions_undo else R.string.actions_complete)
     Canvas(
-        Modifier.size(44.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
+        Modifier.size(48.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
     ) {
         val r = size.minDimension / 2 - 11 * density
         val c = center
