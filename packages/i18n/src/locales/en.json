@@ -3687,6 +3687,51 @@
     "widget": {
       "label": "Ordo Today",
       "desc": "Today's task and habit progress"
+    },
+    "capacity": {
+      "title": "Day capacity",
+      "ofAvailable": "of {total}",
+      "overloaded": "Overload by {overage}",
+      "replan": "Replan"
+    },
+    "overdue": {
+      "title": "Overdue ({count, number})",
+      "allToTomorrow": "All to tomorrow",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "noDate": "No date",
+      "triaged": "Task rescheduled",
+      "allTriaged": "Tasks moved to tomorrow"
+    },
+    "replan": {
+      "title": "Proposed plan",
+      "subtitle": "Automatic adjustment to balance your day",
+      "apply": "Apply plan",
+      "dismiss": "Dismiss",
+      "noChanges": "Your day is balanced. No adjustments needed.",
+      "applied": "Plan applied",
+      "changesCount": "{count, number} proposed changes",
+      "close": "Close"
+    },
+    "ritual": {
+      "morningTitle": "Morning ritual",
+      "morningSubtitle": "Choose your top 3 for today (60s)",
+      "eveningTitle": "Evening shutdown",
+      "eveningSubtitle": "Review your wins and clear your mind",
+      "start": "Start",
+      "skip": "Skip",
+      "top3Title": "Your Top 3 Tasks",
+      "top3Hint": "Select up to 3 tasks to focus your energy",
+      "acceptTimebox": "Accept proposed timebox",
+      "completeMorning": "Set Top 3",
+      "morningCompleted": "Top 3 set! Have a productive day.",
+      "completedTasks": "Completed today: {count, number}",
+      "pendingTasks": "Pending to reschedule ({count, number})",
+      "moveToTomorrow": "Move to tomorrow",
+      "completeEvening": "Shutdown day",
+      "eveningCompleted": "Day closed! Rest well.",
+      "streak": "Streak: {count, number} {count, plural, one {day} other {days}}",
+      "streakStart": "Start your streak today"
     }
   }
 }

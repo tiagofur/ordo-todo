@@ -9,8 +9,10 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,6 +59,11 @@ import androidx.core.content.ContextCompat
 import dev.creapolis.ordotodo.focus.FocusMiniPlayer
 import dev.creapolis.ordotodo.focus.FocusStartSheet
 import dev.creapolis.ordotodo.focus.FocusViewModel
+import dev.creapolis.ordotodo.ritual.EveningRitualSheet
+import dev.creapolis.ordotodo.ritual.MorningRitualSheet
+import dev.creapolis.ordotodo.ritual.RitualBannerCard
+import dev.creapolis.ordotodo.ritual.RitualPhase
+import dev.creapolis.ordotodo.ritual.RitualStreak
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,6 +75,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -121,6 +129,15 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val habitDeletedText = stringResource(R.string.habits_deleted)
     val habitsState by viewModel.habitsState.collectAsState()
     val refreshing by viewModel.refreshing.collectAsState()
+    val replanOpen by viewModel.replanOpen.collectAsState()
+    val replanPlan by viewModel.replanPlan.collectAsState()
+    val replanLoading by viewModel.replanLoading.collectAsState()
+    val ritualStreak by viewModel.ritualStreak.collectAsState()
+    val activeRitualPhase by viewModel.activeRitualPhase.collectAsState()
+    val morningRitualView by viewModel.morningRitualView.collectAsState()
+    val eveningRitualView by viewModel.eveningRitualView.collectAsState()
+    val ritualSheetOpen by viewModel.ritualSheetOpen.collectAsState()
+    val ritualLoading by viewModel.ritualLoading.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -255,6 +272,13 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onDelete = viewModel::deleteTaskWithUndo,
                                 onToggleHabit = viewModel::toggleHabit,
                                 onOpenHabit = viewModel::openHabitEdit,
+                                onTriageTask = viewModel::triageOverdueTask,
+                                onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
+                                onReplan = viewModel::openReplan,
+                                streak = ritualStreak,
+                                activeRitualPhase = activeRitualPhase,
+                                onStartRitual = { viewModel.openRitual(activeRitualPhase) },
+                                onSkipRitual = viewModel::skipCurrentRitual,
                             )
                         }
                     }
@@ -294,6 +318,34 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                         capturePrefill = ""
                     }
                 },
+            )
+        }
+        if (replanOpen) {
+            DayPlanSheet(
+                plan = replanPlan,
+                loading = replanLoading,
+                onApply = viewModel::applyReplan,
+                onDismiss = viewModel::dismissReplan,
+                onClose = viewModel::closeReplan,
+            )
+        }
+        if (ritualSheetOpen == RitualPhase.MORNING) {
+            MorningRitualSheet(
+                todayTasks = (state as? HoyUiState.Content)?.sections?.flatMap { it.tasks }.orEmpty(),
+                suggestedTop3 = morningRitualView?.suggestedTop3.orEmpty(),
+                loading = ritualLoading,
+                onComplete = viewModel::completeMorningRitual,
+                onSkip = viewModel::skipCurrentRitual,
+                onClose = viewModel::closeRitual,
+            )
+        }
+        if (ritualSheetOpen == RitualPhase.EVENING) {
+            EveningRitualSheet(
+                eveningView = eveningRitualView,
+                loading = ritualLoading,
+                onComplete = viewModel::completeEveningRitual,
+                onSkip = viewModel::skipCurrentRitual,
+                onClose = viewModel::closeRitual,
             )
         }
     }
@@ -342,6 +394,13 @@ private fun DayList(
     onDelete: (String) -> Unit = {},
     onToggleHabit: (String) -> Unit,
     onOpenHabit: (HabitToday) -> Unit,
+    onTriageTask: (String, TriageTarget) -> Unit = { _, _ -> },
+    onTriageAllToTomorrow: () -> Unit = {},
+    onReplan: () -> Unit = {},
+    streak: RitualStreak = RitualStreak(),
+    activeRitualPhase: RitualPhase = RitualPhase.NONE,
+    onStartRitual: () -> Unit = {},
+    onSkipRitual: () -> Unit = {},
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -375,6 +434,14 @@ private fun DayList(
                 DayRing(done = content.done, total = content.total)
             }
         }
+        item(key = "ritual_banner") {
+            RitualBannerCard(
+                streak = streak,
+                activePhase = activeRitualPhase,
+                onStart = onStartRitual,
+                onSkip = onSkipRitual,
+            )
+        }
         if (content.isOffline) {
             item(key = "offline") {
                 Card(
@@ -388,6 +455,23 @@ private fun DayList(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     )
                 }
+            }
+        }
+        if (content.overdueTasks.isNotEmpty()) {
+            item(key = "overdue_triage") {
+                OverdueTriageCard(
+                    tasks = content.overdueTasks,
+                    onTriageTask = onTriageTask,
+                    onTriageAllToTomorrow = onTriageAllToTomorrow,
+                )
+            }
+        }
+        if (content.capacity.estimatedMinutes > 0) {
+            item(key = "day_capacity") {
+                DayCapacityCard(
+                    capacity = content.capacity,
+                    onReplan = onReplan,
+                )
             }
         }
         if (content.sections.isEmpty()) {
@@ -641,8 +725,14 @@ internal fun TaskRow(
             }
         },
         content = {
+            val isTimeBlock = task.scheduledTime != null
+            val containerColor = when {
+                task.isDone -> scheme.surfaceContainerLow
+                isTimeBlock -> scheme.secondaryContainer.copy(alpha = 0.35f)
+                else -> scheme.surfaceContainerLow
+            }
             Card(
-                colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+                colors = CardDefaults.cardColors(containerColor = containerColor),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -669,42 +759,63 @@ internal fun TaskRow(
                         },
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
-                    Spacer(Modifier.width(12.dp))
-                    Column(
-                        Modifier
-                            .weight(1f)
-                            .combinedClickable(
-                                role = Role.Button,
-                                onClickLabel = openLabel,
-                                onClick = { onOpen(task) },
-                                onLongClick = { showMenu = true },
+                    if (isTimeBlock) {
+                        Box(
+                            modifier = Modifier
+                                .width(4.dp)
+                                .fillMaxHeight()
+                                .background(if (task.isDone) scheme.outlineVariant else Color(0xFF3B82F6)),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = if (isTimeBlock) 10.dp else 14.dp,
+                                end = 14.dp,
+                                top = 12.dp,
+                                bottom = 12.dp,
                             ),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = task.title,
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                            color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
-                        )
-                        TaskMeta(task)
-                    }
-                    if (task.scheduledTime != null) {
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = task.scheduledTime,
-                            style = OrdoNumerals.Inline,
-                            color = scheme.onSurfaceVariant,
-                        )
-                    }
-                    Box {
-                        IconButton(
-                            onClick = { showMenu = true },
+                        CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
+                        Spacer(Modifier.width(12.dp))
+                        Column(
+                            Modifier
+                                .weight(1f)
+                                .combinedClickable(
+                                    role = Role.Button,
+                                    onClickLabel = openLabel,
+                                    onClick = { onOpen(task) },
+                                    onLongClick = { showMenu = true },
+                                ),
+                        ) {
+                            Text(
+                                text = task.title,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
+                                color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
+                            )
+                            TaskMeta(task)
+                        }
+                        if (task.scheduledTime != null) {
+                            val timeLabel = formatTimeBlockRange(task.scheduledTime, task.estimatedMinutes)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = timeLabel,
+                                style = OrdoNumerals.Inline,
+                                color = if (isTimeBlock && !task.isDone) Color(0xFF2563EB) else scheme.onSurfaceVariant,
+                                fontWeight = if (isTimeBlock && !task.isDone) FontWeight.SemiBold else FontWeight.Normal,
+                            )
+                        }
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
                             modifier = Modifier.size(32.dp),
                         ) {
                             Text("⋮", style = MaterialTheme.typography.titleMedium, color = scheme.onSurfaceVariant)
@@ -742,8 +853,9 @@ internal fun TaskRow(
                     }
                 }
             }
-        },
-    )
+        }
+    },
+)
 
     if (showPriorityDialog) {
         AlertDialog(

@@ -44,6 +44,7 @@ data class TodayTask(
     val doDate: String? = null,
     val scheduledDate: String? = null,
     val scheduledTime: String? = null,
+    val estimatedMinutes: Int? = null,
     val project: TodayProject? = null,
     val subTasks: List<TodaySubTask> = emptyList(),
     /** Captured offline and not on the server yet (ODD 051 S4); never sent by the API. */

@@ -3687,6 +3687,51 @@
     "widget": {
       "label": "Hoje da Ordo",
       "desc": "Progresso de tarefas e hábitos de hoje"
+    },
+    "capacity": {
+      "title": "Capacidade do dia",
+      "ofAvailable": "de {total}",
+      "overloaded": "Sobrecarga de {overage}",
+      "replan": "Replanejar"
+    },
+    "overdue": {
+      "title": "Atrasadas ({count, number})",
+      "allToTomorrow": "Todas para amanhã",
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "noDate": "Sem data",
+      "triaged": "Tarefa reagendada",
+      "allTriaged": "Tarefas movidas para amanhã"
+    },
+    "replan": {
+      "title": "Plano proposto",
+      "subtitle": "Ajuste automático para equilibrar seu dia",
+      "apply": "Aplicar plano",
+      "dismiss": "Descartar",
+      "noChanges": "Seu dia está equilibrado. Sem ajustes necessários.",
+      "applied": "Plano aplicado",
+      "changesCount": "{count, number} alterações propostas",
+      "close": "Fechar"
+    },
+    "ritual": {
+      "morningTitle": "Ritual matinal",
+      "morningSubtitle": "Escolha suas 3 prioridades do dia (60 s)",
+      "eveningTitle": "Ritual de encerramento",
+      "eveningSubtitle": "Revise suas conquistas e relaxe sua mente",
+      "start": "Iniciar",
+      "skip": "Pular",
+      "top3Title": "Suas 3 tarefas chave",
+      "top3Hint": "Selecione até 3 tarefas para focar sua energia",
+      "acceptTimebox": "Aceitar timebox proposto",
+      "completeMorning": "Definir Top 3",
+      "morningCompleted": "Top 3 definido! Tenha um ótimo dia produtivo.",
+      "completedTasks": "Concluídas hoje: {count, number}",
+      "pendingTasks": "Pendentes a reagendar ({count, number})",
+      "moveToTomorrow": "Mover para amanhã",
+      "completeEvening": "Encerrar o dia",
+      "eveningCompleted": "Dia encerrado! Bom descanso.",
+      "streak": "Sequência: {count, number} {count, plural, one {dia} other {dias}}",
+      "streakStart": "Comece sua sequência hoje"
     }
   }
 }
