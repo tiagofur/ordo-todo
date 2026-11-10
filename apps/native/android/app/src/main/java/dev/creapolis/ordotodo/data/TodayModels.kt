@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dev.creapolis.ordotodo.hoy.CreateOp
+import dev.creapolis.ordotodo.hoy.CreateOpStore
 import dev.creapolis.ordotodo.hoy.HabitOp
 import dev.creapolis.ordotodo.hoy.HabitOpStore
 import dev.creapolis.ordotodo.hoy.StatusOp
@@ -43,6 +45,8 @@ data class TodayTask(
     val scheduledTime: String? = null,
     val project: TodayProject? = null,
     val subTasks: List<TodaySubTask> = emptyList(),
+    /** Captured offline and not on the server yet (ODD 051 S4); never sent by the API. */
+    val pendingSync: Boolean = false,
 ) {
     val isDone: Boolean get() = status == "COMPLETED" || status == "CANCELLED"
     val doneSubTasks: Int get() = subTasks.count { it.status == "COMPLETED" }
@@ -71,7 +75,8 @@ class DayStore(
     private val store: DataStore<Preferences>,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : StatusStore,
-    HabitOpStore {
+    HabitOpStore,
+    CreateOpStore {
     suspend fun loadDay(): TodayResponse? {
         val raw = store.data.map { it[KEY_DAY] }.first() ?: return null
         return try {
@@ -138,7 +143,53 @@ class DayStore(
         store.edit { it[KEY_HABIT_OPS] = json.encodeToString(ListSerializer(HabitOp.serializer()), remaining) }
     }
 
+    override suspend fun createPending(): List<CreateOp> {
+        val raw = store.data.map { it[KEY_CREATE_OPS] }.first() ?: return emptyList()
+        return try {
+            json.decodeFromString(ListSerializer(CreateOp.serializer()), raw)
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun enqueueCreate(op: CreateOp) {
+        store.edit { prefs ->
+            val current =
+                prefs[KEY_CREATE_OPS]?.let {
+                    try {
+                        json.decodeFromString(ListSerializer(CreateOp.serializer()), it)
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                } ?: emptyList()
+            prefs[KEY_CREATE_OPS] =
+                json.encodeToString(ListSerializer(CreateOp.serializer()), current + op)
+        }
+    }
+
+    override suspend fun acknowledgeCreates(applied: List<CreateOp>) {
+        if (applied.isEmpty()) return
+        val remaining = createPending() - applied.toSet()
+        store.edit { it[KEY_CREATE_OPS] = json.encodeToString(ListSerializer(CreateOp.serializer()), remaining) }
+    }
+
+    /** Last good unfiltered task list, so the Tareas tab opens without a spinner. */
+    suspend fun saveTasks(tasks: List<TodayTask>) {
+        store.edit { it[KEY_TASKS] = json.encodeToString(ListSerializer(TodayTask.serializer()), tasks) }
+    }
+
+    suspend fun loadTasks(): List<TodayTask>? {
+        val raw = store.data.map { it[KEY_TASKS] }.first() ?: return null
+        return try {
+            json.decodeFromString(ListSerializer(TodayTask.serializer()), raw)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     companion object {
+        private val KEY_CREATE_OPS = stringPreferencesKey("create_ops")
+        private val KEY_TASKS = stringPreferencesKey("tasks_json")
         private val KEY_DAY = stringPreferencesKey("today_json")
         private val KEY_OPS = stringPreferencesKey("status_ops")
         private val KEY_HABIT_OPS = stringPreferencesKey("habit_ops")

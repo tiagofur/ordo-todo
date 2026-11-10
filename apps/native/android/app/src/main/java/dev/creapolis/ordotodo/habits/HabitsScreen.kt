@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +51,7 @@ fun groupHabitsByMoment(habits: List<HabitToday>): List<Pair<String?, List<Habit
 @Composable
 fun HabitsScreen(viewModel: HoyViewModel) {
     val habitsState by viewModel.habitsState.collectAsState()
+    val refreshing by viewModel.refreshing.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     val doneText = stringResource(R.string.habits_done)
     val undoneText = stringResource(R.string.habits_undone)
@@ -103,7 +105,7 @@ fun HabitsScreen(viewModel: HoyViewModel) {
                         text = stringResource(R.string.habits_empty),
                         style = MaterialTheme.typography.titleLarge,
                     )
-                    if (habitsState.isOffline) {
+                    if (habitsState.isOffline || habitsState.failed) {
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = viewModel::refresh) {
                             Text(stringResource(R.string.today_empty_retry))
@@ -112,44 +114,50 @@ fun HabitsScreen(viewModel: HoyViewModel) {
                 }
                 return@Column
             }
-            LazyColumn(
+PullToRefreshBox(
+                isRefreshing = refreshing,
+                onRefresh = viewModel::pullToRefresh,
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                for ((moment, group) in groupHabitsByMoment(habitsState.habits)) {
-                    item(key = "habit-header-$moment") {
-                        Text(
-                            text =
-                                when (moment) {
-                                    "MORNING" -> stringResource(R.string.today_sections_morning)
-                                    "AFTERNOON" -> stringResource(R.string.today_sections_afternoon)
-                                    "EVENING" -> stringResource(R.string.today_sections_evening)
-                                    else -> stringResource(R.string.today_sections_anytime)
-                                },
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
-                        )
+                            LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    for ((moment, group) in groupHabitsByMoment(habitsState.habits)) {
+                        item(key = "habit-header-$moment") {
+                            Text(
+                                text =
+                                    when (moment) {
+                                        "MORNING" -> stringResource(R.string.today_sections_morning)
+                                        "AFTERNOON" -> stringResource(R.string.today_sections_afternoon)
+                                        "EVENING" -> stringResource(R.string.today_sections_evening)
+                                        else -> stringResource(R.string.today_sections_anytime)
+                                    },
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                            )
+                        }
+                        items(group, key = { "habit-${it.id}" }) { habit ->
+                            HabitRow(
+                                habit = habit,
+                                onToggle = viewModel::toggleHabit,
+                                onOpen = viewModel::openHabitEdit,
+                            )
+                        }
                     }
-                    items(group, key = { "habit-${it.id}" }) { habit ->
-                        HabitRow(
-                            habit = habit,
-                            onToggle = viewModel::toggleHabit,
-                            onOpen = viewModel::openHabitEdit,
-                        )
+                    if (habitsState.isOffline) {
+                        item(key = "habits-offline") {
+                            Text(
+                                text = stringResource(R.string.habits_offline),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                            )
+                        }
                     }
+                    item { Spacer(Modifier.height(24.dp)) }
                 }
-                if (habitsState.isOffline) {
-                    item(key = "habits-offline") {
-                        Text(
-                            text = stringResource(R.string.habits_offline),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        )
-                    }
-                }
-                item { Spacer(Modifier.height(24.dp)) }
             }
         }
     }

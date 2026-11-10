@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,6 +73,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val createdText = stringResource(R.string.today_task_created)
+    val savedOfflineText = stringResource(R.string.today_saved_offline)
+    val pendingSyncText = stringResource(R.string.today_pending_sync)
     val updatedText = stringResource(R.string.detail_updated)
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
@@ -95,6 +98,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val habitUpdatedText = stringResource(R.string.habits_updated)
     val habitDeletedText = stringResource(R.string.habits_deleted)
     val habitsState by viewModel.habitsState.collectAsState()
+    val refreshing by viewModel.refreshing.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -124,6 +128,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
+                    R.string.today_saved_offline -> savedOfflineText
+                    R.string.today_pending_sync -> pendingSyncText
                     R.string.detail_updated -> updatedText
                     R.string.habits_done -> habitDoneText
                     R.string.habits_undone -> habitUndoneText
@@ -133,7 +139,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
-            if (snack.message == R.string.today_task_created) showSheet = false
+            if (snack.message == R.string.today_task_created ||
+                snack.message == R.string.today_saved_offline
+            ) {
+                showSheet = false
+            }
             if (snack.message == R.string.detail_updated) viewModel.closeDetail()
             val result =
                 snackbar.showSnackbar(
@@ -185,15 +195,21 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
-                        DayList(
-                            current,
-                            habits = habitsState.habits,
-                            habitsOffline = habitsState.isOffline,
-                            onToggle = viewModel::toggle,
-                            onOpen = viewModel::openDetail,
-                            onToggleHabit = viewModel::toggleHabit,
-                            onOpenHabit = viewModel::openHabitEdit,
-                        )
+PullToRefreshBox(
+                            isRefreshing = refreshing,
+                            onRefresh = viewModel::pullToRefresh,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                                                    DayList(
+                                current,
+                                habits = habitsState.habits,
+                                habitsOffline = habitsState.isOffline,
+                                onToggle = viewModel::toggle,
+                                onOpen = viewModel::openDetail,
+                                onToggleHabit = viewModel::toggleHabit,
+                                onOpenHabit = viewModel::openHabitEdit,
+                            )
+                        }
                     }
                 }
             }
@@ -526,6 +542,7 @@ private fun TaskMeta(task: TodayTask) {
     val bits = mutableListOf<String>()
     task.project?.let { bits.add(it.name) }
     if (task.subTasks.isNotEmpty()) bits.add("${task.doneSubTasks}/${task.subTasks.size}")
+    if (task.pendingSync) bits.add(stringResource(R.string.today_pending_sync))
     if (bits.isEmpty()) return
     Row(verticalAlignment = Alignment.CenterVertically) {
         task.project?.color?.let { hex ->

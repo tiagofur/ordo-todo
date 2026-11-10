@@ -307,6 +307,39 @@ jobs:
                   NEXT_PUBLIC_API_URL: http://localhost:3001
 
     # =============================================================================
+    # Native Android (ODD 050 / 051)
+    # =============================================================================
+    android:
+        name: Android Tests & Build
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        defaults:
+            run:
+                working-directory: apps/native/android
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+
+            - name: Setup JDK
+              uses: actions/setup-java@v5
+              with:
+                  distribution: temurin
+                  java-version: "21"
+                  cache: gradle
+
+            - name: Unit tests and debug APK
+              run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
+
+            - name: Upload test report on failure
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: android-test-report
+                  path: apps/native/android/app/build/reports/tests/
+                  retention-days: 7
+
+    # =============================================================================
     # Desktop (Tauri v2 + React)
     # =============================================================================
     desktop:

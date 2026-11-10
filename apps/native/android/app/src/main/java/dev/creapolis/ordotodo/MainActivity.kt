@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,6 +99,8 @@ class MainActivity : ComponentActivity() {
 
         launchIntents.value = intent
         setContent {
+            // Pre-051 builds stored tokens in plaintext; seal them once (ODD 051 S3).
+            LaunchedEffect(session) { session.migrateLegacy() }
             OrdoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -154,7 +157,8 @@ private fun OrdoRoot(
                     },
             )
         val taskList: TasksViewModel =
-            viewModel(factory = factory { TasksViewModel(tasks, session) { hoy.refresh() } })
+            viewModel(factory = factory { TasksViewModel(tasks, session, day) { hoy.refresh() } })
+        SideEffect { hoy.onQueueChanged = taskList::reloadQuietly }
         OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session, launchIntents = launchIntents)
     } else {
         val login: AuthViewModel = viewModel(factory = factory { AuthViewModel(auth) })
@@ -191,7 +195,7 @@ private fun OrdoNav(
     // reminder alarms on every fresh load.
     LaunchedEffect(dayState, habitsUi) {
         if (dayState is HoyUiState.Content) refreshOrdoWidget(context)
-        if (habitsUi.loaded) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
+        if (habitsUi.canScheduleReminders) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
     }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()

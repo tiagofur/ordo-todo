@@ -15,6 +15,8 @@ import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
+import java.time.LocalDate
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import dev.creapolis.ordotodo.habits.last7Stations
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,7 +56,17 @@ data class HabitsUiState(
     val total: Int = 0,
     val isOffline: Boolean = false,
     val loaded: Boolean = false,
-)
+    /** Last pull failed for a reason other than the network; the list offers retry. */
+    val failed: Boolean = false,
+) {
+    /** An empty list that comes from a failed pull must not wipe the reminders. */
+    val canScheduleReminders: Boolean
+        get() = loaded && !(habits.isEmpty() && (failed || isOffline))
+}
+
+/** State after a failed habits pull (ODD 051 S1): loading always ends, shown habits stay. */
+fun habitsAfterFailedPull(state: HabitsUiState, network: Boolean): HabitsUiState =
+    state.copy(isOffline = network, failed = !network, loaded = true)
 
 /** Habit create/edit form. `habitId = null` opens the create sheet. */
 data class HabitEditState(
@@ -75,6 +87,9 @@ class HoyViewModel(
     private val session: SessionStore,
     private val sync: SyncEngine = SyncEngine(tasks),
 ) : ViewModel() {
+    /** Tells the Tareas tab that the offline capture queue changed. */
+    var onQueueChanged: () -> Unit = {}
+
     private val _state = MutableStateFlow<HoyUiState>(HoyUiState.Loading)
     val state: StateFlow<HoyUiState> = _state
 
@@ -113,25 +128,68 @@ class HoyViewModel(
         _captureRequest.value = null
     }
 
-    fun refresh() {
-        _state.value = HoyUiState.Loading
+    /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing: StateFlow<Boolean> = _refreshing
+
+    fun pullToRefresh() {
+        if (_refreshing.value) return
+        _refreshing.value = true
+        refresh(showLoading = false)
+    }
+
+    fun refresh(showLoading: Boolean = true) {
+        if (showLoading) _state.value = HoyUiState.Loading
         viewModelScope.launch {
-            val cached = day.loadDay()
-            if (cached != null) show(cached, isOffline = false)
-            when (pushOutbox()) {
-                SyncOutcome.Unauthorized -> {
-                    session.clear()
-                    return@launch
-                }
-                SyncOutcome.WaitingForNetwork -> {
-                    if (cached != null) show(cached, isOffline = true)
-                    else _state.value = HoyUiState.Offline
-                    return@launch
-                }
-                SyncOutcome.Drained -> Unit
+            try {
+                reload()
+            } finally {
+                _refreshing.value = false
             }
-            pullDay(cached != null)
         }
+    }
+
+    /** Captures still waiting for the network; merged into every paint of the day. */
+    private var pendingCreates: List<CreateOp> = emptyList()
+
+    private suspend fun pushCreates(): SyncOutcome {
+        val outcome = CreateSync(tasks).sync(day)
+        pendingCreates = day.createPending()
+        return outcome
+    }
+
+    private suspend fun reload() {
+        pendingCreates = day.createPending()
+        val cached = day.loadDay()
+        if (cached != null) show(cached, isOffline = false)
+        showCachedHabits()
+        when (pushOutbox()) {
+            SyncOutcome.Unauthorized -> {
+                session.clear()
+                return
+            }
+            SyncOutcome.WaitingForNetwork -> {
+                if (cached != null) show(cached, isOffline = true)
+                else _state.value = HoyUiState.Offline
+                _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
+                return
+            }
+            SyncOutcome.Drained -> Unit
+        }
+        val hadCreates = pendingCreates.isNotEmpty()
+        when (pushCreates()) {
+            SyncOutcome.Unauthorized -> {
+                session.clear()
+                return
+            }
+            SyncOutcome.WaitingForNetwork -> {
+                show(cached ?: TodayResponse(), isOffline = true)
+                _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
+                return
+            }
+            SyncOutcome.Drained -> if (hadCreates) onQueueChanged()
+        }
+        pullDay(cached != null)
     }
 
     /** Project list for pickers; loaded once, empty stays express on failure. */
@@ -183,7 +241,23 @@ class HoyViewModel(
             } catch (_: UnauthorizedException) {
                 session.clear()
             } catch (_: NetworkException) {
-                _events.send(Snack(R.string.auth_error_network))
+                // Nothing is lost offline: queue it and show it at once (ODD 051 S4).
+                val projectId = resolveProjectId(parsed.projectHint, _projects.value)
+                day.enqueueCreate(
+                    CreateOp(
+                        localId = "local-" + java.util.UUID.randomUUID(),
+                        title = parsed.title,
+                        date = parsed.scheduledDate?.toString(),
+                        time = parsed.scheduledTime,
+                        priority = parsed.priority,
+                        projectId = projectId,
+                        at = System.currentTimeMillis(),
+                    ),
+                )
+                pendingCreates = day.createPending()
+                show(day.loadDay() ?: TodayResponse(), isOffline = true)
+                onQueueChanged()
+                _events.send(Snack(R.string.today_saved_offline))
             } catch (_: ApiException) {
                 _events.send(Snack(R.string.auth_error_network))
             } finally {
@@ -197,6 +271,10 @@ class HoyViewModel(
 
     /** Opens the detail screen, prefilled from cache, then completed from the server. */
     fun openDetail(task: TodayTask) {
+        if (task.pendingSync) {
+            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
+            return
+        }
         lastOpenedTask = task
         _detail.value =
             TaskEditState(
@@ -279,6 +357,11 @@ class HoyViewModel(
     fun toggle(taskId: String) {
         val content = _state.value as? HoyUiState.Content ?: return
         val current = content.sections.flatMap { it.tasks }.firstOrNull { it.id == taskId } ?: return
+        if (current.pendingSync) {
+            // No server id yet: it can be completed once the capture syncs.
+            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
+            return
+        }
         applyFlip(current, !current.isDone)
     }
 
@@ -358,10 +441,25 @@ class HoyViewModel(
         } catch (_: UnauthorizedException) {
             session.clear()
         } catch (_: NetworkException) {
-            _habitsState.value = _habitsState.value.copy(isOffline = true)
-        } catch (_: ApiException) {
+            _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
+        } catch (e: Exception) {
             // Keep last good habits; the outbox already drained.
+            if (e is CancellationException) throw e
+            _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = false)
         }
+    }
+
+    /** Paints the last good habits before the network answers. */
+    private suspend fun showCachedHabits() {
+        if (_habitsState.value.loaded) return
+        val cached = day.loadHabits() ?: return
+        val all = cached.habits.ifEmpty { cached.grouped.all() }
+        _habitsState.value = HabitsUiState(
+            habits = all,
+            done = all.count(HabitToday::doneToday),
+            total = all.size,
+            loaded = true,
+        )
     }
 
     private suspend fun showHabits(response: HabitsTodayResponse, isOffline: Boolean) {
@@ -381,20 +479,25 @@ class HoyViewModel(
             val response = tasks.today()
             day.saveDay(response)
             show(response, isOffline = false)
-            pullHabits()
         } catch (_: UnauthorizedException) {
             session.clear()
+            return
         } catch (_: NetworkException) {
             val cached = day.loadDay()
             if (cached != null) show(cached, isOffline = true)
             else if (!hasCache) _state.value = HoyUiState.Offline
-        } catch (_: ApiException) {
-            if (!hasCache) _state.value = HoyUiState.Offline
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            val cached = day.loadDay()
+            if (cached != null) show(cached, isOffline = false)
+            else _state.value = HoyUiState.Offline
         }
+        // Habits load on their own: a failed day pull must not leave them loading (ODD 051 S1).
+        pullHabits()
     }
 
     private fun show(response: TodayResponse, isOffline: Boolean) {
-        val sections = sectionToday(response)
+        val sections = sectionToday(dayWithPendingCreates(response, pendingCreates, LocalDate.now()))
         val all = sections.flatMap { it.tasks }
         _state.value =
             HoyUiState.Content(

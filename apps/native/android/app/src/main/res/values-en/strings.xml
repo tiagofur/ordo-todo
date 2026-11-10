@@ -24,6 +24,8 @@
     <string name="today_capture_title">New task</string>
     <string name="today_capture_hint">e.g. Send invoice tomorrow 3pm</string>
     <string name="today_task_created">Task created</string>
+    <string name="today_saved_offline">Saved offline — it will sync when you are back online</string>
+    <string name="today_pending_sync">Waiting to sync</string>
     <string name="detail_title">Task details</string>
     <string name="detail_back">Back</string>
     <string name="detail_open">Open details</string>

@@ -1,5 +1,7 @@
 package dev.creapolis.ordotodo.data
 
+import dev.creapolis.ordotodo.hoy.CreateOp
+import dev.creapolis.ordotodo.hoy.TaskCreateApi
 import dev.creapolis.ordotodo.hoy.TaskStatusApi
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -15,7 +17,8 @@ import java.time.LocalDate
 class TasksRepository(
     private val api: ApiClient,
     private val json: Json = Json { ignoreUnknownKeys = true },
-) : TaskStatusApi {
+) : TaskStatusApi,
+    TaskCreateApi {
     suspend fun today(): TodayResponse = json.decodeFromString(api.get("/tasks/today"))
 
     override suspend fun complete(id: String) {
@@ -48,6 +51,11 @@ class TasksRepository(
             }
         // Non-2xx already throws in ApiClient; the body only carries the new id.
         api.post("/tasks", json.encodeToString(JsonObject.serializer(), body))
+    }
+
+    /** Pushes one capture queued offline (ODD 051 S4). */
+    override suspend fun create(op: CreateOp) {
+        createTask(op.title, op.date?.let(LocalDate::parse), op.time, op.priority, op.projectId)
     }
 
     /** Project picker source (`GET /projects/all`, array of props). */

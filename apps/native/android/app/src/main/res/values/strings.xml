@@ -24,6 +24,8 @@
     <string name="today_capture_title">Nueva tarea</string>
     <string name="today_capture_hint">p. ej. Enviar factura mañana 15:00</string>
     <string name="today_task_created">Tarea creada</string>
+    <string name="today_saved_offline">Guardada sin conexión — se enviará al volver la red</string>
+    <string name="today_pending_sync">Pendiente de sincronizar</string>
     <string name="detail_title">Detalle de la tarea</string>
     <string name="detail_back">Atrás</string>
     <string name="detail_open">Abrir detalle</string>

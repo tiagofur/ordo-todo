@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,6 +54,7 @@ private enum class TasksFilter {
 @Composable
 fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     val state by tasksViewModel.state.collectAsState()
+    val refreshing by tasksViewModel.refreshing.collectAsState()
     val query by tasksViewModel.query.collectAsState()
     val projectFilter by tasksViewModel.projectFilter.collectAsState()
     val projects by tasksViewModel.projects.collectAsState()
@@ -60,6 +62,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val errorText = stringResource(R.string.auth_error_network)
+    val pendingSyncText = stringResource(R.string.today_pending_sync)
     var filter by remember { mutableStateOf(TasksFilter.UPCOMING) }
 
     LaunchedEffect(tasksViewModel) {
@@ -67,6 +70,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
             val text =
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
+                    R.string.today_pending_sync -> pendingSyncText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
@@ -143,82 +147,88 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
                                 current.sections.filter { it.kind == TasksSectionKind.UNDATED }
                             TasksFilter.PROJECTS -> current.sections
                         }
-                    LazyColumn(
+PullToRefreshBox(
+                        isRefreshing = refreshing,
+                        onRefresh = tasksViewModel::pullToRefresh,
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        if (filter == TasksFilter.PROJECTS) {
-                            item(key = "project-chips") {
-                                Column {
-                                    androidx.compose.foundation.lazy.LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        item(key = "all") {
-                                            FilterChip(
-                                                selected = projectFilter == null,
-                                                onClick = { tasksViewModel.setProject(null) },
-                                                label = { Text(stringResource(R.string.tasks_all_projects)) },
-                                            )
+                                            LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            if (filter == TasksFilter.PROJECTS) {
+                                item(key = "project-chips") {
+                                    Column {
+                                        androidx.compose.foundation.lazy.LazyRow(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            item(key = "all") {
+                                                FilterChip(
+                                                    selected = projectFilter == null,
+                                                    onClick = { tasksViewModel.setProject(null) },
+                                                    label = { Text(stringResource(R.string.tasks_all_projects)) },
+                                                )
+                                            }
+                                            items(projects, key = { it.id }) { project ->
+                                                FilterChip(
+                                                    selected = projectFilter == project.id,
+                                                    onClick = { tasksViewModel.setProject(project.id) },
+                                                    label = { Text(project.name) },
+                                                )
+                                            }
                                         }
-                                        items(projects, key = { it.id }) { project ->
-                                            FilterChip(
-                                                selected = projectFilter == project.id,
-                                                onClick = { tasksViewModel.setProject(project.id) },
-                                                label = { Text(project.name) },
-                                            )
-                                        }
+                                        Spacer(Modifier.height(8.dp))
                                     }
-                                    Spacer(Modifier.height(8.dp))
                                 }
                             }
-                        }
-                        if (visible.flatMap { it.tasks }.isEmpty()) {
-                            item(key = "empty") {
-                                Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
+                            if (visible.flatMap { it.tasks }.isEmpty()) {
+                                item(key = "empty") {
+                                    Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
+                                        Text(
+                                            text = stringResource(R.string.tasks_empty),
+                                            style = MaterialTheme.typography.titleLarge,
+                                        )
+                                    }
+                                }
+                            }
+                            for (section in visible) {
+                                if (section.tasks.isEmpty()) continue
+                                item(key = "header-${section.kind}") {
                                     Text(
-                                        text = stringResource(R.string.tasks_empty),
-                                        style = MaterialTheme.typography.titleLarge,
+                                        text =
+                                            when (section.kind) {
+                                                TasksSectionKind.UPCOMING ->
+                                                    stringResource(R.string.tasks_upcoming)
+                                                TasksSectionKind.UNDATED ->
+                                                    stringResource(R.string.tasks_undated)
+                                                TasksSectionKind.DONE ->
+                                                    stringResource(R.string.today_sections_done, section.tasks.size)
+                                            },
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                                    )
+                                }
+                                items(section.tasks, key = { "task-${it.id}" }) { task ->
+                                    TaskRow(
+                                        task = task,
+                                        onToggle = tasksViewModel::toggle,
+                                        onOpen = hoyViewModel::openDetail,
                                     )
                                 }
                             }
-                        }
-                        for (section in visible) {
-                            if (section.tasks.isEmpty()) continue
-                            item(key = "header-${section.kind}") {
-                                Text(
-                                    text =
-                                        when (section.kind) {
-                                            TasksSectionKind.UPCOMING ->
-                                                stringResource(R.string.tasks_upcoming)
-                                            TasksSectionKind.UNDATED ->
-                                                stringResource(R.string.tasks_undated)
-                                            TasksSectionKind.DONE ->
-                                                stringResource(R.string.today_sections_done, section.tasks.size)
-                                        },
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
-                                )
+                            if (current.isOffline) {
+                                item(key = "offline-note") {
+                                    Text(
+                                        text = stringResource(R.string.tasks_offline),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                    )
+                                }
                             }
-                            items(section.tasks, key = { "task-${it.id}" }) { task ->
-                                TaskRow(
-                                    task = task,
-                                    onToggle = tasksViewModel::toggle,
-                                    onOpen = hoyViewModel::openDetail,
-                                )
-                            }
+                            item { Spacer(Modifier.height(24.dp)) }
                         }
-                        if (current.isOffline) {
-                            item(key = "offline-note") {
-                                Text(
-                                    text = stringResource(R.string.tasks_offline),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(vertical = 8.dp),
-                                )
-                            }
-                        }
-                        item { Spacer(Modifier.height(24.dp)) }
                     }
                 }
             }
