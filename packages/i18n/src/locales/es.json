@@ -3592,6 +3592,27 @@
       "switchToLogin": "¿Ya tienes cuenta? Entra",
       "errorNetwork": "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
       "errorAuth": "Revisa tus datos e inténtalo de nuevo."
+    },
+    "tasks": {
+      "title": "Tareas",
+      "searchHint": "Buscar en tareas",
+      "upcoming": "Próximas",
+      "undated": "Sin fecha",
+      "projects": "Proyectos",
+      "empty": "Nada por aquí.",
+      "offline": "Sin conexión",
+      "allDone": "Todo al día.",
+      "allProjects": "Todos"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "account": "Cuenta",
+      "signOut": "Cerrar sesión",
+      "notifications": "Notificaciones",
+      "openSettings": "Abrir ajustes del sistema",
+      "about": "Acerca de",
+      "version": "Versión",
+      "language": "Idioma"
     }
   }
 }

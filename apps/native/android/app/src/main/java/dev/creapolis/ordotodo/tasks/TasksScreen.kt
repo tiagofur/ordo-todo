@@ -1,0 +1,227 @@
+package dev.creapolis.ordotodo.tasks
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.hoy.HoyViewModel
+import dev.creapolis.ordotodo.hoy.TaskRow
+
+private enum class TasksFilter {
+    UPCOMING,
+    UNDATED,
+    PROJECTS,
+}
+
+/**
+ * Tareas tab (F3b): Próximas · Sin fecha · Proyectos with search.
+ * Rows and detail come from the Hoy machinery ([TaskRow] + shared
+ * [HoyViewModel.openDetail]); the shell hosts the detail overlay.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
+    val state by tasksViewModel.state.collectAsState()
+    val query by tasksViewModel.query.collectAsState()
+    val projectFilter by tasksViewModel.projectFilter.collectAsState()
+    val projects by tasksViewModel.projects.collectAsState()
+    val snackbar = remember { SnackbarHostState() }
+    val doneText = stringResource(R.string.today_marked_done)
+    val pendingText = stringResource(R.string.today_marked_pending)
+    val errorText = stringResource(R.string.auth_error_network)
+    var filter by remember { mutableStateOf(TasksFilter.UPCOMING) }
+
+    LaunchedEffect(tasksViewModel) {
+        tasksViewModel.events.collect { snack ->
+            val text =
+                when (snack.message) {
+                    R.string.today_marked_pending -> pendingText
+                    R.string.auth_error_network -> errorText
+                    else -> doneText
+                }
+            snackbar.showSnackbar(message = text)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            TopAppBar(title = { Text(stringResource(R.string.tasks_title)) })
+        },
+    ) { inner ->
+        Column(Modifier.fillMaxSize().padding(inner).padding(horizontal = 16.dp)) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = tasksViewModel::setQuery,
+                placeholder = { Text(stringResource(R.string.tasks_search_hint)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(12.dp))
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                SegmentedButton(
+                    selected = filter == TasksFilter.UPCOMING,
+                    onClick = { filter = TasksFilter.UPCOMING },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                ) {
+                    Text(stringResource(R.string.tasks_upcoming))
+                }
+                SegmentedButton(
+                    selected = filter == TasksFilter.UNDATED,
+                    onClick = { filter = TasksFilter.UNDATED },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                ) {
+                    Text(stringResource(R.string.tasks_undated))
+                }
+                SegmentedButton(
+                    selected = filter == TasksFilter.PROJECTS,
+                    onClick = { filter = TasksFilter.PROJECTS },
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                ) {
+                    Text(stringResource(R.string.tasks_projects))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            when (val current = state) {
+                is TasksUiState.Loading -> {
+                    Column(
+                        Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is TasksUiState.Offline -> {
+                    Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
+                        Text(
+                            text = errorText,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = tasksViewModel::refresh) {
+                            Text(stringResource(R.string.today_empty_retry))
+                        }
+                    }
+                }
+                is TasksUiState.Content -> {
+                    val visible =
+                        when (filter) {
+                            TasksFilter.UPCOMING ->
+                                current.sections.filter { it.kind == TasksSectionKind.UPCOMING }
+                            TasksFilter.UNDATED ->
+                                current.sections.filter { it.kind == TasksSectionKind.UNDATED }
+                            TasksFilter.PROJECTS -> current.sections
+                        }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (filter == TasksFilter.PROJECTS) {
+                            item(key = "project-chips") {
+                                Column {
+                                    androidx.compose.foundation.lazy.LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        item(key = "all") {
+                                            FilterChip(
+                                                selected = projectFilter == null,
+                                                onClick = { tasksViewModel.setProject(null) },
+                                                label = { Text(stringResource(R.string.tasks_all_projects)) },
+                                            )
+                                        }
+                                        items(projects, key = { it.id }) { project ->
+                                            FilterChip(
+                                                selected = projectFilter == project.id,
+                                                onClick = { tasksViewModel.setProject(project.id) },
+                                                label = { Text(project.name) },
+                                            )
+                                        }
+                                    }
+                                    Spacer(Modifier.height(8.dp))
+                                }
+                            }
+                        }
+                        if (visible.flatMap { it.tasks }.isEmpty()) {
+                            item(key = "empty") {
+                                Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.tasks_empty),
+                                        style = MaterialTheme.typography.titleLarge,
+                                    )
+                                }
+                            }
+                        }
+                        for (section in visible) {
+                            if (section.tasks.isEmpty()) continue
+                            item(key = "header-${section.kind}") {
+                                Text(
+                                    text =
+                                        when (section.kind) {
+                                            TasksSectionKind.UPCOMING ->
+                                                stringResource(R.string.tasks_upcoming)
+                                            TasksSectionKind.UNDATED ->
+                                                stringResource(R.string.tasks_undated)
+                                            TasksSectionKind.DONE ->
+                                                stringResource(R.string.today_sections_done, section.tasks.size)
+                                        },
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                                )
+                            }
+                            items(section.tasks, key = { "task-${it.id}" }) { task ->
+                                TaskRow(
+                                    task = task,
+                                    onToggle = tasksViewModel::toggle,
+                                    onOpen = hoyViewModel::openDetail,
+                                )
+                            }
+                        }
+                        if (current.isOffline) {
+                            item(key = "offline-note") {
+                                Text(
+                                    text = stringResource(R.string.tasks_offline),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                )
+                            }
+                        }
+                        item { Spacer(Modifier.height(24.dp)) }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -3592,6 +3592,27 @@
       "switchToLogin": "Have an account? Sign in",
       "errorNetwork": "Couldn't connect. Check your connection and try again.",
       "errorAuth": "Check your details and try again."
+    },
+    "tasks": {
+      "title": "Tasks",
+      "searchHint": "Search tasks",
+      "upcoming": "Upcoming",
+      "undated": "No date",
+      "projects": "Projects",
+      "empty": "Nothing here.",
+      "offline": "Offline",
+      "allDone": "All caught up.",
+      "allProjects": "All"
+    },
+    "settings": {
+      "title": "Settings",
+      "account": "Account",
+      "signOut": "Sign out",
+      "notifications": "Notifications",
+      "openSettings": "Open system settings",
+      "about": "About",
+      "version": "Version",
+      "language": "Language"
     }
   }
 }

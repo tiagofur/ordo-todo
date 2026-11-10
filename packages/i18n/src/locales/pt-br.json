@@ -3592,6 +3592,27 @@
       "switchToLogin": "Já tem conta? Entre",
       "errorNetwork": "Não foi possível conectar. Verifique sua conexão e tente de novo.",
       "errorAuth": "Verifique seus dados e tente de novo."
+    },
+    "tasks": {
+      "title": "Tarefas",
+      "searchHint": "Buscar nas tarefas",
+      "upcoming": "Próximas",
+      "undated": "Sem data",
+      "projects": "Projetos",
+      "empty": "Nada por aqui.",
+      "offline": "Sem conexão",
+      "allDone": "Tudo em dia.",
+      "allProjects": "Todos"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "account": "Conta",
+      "signOut": "Sair",
+      "notifications": "Notificações",
+      "openSettings": "Abrir ajustes do sistema",
+      "about": "Sobre",
+      "version": "Versão",
+      "language": "Idioma"
     }
   }
 }

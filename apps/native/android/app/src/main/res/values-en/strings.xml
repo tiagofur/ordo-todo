@@ -96,4 +96,21 @@
     <string name="auth_switch_to_login">Have an account? Sign in</string>
     <string name="auth_error_network">Couldn\'t connect. Check your connection and try again.</string>
     <string name="auth_error_auth">Check your details and try again.</string>
+    <string name="tasks_title">Tasks</string>
+    <string name="tasks_search_hint">Search tasks</string>
+    <string name="tasks_upcoming">Upcoming</string>
+    <string name="tasks_undated">No date</string>
+    <string name="tasks_projects">Projects</string>
+    <string name="tasks_empty">Nothing here.</string>
+    <string name="tasks_offline">Offline</string>
+    <string name="tasks_all_done">All caught up.</string>
+    <string name="tasks_all_projects">All</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_open_settings">Open system settings</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_language">Language</string>
 </resources>

@@ -96,4 +96,21 @@
     <string name="auth_switch_to_login">¿Ya tienes cuenta? Entra</string>
     <string name="auth_error_network">No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="auth_error_auth">Revisa tus datos e inténtalo de nuevo.</string>
+    <string name="tasks_title">Tareas</string>
+    <string name="tasks_search_hint">Buscar en tareas</string>
+    <string name="tasks_upcoming">Próximas</string>
+    <string name="tasks_undated">Sin fecha</string>
+    <string name="tasks_projects">Proyectos</string>
+    <string name="tasks_empty">Nada por aquí.</string>
+    <string name="tasks_offline">Sin conexión</string>
+    <string name="tasks_all_done">Todo al día.</string>
+    <string name="tasks_all_projects">Todos</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_account">Cuenta</string>
+    <string name="settings_sign_out">Cerrar sesión</string>
+    <string name="settings_notifications">Notificaciones</string>
+    <string name="settings_open_settings">Abrir ajustes del sistema</string>
+    <string name="settings_about">Acerca de</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_language">Idioma</string>
 </resources>

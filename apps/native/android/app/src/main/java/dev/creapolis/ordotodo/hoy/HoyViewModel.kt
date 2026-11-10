@@ -49,6 +49,7 @@ data class HabitsUiState(
     val done: Int = 0,
     val total: Int = 0,
     val isOffline: Boolean = false,
+    val loaded: Boolean = false,
 )
 
 class HoyViewModel(
@@ -326,6 +327,7 @@ class HoyViewModel(
             done = all.count(HabitToday::doneToday),
             total = all.size,
             isOffline = isOffline,
+            loaded = true,
         )
     }
 

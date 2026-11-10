@@ -384,7 +384,7 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
 }
 
 @Composable
-private fun HabitsHeader(count: Int, offline: Boolean) {
+internal fun HabitsHeader(count: Int, offline: Boolean) {
     Column(Modifier.padding(top = 12.dp, bottom = 2.dp)) {
         Text(
             text = stringResource(R.string.habits_title),
@@ -402,7 +402,7 @@ private fun HabitsHeader(count: Int, offline: Boolean) {
 }
 
 @Composable
-private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
+internal fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val done = habit.doneToday
     val streakLabel = pluralStringResource(R.plurals.habits_streak, habit.currentStreak, habit.currentStreak)
@@ -443,7 +443,7 @@ private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
 }
 
 @Composable
-private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
+internal fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val openLabel = stringResource(R.string.detail_open)
     Card(
@@ -520,7 +520,7 @@ private fun ProjectDot(hex: String) {
 }
 
 @Composable
-private fun CheckDot(done: Boolean, onToggle: () -> Unit) {
+internal fun CheckDot(done: Boolean, onToggle: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val ring = if (done) scheme.primary else scheme.primary.copy(alpha = 0.45f)
     val description =
