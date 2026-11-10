@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
@@ -404,7 +405,7 @@ private fun HabitsHeader(count: Int, offline: Boolean) {
 private fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val done = habit.doneToday
-    val streakLabel = stringResource(R.string.habits_streak, habit.currentStreak)
+    val streakLabel = pluralStringResource(R.plurals.habits_streak, habit.currentStreak, habit.currentStreak)
     Card(
         colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
         modifier = Modifier.fillMaxWidth(),
