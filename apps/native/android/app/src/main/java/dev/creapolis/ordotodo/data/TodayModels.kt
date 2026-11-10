@@ -31,6 +31,7 @@ data class TodayProject(
     val id: String,
     val name: String,
     val color: String? = null,
+    val workspaceId: String? = null,
 )
 
 @Serializable

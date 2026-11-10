@@ -73,6 +73,62 @@ class TasksRepository(
         api.delete("/tasks/$id")
     }
 
+    suspend fun restoreTask(id: String) {
+        api.post("/tasks/$id/restore", "")
+    }
+
+    suspend fun createSubtask(parentTaskId: String, title: String): SubtaskItem {
+        val body = buildJsonObject { put("title", title) }
+        val raw = api.post("/tasks/$parentTaskId/subtasks", json.encodeToString(JsonObject.serializer(), body))
+        return json.decodeFromString(raw)
+    }
+
+    suspend fun completeSubtask(subtaskId: String) {
+        api.patch("/tasks/$subtaskId/complete")
+    }
+
+    suspend fun reopenSubtask(subtaskId: String) {
+        api.patch("/tasks/$subtaskId", api.jsonBody("status" to "TODO"))
+    }
+
+    suspend fun deleteSubtask(subtaskId: String) {
+        api.delete("/tasks/$subtaskId")
+    }
+
+    suspend fun taskTags(taskId: String): List<TaskTag> =
+        try {
+            json.decodeFromString(ListSerializer(TaskTag.serializer()), api.get("/tasks/$taskId/tags"))
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+    suspend fun allTags(workspaceId: String? = null): List<TaskTag> {
+        val path = if (workspaceId == null) "/tags" else "/tags?workspaceId=$workspaceId"
+        return try {
+            json.decodeFromString(ListSerializer(TaskTag.serializer()), api.get(path))
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun assignTag(tagId: String, taskId: String) {
+        api.post("/tags/$tagId/tasks/$taskId", "")
+    }
+
+    suspend fun removeTag(tagId: String, taskId: String) {
+        api.delete("/tags/$tagId/tasks/$taskId")
+    }
+
+    suspend fun createTag(name: String, color: String = "#6B7280", workspaceId: String): TaskTag {
+        val body = buildJsonObject {
+            put("name", name)
+            put("color", color)
+            put("workspaceId", workspaceId)
+        }
+        val raw = api.post("/tags", json.encodeToString(JsonObject.serializer(), body))
+        return json.decodeFromString(raw)
+    }
+
     suspend fun updateTask(id: String, patch: Map<String, String?>) {
         val body = buildJsonObject {
             for ((key, value) in patch) {

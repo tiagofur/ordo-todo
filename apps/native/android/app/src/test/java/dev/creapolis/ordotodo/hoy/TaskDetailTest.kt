@@ -1,8 +1,11 @@
 package dev.creapolis.ordotodo.hoy
 
 import dev.creapolis.ordotodo.data.NativeProject
+import dev.creapolis.ordotodo.data.RecurrenceConfig
 import dev.creapolis.ordotodo.data.TaskDetailResponse
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
@@ -27,6 +30,8 @@ private fun original(
     scheduledTime: String? = "15:00",
     dueDate: String? = null,
     projectId: String? = null,
+    estimatedMinutes: Int? = null,
+    recurrence: RecurrenceConfig? = null,
 ) = TaskDetailResponse(
     id = "t-1",
     title = title,
@@ -36,6 +41,8 @@ private fun original(
     scheduledTime = scheduledTime,
     dueDate = dueDate,
     projectId = projectId,
+    estimatedMinutes = estimatedMinutes,
+    recurrence = recurrence,
 )
 
 private fun edited(
@@ -46,6 +53,8 @@ private fun edited(
     dueDate: String = "",
     priority: String = "MEDIUM",
     projectId: String? = null,
+    estimatedMinutes: Int? = null,
+    recurrence: RecurrenceConfig? = null,
 ) = EditedTask(
     title = title,
     description = description,
@@ -54,6 +63,8 @@ private fun edited(
     dueDate = dueDate,
     priority = priority,
     projectId = projectId,
+    estimatedMinutes = estimatedMinutes,
+    recurrence = recurrence,
 )
 
 class TaskDetailTest {
@@ -96,6 +107,81 @@ class TaskDetailTest {
         val patch = buildTaskPatch(original(projectId = "p-casa"), edited(projectId = null))!!
 
         assertEquals(buildJsonObject { put("projectId", JsonNull) }, patch)
+    }
+
+    @Test
+    fun estimatedMinutesChangeSendsNumber() {
+        val patch = buildTaskPatch(original(), edited(estimatedMinutes = 45))!!
+        assertEquals(buildJsonObject { put("estimatedMinutes", 45) }, patch)
+    }
+
+    @Test
+    fun clearEstimatedMinutesSendsNull() {
+        val patch = buildTaskPatch(original(estimatedMinutes = 30), edited(estimatedMinutes = null))!!
+        assertEquals(buildJsonObject { put("estimatedMinutes", JsonNull) }, patch)
+    }
+
+    @Test
+    fun recurrenceChangeSendsJsonObject() {
+        val rec = RecurrenceConfig(pattern = "WEEKLY", interval = 1, daysOfWeek = listOf(1, 3, 5))
+        val patch = buildTaskPatch(original(), edited(recurrence = rec))!!
+        val expected =
+            buildJsonObject {
+                put(
+                    "recurrence",
+                    buildJsonObject {
+                        put("pattern", "WEEKLY")
+                        put("interval", 1)
+                        put("daysOfWeek", JsonArray(listOf(1, 3, 5).map { JsonPrimitive(it) }))
+                    },
+                )
+            }
+        assertEquals(expected, patch)
+    }
+
+    @Test
+    fun clearRecurrenceSendsNull() {
+        val rec = RecurrenceConfig(pattern = "DAILY")
+        val patch = buildTaskPatch(original(recurrence = rec), edited(recurrence = null))!!
+        assertEquals(buildJsonObject { put("recurrence", JsonNull) }, patch)
+    }
+
+    @Test
+    fun monthlyRecurrenceChangeSendsDayOfMonth() {
+        val rec = RecurrenceConfig(pattern = "MONTHLY", interval = 1, dayOfMonth = 15)
+        val patch = buildTaskPatch(original(), edited(recurrence = rec))!!
+        val expected =
+            buildJsonObject {
+                put(
+                    "recurrence",
+                    buildJsonObject {
+                        put("pattern", "MONTHLY")
+                        put("interval", 1)
+                        put("dayOfMonth", 15)
+                    },
+                )
+            }
+        assertEquals(expected, patch)
+    }
+
+    @Test
+    fun unchangedEstimateAndRecurrenceStayAbsentFromPatch() {
+        val rec = RecurrenceConfig(pattern = "DAILY", interval = 1)
+        val orig = original(estimatedMinutes = 60, recurrence = rec)
+        val edit = edited(title = "Nuevo titulo", estimatedMinutes = 60, recurrence = rec)
+        val patch = buildTaskPatch(orig, edit)!!
+        assertEquals(buildJsonObject { put("title", "Nuevo titulo") }, patch)
+    }
+
+    @Test
+    fun subtaskItemDoneStatus() {
+        val todo = dev.creapolis.ordotodo.data.SubtaskItem(id = "s-1", title = "Paso 1", status = "TODO")
+        val done = dev.creapolis.ordotodo.data.SubtaskItem(id = "s-2", title = "Paso 2", status = "COMPLETED")
+        val cancelled = dev.creapolis.ordotodo.data.SubtaskItem(id = "s-3", title = "Paso 3", status = "CANCELLED")
+
+        org.junit.Assert.assertFalse(todo.isDone)
+        org.junit.Assert.assertTrue(done.isDone)
+        org.junit.Assert.assertTrue(cancelled.isDone)
     }
 
     @Test

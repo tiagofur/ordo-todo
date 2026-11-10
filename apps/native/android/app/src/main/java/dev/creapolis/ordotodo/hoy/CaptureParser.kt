@@ -34,6 +34,9 @@ private val RELATIVE = listOf(
 private val NUMERIC_DATE =
     Regex("\\b(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])(?:/(20\\d{2}|\\d{2}))?\\b")
 
+private val ISO_DATE =
+    Regex("\\b(20\\d{2})-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])\\b")
+
 private val MONTHS = mapOf(
     "ene" to 1, "enero" to 1, "jan" to 1, "january" to 1, "janeiro" to 1,
     "feb" to 2, "febrero" to 2, "february" to 2, "fevereiro" to 2, "fev" to 2,
@@ -139,6 +142,15 @@ private fun findDate(text: String, today: LocalDate): DateHit? {
     }
     NUMERIC_DATE.findAll(text).forEach { m ->
         numericDate(m, today)?.let { cands += DateHit(m.range.first, m.range.last + 1, it) }
+    }
+    ISO_DATE.findAll(text).forEach { m ->
+        try {
+            val y = m.groupValues[1].toInt()
+            val month = m.groupValues[2].toInt()
+            val d = m.groupValues[3].toInt()
+            cands += DateHit(m.range.first, m.range.last + 1, LocalDate.of(y, month, d))
+        } catch (_: Exception) {
+        }
     }
     DAY_MONTH.findAll(text).forEach { m ->
         val day = m.groupValues[1].toIntOrNull() ?: return@forEach

@@ -1,9 +1,14 @@
 package dev.creapolis.ordotodo.hoy
 
 import dev.creapolis.ordotodo.data.NativeProject
+import dev.creapolis.ordotodo.data.RecurrenceConfig
+import dev.creapolis.ordotodo.data.SubtaskItem
 import dev.creapolis.ordotodo.data.TaskDetailResponse
+import dev.creapolis.ordotodo.data.TaskTag
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -19,6 +24,8 @@ data class EditedTask(
     val dueDate: String,
     val priority: String,
     val projectId: String?,
+    val estimatedMinutes: Int? = null,
+    val recurrence: RecurrenceConfig? = null,
 )
 
 data class TaskEditState(
@@ -33,7 +40,12 @@ data class TaskEditState(
     val dueDate: String = "",
     val priority: String = "MEDIUM",
     val projectId: String? = null,
+    val estimatedMinutes: Int? = null,
+    val recurrence: RecurrenceConfig? = null,
+    val subTasks: List<SubtaskItem> = emptyList(),
+    val tags: List<TaskTag> = emptyList(),
     val saving: Boolean = false,
+    val deleting: Boolean = false,
 ) {
     fun edited(): EditedTask =
         EditedTask(
@@ -44,6 +56,8 @@ data class TaskEditState(
             dueDate = dueDate,
             priority = priority,
             projectId = projectId,
+            estimatedMinutes = estimatedMinutes,
+            recurrence = recurrence,
         )
 }
 
@@ -102,6 +116,29 @@ fun buildTaskPatch(original: TaskDetailResponse, edited: EditedTask): JsonObject
             if (edited.projectId != originalProject) {
                 if (edited.projectId == null) put("projectId", JsonNull)
                 else put("projectId", edited.projectId)
+                changed = true
+            }
+            if (edited.estimatedMinutes != original.estimatedMinutes) {
+                if (edited.estimatedMinutes == null) put("estimatedMinutes", JsonNull)
+                else put("estimatedMinutes", edited.estimatedMinutes)
+                changed = true
+            }
+            if (edited.recurrence != original.recurrence) {
+                if (edited.recurrence == null) {
+                    put("recurrence", JsonNull)
+                } else {
+                    put(
+                        "recurrence",
+                        buildJsonObject {
+                            put("pattern", edited.recurrence.pattern)
+                            put("interval", edited.recurrence.interval)
+                            edited.recurrence.daysOfWeek?.let { days ->
+                                put("daysOfWeek", JsonArray(days.map { JsonPrimitive(it) }))
+                            }
+                            edited.recurrence.dayOfMonth?.let { put("dayOfMonth", it) }
+                        },
+                    )
+                }
                 changed = true
             }
         }

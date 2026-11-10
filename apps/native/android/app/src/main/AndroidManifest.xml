@@ -68,6 +68,22 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:name=".reminders.TaskReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".reminders.TaskReminderDoneReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".reminders.TaskReminderSnoozeReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".reminders.TaskReminderBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
             android:name=".focus.FocusAlarmReceiver"
             android:exported="false" />
         <receiver

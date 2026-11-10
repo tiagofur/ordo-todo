@@ -59,6 +59,7 @@ import dev.creapolis.ordotodo.hoy.HoyScreen
 import dev.creapolis.ordotodo.hoy.HoyUiState
 import dev.creapolis.ordotodo.hoy.HoyViewModel
 import dev.creapolis.ordotodo.reminders.HabitReminders
+import dev.creapolis.ordotodo.reminders.TaskReminders
 import dev.creapolis.ordotodo.widget.refreshOrdoWidget
 import dev.creapolis.ordotodo.hoy.TaskDetailScreen
 import dev.creapolis.ordotodo.settings.SettingsScreen
@@ -194,12 +195,18 @@ private fun OrdoNav(
     // Push the cached snapshot to the Glance widget and rebuild the
     // reminder alarms on every fresh load.
     LaunchedEffect(dayState, habitsUi) {
-        if (dayState is HoyUiState.Content) refreshOrdoWidget(context)
-        if (habitsUi.canScheduleReminders) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
+        val app = context.applicationContext
+        if (dayState is HoyUiState.Content) {
+            refreshOrdoWidget(context)
+            val allTasks = (dayState as HoyUiState.Content).sections.flatMap { it.tasks }
+            TaskReminders(app).rescheduleAll(allTasks)
+        }
+        if (habitsUi.canScheduleReminders) HabitReminders(app).rescheduleAll(habitsUi.habits)
     }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
     val projects by hoy.projects.collectAsStateWithLifecycle()
+    val availableTags by hoy.availableTags.collectAsStateWithLifecycle()
     val focusState by focus.focus.collectAsStateWithLifecycle()
     val launchIntent by launchIntents.collectAsStateWithLifecycle()
     LaunchedEffect(launchIntent) {
@@ -283,12 +290,20 @@ private fun OrdoNav(
             TaskDetailScreen(
                 state = open,
                 projects = projects,
+                availableTags = availableTags,
                 focusActive = focusState != null,
                 onEdit = hoy::updateDetail,
                 onSave = hoy::saveDetail,
                 onRetry = hoy::retryDetail,
                 onClose = hoy::closeDetail,
                 onStartFocus = { tab = OrdoTab.HOY },
+                onAddSubtask = hoy::addSubtask,
+                onToggleSubtask = hoy::toggleSubtask,
+                onDeleteSubtask = hoy::deleteSubtask,
+                onAssignTag = hoy::assignTag,
+                onRemoveTag = hoy::removeTag,
+                onCreateTag = hoy::createAndAssignTag,
+                onDeleteTask = { hoy.deleteTaskWithUndo(open.taskId) },
             )
         }
         val habitForm = habitEdit

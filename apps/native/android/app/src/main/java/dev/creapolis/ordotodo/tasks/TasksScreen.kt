@@ -214,6 +214,11 @@ PullToRefreshBox(
                                         task = task,
                                         onToggle = tasksViewModel::toggle,
                                         onOpen = hoyViewModel::openDetail,
+                                        onRescheduleTomorrow = hoyViewModel::rescheduleTaskToTomorrow,
+                                        onChangePriority = hoyViewModel::updateTaskPriority,
+                                        onMoveProject = hoyViewModel::moveTaskToProject,
+                                        onDelete = hoyViewModel::deleteTaskWithUndo,
+                                        projects = projects,
                                     )
                                 }
                             }
