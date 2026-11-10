@@ -74,6 +74,7 @@
         <item quantity="other">%1$d días</item>
     </plurals>
     <string name="auth_title">Iniciar sesión</string>
+    <string name="auth_title_register">Crear cuenta</string>
     <string name="auth_subtitle">Tu día, en orden</string>
     <string name="auth_show_password">Mostrar</string>
     <string name="auth_hide_password">Ocultar</string>

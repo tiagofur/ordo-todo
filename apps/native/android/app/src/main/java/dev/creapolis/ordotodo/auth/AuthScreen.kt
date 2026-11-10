@@ -81,7 +81,10 @@ fun AuthScreen(viewModel: AuthViewModel) {
         }
         Spacer(Modifier.height(20.dp))
         Text(
-            text = stringResource(R.string.auth_title),
+            text =
+                stringResource(
+                    if (registering) R.string.auth_title_register else R.string.auth_title,
+                ),
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
         )

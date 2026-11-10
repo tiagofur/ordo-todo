@@ -159,6 +159,9 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L18 · 2026-11-10 — Login: el título no cambiaba a registro (siempre `auth_title`); añadida clave `auth.titleRegister` (ES/EN/PT) y título por modo. Canario visual para confirmar build nuevo en el emulador.
+
+
 - L17 · 2026-11-10 — El borrado recurrente resultó estar atado al NOMBRE `data/AuthRepository.kt` (dentry fantasma con el contenido viejo de 94 líneas: `cat` falla pero readdir lo lista y `git status` parpadea `D`). Renombrado a `data/AuthSession.kt` + clase `AuthSession` (usos en MainActivity/AuthViewModel); sombra ERRORS:0, JUnit 53/53, nombre nuevo estable en muestreo. El árbol commiteado siempre estuvo intacto.
 
 

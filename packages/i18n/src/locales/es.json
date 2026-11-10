@@ -3570,6 +3570,7 @@
     },
     "auth": {
       "title": "Iniciar sesión",
+      "titleRegister": "Crear cuenta",
       "subtitle": "Tu día, en orden",
       "showPassword": "Mostrar",
       "hidePassword": "Ocultar",
