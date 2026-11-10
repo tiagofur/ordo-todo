@@ -22,15 +22,17 @@ class ApiException(val status: Int, message: String) : Exception(message)
 
 /**
  * Minimal JSON-over-HTTP client for the shared NestJS API (`/api/v1`).
- * Sends the stored access token as Bearer; on 401 it tries one silent
- * refresh and retries once, then surfaces [UnauthorizedException] so the
- * caller can sign out without losing locally queued work (F1b).
+ * Sends the stored access token as Bearer; on 401 it refreshes through the
+ * process-wide [RefreshGate] and retries once. The session is cleared only
+ * when the server rejects the refresh token; an unreachable server during
+ * refresh surfaces as [NetworkException] and keeps the session (ODD 051 S2).
  */
 class ApiClient(
     private val baseUrl: String,
     private val session: SessionStore,
     private val http: OkHttpClient = OkHttpClient(),
     private val json: Json = Json { ignoreUnknownKeys = true },
+    private val gate: RefreshGate = RefreshGate.shared,
 ) {
     suspend fun get(path: String): String = request("GET", path, null)
 
@@ -57,13 +59,21 @@ class ApiClient(
                 val response = execute(method, path, body, tokens?.access)
                 if (response.code == 401 && tokens != null) {
                     response.close()
-                    if (refresh(tokens.refresh)) {
-                        val retry = session.tokens.first()
-                        val second = execute(method, path, body, retry?.access)
-                        return@withContext readOrThrow(second)
+                    val outcome =
+                        gate.freshAccess(
+                            failedAccess = tokens.access,
+                            current = { session.tokens.first() },
+                            rotate = ::refresh,
+                            save = { session.save(it.access, it.refresh) },
+                        )
+                    return@withContext when (outcome) {
+                        is RefreshOutcome.Retry -> readOrThrow(execute(method, path, body, outcome.access))
+                        RefreshOutcome.SignedOut -> {
+                            session.clear()
+                            throw UnauthorizedException()
+                        }
+                        RefreshOutcome.Unreachable -> throw NetworkException(IOException("refresh unreachable"))
                     }
-                    session.clear()
-                    throw UnauthorizedException()
                 }
                 readOrThrow(response)
             } catch (e: IOException) {
@@ -94,8 +104,8 @@ class ApiClient(
         }
     }
 
-    /** One-shot refresh that never recurses into [request]. Returns true when tokens were rotated. */
-    private fun refresh(refreshToken: String): Boolean {
+    /** One-shot refresh that never recurses into [request]; runs on the caller's IO context. */
+    private fun refresh(refreshToken: String): RefreshResult {
         val payload =
             json.encodeToString(
                 kotlinx.serialization.json.JsonObject.serializer(),
@@ -109,17 +119,18 @@ class ApiClient(
         return try {
             http.newCall(call).execute().use { response ->
                 val text = response.body?.string().orEmpty()
-                if (!response.isSuccessful) return false
+                if (response.code >= 500) return RefreshResult.Unreachable
+                if (!response.isSuccessful) return RefreshResult.Rejected
                 val obj = json.parseToJsonElement(text).jsonObject
                 val access = obj["accessToken"]?.jsonPrimitive?.content
                 val refresh = obj["refreshToken"]?.jsonPrimitive?.content
-                if (access.isNullOrBlank() || refresh.isNullOrBlank()) return false
-                // SessionStore is suspend-only; bridge with runBlocking on IO (already on IO thread).
-                kotlinx.coroutines.runBlocking { session.save(access, refresh) }
-                true
+                if (access.isNullOrBlank() || refresh.isNullOrBlank()) return RefreshResult.Unreachable
+                RefreshResult.Rotated(SessionStore.Tokens(access, refresh))
             }
         } catch (_: IOException) {
-            false
+            RefreshResult.Unreachable
+        } catch (_: kotlinx.serialization.SerializationException) {
+            RefreshResult.Unreachable
         }
     }
 }
