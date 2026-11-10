@@ -3570,6 +3570,9 @@
     },
     "auth": {
       "title": "Entrar",
+      "subtitle": "Seu dia, em ordem",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
       "email": "E-mail",
       "password": "Senha",
       "username": "Nome de usuário",

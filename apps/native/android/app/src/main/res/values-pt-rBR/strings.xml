@@ -74,6 +74,9 @@
         <item quantity="other">%1$d dias</item>
     </plurals>
     <string name="auth_title">Entrar</string>
+    <string name="auth_subtitle">Seu dia, em ordem</string>
+    <string name="auth_show_password">Mostrar</string>
+    <string name="auth_hide_password">Ocultar</string>
     <string name="auth_email">E-mail</string>
     <string name="auth_password">Senha</string>
     <string name="auth_username">Nome de usuário</string>
