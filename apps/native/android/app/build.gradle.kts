@@ -21,8 +21,12 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".dev"
-            // Emulator loopback to the host backend (same contract as Tauri mobile).
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:3101/api/v1\"")
+            // Debug talks to production by default (owner, 10-nov-2026: no users yet).
+            // For a backend on this Mac: ./gradlew -Pordo.apiBaseUrl=http://10.0.2.2:3101/api/v1 …
+            val debugApi =
+                providers.gradleProperty("ordo.apiBaseUrl")
+                    .getOrElse("https://api.ordotodo.app/api/v1")
+            buildConfigField("String", "API_BASE_URL", "\"$debugApi\"")
         }
         release {
             buildConfigField("String", "API_BASE_URL", "\"https://api.ordotodo.app/api/v1\"")

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Debug only: the debug backend runs on the developer's machine over plain
-    HTTP (`http://10.0.2.2:3101`). Release keeps the platform default
-    (cleartext blocked, HTTPS only).
+    Debug only: allows plain HTTP for the optional local backend override
+    (`-Pordo.apiBaseUrl=http://10.0.2.2:3101/api/v1`). Debug defaults to
+    production over HTTPS; release keeps the platform default (HTTPS only).
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:usesCleartextTraffic="true" />
