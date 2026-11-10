@@ -55,7 +55,9 @@ import dev.creapolis.ordotodo.habits.HabitSheet
 import dev.creapolis.ordotodo.capture.extractSharedText
 import dev.creapolis.ordotodo.habits.HabitsScreen
 import dev.creapolis.ordotodo.hoy.HoyScreen
+import dev.creapolis.ordotodo.hoy.HoyUiState
 import dev.creapolis.ordotodo.hoy.HoyViewModel
+import dev.creapolis.ordotodo.widget.refreshOrdoWidget
 import dev.creapolis.ordotodo.hoy.TaskDetailScreen
 import dev.creapolis.ordotodo.settings.SettingsScreen
 import dev.creapolis.ordotodo.tasks.TasksScreen
@@ -181,6 +183,13 @@ private fun OrdoNav(
     launchIntents: MutableStateFlow<Intent?>,
 ) {
     var tab by remember { mutableStateOf(OrdoTab.HOY) }
+    val context = LocalContext.current
+    val dayState by hoy.state.collectAsStateWithLifecycle()
+    val habitsUi by hoy.habitsState.collectAsStateWithLifecycle()
+    // Push the cached snapshot to the Glance widget on every fresh load.
+    LaunchedEffect(dayState, habitsUi) {
+        if (dayState is HoyUiState.Content) refreshOrdoWidget(context)
+    }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
     val projects by hoy.projects.collectAsStateWithLifecycle()

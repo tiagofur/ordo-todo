@@ -126,6 +126,8 @@
     <string name="settings_version">Versão</string>
     <string name="settings_language">Idioma</string>
     <string name="tile_capture">Captura rápida</string>
+    <string name="widget_label">Hoje da Ordo</string>
+    <string name="widget_desc">Progresso de tarefas e hábitos de hoje</string>
     <string name="shortcuts_new">Nova tarefa</string>
     <string name="shortcuts_today">Hoje</string>
 </resources>

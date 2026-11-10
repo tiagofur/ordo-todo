@@ -126,6 +126,8 @@
     <string name="settings_version">Version</string>
     <string name="settings_language">Language</string>
     <string name="tile_capture">Quick capture</string>
+    <string name="widget_label">Ordo Today</string>
+    <string name="widget_desc">Today\'s task and habit progress</string>
     <string name="shortcuts_new">New task</string>
     <string name="shortcuts_today">Today</string>
 </resources>

@@ -364,7 +364,8 @@ class HoyViewModel(
         }
     }
 
-    private fun showHabits(response: HabitsTodayResponse, isOffline: Boolean) {
+    private suspend fun showHabits(response: HabitsTodayResponse, isOffline: Boolean) {
+        day.saveHabits(response)
         val all = response.habits.ifEmpty { response.grouped.all() }
         _habitsState.value = HabitsUiState(
             habits = all,

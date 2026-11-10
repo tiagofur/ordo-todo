@@ -105,6 +105,19 @@ class DayStore(
         store.edit { it[KEY_OPS] = json.encodeToString(ListSerializer(StatusOp.serializer()), remaining) }
     }
 
+    suspend fun saveHabits(response: HabitsTodayResponse) {
+        store.edit { it[KEY_HABITS] = json.encodeToString(HabitsTodayResponse.serializer(), response) }
+    }
+
+    suspend fun loadHabits(): HabitsTodayResponse? {
+        val raw = store.data.map { it[KEY_HABITS] }.first() ?: return null
+        return try {
+            json.decodeFromString(HabitsTodayResponse.serializer(), raw)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     override suspend fun habitPending(): List<HabitOp> {
         val raw = store.data.map { it[KEY_HABIT_OPS] }.first() ?: return emptyList()
         return try {
@@ -129,6 +142,7 @@ class DayStore(
         private val KEY_DAY = stringPreferencesKey("today_json")
         private val KEY_OPS = stringPreferencesKey("status_ops")
         private val KEY_HABIT_OPS = stringPreferencesKey("habit_ops")
+        private val KEY_HABITS = stringPreferencesKey("habits_json")
 
         fun from(context: Context): DayStore = DayStore(context.dayDataStore)
     }
