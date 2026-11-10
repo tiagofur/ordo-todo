@@ -48,6 +48,13 @@
     <string name="detail_updated">Tarefa atualizada</string>
     <string name="detail_invalid_date">Data inválida</string>
     <string name="detail_invalid_time">Hora inválida</string>
+    <string name="detail_shortcut_today">Hoje</string>
+    <string name="detail_shortcut_tomorrow">Amanhã</string>
+    <string name="detail_shortcut_next_monday">Próxima segunda</string>
+    <string name="detail_shortcut_no_date">Sem data</string>
+    <string name="detail_pick_date">Escolher data</string>
+    <string name="detail_pick_time">Escolher hora</string>
+    <string name="detail_clear_time">Remover hora</string>
     <string name="timer_title">Foco</string>
     <string name="timer_duration_label">Duração</string>
     <!-- args: %1$d = minutes (Int) -->

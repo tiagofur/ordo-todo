@@ -3540,7 +3540,14 @@
       "noProject": "No project",
       "updated": "Task updated",
       "invalidDate": "Invalid date",
-      "invalidTime": "Invalid time"
+      "invalidTime": "Invalid time",
+      "shortcutToday": "Today",
+      "shortcutTomorrow": "Tomorrow",
+      "shortcutNextMonday": "Next Monday",
+      "shortcutNoDate": "No date",
+      "pickDate": "Pick date",
+      "pickTime": "Pick time",
+      "clearTime": "Clear time"
     },
     "timer": {
       "title": "Focus",

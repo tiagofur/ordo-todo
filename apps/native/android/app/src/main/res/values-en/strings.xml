@@ -48,6 +48,13 @@
     <string name="detail_updated">Task updated</string>
     <string name="detail_invalid_date">Invalid date</string>
     <string name="detail_invalid_time">Invalid time</string>
+    <string name="detail_shortcut_today">Today</string>
+    <string name="detail_shortcut_tomorrow">Tomorrow</string>
+    <string name="detail_shortcut_next_monday">Next Monday</string>
+    <string name="detail_shortcut_no_date">No date</string>
+    <string name="detail_pick_date">Pick date</string>
+    <string name="detail_pick_time">Pick time</string>
+    <string name="detail_clear_time">Clear time</string>
     <string name="timer_title">Focus</string>
     <string name="timer_duration_label">Duration</string>
     <!-- args: %1$d = minutes (Int) -->

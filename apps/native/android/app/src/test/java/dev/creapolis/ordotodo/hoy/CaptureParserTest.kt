@@ -49,6 +49,15 @@ class CaptureParserTest {
     }
 
     @Test
+    fun isoDateParsed() {
+        val parsed = parseCapture("Planificar release 2026-11-20 10:00", TODAY)
+
+        assertEquals("Planificar release", parsed.title)
+        assertEquals(LocalDate.of(2026, 11, 20), parsed.scheduledDate)
+        assertEquals("10:00", parsed.scheduledTime)
+    }
+
+    @Test
     fun dayMonthNameRollsToNextYear() {
         val parsed = parseCapture("Revisar contrato 12 ene 09:00", TODAY)
 

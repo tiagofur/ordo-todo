@@ -135,41 +135,20 @@ private fun DetailForm(
             )
         }
         GroupCard(stringResource(R.string.detail_group_schedule)) {
-            OutlinedTextField(
-                value = state.scheduledDate,
-                onValueChange = { text -> onEdit { it.copy(scheduledDate = text) } },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.detail_date_label)) },
-                placeholder = { Text(stringResource(R.string.detail_date_hint)) },
-                supportingText = {
-                    if (dateBad) Text(stringResource(R.string.detail_invalid_date))
-                },
-                isError = dateBad,
-                singleLine = true,
+            DateFieldWithShortcuts(
+                label = stringResource(R.string.detail_date_label),
+                currentDate = state.scheduledDate,
+                onDateChange = { date -> onEdit { it.copy(scheduledDate = date) } },
             )
-            OutlinedTextField(
-                value = state.scheduledTime,
-                onValueChange = { text -> onEdit { it.copy(scheduledTime = text) } },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.detail_time_label)) },
-                placeholder = { Text("15:00") },
-                supportingText = {
-                    if (timeBad) Text(stringResource(R.string.detail_invalid_time))
-                },
-                isError = timeBad,
-                singleLine = true,
+            TimeFieldSelector(
+                label = stringResource(R.string.detail_time_label),
+                currentTime = state.scheduledTime,
+                onTimeChange = { time -> onEdit { it.copy(scheduledTime = time) } },
             )
-            OutlinedTextField(
-                value = state.dueDate,
-                onValueChange = { text -> onEdit { it.copy(dueDate = text) } },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.detail_due_label)) },
-                placeholder = { Text(stringResource(R.string.detail_date_hint)) },
-                supportingText = {
-                    if (dueBad) Text(stringResource(R.string.detail_invalid_date))
-                },
-                isError = dueBad,
-                singleLine = true,
+            DateFieldWithShortcuts(
+                label = stringResource(R.string.detail_due_label),
+                currentDate = state.dueDate,
+                onDateChange = { date -> onEdit { it.copy(dueDate = date) } },
             )
         }
         GroupCard(stringResource(R.string.detail_group_classify)) {

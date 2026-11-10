@@ -3540,7 +3540,14 @@
       "noProject": "Sem projeto",
       "updated": "Tarefa atualizada",
       "invalidDate": "Data inválida",
-      "invalidTime": "Hora inválida"
+      "invalidTime": "Hora inválida",
+      "shortcutToday": "Hoje",
+      "shortcutTomorrow": "Amanhã",
+      "shortcutNextMonday": "Próxima segunda",
+      "shortcutNoDate": "Sem data",
+      "pickDate": "Escolher data",
+      "pickTime": "Escolher hora",
+      "clearTime": "Remover hora"
     },
     "timer": {
       "title": "Foco",
