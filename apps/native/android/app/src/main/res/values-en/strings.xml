@@ -18,6 +18,9 @@
     <string name="today_empty_body">Nothing planned for today.</string>
     <string name="today_empty_upcoming">See upcoming</string>
     <string name="today_empty_retry">Retry</string>
+    <string name="today_marked_done">Completed</string>
+    <string name="today_marked_pending">Marked as to do</string>
+    <string name="today_offline">Offline — local copy</string>
     <string name="actions_add_task">Add task</string>
     <string name="actions_complete">Complete</string>
     <string name="actions_undo">Undo</string>

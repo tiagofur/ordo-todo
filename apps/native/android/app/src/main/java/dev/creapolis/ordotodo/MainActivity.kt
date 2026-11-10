@@ -23,6 +23,7 @@ import dev.creapolis.ordotodo.auth.AuthScreen
 import dev.creapolis.ordotodo.auth.AuthViewModel
 import dev.creapolis.ordotodo.data.ApiClient
 import dev.creapolis.ordotodo.data.AuthRepository
+import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.hoy.HoyScreen
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         val api = ApiClient(BuildConfig.API_BASE_URL, session)
         val auth = AuthRepository(api, session)
         val tasks = TasksRepository(api)
+        val day = DayStore.from(applicationContext)
 
         setContent {
             OrdoTheme {
@@ -46,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    OrdoRoot(session, auth, tasks)
+                    OrdoRoot(session, auth, tasks, day)
                 }
             }
         }
@@ -64,7 +66,12 @@ private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory 
  * refresh clears the store and this root falls back to [AuthScreen].
  */
 @Composable
-private fun OrdoRoot(session: SessionStore, auth: AuthRepository, tasks: TasksRepository) {
+private fun OrdoRoot(
+    session: SessionStore,
+    auth: AuthRepository,
+    tasks: TasksRepository,
+    day: DayStore,
+) {
     val tokens by session.tokens.collectAsStateWithLifecycle(initialValue = null)
     var ready by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -76,7 +83,7 @@ private fun OrdoRoot(session: SessionStore, auth: AuthRepository, tasks: TasksRe
         return
     }
     if (tokens != null) {
-        val hoy: HoyViewModel = viewModel(factory = factory { HoyViewModel(tasks, session) })
+        val hoy: HoyViewModel = viewModel(factory = factory { HoyViewModel(tasks, day, session) })
         HoyScreen(hoy)
     } else {
         val login: AuthViewModel = viewModel(factory = factory { AuthViewModel(auth) })

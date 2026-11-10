@@ -18,6 +18,9 @@
     <string name="today_empty_body">No tienes nada planificado para hoy.</string>
     <string name="today_empty_upcoming">Ver próximos</string>
     <string name="today_empty_retry">Reintentar</string>
+    <string name="today_marked_done">Completada</string>
+    <string name="today_marked_pending">Marcada como pendiente</string>
+    <string name="today_offline">Sin conexión — copia local</string>
     <string name="actions_add_task">Añadir tarea</string>
     <string name="actions_complete">Completar</string>
     <string name="actions_undo">Deshacer</string>

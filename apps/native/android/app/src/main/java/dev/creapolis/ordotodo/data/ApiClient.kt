@@ -36,6 +36,8 @@ class ApiClient(
 
     suspend fun post(path: String, body: String? = null): String = request("POST", path, body)
 
+    suspend fun patch(path: String, body: String? = null): String = request("PATCH", path, body)
+
     fun jsonBody(vararg pairs: Pair<String, String?>): String =
         json.encodeToString(
             kotlinx.serialization.json.JsonObject.serializer(),
@@ -70,9 +72,11 @@ class ApiClient(
     private fun execute(method: String, path: String, body: String?, access: String?): okhttp3.Response {
         val builder = Request.Builder().url(baseUrl.trimEnd('/') + path)
         if (access != null) builder.header("Authorization", "Bearer $access")
-        val payload = body?.toRequestBody("application/json".toMediaType())
+        val jsonType = "application/json".toMediaType()
+        val payload = body?.toRequestBody(jsonType) ?: "".toRequestBody(jsonType)
         when (method) {
-            "POST" -> builder.post(payload ?: "".toRequestBody("application/json".toMediaType()))
+            "POST" -> builder.post(payload)
+            "PATCH" -> builder.patch(payload)
             else -> builder.get()
         }
         return http.newCall(builder.build()).execute()

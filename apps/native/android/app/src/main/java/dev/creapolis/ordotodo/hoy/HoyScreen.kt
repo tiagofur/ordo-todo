@@ -1,6 +1,7 @@
 package dev.creapolis.ordotodo.hoy
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,16 +19,23 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,14 +47,35 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
-/** The Day list: every section in one scroll, done tasks closing it (F1b makes the circles tappable). */
+/** The Day list: every section in one scroll, done tasks closing it. Circles toggle (F1b). */
 @Composable
 fun HoyScreen(viewModel: HoyViewModel) {
     val state by viewModel.state.collectAsState()
-    when (val current = state) {
-        is HoyUiState.Loading -> LoadingDay()
-        is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
-        is HoyUiState.Content -> DayList(current)
+    val snackbar = remember { SnackbarHostState() }
+    val undoLabel = stringResource(R.string.actions_undo)
+    val doneText = stringResource(R.string.today_marked_done)
+    val pendingText = stringResource(R.string.today_marked_pending)
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { snack ->
+            val text = if (snack.message == R.string.today_marked_pending) pendingText else doneText
+            val result =
+                snackbar.showSnackbar(
+                    message = text,
+                    actionLabel = if (snack.undoTaskId != null) undoLabel else null,
+                )
+            if (result == SnackbarResult.ActionPerformed && snack.undoTaskId != null) {
+                viewModel.toggle(snack.undoTaskId)
+            }
+        }
+    }
+    Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { inner ->
+        Column(Modifier.fillMaxSize().padding(inner)) {
+            when (val current = state) {
+                is HoyUiState.Loading -> LoadingDay()
+                is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
+                is HoyUiState.Content -> DayList(current, onToggle = viewModel::toggle)
+            }
+        }
     }
 }
 
@@ -80,7 +109,7 @@ private fun OfflineDay(onRetry: () -> Unit) {
 }
 
 @Composable
-private fun DayList(content: HoyUiState.Content) {
+private fun DayList(content: HoyUiState.Content, onToggle: (String) -> Unit) {
     val dateLine =
         LocalDate.now().format(
             DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()),
@@ -113,6 +142,21 @@ private fun DayList(content: HoyUiState.Content) {
                 DayRing(done = content.done, total = content.total)
             }
         }
+        if (content.isOffline) {
+            item(key = "offline") {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = stringResource(R.string.today_offline),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    )
+                }
+            }
+        }
         if (content.sections.isEmpty()) {
             item {
                 Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
@@ -132,7 +176,7 @@ private fun DayList(content: HoyUiState.Content) {
                 SectionHeader(kind = section.kind, count = section.tasks.size)
             }
             items(section.tasks, key = { "task-${it.id}" }) { task ->
-                TaskRow(task)
+                TaskRow(task, onToggle = onToggle)
             }
         }
         item { Spacer(Modifier.height(24.dp)) }
@@ -181,7 +225,7 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
 }
 
 @Composable
-private fun TaskRow(task: TodayTask) {
+private fun TaskRow(task: TodayTask, onToggle: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Card(
         colors =
@@ -194,7 +238,7 @@ private fun TaskRow(task: TodayTask) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CheckDot(done = task.isDone)
+            CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -251,10 +295,16 @@ private fun ProjectDot(hex: String) {
 }
 
 @Composable
-private fun CheckDot(done: Boolean) {
+private fun CheckDot(done: Boolean, onToggle: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val ring = if (done) scheme.primary else scheme.primary.copy(alpha = 0.45f)
-    Canvas(Modifier.size(22.dp)) {
-        if (done) drawCircle(ring) else drawCircle(ring, style = Stroke(width = 5f))
+    val description =
+        stringResource(if (done) R.string.actions_undo else R.string.actions_complete)
+    Canvas(
+        Modifier.size(44.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
+    ) {
+        val r = size.minDimension / 2 - 11 * density
+        val c = center
+        if (done) drawCircle(ring, r, c) else drawCircle(ring, r, c, style = Stroke(width = 5 * density))
     }
 }

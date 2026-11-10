@@ -3508,7 +3508,10 @@
         "body": "No tienes nada planificado para hoy.",
         "upcoming": "Ver próximos",
         "retry": "Reintentar"
-      }
+      },
+      "markedDone": "Completada",
+      "markedPending": "Marcada como pendiente",
+      "offline": "Sin conexión — copia local"
     },
     "actions": {
       "addTask": "Añadir tarea",

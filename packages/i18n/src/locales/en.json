@@ -3508,7 +3508,10 @@
         "body": "Nothing planned for today.",
         "upcoming": "See upcoming",
         "retry": "Retry"
-      }
+      },
+      "markedDone": "Completed",
+      "markedPending": "Marked as to do",
+      "offline": "Offline — local copy"
     },
     "actions": {
       "addTask": "Add task",

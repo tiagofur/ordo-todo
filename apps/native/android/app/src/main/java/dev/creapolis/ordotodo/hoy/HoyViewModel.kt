@@ -2,14 +2,19 @@ package dev.creapolis.ordotodo.hoy
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
+import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
+import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 sealed interface HoyUiState {
@@ -21,15 +26,23 @@ sealed interface HoyUiState {
         val sections: List<DaySection>,
         val done: Int,
         val total: Int,
+        val isOffline: Boolean = false,
     ) : HoyUiState
 }
 
+data class Snack(val message: Int, val undoTaskId: String? = null)
+
 class HoyViewModel(
     private val tasks: TasksRepository,
+    private val day: DayStore,
     private val session: SessionStore,
+    private val sync: SyncEngine = SyncEngine(tasks),
 ) : ViewModel() {
     private val _state = MutableStateFlow<HoyUiState>(HoyUiState.Loading)
     val state: StateFlow<HoyUiState> = _state
+
+    private val _events = Channel<Snack>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     init {
         refresh()
@@ -38,23 +51,94 @@ class HoyViewModel(
     fun refresh() {
         _state.value = HoyUiState.Loading
         viewModelScope.launch {
-            try {
-                val response = tasks.today()
-                val sections = sectionToday(response)
-                val all = sections.flatMap { it.tasks }
-                _state.value =
-                    HoyUiState.Content(
-                        sections = sections,
-                        done = all.count(TodayTask::isDone),
-                        total = all.size,
-                    )
-            } catch (_: UnauthorizedException) {
-                session.clear()
-            } catch (_: NetworkException) {
-                _state.value = HoyUiState.Offline
-            } catch (_: ApiException) {
-                _state.value = HoyUiState.Offline
+            val cached = day.loadDay()
+            if (cached != null) show(cached, isOffline = false)
+            when (pushOutbox()) {
+                SyncOutcome.Unauthorized -> {
+                    session.clear()
+                    return@launch
+                }
+                SyncOutcome.WaitingForNetwork -> {
+                    if (cached != null) show(cached, isOffline = true)
+                    else _state.value = HoyUiState.Offline
+                    return@launch
+                }
+                SyncOutcome.Drained -> Unit
+            }
+            pullDay(cached != null)
+        }
+    }
+
+    /** Optimistic flip: UI + cache + outbox now, server when possible. */
+    fun toggle(taskId: String) {
+        val content = _state.value as? HoyUiState.Content ?: return
+        val current = content.sections.flatMap { it.tasks }.firstOrNull { it.id == taskId } ?: return
+        applyFlip(current, !current.isDone)
+    }
+
+    private fun applyFlip(task: TodayTask, done: Boolean) {
+        viewModelScope.launch {
+            val updated = updateCached(task.id, done) ?: return@launch
+            show(updated, isOffline = false)
+            day.enqueue(StatusOp(task.id, done))
+            _events.send(
+                Snack(
+                    message = if (done) R.string.today_marked_done else R.string.today_marked_pending,
+                    undoTaskId = task.id,
+                ),
+            )
+            when (pushOutbox()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> show(updated, isOffline = true)
+                SyncOutcome.Drained -> pullDay(hasCache = true)
             }
         }
+    }
+
+    private suspend fun pushOutbox(): SyncOutcome = sync.sync(day)
+
+    private suspend fun pullDay(hasCache: Boolean) {
+        try {
+            val response = tasks.today()
+            day.saveDay(response)
+            show(response, isOffline = false)
+        } catch (_: UnauthorizedException) {
+            session.clear()
+        } catch (_: NetworkException) {
+            val cached = day.loadDay()
+            if (cached != null) show(cached, isOffline = true)
+            else if (!hasCache) _state.value = HoyUiState.Offline
+        } catch (_: ApiException) {
+            if (!hasCache) _state.value = HoyUiState.Offline
+        }
+    }
+
+    private fun show(response: TodayResponse, isOffline: Boolean) {
+        val sections = sectionToday(response)
+        val all = sections.flatMap { it.tasks }
+        _state.value =
+            HoyUiState.Content(
+                sections = sections,
+                done = all.count(TodayTask::isDone),
+                total = all.size,
+                isOffline = isOffline,
+            )
+    }
+
+    private suspend fun updateCached(taskId: String, done: Boolean): TodayResponse? {
+        val cached = day.loadDay() ?: return null
+        fun flip(task: TodayTask): TodayTask =
+            if (task.id == taskId) task.copy(status = if (done) "COMPLETED" else "TODO") else task
+
+        val updated =
+            cached.copy(
+                overdue = cached.overdue.map(::flip),
+                dueToday = cached.dueToday.map(::flip),
+                scheduledToday = cached.scheduledToday.map(::flip),
+                available = cached.available.map(::flip),
+                notYetAvailable = cached.notYetAvailable.map(::flip),
+            )
+        day.saveDay(updated)
+        return updated
     }
 }
