@@ -9,8 +9,10 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -73,6 +75,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -722,8 +725,14 @@ internal fun TaskRow(
             }
         },
         content = {
+            val isTimeBlock = task.scheduledTime != null
+            val containerColor = when {
+                task.isDone -> scheme.surfaceContainerLow
+                isTimeBlock -> scheme.secondaryContainer.copy(alpha = 0.35f)
+                else -> scheme.surfaceContainerLow
+            }
             Card(
-                colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+                colors = CardDefaults.cardColors(containerColor = containerColor),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -750,42 +759,63 @@ internal fun TaskRow(
                         },
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
-                    Spacer(Modifier.width(12.dp))
-                    Column(
-                        Modifier
-                            .weight(1f)
-                            .combinedClickable(
-                                role = Role.Button,
-                                onClickLabel = openLabel,
-                                onClick = { onOpen(task) },
-                                onLongClick = { showMenu = true },
+                    if (isTimeBlock) {
+                        Box(
+                            modifier = Modifier
+                                .width(4.dp)
+                                .fillMaxHeight()
+                                .background(if (task.isDone) scheme.outlineVariant else Color(0xFF3B82F6)),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = if (isTimeBlock) 10.dp else 14.dp,
+                                end = 14.dp,
+                                top = 12.dp,
+                                bottom = 12.dp,
                             ),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = task.title,
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                            color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
-                        )
-                        TaskMeta(task)
-                    }
-                    if (task.scheduledTime != null) {
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = task.scheduledTime,
-                            style = OrdoNumerals.Inline,
-                            color = scheme.onSurfaceVariant,
-                        )
-                    }
-                    Box {
-                        IconButton(
-                            onClick = { showMenu = true },
+                        CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
+                        Spacer(Modifier.width(12.dp))
+                        Column(
+                            Modifier
+                                .weight(1f)
+                                .combinedClickable(
+                                    role = Role.Button,
+                                    onClickLabel = openLabel,
+                                    onClick = { onOpen(task) },
+                                    onLongClick = { showMenu = true },
+                                ),
+                        ) {
+                            Text(
+                                text = task.title,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
+                                color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
+                            )
+                            TaskMeta(task)
+                        }
+                        if (task.scheduledTime != null) {
+                            val timeLabel = formatTimeBlockRange(task.scheduledTime, task.estimatedMinutes)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = timeLabel,
+                                style = OrdoNumerals.Inline,
+                                color = if (isTimeBlock && !task.isDone) Color(0xFF2563EB) else scheme.onSurfaceVariant,
+                                fontWeight = if (isTimeBlock && !task.isDone) FontWeight.SemiBold else FontWeight.Normal,
+                            )
+                        }
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
                             modifier = Modifier.size(32.dp),
                         ) {
                             Text("⋮", style = MaterialTheme.typography.titleMedium, color = scheme.onSurfaceVariant)
@@ -823,8 +853,9 @@ internal fun TaskRow(
                     }
                 }
             }
-        },
-    )
+        }
+    },
+)
 
     if (showPriorityDialog) {
         AlertDialog(
