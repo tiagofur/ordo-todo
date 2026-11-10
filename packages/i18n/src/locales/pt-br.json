@@ -3540,6 +3540,21 @@
       "invalidDate": "Data inválida",
       "invalidTime": "Hora inválida"
     },
+    "timer": {
+      "title": "Foco",
+      "durationLabel": "Duração",
+      "minutes": "{minutes, number} min",
+      "openEnded": "Sem limite",
+      "start": "Começar",
+      "pause": "Pausar",
+      "resume": "Retomar",
+      "stop": "Parar",
+      "completed": "Foco concluído",
+      "stopped": "Foco interrompido",
+      "channelOngoing": "Foco em andamento",
+      "channelAlerts": "Avisos de foco",
+      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso."
+    },
     "actions": {
       "addTask": "Adicionar tarefa",
       "complete": "Concluir",

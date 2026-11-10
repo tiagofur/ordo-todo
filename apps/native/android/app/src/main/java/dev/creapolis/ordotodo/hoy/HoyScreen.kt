@@ -28,10 +28,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import dev.creapolis.ordotodo.focus.FocusMiniPlayer
+import dev.creapolis.ordotodo.focus.FocusStartSheet
+import dev.creapolis.ordotodo.focus.FocusViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,7 +62,7 @@ import java.util.Locale
 
 /** The Day list: every section in one scroll, done tasks closing it. Circles toggle (F1b). */
 @Composable
-fun HoyScreen(viewModel: HoyViewModel) {
+fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val state by viewModel.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     val undoLabel = stringResource(R.string.actions_undo)
@@ -66,8 +76,29 @@ fun HoyScreen(viewModel: HoyViewModel) {
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
+    val focusState by focusViewModel.focus.collectAsState()
+    val focusTick by focusViewModel.tick.collectAsState()
+    val focusStarting by focusViewModel.starting.collectAsState()
+    var focusSheet by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val ctx = LocalContext.current
+    val notifPermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        }
+    val focusCompletedText = stringResource(R.string.timer_completed)
+    val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
         if (showSheet) viewModel.ensureProjects()
+    }
+    LaunchedEffect(focusViewModel) {
+        focusViewModel.events.collect { snack ->
+            val text =
+                when (snack.message) {
+                    R.string.timer_completed -> focusCompletedText
+                    R.string.timer_stopped -> focusStoppedText
+                    else -> errorText
+                }
+            snackbar.showSnackbar(message = text)
+        }
     }
     LaunchedEffect(viewModel) {
         viewModel.events.collect { snack ->
@@ -109,23 +140,57 @@ fun HoyScreen(viewModel: HoyViewModel) {
                 TaskDetailScreen(
                     state = open,
                     projects = projects,
+                    focusActive = focusState != null,
                     onEdit = viewModel::updateDetail,
                     onSave = viewModel::saveDetail,
                     onRetry = viewModel::retryDetail,
                     onClose = viewModel::closeDetail,
+                    onStartFocus = { focusSheet = open.taskId to open.title },
                 )
             } else {
                 when (val current = state) {
                     is HoyUiState.Loading -> LoadingDay()
                     is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
-                    is HoyUiState.Content ->
+                    is HoyUiState.Content -> {
+                        val running = focusState
+                        if (running != null) {
+                            FocusMiniPlayer(
+                                state = running,
+                                nowEpoch = focusTick,
+                                onPause = focusViewModel::pause,
+                                onResume = focusViewModel::resume,
+                                onStop = { focusViewModel.stop(completed = false) },
+                            )
+                        }
                         DayList(
                             current,
                             onToggle = viewModel::toggle,
                             onOpen = viewModel::openDetail,
                         )
+                    }
                 }
             }
+        }
+        val sheet = focusSheet
+        if (sheet != null) {
+            FocusStartSheet(
+                taskTitle = sheet.second,
+                starting = focusStarting,
+                canExact = focusViewModel.canScheduleExact(),
+                onStart = { plannedMs ->
+                    if (Build.VERSION.SDK_INT >= 33 &&
+                        ContextCompat.checkSelfPermission(
+                            ctx,
+                            Manifest.permission.POST_NOTIFICATIONS,
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    focusViewModel.start(sheet.first, sheet.second, plannedMs)
+                    focusSheet = null
+                },
+                onDismiss = { if (!focusStarting) focusSheet = null },
+            )
         }
         if (showSheet) {
             CaptureSheet(

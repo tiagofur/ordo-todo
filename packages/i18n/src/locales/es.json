@@ -3540,6 +3540,21 @@
       "invalidDate": "Fecha no válida",
       "invalidTime": "Hora no válida"
     },
+    "timer": {
+      "title": "Foco",
+      "durationLabel": "Duración",
+      "minutes": "{minutes, number} min",
+      "openEnded": "Sin límite",
+      "start": "Empezar",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "stop": "Detener",
+      "completed": "Foco completado",
+      "stopped": "Foco detenido",
+      "channelOngoing": "Foco en curso",
+      "channelAlerts": "Avisos de foco",
+      "inexactNote": "Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo."
+    },
     "actions": {
       "addTask": "Añadir tarea",
       "complete": "Completar",

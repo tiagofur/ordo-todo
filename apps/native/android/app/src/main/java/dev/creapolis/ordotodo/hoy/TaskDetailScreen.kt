@@ -45,10 +45,12 @@ private val PRIORITIES = listOf("LOW", "MEDIUM", "HIGH", "URGENT")
 fun TaskDetailScreen(
     state: TaskEditState,
     projects: List<NativeProject>,
+    focusActive: Boolean,
     onEdit: ((TaskEditState) -> TaskEditState) -> Unit,
     onSave: () -> Unit,
     onRetry: () -> Unit,
     onClose: () -> Unit,
+    onStartFocus: () -> Unit,
 ) {
     BackHandler(onBack = onClose)
     Column(Modifier.fillMaxSize()) {
@@ -91,7 +93,7 @@ fun TaskDetailScreen(
                 }
             }
             else -> {
-                DetailForm(state, projects, onEdit, onSave)
+                DetailForm(state, projects, focusActive, onEdit, onSave, onStartFocus)
             }
         }
     }
@@ -101,8 +103,10 @@ fun TaskDetailScreen(
 private fun DetailForm(
     state: TaskEditState,
     projects: List<NativeProject>,
+    focusActive: Boolean,
     onEdit: ((TaskEditState) -> TaskEditState) -> Unit,
     onSave: () -> Unit,
+    onStartFocus: () -> Unit,
 ) {
     val original = state.original
     val dirty = original != null && buildTaskPatch(original, state.edited()) != null
@@ -189,6 +193,13 @@ private fun DetailForm(
             } else {
                 Text(stringResource(R.string.actions_save))
             }
+        }
+        TextButton(
+            onClick = onStartFocus,
+            enabled = !focusActive,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.actions_start_focus))
         }
         Spacer(Modifier.height(16.dp))
     }

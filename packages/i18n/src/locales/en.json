@@ -3540,6 +3540,21 @@
       "invalidDate": "Invalid date",
       "invalidTime": "Invalid time"
     },
+    "timer": {
+      "title": "Focus",
+      "durationLabel": "Duration",
+      "minutes": "{minutes, number} min",
+      "openEnded": "No limit",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "completed": "Focus completed",
+      "stopped": "Focus stopped",
+      "channelOngoing": "Ongoing focus",
+      "channelAlerts": "Focus alerts",
+      "inexactNote": "No exact-alarm permission: the alert may arrive a few minutes late in doze."
+    },
     "actions": {
       "addTask": "Add task",
       "complete": "Complete",
