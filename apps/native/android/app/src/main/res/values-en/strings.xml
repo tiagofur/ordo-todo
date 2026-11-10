@@ -60,6 +60,7 @@
     <string name="timer_channel_ongoing">Ongoing focus</string>
     <string name="timer_channel_alerts">Focus alerts</string>
     <string name="timer_inexact_note">No exact-alarm permission: the alert may arrive a few minutes late in doze.</string>
+    <string name="timer_grant_exact">Allow exact alarms</string>
     <string name="actions_add_task">Add task</string>
     <string name="actions_complete">Complete</string>
     <string name="actions_undo">Undo</string>
@@ -124,6 +125,12 @@
     <string name="settings_open_settings">Open system settings</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version</string>
+    <string name="settings_danger">Danger zone</string>
+    <string name="settings_delete_account">Delete my account</string>
+    <string name="settings_delete_title">Delete your account?</string>
+    <string name="settings_delete_text">Your tasks, habits and data will be erased. This cannot be undone.</string>
+    <string name="settings_delete_yes">Yes, delete</string>
+    <string name="settings_delete_error">Could not delete. Check your connection.</string>
     <string name="settings_language">Language</string>
     <string name="tile_capture">Quick capture</string>
     <string name="reminder_channel">Habit reminders</string>

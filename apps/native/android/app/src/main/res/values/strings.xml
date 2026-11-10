@@ -60,6 +60,7 @@
     <string name="timer_channel_ongoing">Foco en curso</string>
     <string name="timer_channel_alerts">Avisos de foco</string>
     <string name="timer_inexact_note">Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo.</string>
+    <string name="timer_grant_exact">Permitir alarmas exactas</string>
     <string name="actions_add_task">Añadir tarea</string>
     <string name="actions_complete">Completar</string>
     <string name="actions_undo">Deshacer</string>
@@ -124,6 +125,12 @@
     <string name="settings_open_settings">Abrir ajustes del sistema</string>
     <string name="settings_about">Acerca de</string>
     <string name="settings_version">Versión</string>
+    <string name="settings_danger">Zona de peligro</string>
+    <string name="settings_delete_account">Eliminar mi cuenta</string>
+    <string name="settings_delete_title">¿Eliminar tu cuenta?</string>
+    <string name="settings_delete_text">Se borrarán tus tareas, hábitos y datos. No se puede deshacer.</string>
+    <string name="settings_delete_yes">Sí, eliminar</string>
+    <string name="settings_delete_error">No se pudo eliminar. Revisa tu conexión.</string>
     <string name="settings_language">Idioma</string>
     <string name="tile_capture">Captura rápida</string>
     <string name="reminder_channel">Recordatorios de hábitos</string>
