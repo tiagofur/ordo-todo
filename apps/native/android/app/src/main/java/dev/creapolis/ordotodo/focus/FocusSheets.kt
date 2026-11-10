@@ -3,6 +3,7 @@ package dev.creapolis.ordotodo.focus
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,16 +13,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -36,10 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import dev.creapolis.ordotodo.R
@@ -233,67 +248,103 @@ fun FocusMiniPlayer(
         )
     }
 
+    val modeLabel = when (state.mode) {
+        PomodoroMode.WORK -> stringResource(R.string.timer_mode_work)
+        PomodoroMode.SHORT_BREAK -> stringResource(R.string.timer_mode_short_break)
+        PomodoroMode.LONG_BREAK -> stringResource(R.string.timer_mode_long_break)
+    }
+
+    val elapsedDuration = elapsedMs(state, nowEpoch)
+    val plannedDuration = state.plannedDurationMs
+    val progressFraction = if (plannedDuration != null && plannedDuration > 0L) {
+        (elapsedDuration.toFloat() / plannedDuration.toFloat()).coerceIn(0f, 1f)
+    } else 0f
+
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = when (state.mode) {
-                PomodoroMode.WORK -> MaterialTheme.colorScheme.primaryContainer
-                PomodoroMode.SHORT_BREAK -> MaterialTheme.colorScheme.secondaryContainer
-                PomodoroMode.LONG_BREAK -> MaterialTheme.colorScheme.tertiaryContainer
-            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(Modifier.fillMaxWidth().padding(14.dp)) {
+        Column(Modifier.fillMaxWidth()) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val modeLabel = when (state.mode) {
-                    PomodoroMode.WORK -> stringResource(R.string.timer_mode_work)
-                    PomodoroMode.SHORT_BREAK -> stringResource(R.string.timer_mode_short_break)
-                    PomodoroMode.LONG_BREAK -> stringResource(R.string.timer_mode_long_break)
+                // Play / Pause round toggle
+                FilledIconButton(
+                    onClick = if (state.isPaused) onResume else onPause,
+                    modifier = Modifier.size(40.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = when (state.mode) {
+                            PomodoroMode.WORK -> MaterialTheme.colorScheme.primary
+                            PomodoroMode.SHORT_BREAK -> MaterialTheme.colorScheme.secondary
+                            PomodoroMode.LONG_BREAK -> MaterialTheme.colorScheme.tertiary
+                        },
+                        contentColor = MaterialTheme.colorScheme.surface,
+                    ),
+                ) {
+                    if (state.isPaused) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = stringResource(R.string.timer_resume),
+                            modifier = Modifier.size(22.dp),
+                        )
+                    } else {
+                        // Clean geometric 2-bar Pause mark
+                        val pauseColor = MaterialTheme.colorScheme.surface
+                        Canvas(Modifier.size(14.dp)) {
+                            val w = 3.5.dp.toPx()
+                            val h = size.height
+                            drawRoundRect(pauseColor, topLeft = Offset(0f, 0f), size = androidx.compose.ui.geometry.Size(w, h), cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx()))
+                            drawRoundRect(pauseColor, topLeft = Offset(size.width - w, 0f), size = androidx.compose.ui.geometry.Size(w, h), cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx()))
+                        }
+                    }
                 }
-                SuggestionChip(
-                    onClick = {},
-                    label = { Text(modeLabel, fontWeight = FontWeight.Bold) },
-                )
-                if (state.completedPomodoros > 0) {
+
+                // Title + Subtitle
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = state.taskTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        if (state.completedPomodoros > 0) {
+                            Text(
+                                text = " 🍅${state.completedPomodoros}",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    }
                     Text(
-                        text = "🍅 ${state.completedPomodoros}",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = "$modeLabel · $line",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            }
 
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = state.taskTitle,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = line,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-
-            Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (state.isPaused) {
-                    Button(onClick = onResume) {
-                        Text(stringResource(R.string.timer_resume))
-                    }
-                } else {
-                    Button(onClick = onPause) {
-                        Text(stringResource(R.string.timer_pause))
-                    }
+                // Actions: Switch task, Skip, Stop
+                IconButton(onClick = onSwitchTask, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.timer_switch_task),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
 
-                OutlinedButton(
+                IconButton(
                     onClick = {
                         val elapsedNow = elapsedMs(state, nowEpoch)
                         if (PomodoroCycle.isCredited(elapsedNow, state.plannedDurationMs)) {
@@ -302,23 +353,27 @@ fun FocusMiniPlayer(
                             showSkipDialog = true
                         }
                     },
+                    modifier = Modifier.size(36.dp),
                 ) {
-                    Text(stringResource(R.string.timer_skip))
+                    Text(
+                        text = "⏭",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
 
-                TextButton(onClick = onSwitchTask) {
-                    Text(stringResource(R.string.timer_switch_task))
-                }
-
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = onStop) {
-                    Text(stringResource(R.string.timer_stop))
+                IconButton(onClick = onStop, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.timer_stop),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
 
-            // Today's stats summary (S15)
+            // Today's stats if present
             if (todayStats != null && (todayStats.completedPomodoros > 0 || todayStats.totalWorkMinutes > 0)) {
-                Spacer(Modifier.height(6.dp))
                 val pomodorosStr = pluralStringResource(
                     R.plurals.timer_stats_pomodoros,
                     todayStats.completedPomodoros,
@@ -331,8 +386,19 @@ fun FocusMiniPlayer(
                 )
                 Text(
                     text = "${stringResource(R.string.timer_stats_title)}: $pomodorosStr · $minutesStr",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 6.dp),
+                )
+            }
+
+            // Sleek bottom progress indicator
+            if (plannedDuration != null && plannedDuration > 0L) {
+                LinearProgressIndicator(
+                    progress = { progressFraction },
+                    modifier = Modifier.fillMaxWidth().height(3.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = Color.Transparent,
                 )
             }
         }

@@ -286,7 +286,7 @@ private fun OrdoNav(
             }
         }
         val open = detail
-        if (tab != OrdoTab.HOY && open != null) {
+        if (open != null) {
             TaskDetailScreen(
                 state = open,
                 projects = projects,
@@ -296,14 +296,20 @@ private fun OrdoNav(
                 onSave = hoy::saveDetail,
                 onRetry = hoy::retryDetail,
                 onClose = hoy::closeDetail,
-                onStartFocus = { tab = OrdoTab.HOY },
+                onStartFocus = {
+                    hoy.closeDetail()
+                    tab = OrdoTab.HOY
+                },
                 onAddSubtask = hoy::addSubtask,
                 onToggleSubtask = hoy::toggleSubtask,
                 onDeleteSubtask = hoy::deleteSubtask,
                 onAssignTag = hoy::assignTag,
                 onRemoveTag = hoy::removeTag,
                 onCreateTag = hoy::createAndAssignTag,
-                onDeleteTask = { hoy.deleteTaskWithUndo(open.taskId) },
+                onDeleteTask = {
+                    hoy.deleteTaskWithUndo(open.taskId)
+                    hoy.closeDetail()
+                },
             )
         }
         val habitForm = habitEdit

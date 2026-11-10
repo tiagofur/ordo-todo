@@ -223,71 +223,49 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
         },
     ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner)) {
-            val open = detail
-            if (open != null) {
-                TaskDetailScreen(
-                    state = open,
-                    projects = projects,
-                    availableTags = availableTags,
-                    focusActive = focusState != null,
-                    onEdit = viewModel::updateDetail,
-                    onSave = viewModel::saveDetail,
-                    onRetry = viewModel::retryDetail,
-                    onClose = viewModel::closeDetail,
-                    onStartFocus = { focusSheet = open.taskId to open.title },
-                    onAddSubtask = viewModel::addSubtask,
-                    onToggleSubtask = viewModel::toggleSubtask,
-                    onDeleteSubtask = viewModel::deleteSubtask,
-                    onAssignTag = viewModel::assignTag,
-                    onRemoveTag = viewModel::removeTag,
-                    onCreateTag = viewModel::createAndAssignTag,
-                    onDeleteTask = { viewModel.deleteTaskWithUndo(open.taskId) },
-                )
-            } else {
-                when (val current = state) {
-                    is HoyUiState.Loading -> LoadingDay()
-                    is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
-                    is HoyUiState.Content -> {
-                        val running = focusState
-                        if (running != null) {
-                            FocusMiniPlayer(
-                                state = running,
-                                nowEpoch = focusTick,
-                                todayStats = todayStats,
-                                onPause = focusViewModel::pause,
-                                onResume = focusViewModel::resume,
-                                onSkip = focusViewModel::skip,
-                                onSwitchTask = { showSwitchTaskSheet = true },
-                                onStop = { focusViewModel.stop(completed = false) },
-                            )
-                        }
-                        PullToRefreshBox(
-                            isRefreshing = refreshing,
-                            onRefresh = viewModel::pullToRefresh,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            DayList(
-                                current,
-                                habits = habitsState.habits,
-                                habitsOffline = habitsState.isOffline,
-                                projects = projects,
-                                onToggle = viewModel::toggle,
-                                onOpen = viewModel::openDetail,
-                                onRescheduleTomorrow = viewModel::rescheduleTaskToTomorrow,
-                                onChangePriority = viewModel::updateTaskPriority,
-                                onMoveProject = viewModel::moveTaskToProject,
-                                onDelete = viewModel::deleteTaskWithUndo,
-                                onToggleHabit = viewModel::toggleHabit,
-                                onOpenHabit = viewModel::openHabitEdit,
-                                onTriageTask = viewModel::triageOverdueTask,
-                                onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
-                                onReplan = viewModel::openReplan,
-                                streak = ritualStreak,
-                                activeRitualPhase = activeRitualPhase,
-                                onStartRitual = { viewModel.openRitual(activeRitualPhase) },
-                                onSkipRitual = viewModel::skipCurrentRitual,
-                            )
-                        }
+            when (val current = state) {
+                is HoyUiState.Loading -> LoadingDay()
+                is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
+                is HoyUiState.Content -> {
+                    val running = focusState
+                    if (running != null) {
+                        FocusMiniPlayer(
+                            state = running,
+                            nowEpoch = focusTick,
+                            todayStats = todayStats,
+                            onPause = focusViewModel::pause,
+                            onResume = focusViewModel::resume,
+                            onSkip = focusViewModel::skip,
+                            onSwitchTask = { showSwitchTaskSheet = true },
+                            onStop = { focusViewModel.stop(completed = false) },
+                        )
+                    }
+                    PullToRefreshBox(
+                        isRefreshing = refreshing,
+                        onRefresh = viewModel::pullToRefresh,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        DayList(
+                            current,
+                            habits = habitsState.habits,
+                            habitsOffline = habitsState.isOffline,
+                            projects = projects,
+                            onToggle = viewModel::toggle,
+                            onOpen = viewModel::openDetail,
+                            onRescheduleTomorrow = viewModel::rescheduleTaskToTomorrow,
+                            onChangePriority = viewModel::updateTaskPriority,
+                            onMoveProject = viewModel::moveTaskToProject,
+                            onDelete = viewModel::deleteTaskWithUndo,
+                            onToggleHabit = viewModel::toggleHabit,
+                            onOpenHabit = viewModel::openHabitEdit,
+                            onTriageTask = viewModel::triageOverdueTask,
+                            onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
+                            onReplan = viewModel::openReplan,
+                            streak = ritualStreak,
+                            activeRitualPhase = activeRitualPhase,
+                            onStartRitual = { viewModel.openRitual(activeRitualPhase) },
+                            onSkipRitual = viewModel::skipCurrentRitual,
+                        )
                     }
                 }
             }
