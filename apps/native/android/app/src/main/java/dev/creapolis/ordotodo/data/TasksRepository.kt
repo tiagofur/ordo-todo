@@ -5,6 +5,7 @@ import dev.creapolis.ordotodo.hoy.TaskCreateApi
 import dev.creapolis.ordotodo.hoy.TaskStatusApi
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -40,7 +41,7 @@ class TasksRepository(
         time: String?,
         priority: String?,
         projectId: String? = null,
-    ) {
+    ): String {
         val body =
             buildJsonObject {
                 put("title", title)
@@ -49,13 +50,36 @@ class TasksRepository(
                 if (priority != null) put("priority", priority)
                 if (projectId != null) put("projectId", projectId)
             }
-        // Non-2xx already throws in ApiClient; the body only carries the new id.
-        api.post("/tasks", json.encodeToString(JsonObject.serializer(), body))
+        // Non-2xx already throws in ApiClient; the body carries the created task with id.
+        val raw = api.post("/tasks", json.encodeToString(JsonObject.serializer(), body))
+        return try {
+            json.parseToJsonElement(raw).let {
+                if (it is JsonObject) it["id"]?.toString()?.trim('"') ?: "" else ""
+            }
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     /** Pushes one capture queued offline (ODD 051 S4). */
     override suspend fun create(op: CreateOp) {
         createTask(op.title, op.date?.let(LocalDate::parse), op.time, op.priority, op.projectId)
+    }
+
+    suspend fun create(op: OutboxOp.CreateTask): String =
+        createTask(op.title, op.date?.let(LocalDate::parse), op.time, op.priority, op.projectId)
+
+    suspend fun deleteTask(id: String) {
+        api.delete("/tasks/$id")
+    }
+
+    suspend fun updateTask(id: String, patch: Map<String, String?>) {
+        val body = buildJsonObject {
+            for ((key, value) in patch) {
+                if (value == null) put(key, JsonNull) else put(key, value)
+            }
+        }
+        updateTask(id, body)
     }
 
     /** Project picker source (`GET /projects/all`, array of props). */

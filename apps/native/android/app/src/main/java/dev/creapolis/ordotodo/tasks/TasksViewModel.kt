@@ -7,6 +7,7 @@ import dev.creapolis.ordotodo.data.ApiException
 import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
+import dev.creapolis.ordotodo.data.OutboxOp
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayTask
@@ -65,10 +66,15 @@ class TasksViewModel(
     /** Captures queued offline; shown as rows until they sync (ODD 051 S4). */
     private var pendingCreates: List<CreateOp> = emptyList()
 
+    private suspend fun readPendingCreates(): List<CreateOp> =
+        day?.outboxPending()?.filterIsInstance<OutboxOp.CreateTask>()?.map {
+            CreateOp(it.localId, it.title, it.date, it.time, it.priority, it.projectId, it.at)
+        } ?: day?.createPending().orEmpty()
+
     init {
         viewModelScope.launch {
             // Cached rows first: the tab opens without a spinner.
-            pendingCreates = day?.createPending().orEmpty()
+            pendingCreates = readPendingCreates()
             val cached = day?.loadTasks()
             if (cached != null) {
                 all = cached
@@ -81,7 +87,7 @@ class TasksViewModel(
     /** Re-reads the offline queue and the server without the full-screen spinner. */
     fun reloadQuietly() {
         viewModelScope.launch {
-            pendingCreates = day?.createPending().orEmpty()
+            pendingCreates = readPendingCreates()
             if (_state.value is TasksUiState.Content) show()
             pull()
         }
@@ -119,37 +125,29 @@ class TasksViewModel(
         refresh()
     }
 
-    /** Optimistic flip with revert; Hoy refreshes through [onChanged]. */
+    /** Optimistic flip with durable queue; Hoy refreshes through [onChanged]. */
     fun toggle(taskId: String) {
         val current = all.firstOrNull { it.id == taskId }
-        if (current == null) {
-            // Not a server row: a capture still waiting to sync.
-            if (pendingCreates.any { it.localId == taskId }) {
-                viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
-            }
-            return
-        }
-        val done = !current.isDone
+        val done = !(current?.isDone ?: false)
         all = flipTaskList(all, taskId, done)
         show()
         viewModelScope.launch {
-            try {
-                if (done) tasks.complete(taskId) else tasks.reopen(taskId)
-                _events.send(
-                    Snack(if (done) R.string.today_marked_done else R.string.today_marked_pending),
-                )
-                onChanged()
-                pull()
-            } catch (_: UnauthorizedException) {
-                session?.clear()
-            } catch (_: NetworkException) {
-                all = flipTaskList(all, taskId, !done)
-                show(isOffline = true)
-                _events.send(Snack(R.string.auth_error_network))
-            } catch (_: ApiException) {
-                all = flipTaskList(all, taskId, !done)
-                show()
-                _events.send(Snack(R.string.auth_error_network))
+            day?.enqueueOp(OutboxOp.StatusFlip(taskId, done, System.currentTimeMillis()))
+            _events.send(
+                Snack(if (done) R.string.today_marked_done else R.string.today_marked_pending),
+            )
+            onChanged()
+            if (current != null && !current.pendingSync) {
+                try {
+                    if (done) tasks.complete(taskId) else tasks.reopen(taskId)
+                    pull()
+                } catch (_: UnauthorizedException) {
+                    session?.clear()
+                } catch (_: NetworkException) {
+                    show(isOffline = true)
+                } catch (_: ApiException) {
+                    show()
+                }
             }
         }
     }
@@ -158,7 +156,7 @@ class TasksViewModel(
         try {
             all = tasks.all(_projectFilter.value)
             if (_projectFilter.value == null) day?.saveTasks(all)
-            pendingCreates = day?.createPending().orEmpty()
+            pendingCreates = readPendingCreates()
             _projects.value =
                 try {
                     tasks.projects()

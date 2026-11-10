@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
 import dev.creapolis.ordotodo.data.DayStore
+import dev.creapolis.ordotodo.data.DefaultOutboxApi
 import dev.creapolis.ordotodo.data.HabitToday
 import dev.creapolis.ordotodo.data.HabitsRepository
 import dev.creapolis.ordotodo.data.HabitsTodayResponse
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
+import dev.creapolis.ordotodo.data.OutboxOp
+import dev.creapolis.ordotodo.data.OutboxSyncEngine
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayResponse
@@ -152,18 +155,34 @@ class HoyViewModel(
     /** Captures still waiting for the network; merged into every paint of the day. */
     private var pendingCreates: List<CreateOp> = emptyList()
 
-    private suspend fun pushCreates(): SyncOutcome {
-        val outcome = CreateSync(tasks).sync(day)
-        pendingCreates = day.createPending()
+    private val outboxEngine: OutboxSyncEngine =
+        OutboxSyncEngine(
+            api = DefaultOutboxApi(tasks, habits),
+            onTaskCreated = { localId, serverId ->
+                day.reconcileLocalId(localId, serverId)
+                onQueueChanged()
+            },
+        )
+
+    private suspend fun syncOutbox(): SyncOutcome {
+        val outcome = outboxEngine.sync(day)
+        val outbox = day.outboxPending()
+        pendingCreates = outbox.filterIsInstance<OutboxOp.CreateTask>().map {
+            CreateOp(it.localId, it.title, it.date, it.time, it.priority, it.projectId, it.at)
+        }
         return outcome
     }
 
     private suspend fun reload() {
-        pendingCreates = day.createPending()
+        val outbox = day.outboxPending()
+        pendingCreates = outbox.filterIsInstance<OutboxOp.CreateTask>().map {
+            CreateOp(it.localId, it.title, it.date, it.time, it.priority, it.projectId, it.at)
+        }
         val cached = day.loadDay()
         if (cached != null) show(cached, isOffline = false)
         showCachedHabits()
-        when (pushOutbox()) {
+        val hadCreates = pendingCreates.isNotEmpty()
+        when (syncOutbox()) {
             SyncOutcome.Unauthorized -> {
                 session.clear()
                 return
@@ -174,20 +193,9 @@ class HoyViewModel(
                 _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
                 return
             }
-            SyncOutcome.Drained -> Unit
-        }
-        val hadCreates = pendingCreates.isNotEmpty()
-        when (pushCreates()) {
-            SyncOutcome.Unauthorized -> {
-                session.clear()
-                return
+            SyncOutcome.Drained -> {
+                if (hadCreates) onQueueChanged()
             }
-            SyncOutcome.WaitingForNetwork -> {
-                show(cached ?: TodayResponse(), isOffline = true)
-                _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
-                return
-            }
-            SyncOutcome.Drained -> if (hadCreates) onQueueChanged()
         }
         pullDay(cached != null)
     }
@@ -243,18 +251,22 @@ class HoyViewModel(
             } catch (_: NetworkException) {
                 // Nothing is lost offline: queue it and show it at once (ODD 051 S4).
                 val projectId = resolveProjectId(parsed.projectHint, _projects.value)
-                day.enqueueCreate(
-                    CreateOp(
-                        localId = "local-" + java.util.UUID.randomUUID(),
+                val localId = "local-" + java.util.UUID.randomUUID()
+                val op =
+                    OutboxOp.CreateTask(
+                        localId = localId,
                         title = parsed.title,
                         date = parsed.scheduledDate?.toString(),
                         time = parsed.scheduledTime,
                         priority = parsed.priority,
                         projectId = projectId,
                         at = System.currentTimeMillis(),
-                    ),
-                )
-                pendingCreates = day.createPending()
+                    )
+                day.enqueueOp(op)
+                val outbox = day.outboxPending()
+                pendingCreates = outbox.filterIsInstance<OutboxOp.CreateTask>().map {
+                    CreateOp(it.localId, it.title, it.date, it.time, it.priority, it.projectId, it.at)
+                }
                 show(day.loadDay() ?: TodayResponse(), isOffline = true)
                 onQueueChanged()
                 _events.send(Snack(R.string.today_saved_offline))
@@ -271,10 +283,6 @@ class HoyViewModel(
 
     /** Opens the detail screen, prefilled from cache, then completed from the server. */
     fun openDetail(task: TodayTask) {
-        if (task.pendingSync) {
-            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
-            return
-        }
         lastOpenedTask = task
         _detail.value =
             TaskEditState(
@@ -286,6 +294,10 @@ class HoyViewModel(
                 priority = task.priority,
                 projectId = task.project?.id,
             )
+        if (task.pendingSync) {
+            _detail.value = _detail.value?.copy(loading = false)
+            return
+        }
         viewModelScope.launch {
             ensureProjects()
             try {
@@ -327,12 +339,55 @@ class HoyViewModel(
     /** Saves the detail form: validates, PATCHes only the diff, re-pulls the day. */
     fun saveDetail() {
         val current = _detail.value ?: return
-        val original = current.original ?: return
         if (current.saving) return
         if (current.title.isBlank()) return
         if (current.scheduledDate.isNotBlank() && parseDateText(current.scheduledDate) == null) return
         if (current.scheduledTime.isNotBlank() && parseTimeText(current.scheduledTime) == null) return
         if (current.dueDate.isNotBlank() && parseDateText(current.dueDate) == null) return
+
+        if (current.original == null) {
+            // Local task capture edited before it synced to the server
+            _detail.value = current.copy(saving = true)
+            viewModelScope.launch {
+                day.updateOutbox { ops ->
+                    ops.map { op ->
+                        if (op is OutboxOp.CreateTask && op.localId == current.taskId) {
+                            op.copy(
+                                title = current.title,
+                                date = current.scheduledDate.ifBlank { null },
+                                time = current.scheduledTime.ifBlank { null },
+                                priority = current.priority,
+                                projectId = current.projectId,
+                            )
+                        } else op
+                    }
+                }
+                day.loadDay()?.let { d ->
+                    fun List<TodayTask>.patchLocal() = map {
+                        if (it.id == current.taskId) it.copy(
+                            title = current.title,
+                            scheduledDate = current.scheduledDate.ifBlank { null },
+                            scheduledTime = current.scheduledTime.ifBlank { null },
+                            priority = current.priority,
+                        ) else it
+                    }
+                    val updated = d.copy(
+                        overdue = d.overdue.patchLocal(),
+                        dueToday = d.dueToday.patchLocal(),
+                        scheduledToday = d.scheduledToday.patchLocal(),
+                        available = d.available.patchLocal(),
+                        notYetAvailable = d.notYetAvailable.patchLocal(),
+                    )
+                    day.saveDay(updated)
+                    show(updated, isOffline = false)
+                }
+                _events.send(Snack(R.string.detail_updated))
+                closeDetail()
+            }
+            return
+        }
+
+        val original = current.original
         val patch = buildTaskPatch(original, current.edited()) ?: return
         _detail.value = current.copy(saving = true)
         viewModelScope.launch {
@@ -344,8 +399,13 @@ class HoyViewModel(
                 session.clear()
                 _detail.value = _detail.value?.copy(saving = false)
             } catch (_: NetworkException) {
-                _events.send(Snack(R.string.auth_error_network))
+                val patchMap = patch.mapValues { (_, value) ->
+                    if (value is kotlinx.serialization.json.JsonPrimitive && value.isString) value.content else value.toString()
+                }
+                day.enqueueOp(OutboxOp.EditTask(current.taskId, patchMap, System.currentTimeMillis()))
+                _events.send(Snack(R.string.today_saved_offline))
                 _detail.value = _detail.value?.copy(saving = false)
+                closeDetail()
             } catch (_: ApiException) {
                 _events.send(Snack(R.string.auth_error_network))
                 _detail.value = _detail.value?.copy(saving = false)
@@ -357,11 +417,6 @@ class HoyViewModel(
     fun toggle(taskId: String) {
         val content = _state.value as? HoyUiState.Content ?: return
         val current = content.sections.flatMap { it.tasks }.firstOrNull { it.id == taskId } ?: return
-        if (current.pendingSync) {
-            // No server id yet: it can be completed once the capture syncs.
-            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
-            return
-        }
         applyFlip(current, !current.isDone)
     }
 
@@ -369,22 +424,20 @@ class HoyViewModel(
         viewModelScope.launch {
             val updated = updateCached(task.id, done) ?: return@launch
             show(updated, isOffline = false)
-            day.enqueue(StatusOp(task.id, done))
+            day.enqueueOp(OutboxOp.StatusFlip(task.id, done, System.currentTimeMillis()))
             _events.send(
                 Snack(
                     message = if (done) R.string.today_marked_done else R.string.today_marked_pending,
                     undoTaskId = task.id,
                 ),
             )
-            when (pushOutbox()) {
+            when (syncOutbox()) {
                 SyncOutcome.Unauthorized -> session.clear()
                 SyncOutcome.WaitingForNetwork -> show(updated, isOffline = true)
                 SyncOutcome.Drained -> pullDay(hasCache = true)
             }
         }
     }
-
-    private suspend fun pushOutbox(): SyncOutcome = sync.sync(day)
 
     /** Habits check-in (F3c): optimistic flip + durable outbox, drained on every pull. */
     fun toggleHabit(habitId: String) {
@@ -402,8 +455,9 @@ class HoyViewModel(
             loaded = true,
         )
         viewModelScope.launch {
-            day.enqueueHabit(HabitOp(habit.id, done))
-            when (pushHabits()) {
+            day.saveHabits(HabitsTodayResponse(habits = _habitsState.value.habits))
+            day.enqueueOp(OutboxOp.HabitCheck(habit.id, done, System.currentTimeMillis()))
+            when (syncOutbox()) {
                 SyncOutcome.Unauthorized -> session.clear()
                 SyncOutcome.WaitingForNetwork -> {
                     _habitsState.value = _habitsState.value.copy(isOffline = true)
@@ -417,14 +471,36 @@ class HoyViewModel(
         }
     }
 
-    private suspend fun pushHabits(): SyncOutcome {
-        val repo = habits ?: return SyncOutcome.Drained
-        return HabitSync(repo).sync(day)
+    fun deleteTask(taskId: String) {
+        viewModelScope.launch {
+            day.enqueueOp(OutboxOp.DeleteTask(taskId, System.currentTimeMillis()))
+            day.loadDay()?.let { d ->
+                fun List<TodayTask>.removeTask() = filter { it.id != taskId }
+                val updated = d.copy(
+                    overdue = d.overdue.removeTask(),
+                    dueToday = d.dueToday.removeTask(),
+                    scheduledToday = d.scheduledToday.removeTask(),
+                    available = d.available.removeTask(),
+                    notYetAvailable = d.notYetAvailable.removeTask(),
+                )
+                day.saveDay(updated)
+                show(updated, isOffline = false)
+            }
+            day.loadTasks()?.let { t ->
+                day.saveTasks(t.filter { it.id != taskId })
+            }
+            onQueueChanged()
+            when (syncOutbox()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> Unit
+                SyncOutcome.Drained -> pullDay(hasCache = true)
+            }
+        }
     }
 
     private suspend fun pullHabits() {
         val repo = habits ?: return
-        when (pushHabits()) {
+        when (syncOutbox()) {
             SyncOutcome.Unauthorized -> {
                 session.clear()
                 return
