@@ -159,6 +159,9 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L15 · 2026-11-10 — Hallazgo grave: `data/AuthRepository.kt` nunca se commiteó en ninguna rama (F1a–F1d); AuthViewModel/MainActivity lo importan, así que ningún checkout limpio compilaba. Los verdes sombra previos pasaron por un `AuthRepository.kt` suelto sin trackear (ya borrado). Reconstruido desde el contrato (`POST /auth/login|register` → `{accessToken, refreshToken}`, sesión en DataStore), compilación sombra real ERRORS:0 + JUnit 41/41. Extra: dentry fantasma del archivo viejo (doble entrada, contenido de 94 líneas) — borrado por inodo tras respaldar; el swap de directorio no bastó.
+
+
 - L14 · 2026-11-10 — F1d GREEN (sombra): kotlinc 2.4.21 compila main con 0 errores (CaptureParser+`#tag`, TaskEdit, TaskDetails, TasksRepository, HoyViewModel, TaskDetailScreen, HoyScreen, CaptureSheet); JUnit 41/41 OK (18 TaskDetailTest nuevos + 23 previos). Codegen 45/45 + `check` limpio (22 claves `detail_*` × es/en/pt). RED honesto: `TaskDetailTest` falló en compilación antes de existir la implementación; un fallo de aserción (`#casa` colgado en el título) llevó a cortar todos los tags. Real `./gradlew` + emulador siguen pendientes (aprobación).
 
 
