@@ -1,8 +1,13 @@
 package dev.creapolis.ordotodo.hoy
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,17 +20,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,12 +64,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.HabitToday
+import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
 import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
@@ -75,6 +93,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val createdText = stringResource(R.string.today_task_created)
     val deletedText = stringResource(R.string.today_task_deleted)
     val restoredText = stringResource(R.string.today_task_restored)
+    val rescheduledTomorrowText = stringResource(R.string.today_rescheduled_tomorrow)
     val savedOfflineText = stringResource(R.string.today_saved_offline)
     val pendingSyncText = stringResource(R.string.today_pending_sync)
     val updatedText = stringResource(R.string.detail_updated)
@@ -133,6 +152,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.today_task_created -> createdText
                     R.string.today_task_deleted -> deletedText
                     R.string.today_task_restored -> restoredText
+                    R.string.today_rescheduled_tomorrow -> rescheduledTomorrowText
                     R.string.today_saved_offline -> savedOfflineText
                     R.string.today_pending_sync -> pendingSyncText
                     R.string.detail_updated -> updatedText
@@ -152,7 +172,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             if (snack.message == R.string.detail_updated || snack.message == R.string.today_task_deleted) {
                 viewModel.closeDetail()
             }
-            val hasUndo = snack.undoTaskId != null || snack.undoDeleteTaskId != null
+            val hasUndo = snack.undoTaskId != null || snack.undoDeleteTaskId != null || snack.undoReschedule != null
             val result =
                 snackbar.showSnackbar(
                     message = text,
@@ -161,6 +181,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             if (result == SnackbarResult.ActionPerformed) {
                 if (snack.undoDeleteTaskId != null) {
                     viewModel.restoreTask(snack.undoDeleteTaskId)
+                } else if (snack.undoReschedule != null) {
+                    viewModel.undoReschedule(snack.undoReschedule.first, snack.undoReschedule.second)
                 } else if (snack.undoTaskId != null) {
                     viewModel.toggle(snack.undoTaskId)
                 }
@@ -215,17 +237,22 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
-PullToRefreshBox(
+                        PullToRefreshBox(
                             isRefreshing = refreshing,
                             onRefresh = viewModel::pullToRefresh,
                             modifier = Modifier.fillMaxSize(),
                         ) {
-                                                    DayList(
+                            DayList(
                                 current,
                                 habits = habitsState.habits,
                                 habitsOffline = habitsState.isOffline,
+                                projects = projects,
                                 onToggle = viewModel::toggle,
                                 onOpen = viewModel::openDetail,
+                                onRescheduleTomorrow = viewModel::rescheduleTaskToTomorrow,
+                                onChangePriority = viewModel::updateTaskPriority,
+                                onMoveProject = viewModel::moveTaskToProject,
+                                onDelete = viewModel::deleteTaskWithUndo,
                                 onToggleHabit = viewModel::toggleHabit,
                                 onOpenHabit = viewModel::openHabitEdit,
                             )
@@ -306,8 +333,13 @@ private fun DayList(
     content: HoyUiState.Content,
     habits: List<HabitToday>,
     habitsOffline: Boolean,
+    projects: List<NativeProject> = emptyList(),
     onToggle: (String) -> Unit,
     onOpen: (TodayTask) -> Unit,
+    onRescheduleTomorrow: (TodayTask) -> Unit = {},
+    onChangePriority: (String, String) -> Unit = { _, _ -> },
+    onMoveProject: (String, String?) -> Unit = { _, _ -> },
+    onDelete: (String) -> Unit = {},
     onToggleHabit: (String) -> Unit,
     onOpenHabit: (HabitToday) -> Unit,
 ) {
@@ -377,7 +409,16 @@ private fun DayList(
                 SectionHeader(kind = section.kind, count = section.tasks.size)
             }
             items(section.tasks, key = { "task-${it.id}" }) { task ->
-                TaskRow(task, onToggle = onToggle, onOpen = onOpen)
+                TaskRow(
+                    task = task,
+                    onToggle = onToggle,
+                    onOpen = onOpen,
+                    onRescheduleTomorrow = onRescheduleTomorrow,
+                    onChangePriority = onChangePriority,
+                    onMoveProject = onMoveProject,
+                    onDelete = onDelete,
+                    projects = projects,
+                )
             }
         }
         item(key = "habits-header") {
@@ -510,49 +551,271 @@ internal fun HabitRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-internal fun TaskRow(task: TodayTask, onToggle: (String) -> Unit, onOpen: (TodayTask) -> Unit) {
+internal fun TaskRow(
+    task: TodayTask,
+    onToggle: (String) -> Unit,
+    onOpen: (TodayTask) -> Unit,
+    onRescheduleTomorrow: (TodayTask) -> Unit = {},
+    onChangePriority: (String, String) -> Unit = { _, _ -> },
+    onMoveProject: (String, String?) -> Unit = { _, _ -> },
+    onDelete: (String) -> Unit = {},
+    projects: List<NativeProject> = emptyList(),
+) {
     val scheme = MaterialTheme.colorScheme
     val openLabel = stringResource(R.string.detail_open)
-    Card(
-        colors =
-            CardDefaults.cardColors(
-                containerColor = scheme.surfaceContainerLow,
-            ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
-            Spacer(Modifier.width(12.dp))
-            Column(
-                Modifier.weight(1f).clickable(
-                    role = Role.Button,
-                    onClickLabel = openLabel,
-                    onClick = { onOpen(task) },
-                ),
+    val completeLabel = stringResource(if (task.isDone) R.string.actions_undo else R.string.actions_complete)
+    val tomorrowLabel = stringResource(R.string.actions_move_to_tomorrow)
+    val moreOptionsLabel = stringResource(R.string.actions_more_options)
+    val deleteLabel = stringResource(R.string.actions_delete)
+
+    var showMenu by remember { mutableStateOf(false) }
+    var showPriorityDialog by remember { mutableStateOf(false) }
+    var showProjectDialog by remember { mutableStateOf(false) }
+
+    @Suppress("DEPRECATION")
+    val dismissState =
+        rememberSwipeToDismissBoxState(
+            confirmValueChange = { value ->
+                when (value) {
+                    SwipeToDismissBoxValue.StartToEnd -> {
+                        onToggle(task.id)
+                        false
+                    }
+                    SwipeToDismissBoxValue.EndToStart -> {
+                        onRescheduleTomorrow(task)
+                        false
+                    }
+                    SwipeToDismissBoxValue.Settled -> false
+                }
+            },
+        )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            val direction = dismissState.dismissDirection
+            val color by animateColorAsState(
+                targetValue =
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primaryContainer
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.tertiaryContainer
+                        SwipeToDismissBoxValue.Settled -> Color.Transparent
+                    },
+                label = "swipeBg",
+            )
+            val alignment =
+                when (direction) {
+                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                    else -> Alignment.Center
+                }
+            val text =
+                when (direction) {
+                    SwipeToDismissBoxValue.StartToEnd -> completeLabel
+                    SwipeToDismissBoxValue.EndToStart -> tomorrowLabel
+                    else -> ""
+                }
+            val textColor =
+                when (direction) {
+                    SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.onPrimaryContainer
+                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onTertiaryContainer
+                    else -> Color.Transparent
+                }
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color, shape = CardDefaults.shape)
+                        .padding(horizontal = 20.dp),
+                contentAlignment = alignment,
             ) {
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                    color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
-                )
-                TaskMeta(task)
+                if (text.isNotEmpty()) {
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = textColor,
+                    )
+                }
             }
-            if (task.scheduledTime != null) {
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = task.scheduledTime,
-                    style = OrdoNumerals.Inline,
-                    color = scheme.onSurfaceVariant,
-                )
+        },
+        content = {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            customActions =
+                                listOf(
+                                    CustomAccessibilityAction(label = completeLabel) {
+                                        onToggle(task.id)
+                                        true
+                                    },
+                                    CustomAccessibilityAction(label = tomorrowLabel) {
+                                        onRescheduleTomorrow(task)
+                                        true
+                                    },
+                                    CustomAccessibilityAction(label = moreOptionsLabel) {
+                                        showMenu = true
+                                        true
+                                    },
+                                    CustomAccessibilityAction(label = deleteLabel) {
+                                        onDelete(task.id)
+                                        true
+                                    },
+                                )
+                        },
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
+                    Spacer(Modifier.width(12.dp))
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .combinedClickable(
+                                role = Role.Button,
+                                onClickLabel = openLabel,
+                                onClick = { onOpen(task) },
+                                onLongClick = { showMenu = true },
+                            ),
+                    ) {
+                        Text(
+                            text = task.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
+                            color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
+                        )
+                        TaskMeta(task)
+                    }
+                    if (task.scheduledTime != null) {
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = task.scheduledTime,
+                            style = OrdoNumerals.Inline,
+                            color = scheme.onSurfaceVariant,
+                        )
+                    }
+                    Box {
+                        IconButton(
+                            onClick = { showMenu = true },
+                            modifier = Modifier.size(32.dp),
+                        ) {
+                            Text("⋮", style = MaterialTheme.typography.titleMedium, color = scheme.onSurfaceVariant)
+                        }
+                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text(tomorrowLabel) },
+                                onClick = {
+                                    showMenu = false
+                                    onRescheduleTomorrow(task)
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.actions_change_priority)) },
+                                onClick = {
+                                    showMenu = false
+                                    showPriorityDialog = true
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.actions_change_project)) },
+                                onClick = {
+                                    showMenu = false
+                                    showProjectDialog = true
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(deleteLabel, color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showMenu = false
+                                    onDelete(task.id)
+                                },
+                            )
+                        }
+                    }
+                }
             }
-        }
+        },
+    )
+
+    if (showPriorityDialog) {
+        AlertDialog(
+            onDismissRequest = { showPriorityDialog = false },
+            title = { Text(stringResource(R.string.actions_change_priority)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf("LOW", "MEDIUM", "HIGH", "URGENT").forEach { p ->
+                        TextButton(
+                            onClick = {
+                                onChangePriority(task.id, p)
+                                showPriorityDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            val label =
+                                when (p) {
+                                    "LOW" -> stringResource(R.string.detail_priority_low)
+                                    "MEDIUM" -> stringResource(R.string.detail_priority_medium)
+                                    "HIGH" -> stringResource(R.string.detail_priority_high)
+                                    "URGENT" -> stringResource(R.string.detail_priority_urgent)
+                                    else -> p
+                                }
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPriorityDialog = false }) {
+                    Text(stringResource(R.string.actions_cancel))
+                }
+            },
+        )
+    }
+
+    if (showProjectDialog) {
+        AlertDialog(
+            onDismissRequest = { showProjectDialog = false },
+            title = { Text(stringResource(R.string.actions_change_project)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick = {
+                            onMoveProject(task.id, null)
+                            showProjectDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.detail_no_project))
+                    }
+                    projects.forEach { proj ->
+                        TextButton(
+                            onClick = {
+                                onMoveProject(task.id, proj.id)
+                                showProjectDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(proj.name)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showProjectDialog = false }) {
+                    Text(stringResource(R.string.actions_cancel))
+                }
+            },
+        )
     }
 }
 

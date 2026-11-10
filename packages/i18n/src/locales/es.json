@@ -3517,6 +3517,7 @@
       "taskCreated": "Tarea creada",
       "taskDeleted": "Tarea eliminada",
       "taskRestored": "Tarea restaurada",
+      "rescheduledTomorrow": "Pospuesta para mañana",
       "savedOffline": "Guardada sin conexión — se enviará al volver la red",
       "pendingSync": "Pendiente de sincronizar"
     },
@@ -3592,6 +3593,9 @@
       "complete": "Completar",
       "undo": "Deshacer",
       "moveToTomorrow": "Mañana",
+      "moreOptions": "Más opciones",
+      "changePriority": "Cambiar prioridad",
+      "changeProject": "Mover a proyecto",
       "delete": "Eliminar",
       "save": "Guardar",
       "cancel": "Cancelar",

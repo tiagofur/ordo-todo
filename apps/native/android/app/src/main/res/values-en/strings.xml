@@ -26,6 +26,7 @@
     <string name="today_task_created">Task created</string>
     <string name="today_task_deleted">Task deleted</string>
     <string name="today_task_restored">Task restored</string>
+    <string name="today_rescheduled_tomorrow">Postponed to tomorrow</string>
     <string name="today_saved_offline">Saved offline — it will sync when you are back online</string>
     <string name="today_pending_sync">Waiting to sync</string>
     <string name="detail_title">Task details</string>
@@ -96,6 +97,9 @@
     <string name="actions_complete">Complete</string>
     <string name="actions_undo">Undo</string>
     <string name="actions_move_to_tomorrow">Tomorrow</string>
+    <string name="actions_more_options">More options</string>
+    <string name="actions_change_priority">Change priority</string>
+    <string name="actions_change_project">Move to project</string>
     <string name="actions_delete">Delete</string>
     <string name="actions_save">Save</string>
     <string name="actions_cancel">Cancel</string>

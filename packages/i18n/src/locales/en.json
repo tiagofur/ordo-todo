@@ -3517,6 +3517,7 @@
       "taskCreated": "Task created",
       "taskDeleted": "Task deleted",
       "taskRestored": "Task restored",
+      "rescheduledTomorrow": "Postponed to tomorrow",
       "savedOffline": "Saved offline — it will sync when you are back online",
       "pendingSync": "Waiting to sync"
     },
@@ -3592,6 +3593,9 @@
       "complete": "Complete",
       "undo": "Undo",
       "moveToTomorrow": "Tomorrow",
+      "moreOptions": "More options",
+      "changePriority": "Change priority",
+      "changeProject": "Move to project",
       "delete": "Delete",
       "save": "Save",
       "cancel": "Cancel",

@@ -26,6 +26,7 @@
     <string name="today_task_created">Tarefa criada</string>
     <string name="today_task_deleted">Tarefa excluída</string>
     <string name="today_task_restored">Tarefa restaurada</string>
+    <string name="today_rescheduled_tomorrow">Adiada para amanhã</string>
     <string name="today_saved_offline">Salva sem conexão — será enviada quando a rede voltar</string>
     <string name="today_pending_sync">Aguardando sincronização</string>
     <string name="detail_title">Detalhes da tarefa</string>
@@ -96,6 +97,9 @@
     <string name="actions_complete">Concluir</string>
     <string name="actions_undo">Desfazer</string>
     <string name="actions_move_to_tomorrow">Amanhã</string>
+    <string name="actions_more_options">Mais opções</string>
+    <string name="actions_change_priority">Alterar prioridade</string>
+    <string name="actions_change_project">Mover para projeto</string>
     <string name="actions_delete">Excluir</string>
     <string name="actions_save">Salvar</string>
     <string name="actions_cancel">Cancelar</string>

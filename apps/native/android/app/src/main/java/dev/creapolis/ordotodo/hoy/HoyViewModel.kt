@@ -47,6 +47,7 @@ data class Snack(
     val message: Int,
     val undoTaskId: String? = null,
     val undoDeleteTaskId: String? = null,
+    val undoReschedule: Pair<String, String?>? = null,
 )
 
 /** One-shot order to open capture with prefilled text (F4a). */
@@ -665,6 +666,125 @@ class HoyViewModel(
             }
             pullDay(hasCache = true)
             _events.send(Snack(R.string.today_task_restored))
+        }
+    }
+
+    fun rescheduleTaskToTomorrow(task: TodayTask) {
+        val tomorrow = LocalDate.now().plusDays(1).toString()
+        val originalDate = task.scheduledDate
+        viewModelScope.launch {
+            day.loadDay()?.let { d ->
+                fun List<TodayTask>.filterOut() = filter { it.id != task.id }
+                val updated = d.copy(
+                    overdue = d.overdue.filterOut(),
+                    dueToday = d.dueToday.filterOut(),
+                    scheduledToday = d.scheduledToday.filterOut(),
+                    available = d.available.filterOut(),
+                    notYetAvailable = d.notYetAvailable.filterOut(),
+                )
+                day.saveDay(updated)
+                show(updated, isOffline = false)
+            }
+            val patch = mapOf("scheduledDate" to tomorrow)
+            try {
+                tasks.updateTask(task.id, patch)
+            } catch (_: NetworkException) {
+                day.enqueueOp(OutboxOp.EditTask(task.id, patch, System.currentTimeMillis()))
+            } catch (_: Exception) {
+                // best effort
+            }
+            _events.send(
+                Snack(
+                    message = R.string.today_rescheduled_tomorrow,
+                    undoReschedule = task.id to originalDate,
+                ),
+            )
+            when (syncOutbox()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> Unit
+                SyncOutcome.Drained -> pullDay(hasCache = true)
+            }
+        }
+    }
+
+    fun undoReschedule(taskId: String, previousDate: String?) {
+        viewModelScope.launch {
+            val patch = mapOf("scheduledDate" to previousDate)
+            try {
+                tasks.updateTask(taskId, patch)
+            } catch (_: NetworkException) {
+                day.enqueueOp(OutboxOp.EditTask(taskId, patch, System.currentTimeMillis()))
+            } catch (_: Exception) {
+                // best effort
+            }
+            pullDay(hasCache = true)
+        }
+    }
+
+    fun updateTaskPriority(taskId: String, priority: String) {
+        viewModelScope.launch {
+            val patch = mapOf("priority" to priority)
+            day.loadDay()?.let { d ->
+                fun List<TodayTask>.patchPrio() = map {
+                    if (it.id == taskId) it.copy(priority = priority) else it
+                }
+                val updated = d.copy(
+                    overdue = d.overdue.patchPrio(),
+                    dueToday = d.dueToday.patchPrio(),
+                    scheduledToday = d.scheduledToday.patchPrio(),
+                    available = d.available.patchPrio(),
+                    notYetAvailable = d.notYetAvailable.patchPrio(),
+                )
+                day.saveDay(updated)
+                show(updated, isOffline = false)
+            }
+            try {
+                tasks.updateTask(taskId, patch)
+            } catch (_: NetworkException) {
+                day.enqueueOp(OutboxOp.EditTask(taskId, patch, System.currentTimeMillis()))
+            } catch (_: Exception) {
+                // best effort
+            }
+            when (syncOutbox()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> Unit
+                SyncOutcome.Drained -> pullDay(hasCache = true)
+            }
+        }
+    }
+
+    fun moveTaskToProject(taskId: String, projectId: String?) {
+        viewModelScope.launch {
+            val patch = mapOf("projectId" to projectId)
+            val project = _projects.value.firstOrNull { it.id == projectId }?.let {
+                dev.creapolis.ordotodo.data.TodayProject(it.id, it.name, it.color, it.workspaceId)
+            }
+            day.loadDay()?.let { d ->
+                fun List<TodayTask>.patchProj() = map {
+                    if (it.id == taskId) it.copy(project = project) else it
+                }
+                val updated = d.copy(
+                    overdue = d.overdue.patchProj(),
+                    dueToday = d.dueToday.patchProj(),
+                    scheduledToday = d.scheduledToday.patchProj(),
+                    available = d.available.patchProj(),
+                    notYetAvailable = d.notYetAvailable.patchProj(),
+                )
+                day.saveDay(updated)
+                show(updated, isOffline = false)
+            }
+            try {
+                tasks.updateTask(taskId, patch)
+            } catch (_: NetworkException) {
+                day.enqueueOp(OutboxOp.EditTask(taskId, patch, System.currentTimeMillis()))
+            } catch (_: Exception) {
+                // best effort
+            }
+            when (syncOutbox()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> Unit
+                SyncOutcome.Drained -> pullDay(hasCache = true)
+            }
         }
     }
 
