@@ -8,7 +8,11 @@ import kotlinx.serialization.json.JsonObject
 @Serializable
 data class HabitCompletion(
     val completedAt: String? = null,
-)
+    val completedDate: String? = null,
+) {
+    /** ISO day (`yyyy-MM-dd`) across both payload shapes (today + detail). */
+    val day: String? get() = (completedDate ?: completedAt)?.take(10)
+}
 
 @Serializable
 data class HabitToday(
@@ -80,4 +84,7 @@ class HabitsRepository(
     suspend fun remove(id: String) {
         api.delete("/habits/$id")
     }
+
+    /** Full habit with the last-30 completions (`GET /habits/:id`, F3d). */
+    suspend fun detail(id: String): HabitToday = json.decodeFromString(api.get("/habits/$id"))
 }

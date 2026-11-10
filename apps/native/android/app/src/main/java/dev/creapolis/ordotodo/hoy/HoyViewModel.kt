@@ -16,6 +16,7 @@ import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
 import kotlinx.coroutines.channels.Channel
+import dev.creapolis.ordotodo.habits.last7Stations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -60,6 +61,8 @@ data class HabitEditState(
     val time: String = "",
     val count: String = "",
     val saving: Boolean = false,
+    /** Last-7 stations, oldest first; null while loading (F3d). */
+    val stations: List<Boolean>? = null,
 )
 
 class HoyViewModel(
@@ -391,7 +394,7 @@ class HoyViewModel(
         _habitEdit.value = HabitEditState()
     }
 
-    /** Opens the edit sheet prefilled from the list (F3c). */
+    /** Opens the edit sheet prefilled from the list, stations follow (F3c/F3d). */
     fun openHabitEdit(habit: HabitToday) {
         _habitEdit.value =
             HabitEditState(
@@ -401,6 +404,17 @@ class HoyViewModel(
                 time = habit.preferredTime.orEmpty(),
                 count = habit.targetCount.toString(),
             )
+        viewModelScope.launch {
+            val repo = habits ?: return@launch
+            try {
+                val full = repo.detail(habit.id)
+                val days = full.completions.mapNotNull { it.day }
+                val stations = last7Stations(days, java.time.LocalDate.now())
+                _habitEdit.value = _habitEdit.value?.copy(stations = stations)
+            } catch (_: Exception) {
+                // Sheet works without the strip; list state already covers today.
+            }
+        }
     }
 
     fun closeHabitEdit() {

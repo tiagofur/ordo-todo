@@ -1,7 +1,10 @@
 package dev.creapolis.ordotodo.habits
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -24,17 +27,59 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.hoy.HabitEditState
 
 private val MOMENTS = listOf("MORNING", "AFTERNOON", "EVENING", null)
+
+/**
+ * Seven-station streak strip (F3d): oldest left, today right. Lit
+ * stations use the shared emerald section color; the strip announces
+ * the count to TalkBack as one element.
+ */
+@Composable
+private fun StationsStrip(stations: List<Boolean>) {
+    val done = stations.count { it }
+    Row(
+        modifier =
+            Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
+                contentDescription = "$done de ${stations.size} días"
+            },
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val lit = OrdoSectionColors.Habits
+        val dim = MaterialTheme.colorScheme.onSurfaceVariant
+        stations.forEachIndexed { index, on ->
+            val last = index == stations.lastIndex
+            Canvas(Modifier.size(if (last) 14.dp else 10.dp)) {
+                if (on) {
+                    drawCircle(lit, radius = size.minDimension / 2)
+                } else {
+                    drawCircle(dim, radius = size.minDimension / 2, style = Stroke(width = 2 * density))
+                }
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = "$done/${stations.size}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
 /**
  * Habit create/edit sheet (F3c). The ViewModel validates again and closes
@@ -68,6 +113,11 @@ fun HabitSheet(
                     ),
                 style = MaterialTheme.typography.titleLarge,
             )
+            val stations = state.stations
+            if (stations != null) {
+                Spacer(Modifier.height(12.dp))
+                StationsStrip(stations = stations)
+            }
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = state.name,
