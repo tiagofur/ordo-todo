@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import dev.creapolis.ordotodo.focus.FocusMiniPlayer
 import dev.creapolis.ordotodo.focus.FocusStartSheet
+import dev.creapolis.ordotodo.focus.FocusSwitchTaskSheet
 import dev.creapolis.ordotodo.focus.FocusViewModel
 import dev.creapolis.ordotodo.ritual.EveningRitualSheet
 import dev.creapolis.ordotodo.ritual.MorningRitualSheet
@@ -117,7 +118,10 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
     val focusStarting by focusViewModel.starting.collectAsState()
+    val focusConfig by focusViewModel.config.collectAsState()
+    val todayStats by focusViewModel.todayStats.collectAsState()
     var focusSheet by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var showSwitchTaskSheet by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
     val notifPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -249,8 +253,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                             FocusMiniPlayer(
                                 state = running,
                                 nowEpoch = focusTick,
+                                todayStats = todayStats,
                                 onPause = focusViewModel::pause,
                                 onResume = focusViewModel::resume,
+                                onSkip = focusViewModel::skip,
+                                onSwitchTask = { showSwitchTaskSheet = true },
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
@@ -291,7 +298,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 taskTitle = sheet.second,
                 starting = focusStarting,
                 canExact = focusViewModel.canScheduleExact(),
-                onStart = { plannedMs ->
+                config = focusConfig,
+                onStart = { plannedMs, mode ->
                     if (Build.VERSION.SDK_INT >= 33 &&
                         ContextCompat.checkSelfPermission(
                             ctx,
@@ -300,10 +308,25 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     ) {
                         notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
-                    focusViewModel.start(sheet.first, sheet.second, plannedMs)
+                    focusViewModel.start(sheet.first, sheet.second, plannedMs, mode)
                     focusSheet = null
                 },
                 onDismiss = { if (!focusStarting) focusSheet = null },
+            )
+        }
+        if (showSwitchTaskSheet && state is HoyUiState.Content) {
+            val pendingTasks =
+                (state as HoyUiState.Content).sections
+                    .flatMap { it.tasks }
+                    .filter { !it.isDone }
+                    .map { dev.creapolis.ordotodo.focus.FocusTaskItem(it.id, it.title) }
+            FocusSwitchTaskSheet(
+                tasks = pendingTasks,
+                onSelectTask = { taskId, taskTitle ->
+                    focusViewModel.switchTask(taskId, taskTitle)
+                    showSwitchTaskSheet = false
+                },
+                onDismiss = { showSwitchTaskSheet = false },
             )
         }
         if (showSheet) {

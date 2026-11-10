@@ -101,6 +101,7 @@ private suspend fun completeSession(context: Context, sessionId: String, complet
     }
     deps.store.save(null)
     deps.alarms.cancel(sessionId)
+    FocusService.stop(context)
     deps.notifs.cancelOngoing()
     if (completed) deps.notifs.showCompleted(current.taskTitle)
 }
@@ -117,7 +118,7 @@ class FocusAlarmReceiver : BroadcastReceiver() {
     }
 }
 
-/** Notification buttons: pause, resume and stop the active session. */
+/** Notification buttons: pause, resume, skip and stop the active session. */
 class FocusActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val sessionId = intent.getStringExtra(EXTRA_SESSION) ?: return
@@ -132,8 +133,10 @@ class FocusActionReceiver : BroadcastReceiver() {
                     ACTION_PAUSE -> {
                         if (current.isPaused) return@goAsync
                         deps.timers.pause()
-                        deps.store.save(pauseAt(current, wall))
+                        val paused = pauseAt(current, wall)
+                        deps.store.save(paused)
                         deps.alarms.cancel(sessionId)
+                        FocusService.start(context)
                     }
                     ACTION_RESUME -> {
                         if (!current.isPaused) return@goAsync
@@ -143,32 +146,51 @@ class FocusActionReceiver : BroadcastReceiver() {
                         val resumed = resumeAt(current, wall)
                         deps.store.save(resumed)
                         endAtEpoch(resumed, wall)?.let { deps.alarms.schedule(sessionId, it) }
+                        FocusService.start(context)
+                    }
+                    ACTION_SKIP -> {
+                        val elapsed = elapsedMs(current, wall)
+                        val credited = PomodoroCycle.isCredited(elapsed, current.plannedDurationMs)
+                        try {
+                            deps.timers.stop(credited)
+                        } catch (_: Exception) {}
+                        val config = deps.timers.getPreferences()
+                        val next = PomodoroCycle.transition(current.mode, current.completedPomodoros, config, credited)
+                        val created =
+                            deps.timers.start(
+                                current.taskId,
+                                type = next.nextMode.name,
+                                durationMinutes = (next.durationMs / 60_000L).toInt(),
+                            )
+                        val startedAt = isoToEpoch(created.startedAt) ?: wall
+                        val newState =
+                            FocusState(
+                                sessionId = created.id,
+                                taskId = current.taskId,
+                                taskTitle = current.taskTitle,
+                                startedAtEpoch = startedAt,
+                                plannedDurationMs = next.durationMs,
+                                mode = next.nextMode,
+                                completedPomodoros = next.completedPomodoros,
+                            )
+                        deps.store.save(newState)
+                        deps.alarms.cancel(sessionId)
+                        endAtEpoch(newState, wall)?.let { deps.alarms.schedule(newState.sessionId, it) }
+                        FocusService.start(context)
+                        return@goAsync
                     }
                     ACTION_STOP -> {
-                        completeSession(context, sessionId, completed = false)
+                        val elapsed = elapsedMs(current, wall)
+                        val credited = PomodoroCycle.isCredited(elapsed, current.plannedDurationMs)
+                        completeSession(context, sessionId, completed = credited)
                         return@goAsync
                     }
                     else -> return@goAsync
                 }
-                refreshOngoing(deps, sessionId)
             } catch (_: Exception) {
-                refreshOngoing(deps, sessionId)
+                FocusService.sync(context)
             }
         }
-    }
-
-    private suspend fun refreshOngoing(deps: FocusDeps, sessionId: String) {
-        val current = deps.store.load()
-        if (current?.sessionId != sessionId) return
-        val now = System.currentTimeMillis()
-        val left = remainingMs(current, now)
-        val line =
-            if (left == null) {
-                formatElapsed(elapsedMs(current, now))
-            } else {
-                formatElapsed(elapsedMs(current, now)) + " · −" + formatElapsed(left)
-            }
-        deps.notifs.showOngoing(current.taskTitle, line, current.isPaused, sessionId)
     }
 
     companion object {
@@ -176,6 +198,15 @@ class FocusActionReceiver : BroadcastReceiver() {
         const val EXTRA_ACTION = "focus_action"
         const val ACTION_PAUSE = "pause"
         const val ACTION_RESUME = "resume"
+        const val ACTION_SKIP = "skip"
         const val ACTION_STOP = "stop"
+    }
+}
+
+class FocusBootReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            FocusService.sync(context)
+        }
     }
 }

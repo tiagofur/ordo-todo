@@ -3585,8 +3585,17 @@
       "stopped": "Foco interrompido",
       "channelOngoing": "Foco em andamento",
       "channelAlerts": "Avisos de foco",
-      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso.",
-      "grantExact": "Permitir alarmes exatos"
+      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar algunos minutos em repouso.",
+      "grantExact": "Permitir alarmes exatos",
+      "modeWork": "Foco",
+      "modeShortBreak": "Pausa curta",
+      "modeLongBreak": "Pausa longa",
+      "skip": "Pular",
+      "skipConfirmNoCredit": "Pular agora não contará como pomodoro concluído.",
+      "switchTask": "Trocar tarefa",
+      "statsTitle": "Resumo de foco de hoje",
+      "statsPomodoros": "{count, plural, one {# pomodoro} other {# pomodoros}}",
+      "statsMinutes": "{count, plural, one {# min de foco} other {# min de foco}}"
     },
     "actions": {
       "addTask": "Adicionar tarefa",

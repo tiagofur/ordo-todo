@@ -22,6 +22,10 @@ data class FocusState(
     val pausedSinceEpoch: Long? = null,
     /** Planned length; null = open-ended (no alarm). */
     val plannedDurationMs: Long? = null,
+    /** Pomodoro mode: WORK, SHORT_BREAK, LONG_BREAK */
+    val mode: PomodoroMode = PomodoroMode.WORK,
+    /** Number of completed WORK pomodoros today */
+    val completedPomodoros: Int = 0,
 )
 
 val FocusState.isPaused: Boolean get() = pausedSinceEpoch != null
