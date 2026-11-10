@@ -11,6 +11,7 @@ import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
 import dev.creapolis.ordotodo.hoy.Snack
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -118,22 +119,34 @@ class TasksViewModel(
         } catch (_: UnauthorizedException) {
             session?.clear()
         } catch (_: NetworkException) {
-            if (all.isEmpty()) _state.value = TasksUiState.Offline else show(isOffline = true)
-        } catch (_: ApiException) {
-            if (all.isEmpty()) _state.value = TasksUiState.Offline
+            _state.value = tasksStateAfterFailedPull(all, _query.value, network = true)
+        } catch (e: Exception) {
+            // API errors and undecodable payloads alike: never stay on Loading (ODD 051 S1).
+            if (e is CancellationException) throw e
+            _state.value = tasksStateAfterFailedPull(all, _query.value, network = false)
         }
     }
 
     private fun show(isOffline: Boolean = false) {
-        val sections = sectionTasks(all, _query.value, projectFilter = null)
-        _state.value =
-            TasksUiState.Content(
-                sections = sections,
-                total = sections.flatMap { it.tasks }.size,
-                isOffline = isOffline,
-            )
+        _state.value = tasksContent(all, _query.value, isOffline)
     }
 }
+
+private fun tasksContent(all: List<TodayTask>, query: String, isOffline: Boolean): TasksUiState.Content {
+    val sections = sectionTasks(all, query, projectFilter = null)
+    return TasksUiState.Content(
+        sections = sections,
+        total = sections.flatMap { it.tasks }.size,
+        isOffline = isOffline,
+    )
+}
+
+/**
+ * State after a pull that failed (ODD 051 S1): rows already loaded stay
+ * visible, an empty list becomes the retryable error. Never Loading.
+ */
+fun tasksStateAfterFailedPull(all: List<TodayTask>, query: String, network: Boolean): TasksUiState =
+    if (all.isEmpty()) TasksUiState.Offline else tasksContent(all, query, isOffline = network)
 
 /** Pure flip for tests: toggles one task's status without Android deps. */
 fun flipTaskList(tasks: List<TodayTask>, taskId: String, done: Boolean): List<TodayTask> =

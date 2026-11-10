@@ -103,7 +103,7 @@ fun HabitsScreen(viewModel: HoyViewModel) {
                         text = stringResource(R.string.habits_empty),
                         style = MaterialTheme.typography.titleLarge,
                     )
-                    if (habitsState.isOffline) {
+                    if (habitsState.isOffline || habitsState.failed) {
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = viewModel::refresh) {
                             Text(stringResource(R.string.today_empty_retry))

@@ -191,7 +191,7 @@ private fun OrdoNav(
     // reminder alarms on every fresh load.
     LaunchedEffect(dayState, habitsUi) {
         if (dayState is HoyUiState.Content) refreshOrdoWidget(context)
-        if (habitsUi.loaded) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
+        if (habitsUi.canScheduleReminders) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
     }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
