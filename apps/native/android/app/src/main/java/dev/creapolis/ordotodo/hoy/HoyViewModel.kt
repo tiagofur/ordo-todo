@@ -44,6 +44,9 @@ class HoyViewModel(
     private val _events = Channel<Snack>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+    private val _creating = MutableStateFlow(false)
+    val creating: StateFlow<Boolean> = _creating
+
     init {
         refresh()
     }
@@ -67,6 +70,35 @@ class HoyViewModel(
             }
             pullDay(cached != null)
         }
+    }
+
+    /**
+     * Express capture (F1c): parse locally, POST once, re-pull the day.
+     * Offline creates are NOT queued (documented F1c limit): the sheet stays
+     * open on network failure so nothing is silently lost.
+     *
+     * @return true when the POST was attempted (parsed title non-blank).
+     */
+    fun createTask(raw: String): Boolean {
+        val parsed = parseCapture(raw)
+        if (parsed.title.isBlank() || _creating.value) return false
+        _creating.value = true
+        viewModelScope.launch {
+            try {
+                tasks.createTask(parsed.title, parsed.scheduledDate, parsed.scheduledTime, parsed.priority)
+                _events.send(Snack(R.string.today_task_created))
+                pullDay(hasCache = true)
+            } catch (_: UnauthorizedException) {
+                session.clear()
+            } catch (_: NetworkException) {
+                _events.send(Snack(R.string.auth_error_network))
+            } catch (_: ApiException) {
+                _events.send(Snack(R.string.auth_error_network))
+            } finally {
+                _creating.value = false
+            }
+        }
+        return true
     }
 
     /** Optimistic flip: UI + cache + outbox now, server when possible. */

@@ -3511,7 +3511,10 @@
       },
       "markedDone": "Concluída",
       "markedPending": "Marcada como pendente",
-      "offline": "Sem conexão — cópia local"
+      "offline": "Sem conexão — cópia local",
+      "captureTitle": "Nova tarefa",
+      "captureHint": "ex.: Enviar fatura amanhã 15:00",
+      "taskCreated": "Tarefa criada"
     },
     "actions": {
       "addTask": "Adicionar tarefa",

@@ -148,7 +148,7 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 - [ ] F1 — Rebanada vertical Android, en slices (rama por slice sobre `odd/050-native-apps`; caché local + cola de escrituras desde el inicio, D3):
   - [x] F1a — Auth + Hoy lectura (rama `odd/050-native-f1`): login/registro email (JSON + Bearer, `POST /auth/*`), sesión en DataStore, `GET /tasks/today`, Hoy por secciones (Vencidas/Mañana/Tarde/Noche/Cuando sea + Hechas), solo lectura, sin tabs muertos. **Verificado**: RED→GREEN (SectioningTest 2/2 + TodayResponseTest 1/1), codegen 45/45, `assembleDebug` + APK 33 MB, instalado en Pixel_API_35: Auth en claro y oscuro + foco de campo (capturas). **Pendiente**: login real + Hoy con datos (sin backend alcanzable desde aquí: ni local ni prod responden; el debug apunta a `10.0.2.2:3101` para el backend del Mac).
   - [x] F1b — Completar offline (rama `odd/050-native-f1b`): toggle completar/deshacer optimista con Snackbar + Deshacer, copia local + cola de escrituras (DataStore JSON: `TodayModels.kt::DayStore`; Room queda para cuando haya red para resolver `room-runtime` + KSP 2.4 — `StatusStore`/`TaskStatusApi` ya abstraen el almacén) con reintento en cada apertura. **Verificado sin Gradle**: kotlinc 2.4.21 + plugins serialización/Compose 2.4.21 compila el main limpio (EXIT 0) y JUnit corre 10/10 en verde (3 F1a + 7 F1b). **Pendiente**: humo en `Pixel_API_35` + login/Hoy reales contra backend (sin backend alcanzable desde aquí).
-  - [ ] F1c — Captura: sheet con campo único + parser local ES/EN/PT + `POST /tasks`.
+  - [x] F1c — Captura (rama `odd/050-native-f1c`, commit `feat(android): F1c express capture…`): sheet con campo único + parser local ES/EN/PT (palabras relativas + `dd/mm[/aaaa]` día-primero + `dd mes` + horas `HH:mm`/`15h[30]`/`3pm` + `p1-p4`/`!`/`!!`) + `POST /tasks` con `scheduledDate`/`scheduledTime`/`priority`. Sin `#proyecto` (llega en F1d) ni cola de creados (solo reintento manual; documentado).
   - [ ] F1d — Detalle: pantalla de tarea (formulario agrupado M3) + `PATCH /tasks/:id`.
 - [ ] F2 — Timer Android: mini-reproductor + Foco + notificación en curso (Live Update donde aplique) + alarma exacta con fallback honesto.
 - [ ] F3 — Hábitos (línea de estaciones, check-in, crear/editar) + Tareas (Próximos, Sin fecha, Proyectos, búsqueda).
@@ -159,6 +159,7 @@ Traducciones nombradas (reglas de DESIGN.md que cambian de material, no de inten
 
 ## Log
 
+- L13 · 2026-11-09 — F1c GREEN (sombra): kotlinc 2.4.21 compila main con 0 errores (CaptureParser+CaptureSheet+TasksRepository+HoyViewModel+HoyScreen); JUnit 23/23 OK (13 CaptureParser nuevos + 10 previos). Codegen 45/45 + `check` limpio. Nota honesta test-first: RED no se observó como corrida fallida (tests escritos antes que el parser, primera ejecución ya GREEN tras 3 defectos cazados en auto-revisión: TIME_AMPM, solape `!!`, prioridad de fecha relativa). Real `./gradlew` + emulador siguen pendientes (aprobación).
 - L1 (owner, verbatim): "planeamos las apps nativas iOS y Android de Ordo Todo, porque la app que tenemos mobile es literal una miniatura de la app Desktop, usemos a [$impeccable] para planear el diseño".
 - L2: entrevista — papel «Complemento del día», stack «SwiftUI + Jetpack Compose», diseño «Adaptativa plena (HIG + Material 3)».
 - L3: `apps/native/PRODUCT.md` creado (plataforma `adaptive`).

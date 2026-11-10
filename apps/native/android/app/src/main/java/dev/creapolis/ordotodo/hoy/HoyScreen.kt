@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -28,7 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,9 +58,21 @@ fun HoyScreen(viewModel: HoyViewModel) {
     val undoLabel = stringResource(R.string.actions_undo)
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
+    val createdText = stringResource(R.string.today_task_created)
+    val errorText = stringResource(R.string.auth_error_network)
+    val addLabel = stringResource(R.string.actions_add_task)
+    var showSheet by remember { mutableStateOf(false) }
+    val creating by viewModel.creating.collectAsState()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { snack ->
-            val text = if (snack.message == R.string.today_marked_pending) pendingText else doneText
+            val text =
+                when (snack.message) {
+                    R.string.today_marked_pending -> pendingText
+                    R.string.today_task_created -> createdText
+                    R.string.auth_error_network -> errorText
+                    else -> doneText
+                }
+            if (snack.message == R.string.today_task_created) showSheet = false
             val result =
                 snackbar.showSnackbar(
                     message = text,
@@ -68,13 +83,31 @@ fun HoyScreen(viewModel: HoyViewModel) {
             }
         }
     }
-    Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { inner ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
+        floatingActionButton = {
+            if (state is HoyUiState.Content) {
+                ExtendedFloatingActionButton(
+                    text = { Text(addLabel) },
+                    icon = { Text("+") },
+                    onClick = { showSheet = true },
+                )
+            }
+        },
+    ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner)) {
             when (val current = state) {
                 is HoyUiState.Loading -> LoadingDay()
                 is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
                 is HoyUiState.Content -> DayList(current, onToggle = viewModel::toggle)
             }
+        }
+        if (showSheet) {
+            CaptureSheet(
+                creating = creating,
+                onSave = { viewModel.createTask(it) },
+                onDismiss = { if (!creating) showSheet = false },
+            )
         }
     }
 }

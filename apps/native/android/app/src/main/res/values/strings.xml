@@ -21,6 +21,9 @@
     <string name="today_marked_done">Completada</string>
     <string name="today_marked_pending">Marcada como pendiente</string>
     <string name="today_offline">Sin conexión — copia local</string>
+    <string name="today_capture_title">Nueva tarea</string>
+    <string name="today_capture_hint">p. ej. Enviar factura mañana 15:00</string>
+    <string name="today_task_created">Tarea creada</string>
     <string name="actions_add_task">Añadir tarea</string>
     <string name="actions_complete">Completar</string>
     <string name="actions_undo">Deshacer</string>

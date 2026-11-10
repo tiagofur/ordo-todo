@@ -3511,7 +3511,10 @@
       },
       "markedDone": "Completed",
       "markedPending": "Marked as to do",
-      "offline": "Offline — local copy"
+      "offline": "Offline — local copy",
+      "captureTitle": "New task",
+      "captureHint": "e.g. Send invoice tomorrow 3pm",
+      "taskCreated": "Task created"
     },
     "actions": {
       "addTask": "Add task",
