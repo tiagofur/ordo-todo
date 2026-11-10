@@ -125,4 +125,7 @@
     <string name="settings_about">Sobre</string>
     <string name="settings_version">Versão</string>
     <string name="settings_language">Idioma</string>
+    <string name="tile_capture">Captura rápida</string>
+    <string name="shortcuts_new">Nova tarefa</string>
+    <string name="shortcuts_today">Hoje</string>
 </resources>

@@ -42,10 +42,11 @@ import dev.creapolis.ordotodo.data.NativeProject
 fun CaptureSheet(
     creating: Boolean,
     projects: List<NativeProject>,
+    initialText: String = "",
     onSave: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember(initialText) { mutableStateOf(initialText) }
     val parsed = remember(text) { parseCapture(text) }
     val projectName =
         remember(parsed, projects) {

@@ -76,9 +76,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
     var showSheet by remember { mutableStateOf(false) }
+    var capturePrefill by remember { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
+    val captureRequest by viewModel.captureRequest.collectAsState()
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
     val focusStarting by focusViewModel.starting.collectAsState()
@@ -97,6 +99,13 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
         if (showSheet) viewModel.ensureProjects()
+    }
+    LaunchedEffect(captureRequest) {
+        captureRequest?.let { request ->
+            capturePrefill = request.prefill
+            showSheet = true
+            viewModel.consumeCaptureRequest()
+        }
     }
     LaunchedEffect(focusViewModel) {
         focusViewModel.events.collect { snack ->
@@ -214,8 +223,14 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             CaptureSheet(
                 creating = creating,
                 projects = projects,
+                initialText = capturePrefill,
                 onSave = { viewModel.createTask(it) },
-                onDismiss = { if (!creating) showSheet = false },
+                onDismiss = {
+                    if (!creating) {
+                        showSheet = false
+                        capturePrefill = ""
+                    }
+                },
             )
         }
     }

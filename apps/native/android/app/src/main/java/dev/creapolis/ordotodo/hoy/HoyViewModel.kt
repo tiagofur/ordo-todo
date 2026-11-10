@@ -37,6 +37,9 @@ sealed interface HoyUiState {
 
 data class Snack(val message: Int, val undoTaskId: String? = null)
 
+/** One-shot order to open capture with prefilled text (F4a). */
+data class CaptureRequest(val prefill: String)
+
 /** Pure flip for tests: toggles one habit's completion without Android deps. */
 fun flipHabitList(habits: List<HabitToday>, habitId: String, done: Boolean): List<HabitToday> =
     habits.map { habit ->
@@ -94,8 +97,20 @@ class HoyViewModel(
     private val _habitEdit = MutableStateFlow<HabitEditState?>(null)
     val habitEdit: StateFlow<HabitEditState?> = _habitEdit
 
+    private val _captureRequest = MutableStateFlow<CaptureRequest?>(null)
+    val captureRequest: StateFlow<CaptureRequest?> = _captureRequest
+
     init {
         refresh()
+    }
+
+    /** Opens capture from outside the app (tile, shortcut, share) (F4a). */
+    fun requestCapture(prefill: String) {
+        _captureRequest.value = CaptureRequest(prefill)
+    }
+
+    fun consumeCaptureRequest() {
+        _captureRequest.value = null
     }
 
     fun refresh() {

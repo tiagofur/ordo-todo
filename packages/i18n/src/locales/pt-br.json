@@ -3625,6 +3625,13 @@
       "about": "Sobre",
       "version": "Versão",
       "language": "Idioma"
+    },
+    "tile": {
+      "capture": "Captura rápida"
+    },
+    "shortcuts": {
+      "new": "Nova tarefa",
+      "today": "Hoje"
     }
   }
 }

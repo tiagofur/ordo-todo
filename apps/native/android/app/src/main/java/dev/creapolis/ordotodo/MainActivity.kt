@@ -1,5 +1,6 @@
 package dev.creapolis.ordotodo
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,6 +52,7 @@ import dev.creapolis.ordotodo.focus.FocusStore
 import dev.creapolis.ordotodo.focus.FocusViewModel
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.habits.HabitSheet
+import dev.creapolis.ordotodo.capture.extractSharedText
 import dev.creapolis.ordotodo.habits.HabitsScreen
 import dev.creapolis.ordotodo.hoy.HoyScreen
 import dev.creapolis.ordotodo.hoy.HoyViewModel
@@ -59,9 +61,23 @@ import dev.creapolis.ordotodo.settings.SettingsScreen
 import dev.creapolis.ordotodo.tasks.TasksScreen
 import dev.creapolis.ordotodo.tasks.TasksViewModel
 import dev.creapolis.ordotodo.ui.theme.OrdoTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        /** Keep in sync with shortcuts.xml and the tile (F4a). */
+        const val ACTION_CAPTURE = "ordo.action.CAPTURE"
+    }
+
+    private val launchIntents = MutableStateFlow<Intent?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        launchIntents.value = intent
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -77,13 +93,14 @@ class MainActivity : ComponentActivity() {
         val focusNotifs = FocusNotifications(applicationContext)
         val focusAlarms = FocusAlarms(applicationContext)
 
+        launchIntents.value = intent
         setContent {
             OrdoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    OrdoRoot(session, auth, tasks, habits, day, timers, focusStore, focusNotifs, focusAlarms)
+                    OrdoRoot(session, auth, tasks, habits, day, timers, focusStore, focusNotifs, focusAlarms, launchIntents)
                 }
             }
         }
@@ -111,6 +128,7 @@ private fun OrdoRoot(
     focusStore: FocusStore,
     focusNotifs: FocusNotifications,
     focusAlarms: FocusAlarms,
+    launchIntents: MutableStateFlow<Intent?>,
 ) {
     val tokens by session.tokens.collectAsStateWithLifecycle(initialValue = null)
     var ready by remember { mutableStateOf(false) }
@@ -134,7 +152,7 @@ private fun OrdoRoot(
             )
         val taskList: TasksViewModel =
             viewModel(factory = factory { TasksViewModel(tasks, session) { hoy.refresh() } })
-        OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session)
+        OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session, launchIntents = launchIntents)
     } else {
         val login: AuthViewModel = viewModel(factory = factory { AuthViewModel(auth) })
         AuthScreen(login)
@@ -160,12 +178,36 @@ private fun OrdoNav(
     focus: FocusViewModel,
     taskList: TasksViewModel,
     session: SessionStore,
+    launchIntents: MutableStateFlow<Intent?>,
 ) {
     var tab by remember { mutableStateOf(OrdoTab.HOY) }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
     val projects by hoy.projects.collectAsStateWithLifecycle()
     val focusState by focus.focus.collectAsStateWithLifecycle()
+    val launchIntent by launchIntents.collectAsStateWithLifecycle()
+    LaunchedEffect(launchIntent) {
+        val incoming = launchIntent ?: return@LaunchedEffect
+        launchIntents.value = null
+        when {
+            incoming.action == MainActivity.ACTION_CAPTURE -> {
+                tab = OrdoTab.HOY
+                hoy.requestCapture("")
+            }
+            incoming.action == Intent.ACTION_SEND -> {
+                val shared =
+                    extractSharedText(
+                        incoming.action,
+                        incoming.type,
+                        incoming.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString(),
+                    )
+                if (shared != null) {
+                    tab = OrdoTab.HOY
+                    hoy.requestCapture(shared)
+                }
+            }
+        }
+    }
 
     val wasOpen = remember { mutableStateOf(false) }
     LaunchedEffect(detail) {
