@@ -57,6 +57,11 @@ import androidx.core.content.ContextCompat
 import dev.creapolis.ordotodo.focus.FocusMiniPlayer
 import dev.creapolis.ordotodo.focus.FocusStartSheet
 import dev.creapolis.ordotodo.focus.FocusViewModel
+import dev.creapolis.ordotodo.ritual.EveningRitualSheet
+import dev.creapolis.ordotodo.ritual.MorningRitualSheet
+import dev.creapolis.ordotodo.ritual.RitualBannerCard
+import dev.creapolis.ordotodo.ritual.RitualPhase
+import dev.creapolis.ordotodo.ritual.RitualStreak
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -124,6 +129,12 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val replanOpen by viewModel.replanOpen.collectAsState()
     val replanPlan by viewModel.replanPlan.collectAsState()
     val replanLoading by viewModel.replanLoading.collectAsState()
+    val ritualStreak by viewModel.ritualStreak.collectAsState()
+    val activeRitualPhase by viewModel.activeRitualPhase.collectAsState()
+    val morningRitualView by viewModel.morningRitualView.collectAsState()
+    val eveningRitualView by viewModel.eveningRitualView.collectAsState()
+    val ritualSheetOpen by viewModel.ritualSheetOpen.collectAsState()
+    val ritualLoading by viewModel.ritualLoading.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
     LaunchedEffect(showSheet) {
@@ -261,6 +272,10 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onTriageTask = viewModel::triageOverdueTask,
                                 onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
                                 onReplan = viewModel::openReplan,
+                                streak = ritualStreak,
+                                activeRitualPhase = activeRitualPhase,
+                                onStartRitual = { viewModel.openRitual(activeRitualPhase) },
+                                onSkipRitual = viewModel::skipCurrentRitual,
                             )
                         }
                     }
@@ -309,6 +324,25 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 onApply = viewModel::applyReplan,
                 onDismiss = viewModel::dismissReplan,
                 onClose = viewModel::closeReplan,
+            )
+        }
+        if (ritualSheetOpen == RitualPhase.MORNING) {
+            MorningRitualSheet(
+                todayTasks = (state as? HoyUiState.Content)?.sections?.flatMap { it.tasks }.orEmpty(),
+                suggestedTop3 = morningRitualView?.suggestedTop3.orEmpty(),
+                loading = ritualLoading,
+                onComplete = viewModel::completeMorningRitual,
+                onSkip = viewModel::skipCurrentRitual,
+                onClose = viewModel::closeRitual,
+            )
+        }
+        if (ritualSheetOpen == RitualPhase.EVENING) {
+            EveningRitualSheet(
+                eveningView = eveningRitualView,
+                loading = ritualLoading,
+                onComplete = viewModel::completeEveningRitual,
+                onSkip = viewModel::skipCurrentRitual,
+                onClose = viewModel::closeRitual,
             )
         }
     }
@@ -360,6 +394,10 @@ private fun DayList(
     onTriageTask: (String, TriageTarget) -> Unit = { _, _ -> },
     onTriageAllToTomorrow: () -> Unit = {},
     onReplan: () -> Unit = {},
+    streak: RitualStreak = RitualStreak(),
+    activeRitualPhase: RitualPhase = RitualPhase.NONE,
+    onStartRitual: () -> Unit = {},
+    onSkipRitual: () -> Unit = {},
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -392,6 +430,14 @@ private fun DayList(
                 }
                 DayRing(done = content.done, total = content.total)
             }
+        }
+        item(key = "ritual_banner") {
+            RitualBannerCard(
+                streak = streak,
+                activePhase = activeRitualPhase,
+                onStart = onStartRitual,
+                onSkip = onSkipRitual,
+            )
         }
         if (content.isOffline) {
             item(key = "offline") {

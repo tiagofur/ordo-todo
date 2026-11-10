@@ -16,7 +16,7 @@ import java.time.LocalDate
  * [dev.creapolis.ordotodo.hoy.SyncEngine] pushes through this same class.
  */
 class TasksRepository(
-    private val api: ApiClient,
+    val api: ApiClient,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : TaskStatusApi,
     TaskCreateApi {

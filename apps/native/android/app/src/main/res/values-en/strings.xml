@@ -202,4 +202,28 @@
     <!-- args: %1$d = count (Int) -->
     <string name="replan_changes_count">%1$d proposed changes</string>
     <string name="replan_close">Close</string>
+    <string name="ritual_morning_title">Morning ritual</string>
+    <string name="ritual_morning_subtitle">Choose your top 3 for today (60s)</string>
+    <string name="ritual_evening_title">Evening shutdown</string>
+    <string name="ritual_evening_subtitle">Review your wins and clear your mind</string>
+    <string name="ritual_start">Start</string>
+    <string name="ritual_skip">Skip</string>
+    <string name="ritual_top3_title">Your Top 3 Tasks</string>
+    <string name="ritual_top3_hint">Select up to 3 tasks to focus your energy</string>
+    <string name="ritual_accept_timebox">Accept proposed timebox</string>
+    <string name="ritual_complete_morning">Set Top 3</string>
+    <string name="ritual_morning_completed">Top 3 set! Have a productive day.</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="ritual_completed_tasks">Completed today: %1$d</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="ritual_pending_tasks">Pending to reschedule (%1$d)</string>
+    <string name="ritual_move_to_tomorrow">Move to tomorrow</string>
+    <string name="ritual_complete_evening">Shutdown day</string>
+    <string name="ritual_evening_completed">Day closed! Rest well.</string>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="ritual_streak">
+        <item quantity="one">Streak: %1$d day</item>
+        <item quantity="other">Streak: %1$d days</item>
+    </plurals>
+    <string name="ritual_streak_start">Start your streak today</string>
 </resources>

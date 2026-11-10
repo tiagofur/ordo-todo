@@ -21,6 +21,13 @@ import dev.creapolis.ordotodo.data.TaskTag
 import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
+import dev.creapolis.ordotodo.ritual.RitualEveningMove
+import dev.creapolis.ordotodo.ritual.RitualEveningView
+import dev.creapolis.ordotodo.ritual.RitualMorningView
+import dev.creapolis.ordotodo.ritual.RitualPhase
+import dev.creapolis.ordotodo.ritual.RitualRepository
+import dev.creapolis.ordotodo.ritual.RitualStreak
+import dev.creapolis.ordotodo.ritual.activeRitualPhase
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -100,7 +107,10 @@ class HoyViewModel(
     private val day: DayStore,
     private val session: SessionStore,
     private val sync: SyncEngine = SyncEngine(tasks),
+    ritual: RitualRepository? = null,
 ) : ViewModel() {
+    private val ritualRepo: RitualRepository = ritual ?: RitualRepository(tasks.api)
+
     /** Tells the Tareas tab that the offline capture queue changed. */
     var onQueueChanged: () -> Unit = {}
 
@@ -140,6 +150,24 @@ class HoyViewModel(
 
     private val _replanLoading = MutableStateFlow(false)
     val replanLoading: StateFlow<Boolean> = _replanLoading.asStateFlow()
+
+    private val _ritualStreak = MutableStateFlow(RitualStreak())
+    val ritualStreak: StateFlow<RitualStreak> = _ritualStreak.asStateFlow()
+
+    private val _activeRitualPhase = MutableStateFlow(RitualPhase.NONE)
+    val activeRitualPhase: StateFlow<RitualPhase> = _activeRitualPhase.asStateFlow()
+
+    private val _morningRitualView = MutableStateFlow<RitualMorningView?>(null)
+    val morningRitualView: StateFlow<RitualMorningView?> = _morningRitualView.asStateFlow()
+
+    private val _eveningRitualView = MutableStateFlow<RitualEveningView?>(null)
+    val eveningRitualView: StateFlow<RitualEveningView?> = _eveningRitualView.asStateFlow()
+
+    private val _ritualSheetOpen = MutableStateFlow(RitualPhase.NONE)
+    val ritualSheetOpen: StateFlow<RitualPhase> = _ritualSheetOpen.asStateFlow()
+
+    private val _ritualLoading = MutableStateFlow(false)
+    val ritualLoading: StateFlow<Boolean> = _ritualLoading.asStateFlow()
 
     init {
         refresh()
@@ -872,6 +900,7 @@ class HoyViewModel(
         }
         // Habits load on their own: a failed day pull must not leave them loading (ODD 051 S1).
         pullHabits()
+        loadRituals()
     }
 
     private fun show(response: TodayResponse, isOffline: Boolean) {
@@ -983,6 +1012,100 @@ class HoyViewModel(
                 closeReplan()
             } catch (_: Exception) {
                 closeReplan()
+            }
+        }
+    }
+
+    private suspend fun loadRituals() {
+        try {
+            val streak = ritualRepo.getStreak()
+            _ritualStreak.value = streak
+
+            val hour = java.time.LocalTime.now().hour
+            val morning = ritualRepo.getMorning()
+            _morningRitualView.value = morning
+
+            val morningStatus = morning.ritual?.morningStatus ?: "PENDING"
+            val eveningStatus = morning.ritual?.eveningStatus ?: "PENDING"
+            _activeRitualPhase.value = activeRitualPhase(morningStatus, eveningStatus, hour)
+
+            if (_activeRitualPhase.value == RitualPhase.EVENING) {
+                _eveningRitualView.value = ritualRepo.getEvening()
+            }
+        } catch (_: Exception) {
+            // Calm fallback: keeps last state without blocking the day view
+        }
+    }
+
+    fun openRitual(phase: RitualPhase) {
+        _ritualSheetOpen.value = phase
+        if (phase == RitualPhase.MORNING && _morningRitualView.value == null) {
+            _ritualLoading.value = true
+            viewModelScope.launch {
+                try {
+                    _morningRitualView.value = ritualRepo.getMorning()
+                } finally {
+                    _ritualLoading.value = false
+                }
+            }
+        } else if (phase == RitualPhase.EVENING && _eveningRitualView.value == null) {
+            _ritualLoading.value = true
+            viewModelScope.launch {
+                try {
+                    _eveningRitualView.value = ritualRepo.getEvening()
+                } finally {
+                    _ritualLoading.value = false
+                }
+            }
+        }
+    }
+
+    fun closeRitual() {
+        _ritualSheetOpen.value = RitualPhase.NONE
+    }
+
+    fun skipCurrentRitual() {
+        val phase = _activeRitualPhase.value
+        viewModelScope.launch {
+            try {
+                if (phase == RitualPhase.MORNING) {
+                    ritualRepo.skipMorning()
+                } else if (phase == RitualPhase.EVENING) {
+                    ritualRepo.skipEvening()
+                }
+                closeRitual()
+                loadRituals()
+            } catch (_: Exception) {
+                closeRitual()
+            }
+        }
+    }
+
+    fun completeMorningRitual(top3: List<String>, acceptTimebox: Boolean) {
+        viewModelScope.launch {
+            try {
+                ritualRepo.completeMorning(top3)
+                if (acceptTimebox) {
+                    ritualRepo.acceptMorningTimebox()
+                }
+                _events.send(Snack(R.string.ritual_morning_completed))
+                closeRitual()
+                pullDay(hasCache = true)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
+    }
+
+    fun completeEveningRitual(moves: List<RitualEveningMove>) {
+        viewModelScope.launch {
+            try {
+                ritualRepo.completeEvening(moves)
+                _events.send(Snack(R.string.ritual_evening_completed))
+                closeRitual()
+                pullDay(hasCache = true)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
             }
         }
     }
