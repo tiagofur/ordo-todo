@@ -125,19 +125,19 @@
     <string name="settings_open_settings">Abrir ajustes do sistema</string>
     <string name="settings_about">Sobre</string>
     <string name="settings_version">Versão</string>
+    <string name="settings_language">Idioma</string>
     <string name="settings_danger">Zona de perigo</string>
     <string name="settings_delete_account">Excluir minha conta</string>
     <string name="settings_delete_title">Excluir sua conta?</string>
     <string name="settings_delete_text">Suas tarefas, hábitos e dados serão apagados. Não há como desfazer.</string>
     <string name="settings_delete_yes">Sim, excluir</string>
     <string name="settings_delete_error">Não foi possível excluir. Verifique sua conexão.</string>
-    <string name="settings_language">Idioma</string>
     <string name="tile_capture">Captura rápida</string>
+    <string name="shortcuts_new">Nova tarefa</string>
+    <string name="shortcuts_today">Hoje</string>
     <string name="reminder_channel">Lembretes de hábitos</string>
     <string name="reminder_text">Toque para registrar o progresso de hoje</string>
     <string name="reminder_done">Feito</string>
     <string name="widget_label">Hoje da Ordo</string>
     <string name="widget_desc">Progresso de tarefas e hábitos de hoje</string>
-    <string name="shortcuts_new">Nova tarefa</string>
-    <string name="shortcuts_today">Hoje</string>
 </resources>

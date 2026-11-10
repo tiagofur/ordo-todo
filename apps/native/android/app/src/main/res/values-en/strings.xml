@@ -125,19 +125,19 @@
     <string name="settings_open_settings">Open system settings</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version</string>
+    <string name="settings_language">Language</string>
     <string name="settings_danger">Danger zone</string>
     <string name="settings_delete_account">Delete my account</string>
     <string name="settings_delete_title">Delete your account?</string>
     <string name="settings_delete_text">Your tasks, habits and data will be erased. This cannot be undone.</string>
     <string name="settings_delete_yes">Yes, delete</string>
     <string name="settings_delete_error">Could not delete. Check your connection.</string>
-    <string name="settings_language">Language</string>
     <string name="tile_capture">Quick capture</string>
+    <string name="shortcuts_new">New task</string>
+    <string name="shortcuts_today">Today</string>
     <string name="reminder_channel">Habit reminders</string>
     <string name="reminder_text">Tap to log today\'s progress</string>
     <string name="reminder_done">Done</string>
     <string name="widget_label">Ordo Today</string>
     <string name="widget_desc">Today\'s task and habit progress</string>
-    <string name="shortcuts_new">New task</string>
-    <string name="shortcuts_today">Today</string>
 </resources>

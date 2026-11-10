@@ -125,19 +125,19 @@
     <string name="settings_open_settings">Abrir ajustes del sistema</string>
     <string name="settings_about">Acerca de</string>
     <string name="settings_version">Versión</string>
+    <string name="settings_language">Idioma</string>
     <string name="settings_danger">Zona de peligro</string>
     <string name="settings_delete_account">Eliminar mi cuenta</string>
     <string name="settings_delete_title">¿Eliminar tu cuenta?</string>
     <string name="settings_delete_text">Se borrarán tus tareas, hábitos y datos. No se puede deshacer.</string>
     <string name="settings_delete_yes">Sí, eliminar</string>
     <string name="settings_delete_error">No se pudo eliminar. Revisa tu conexión.</string>
-    <string name="settings_language">Idioma</string>
     <string name="tile_capture">Captura rápida</string>
+    <string name="shortcuts_new">Nueva tarea</string>
+    <string name="shortcuts_today">Hoy</string>
     <string name="reminder_channel">Recordatorios de hábitos</string>
     <string name="reminder_text">Toca para registrar tu avance de hoy</string>
     <string name="reminder_done">Hecho</string>
     <string name="widget_label">Hoy de Ordo</string>
     <string name="widget_desc">Progreso de tareas y hábitos de hoy</string>
-    <string name="shortcuts_new">Nueva tarea</string>
-    <string name="shortcuts_today">Hoy</string>
 </resources>

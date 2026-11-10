@@ -3553,7 +3553,8 @@
       "stopped": "Foco interrompido",
       "channelOngoing": "Foco em andamento",
       "channelAlerts": "Avisos de foco",
-      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso."
+      "inexactNote": "Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso.",
+      "grantExact": "Permitir alarmes exatos"
     },
     "actions": {
       "addTask": "Adicionar tarefa",
@@ -3624,7 +3625,13 @@
       "openSettings": "Abrir ajustes do sistema",
       "about": "Sobre",
       "version": "Versão",
-      "language": "Idioma"
+      "language": "Idioma",
+      "danger": "Zona de perigo",
+      "deleteAccount": "Excluir minha conta",
+      "deleteTitle": "Excluir sua conta?",
+      "deleteText": "Suas tarefas, hábitos e dados serão apagados. Não há como desfazer.",
+      "deleteYes": "Sim, excluir",
+      "deleteError": "Não foi possível excluir. Verifique sua conexão."
     },
     "tile": {
       "capture": "Captura rápida"
@@ -3632,6 +3639,15 @@
     "shortcuts": {
       "new": "Nova tarefa",
       "today": "Hoje"
+    },
+    "reminder": {
+      "channel": "Lembretes de hábitos",
+      "text": "Toque para registrar o progresso de hoje",
+      "done": "Feito"
+    },
+    "widget": {
+      "label": "Hoje da Ordo",
+      "desc": "Progresso de tarefas e hábitos de hoje"
     }
   }
 }

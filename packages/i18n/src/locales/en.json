@@ -3553,7 +3553,8 @@
       "stopped": "Focus stopped",
       "channelOngoing": "Ongoing focus",
       "channelAlerts": "Focus alerts",
-      "inexactNote": "No exact-alarm permission: the alert may arrive a few minutes late in doze."
+      "inexactNote": "No exact-alarm permission: the alert may arrive a few minutes late in doze.",
+      "grantExact": "Allow exact alarms"
     },
     "actions": {
       "addTask": "Add task",
@@ -3624,7 +3625,13 @@
       "openSettings": "Open system settings",
       "about": "About",
       "version": "Version",
-      "language": "Language"
+      "language": "Language",
+      "danger": "Danger zone",
+      "deleteAccount": "Delete my account",
+      "deleteTitle": "Delete your account?",
+      "deleteText": "Your tasks, habits and data will be erased. This cannot be undone.",
+      "deleteYes": "Yes, delete",
+      "deleteError": "Could not delete. Check your connection."
     },
     "tile": {
       "capture": "Quick capture"
@@ -3632,6 +3639,15 @@
     "shortcuts": {
       "new": "New task",
       "today": "Today"
+    },
+    "reminder": {
+      "channel": "Habit reminders",
+      "text": "Tap to log today's progress",
+      "done": "Done"
+    },
+    "widget": {
+      "label": "Ordo Today",
+      "desc": "Today's task and habit progress"
     }
   }
 }
