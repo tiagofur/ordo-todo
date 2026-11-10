@@ -52,6 +52,16 @@ data class HabitsUiState(
     val loaded: Boolean = false,
 )
 
+/** Habit create/edit form. `habitId = null` opens the create sheet. */
+data class HabitEditState(
+    val habitId: String? = null,
+    val name: String = "",
+    val timeOfDay: String? = null,
+    val time: String = "",
+    val count: String = "",
+    val saving: Boolean = false,
+)
+
 class HoyViewModel(
     private val tasks: TasksRepository,
     private val habits: HabitsRepository? = null,
@@ -77,6 +87,9 @@ class HoyViewModel(
 
     private val _habitsState = MutableStateFlow(HabitsUiState())
     val habitsState: StateFlow<HabitsUiState> = _habitsState
+
+    private val _habitEdit = MutableStateFlow<HabitEditState?>(null)
+    val habitEdit: StateFlow<HabitEditState?> = _habitEdit
 
     init {
         refresh()
@@ -272,42 +285,55 @@ class HoyViewModel(
 
     private suspend fun pushOutbox(): SyncOutcome = sync.sync(day)
 
-    /** Habits check-in (F3a): optimistic flip, server authoritative, no queue yet. */
+    /** Habits check-in (F3c): optimistic flip + durable outbox, drained on every pull. */
     fun toggleHabit(habitId: String) {
-        val repo = habits ?: return
         val current = _habitsState.value.habits.firstOrNull { it.id == habitId } ?: return
         val done = !current.doneToday
-        applyHabitFlip(current, done, repo)
+        applyHabitFlip(current, done)
     }
 
-    private fun applyHabitFlip(habit: HabitToday, done: Boolean, repo: HabitsRepository) {
+    private fun applyHabitFlip(habit: HabitToday, done: Boolean) {
         val before = _habitsState.value.habits
         _habitsState.value = HabitsUiState(
             habits = flipHabitList(before, habit.id, done),
             done = before.count { if (it.id == habit.id) done else it.doneToday },
             total = before.size,
+            loaded = true,
         )
         viewModelScope.launch {
-            try {
-                if (done) repo.complete(habit.id) else repo.uncomplete(habit.id)
-                pullHabits()
-                _events.send(Snack(if (done) R.string.habits_done else R.string.habits_undone))
-            } catch (_: UnauthorizedException) {
-                session.clear()
-            } catch (_: Exception) {
-                _habitsState.value = HabitsUiState(
-                    habits = before,
-                    done = before.count(HabitToday::doneToday),
-                    total = before.size,
-                    isOffline = true,
-                )
-                _events.send(Snack(R.string.auth_error_network))
+            day.enqueueHabit(HabitOp(habit.id, done))
+            when (pushHabits()) {
+                SyncOutcome.Unauthorized -> session.clear()
+                SyncOutcome.WaitingForNetwork -> {
+                    _habitsState.value = _habitsState.value.copy(isOffline = true)
+                    _events.send(Snack(R.string.auth_error_network))
+                }
+                SyncOutcome.Drained -> {
+                    pullHabits()
+                    _events.send(Snack(if (done) R.string.habits_done else R.string.habits_undone))
+                }
             }
         }
     }
 
+    private suspend fun pushHabits(): SyncOutcome {
+        val repo = habits ?: return SyncOutcome.Drained
+        return HabitSync(repo).sync(day)
+    }
+
     private suspend fun pullHabits() {
         val repo = habits ?: return
+        when (pushHabits()) {
+            SyncOutcome.Unauthorized -> {
+                session.clear()
+                return
+            }
+            SyncOutcome.WaitingForNetwork -> {
+                _habitsState.value = _habitsState.value.copy(isOffline = true, loaded = true)
+                return
+            }
+            SyncOutcome.Drained -> Unit
+        }
         try {
             val response = repo.today()
             showHabits(response, isOffline = false)
@@ -316,7 +342,7 @@ class HoyViewModel(
         } catch (_: NetworkException) {
             _habitsState.value = _habitsState.value.copy(isOffline = true)
         } catch (_: ApiException) {
-            // Keep last good habits; F3b adds cached copy.
+            // Keep last good habits; the outbox already drained.
         }
     }
 
@@ -358,6 +384,97 @@ class HoyViewModel(
                 total = all.size,
                 isOffline = isOffline,
             )
+    }
+
+    /** Opens the create sheet (F3c). */
+    fun openHabitCreate() {
+        _habitEdit.value = HabitEditState()
+    }
+
+    /** Opens the edit sheet prefilled from the list (F3c). */
+    fun openHabitEdit(habit: HabitToday) {
+        _habitEdit.value =
+            HabitEditState(
+                habitId = habit.id,
+                name = habit.name,
+                timeOfDay = habit.timeOfDay,
+                time = habit.preferredTime.orEmpty(),
+                count = habit.targetCount.toString(),
+            )
+    }
+
+    fun closeHabitEdit() {
+        _habitEdit.value = null
+    }
+
+    fun updateHabitEdit(edit: (HabitEditState) -> HabitEditState) {
+        _habitEdit.value = _habitEdit.value?.let(edit)
+    }
+
+    /** Validates locally, then POSTs or PATCHes only the diff (F3c). */
+    fun saveHabitEdit() {
+        val repo = habits ?: return
+        val current = _habitEdit.value ?: return
+        if (current.saving) return
+        val id = current.habitId
+        viewModelScope.launch {
+            try {
+                if (id == null) {
+                    val body =
+                        dev.creapolis.ordotodo.habits.buildHabitCreate(
+                            current.name,
+                            current.timeOfDay,
+                            current.time,
+                            current.count,
+                        ) ?: return@launch
+                    _habitEdit.value = current.copy(saving = true)
+                    repo.create(body)
+                    _events.send(Snack(R.string.habits_created))
+                } else {
+                    val original = _habitsState.value.habits.firstOrNull { it.id == id } ?: return@launch
+                    val patch =
+                        dev.creapolis.ordotodo.habits.buildHabitPatch(
+                            original,
+                            current.name,
+                            current.timeOfDay,
+                            current.time,
+                            current.count,
+                        ) ?: return@launch
+                    _habitEdit.value = current.copy(saving = true)
+                    if (patch.isNotEmpty()) repo.update(id, patch)
+                    _events.send(Snack(R.string.habits_updated))
+                }
+                _habitEdit.value = null
+                pullHabits()
+            } catch (_: UnauthorizedException) {
+                session.clear()
+                _habitEdit.value = _habitEdit.value?.copy(saving = false)
+            } catch (_: NetworkException) {
+                _events.send(Snack(R.string.auth_error_network))
+                _habitEdit.value = _habitEdit.value?.copy(saving = false)
+            } catch (_: ApiException) {
+                _events.send(Snack(R.string.auth_error_network))
+                _habitEdit.value = _habitEdit.value?.copy(saving = false)
+            }
+        }
+    }
+
+    /** Deletes the habit open in the sheet (F3c). */
+    fun deleteHabit() {
+        val repo = habits ?: return
+        val id = _habitEdit.value?.habitId ?: return
+        viewModelScope.launch {
+            try {
+                repo.remove(id)
+                _habitEdit.value = null
+                _events.send(Snack(R.string.habits_deleted))
+                pullHabits()
+            } catch (_: UnauthorizedException) {
+                session.clear()
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            }
+        }
     }
 
     private suspend fun updateCached(taskId: String, done: Boolean): TodayResponse? {

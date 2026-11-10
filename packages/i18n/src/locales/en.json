@@ -3573,7 +3573,19 @@
       "undone": "Habit pending",
       "offline": "Offline — local copy",
       "check": "Complete",
-      "uncheck": "Unmark"
+      "uncheck": "Unmark",
+      "createTitle": "New habit",
+      "editTitle": "Edit habit",
+      "nameHint": "e.g. Drink water",
+      "momentLabel": "Time of day",
+      "timeLabel": "Time (optional)",
+      "timeHint": "HH:mm",
+      "countLabel": "Times per day",
+      "created": "Habit created",
+      "updated": "Habit updated",
+      "deleted": "Habit deleted",
+      "invalidTime": "Invalid time",
+      "invalidCount": "Between 1 and 10"
     },
     "auth": {
       "title": "Sign in",

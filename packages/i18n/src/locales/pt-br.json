@@ -3573,7 +3573,19 @@
       "undone": "Hábito pendente",
       "offline": "Sem conexão — cópia local",
       "check": "Concluir",
-      "uncheck": "Desmarcar"
+      "uncheck": "Desmarcar",
+      "createTitle": "Novo hábito",
+      "editTitle": "Editar hábito",
+      "nameHint": "ex.: Beber água",
+      "momentLabel": "Momento",
+      "timeLabel": "Hora (opcional)",
+      "timeHint": "HH:mm",
+      "countLabel": "Vezes por dia",
+      "created": "Hábito criado",
+      "updated": "Hábito atualizado",
+      "deleted": "Hábito excluído",
+      "invalidTime": "Hora inválida",
+      "invalidCount": "Entre 1 e 10"
     },
     "auth": {
       "title": "Entrar",

@@ -2,6 +2,7 @@ package dev.creapolis.ordotodo.data
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 /** Minimal habit payload for the Hoy list (F3a). */
 @Serializable
@@ -17,6 +18,7 @@ data class HabitToday(
     val icon: String? = null,
     val color: String? = null,
     val timeOfDay: String? = null,
+    val preferredTime: String? = null,
     val targetCount: Int = 1,
     val currentStreak: Int = 0,
     val completions: List<HabitCompletion> = emptyList(),
@@ -50,18 +52,32 @@ data class HabitsTodayResponse(
     val summary: HabitsSummary = HabitsSummary(),
 )
 
-/** Day reads plus check-in/out (F3a). Offline queue arrives in F3b. */
+/** Day reads plus check-in/out (F3a). CRUD + offline queue in F3c. */
 class HabitsRepository(
     private val api: ApiClient,
     private val json: Json = Json { ignoreUnknownKeys = true },
-) {
+) : dev.creapolis.ordotodo.hoy.HabitCheckApi {
     suspend fun today(): HabitsTodayResponse = json.decodeFromString(api.get("/habits/today"))
 
-    suspend fun complete(id: String) {
+    override suspend fun complete(id: String) {
         api.post("/habits/$id/complete", "{}")
     }
 
-    suspend fun uncomplete(id: String) {
+    override suspend fun uncomplete(id: String) {
         api.delete("/habits/$id/complete")
+    }
+
+    /** Full create body comes from `buildHabitCreate` (F3c). */
+    suspend fun create(body: JsonObject) {
+        api.post("/habits", json.encodeToString(JsonObject.serializer(), body))
+    }
+
+    /** Partial edit, diff-only like tasks (F3c). */
+    suspend fun update(id: String, patch: JsonObject) {
+        api.patch("/habits/$id", json.encodeToString(JsonObject.serializer(), patch))
+    }
+
+    suspend fun remove(id: String) {
+        api.delete("/habits/$id")
     }
 }

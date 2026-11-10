@@ -50,6 +50,7 @@ import dev.creapolis.ordotodo.focus.FocusNotifications
 import dev.creapolis.ordotodo.focus.FocusStore
 import dev.creapolis.ordotodo.focus.FocusViewModel
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.habits.HabitSheet
 import dev.creapolis.ordotodo.habits.HabitsScreen
 import dev.creapolis.ordotodo.hoy.HoyScreen
 import dev.creapolis.ordotodo.hoy.HoyViewModel
@@ -162,6 +163,7 @@ private fun OrdoNav(
 ) {
     var tab by remember { mutableStateOf(OrdoTab.HOY) }
     val detail by hoy.detail.collectAsStateWithLifecycle()
+    val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
     val projects by hoy.projects.collectAsStateWithLifecycle()
     val focusState by focus.focus.collectAsStateWithLifecycle()
 
@@ -229,6 +231,16 @@ private fun OrdoNav(
                 onRetry = hoy::retryDetail,
                 onClose = hoy::closeDetail,
                 onStartFocus = { tab = OrdoTab.HOY },
+            )
+        }
+        val habitForm = habitEdit
+        if (habitForm != null) {
+            HabitSheet(
+                state = habitForm,
+                onEdit = hoy::updateHabitEdit,
+                onSave = hoy::saveHabitEdit,
+                onDelete = hoy::deleteHabit,
+                onDismiss = hoy::closeHabitEdit,
             )
         }
     }

@@ -89,6 +89,9 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
         }
     val habitDoneText = stringResource(R.string.habits_done)
     val habitUndoneText = stringResource(R.string.habits_undone)
+    val habitCreatedText = stringResource(R.string.habits_created)
+    val habitUpdatedText = stringResource(R.string.habits_updated)
+    val habitDeletedText = stringResource(R.string.habits_deleted)
     val habitsState by viewModel.habitsState.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
@@ -115,6 +118,9 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.detail_updated -> updatedText
                     R.string.habits_done -> habitDoneText
                     R.string.habits_undone -> habitUndoneText
+                    R.string.habits_created -> habitCreatedText
+                    R.string.habits_updated -> habitUpdatedText
+                    R.string.habits_deleted -> habitDeletedText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
@@ -177,6 +183,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                             onToggle = viewModel::toggle,
                             onOpen = viewModel::openDetail,
                             onToggleHabit = viewModel::toggleHabit,
+                            onOpenHabit = viewModel::openHabitEdit,
                         )
                     }
                 }
@@ -251,6 +258,7 @@ private fun DayList(
     onToggle: (String) -> Unit,
     onOpen: (TodayTask) -> Unit,
     onToggleHabit: (String) -> Unit,
+    onOpenHabit: (HabitToday) -> Unit,
 ) {
     val dateLine =
         LocalDate.now().format(
@@ -335,7 +343,7 @@ private fun DayList(
             }
         } else {
             items(habits, key = { "habit-${it.id}" }) { habit ->
-                HabitRow(habit = habit, onToggle = onToggleHabit)
+                HabitRow(habit = habit, onToggle = onToggleHabit, onOpen = onOpenHabit)
             }
         }
         item { Spacer(Modifier.height(24.dp)) }
@@ -402,7 +410,11 @@ internal fun HabitsHeader(count: Int, offline: Boolean) {
 }
 
 @Composable
-internal fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
+internal fun HabitRow(
+    habit: HabitToday,
+    onToggle: (String) -> Unit,
+    onOpen: (HabitToday) -> Unit = {},
+) {
     val scheme = MaterialTheme.colorScheme
     val done = habit.doneToday
     val streakLabel = pluralStringResource(R.plurals.habits_streak, habit.currentStreak, habit.currentStreak)
@@ -416,7 +428,12 @@ internal fun HabitRow(habit: HabitToday, onToggle: (String) -> Unit) {
         ) {
             CheckDot(done = done, onToggle = { onToggle(habit.id) })
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
+            Column(
+                Modifier.weight(1f).clickable(
+                    onClickLabel = stringResource(R.string.habits_edit_title),
+                    onClick = { onOpen(habit) },
+                ),
+            ) {
                 Text(
                     text = habit.name,
                     style = MaterialTheme.typography.bodyLarge,

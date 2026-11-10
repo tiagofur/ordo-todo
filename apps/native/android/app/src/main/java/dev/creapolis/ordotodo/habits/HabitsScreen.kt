@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -52,6 +53,9 @@ fun HabitsScreen(viewModel: HoyViewModel) {
     val snackbar = remember { SnackbarHostState() }
     val doneText = stringResource(R.string.habits_done)
     val undoneText = stringResource(R.string.habits_undone)
+    val createdText = stringResource(R.string.habits_created)
+    val updatedText = stringResource(R.string.habits_updated)
+    val deletedText = stringResource(R.string.habits_deleted)
     val errorText = stringResource(R.string.auth_error_network)
 
     LaunchedEffect(viewModel) {
@@ -60,6 +64,9 @@ fun HabitsScreen(viewModel: HoyViewModel) {
                 when (snack.message) {
                     R.string.habits_done -> doneText
                     R.string.habits_undone -> undoneText
+                    R.string.habits_created -> createdText
+                    R.string.habits_updated -> updatedText
+                    R.string.habits_deleted -> deletedText
                     R.string.auth_error_network -> errorText
                     else -> return@collect
                 }
@@ -71,6 +78,13 @@ fun HabitsScreen(viewModel: HoyViewModel) {
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(title = { Text(stringResource(R.string.habits_title)) })
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(stringResource(R.string.habits_create_title)) },
+                icon = { Text("+") },
+                onClick = viewModel::openHabitCreate,
+            )
         },
     ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner).padding(horizontal = 16.dp)) {
@@ -118,7 +132,11 @@ fun HabitsScreen(viewModel: HoyViewModel) {
                         )
                     }
                     items(group, key = { "habit-${it.id}" }) { habit ->
-                        HabitRow(habit = habit, onToggle = viewModel::toggleHabit)
+                        HabitRow(
+                            habit = habit,
+                            onToggle = viewModel::toggleHabit,
+                            onOpen = viewModel::openHabitEdit,
+                        )
                     }
                 }
                 if (habitsState.isOffline) {
