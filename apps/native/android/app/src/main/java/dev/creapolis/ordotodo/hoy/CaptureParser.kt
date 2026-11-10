@@ -13,14 +13,18 @@ data class ParsedCapture(
 private data class PriorityHit(val start: Int, val end: Int, val priority: String)
 private data class DateHit(val start: Int, val end: Int, val date: LocalDate)
 
-/** Matches "mañana" before "manana" so spans are detected for both spellings. */
+/**
+ * Matches "mañana" before "manana" so spans are detected for both spellings.
+ * Words that start or end in a non-ASCII letter ("amanhã", "às") use explicit
+ * letter lookarounds: `\b` is ASCII-only on JDK 19+ and Unicode-aware on Android.
+ */
 private val RELATIVE = listOf(
     Regex("\\bpasado\\s+mañana\\b|\\bpasado\\s+manana\\b") to 2,
     Regex("\\bday\\s+after\\s+tomorrow\\b") to 2,
-    Regex("\\bdepois\\s+de\\s+amanhã\\b|\\bdepois\\s+de\\s+amanha\\b") to 2,
+    Regex("\\bdepois\\s+de\\s+amanhã(?![\\p{L}\\p{N}_])|\\bdepois\\s+de\\s+amanha\\b") to 2,
     Regex("\\bmañana\\b|\\bmanana\\b") to 1,
     Regex("\\btomorrow\\b") to 1,
-    Regex("\\bamanhã\\b|\\bamanha\\b") to 1,
+    Regex("\\bamanhã(?![\\p{L}\\p{N}_])|\\bamanha\\b") to 1,
     // "hoy" last: the two-word forms above already consumed their spans.
     Regex("\\bhoy\\b") to 0,
     Regex("\\btoday\\b") to 0,
@@ -56,7 +60,7 @@ private val TIME_H = Regex("\\b([01]?[0-9]|2[0-3])h([0-5][0-9])?\\b", RegexOptio
 private val TIME_AMPM =
     Regex("\\b(0?[1-9]|1[0-2])(?::([0-5][0-9]))?\\s?([ap])\\s?\\.?m\\.?\\b", RegexOption.IGNORE_CASE)
 private val TIME_PREP =
-    Regex("(?:\\ba\\s+las|\\ba\\s+la|\\bal|\\bat|\\bàs|\\bas)\\s+\$", RegexOption.IGNORE_CASE)
+    Regex("(?:\\ba\\s+las|\\ba\\s+la|\\bal|\\bat|(?<![\\p{L}\\p{N}_])às|\\bas)\\s+\$", RegexOption.IGNORE_CASE)
 
 private val PRIORITY_P =
     Regex("(?<![A-Za-z0-9])p([1-4])(?![A-Za-z0-9])", RegexOption.IGNORE_CASE)
