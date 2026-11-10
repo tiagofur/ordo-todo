@@ -76,7 +76,8 @@ class DayStore(
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : StatusStore,
     HabitOpStore,
-    CreateOpStore {
+    CreateOpStore,
+    OutboxStore {
     suspend fun loadDay(): TodayResponse? {
         val raw = store.data.map { it[KEY_DAY] }.first() ?: return null
         return try {
@@ -88,6 +89,87 @@ class DayStore(
 
     suspend fun saveDay(response: TodayResponse) {
         store.edit { it[KEY_DAY] = json.encodeToString(TodayResponse.serializer(), response) }
+    }
+
+    override suspend fun outboxPending(): List<OutboxOp> {
+        val raw = store.data.map { it[KEY_OUTBOX] }.first()
+        if (raw != null) {
+            return try {
+                json.decodeFromString(ListSerializer(OutboxOp.serializer()), raw)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+        // Legacy migration if KEY_OUTBOX not yet populated
+        val legacyCreates = createPending().map {
+            OutboxOp.CreateTask(it.localId, it.title, it.date, it.time, it.priority, it.projectId, it.at)
+        }
+        val legacyStatus = pending().map {
+            OutboxOp.StatusFlip(it.taskId, it.done, it.at)
+        }
+        val legacyHabits = habitPending().map {
+            OutboxOp.HabitCheck(it.habitId, it.done, it.at)
+        }
+        val migrated = legacyCreates + legacyStatus + legacyHabits
+        if (migrated.isNotEmpty()) {
+            store.edit { prefs ->
+                prefs[KEY_OUTBOX] = json.encodeToString(ListSerializer(OutboxOp.serializer()), migrated)
+            }
+        }
+        return migrated
+    }
+
+    override suspend fun enqueueOp(op: OutboxOp) {
+        store.edit { prefs ->
+            val current = prefs[KEY_OUTBOX]?.let {
+                try {
+                    json.decodeFromString(ListSerializer(OutboxOp.serializer()), it)
+                } catch (_: Exception) {
+                    emptyList()
+                }
+            } ?: emptyList()
+            prefs[KEY_OUTBOX] = json.encodeToString(ListSerializer(OutboxOp.serializer()), current + op)
+        }
+    }
+
+    override suspend fun acknowledgeOps(applied: List<OutboxOp>) {
+        if (applied.isEmpty()) return
+        val appliedSet = applied.toSet()
+        store.edit { prefs ->
+            val current = prefs[KEY_OUTBOX]?.let {
+                try {
+                    json.decodeFromString(ListSerializer(OutboxOp.serializer()), it)
+                } catch (_: Exception) {
+                    emptyList()
+                }
+            } ?: emptyList()
+            val remaining = current - appliedSet
+            prefs[KEY_OUTBOX] = json.encodeToString(ListSerializer(OutboxOp.serializer()), remaining)
+        }
+    }
+
+    override suspend fun updateOutbox(transform: (List<OutboxOp>) -> List<OutboxOp>) {
+        store.edit { prefs ->
+            val current = prefs[KEY_OUTBOX]?.let {
+                try {
+                    json.decodeFromString(ListSerializer(OutboxOp.serializer()), it)
+                } catch (_: Exception) {
+                    emptyList()
+                }
+            } ?: emptyList()
+            val updated = transform(current)
+            prefs[KEY_OUTBOX] = json.encodeToString(ListSerializer(OutboxOp.serializer()), updated)
+        }
+    }
+
+    /** Replaces a temporary local capture ID with the assigned server ID in cached today and tasks. */
+    suspend fun reconcileLocalId(localId: String, serverId: String) {
+        loadDay()?.let { day ->
+            saveDay(reconcileLocalIdInDay(day, localId, serverId))
+        }
+        loadTasks()?.let { tasks ->
+            saveTasks(reconcileLocalIdInTasks(tasks, localId, serverId))
+        }
     }
 
     override suspend fun pending(): List<StatusOp> {
@@ -188,6 +270,7 @@ class DayStore(
     }
 
     companion object {
+        private val KEY_OUTBOX = stringPreferencesKey("outbox_ops")
         private val KEY_CREATE_OPS = stringPreferencesKey("create_ops")
         private val KEY_TASKS = stringPreferencesKey("tasks_json")
         private val KEY_DAY = stringPreferencesKey("today_json")
