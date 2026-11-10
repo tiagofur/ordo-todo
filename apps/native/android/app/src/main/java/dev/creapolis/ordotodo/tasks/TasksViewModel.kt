@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.ApiException
+import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.SessionStore
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
+import dev.creapolis.ordotodo.hoy.CreateOp
 import dev.creapolis.ordotodo.hoy.Snack
+import dev.creapolis.ordotodo.hoy.tasksWithPendingCreates
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +42,7 @@ sealed interface TasksUiState {
 class TasksViewModel(
     private val tasks: TasksRepository,
     private val session: SessionStore? = null,
+    private val day: DayStore? = null,
     private val onChanged: () -> Unit = {},
 ) : ViewModel() {
     private val _state = MutableStateFlow<TasksUiState>(TasksUiState.Loading)
@@ -58,8 +62,29 @@ class TasksViewModel(
 
     private var all: List<TodayTask> = emptyList()
 
+    /** Captures queued offline; shown as rows until they sync (ODD 051 S4). */
+    private var pendingCreates: List<CreateOp> = emptyList()
+
     init {
-        refresh()
+        viewModelScope.launch {
+            // Cached rows first: the tab opens without a spinner.
+            pendingCreates = day?.createPending().orEmpty()
+            val cached = day?.loadTasks()
+            if (cached != null) {
+                all = cached
+                show()
+            }
+            pull()
+        }
+    }
+
+    /** Re-reads the offline queue and the server without the full-screen spinner. */
+    fun reloadQuietly() {
+        viewModelScope.launch {
+            pendingCreates = day?.createPending().orEmpty()
+            if (_state.value is TasksUiState.Content) show()
+            pull()
+        }
     }
 
     /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */
@@ -96,7 +121,14 @@ class TasksViewModel(
 
     /** Optimistic flip with revert; Hoy refreshes through [onChanged]. */
     fun toggle(taskId: String) {
-        val current = all.firstOrNull { it.id == taskId } ?: return
+        val current = all.firstOrNull { it.id == taskId }
+        if (current == null) {
+            // Not a server row: a capture still waiting to sync.
+            if (pendingCreates.any { it.localId == taskId }) {
+                viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
+            }
+            return
+        }
         val done = !current.isDone
         all = flipTaskList(all, taskId, done)
         show()
@@ -125,6 +157,8 @@ class TasksViewModel(
     private suspend fun pull() {
         try {
             all = tasks.all(_projectFilter.value)
+            if (_projectFilter.value == null) day?.saveTasks(all)
+            pendingCreates = day?.createPending().orEmpty()
             _projects.value =
                 try {
                     tasks.projects()
@@ -135,16 +169,22 @@ class TasksViewModel(
         } catch (_: UnauthorizedException) {
             session?.clear()
         } catch (_: NetworkException) {
-            _state.value = tasksStateAfterFailedPull(all, _query.value, network = true)
+            _state.value = tasksStateAfterFailedPull(visible(), _query.value, network = true)
         } catch (e: Exception) {
             // API errors and undecodable payloads alike: never stay on Loading (ODD 051 S1).
             if (e is CancellationException) throw e
-            _state.value = tasksStateAfterFailedPull(all, _query.value, network = false)
+            _state.value = tasksStateAfterFailedPull(visible(), _query.value, network = false)
         }
     }
 
+    private fun visible(): List<TodayTask> {
+        val project = _projectFilter.value
+        val queued = if (project == null) pendingCreates else pendingCreates.filter { it.projectId == project }
+        return tasksWithPendingCreates(all, queued)
+    }
+
     private fun show(isOffline: Boolean = false) {
-        _state.value = tasksContent(all, _query.value, isOffline)
+        _state.value = tasksContent(visible(), _query.value, isOffline)
     }
 }
 

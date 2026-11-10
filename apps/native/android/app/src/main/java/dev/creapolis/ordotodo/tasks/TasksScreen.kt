@@ -62,6 +62,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val errorText = stringResource(R.string.auth_error_network)
+    val pendingSyncText = stringResource(R.string.today_pending_sync)
     var filter by remember { mutableStateOf(TasksFilter.UPCOMING) }
 
     LaunchedEffect(tasksViewModel) {
@@ -69,6 +70,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
             val text =
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
+                    R.string.today_pending_sync -> pendingSyncText
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }

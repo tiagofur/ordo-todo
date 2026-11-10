@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -156,7 +157,8 @@ private fun OrdoRoot(
                     },
             )
         val taskList: TasksViewModel =
-            viewModel(factory = factory { TasksViewModel(tasks, session) { hoy.refresh() } })
+            viewModel(factory = factory { TasksViewModel(tasks, session, day) { hoy.refresh() } })
+        SideEffect { hoy.onQueueChanged = taskList::reloadQuietly }
         OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session, launchIntents = launchIntents)
     } else {
         val login: AuthViewModel = viewModel(factory = factory { AuthViewModel(auth) })

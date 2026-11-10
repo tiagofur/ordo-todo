@@ -3514,7 +3514,9 @@
       "offline": "Sem conexão — cópia local",
       "captureTitle": "Nova tarefa",
       "captureHint": "ex.: Enviar fatura amanhã 15:00",
-      "taskCreated": "Tarefa criada"
+      "taskCreated": "Tarefa criada",
+      "savedOffline": "Salva sem conexão — será enviada quando a rede voltar",
+      "pendingSync": "Aguardando sincronização"
     },
     "detail": {
       "title": "Detalhes da tarefa",

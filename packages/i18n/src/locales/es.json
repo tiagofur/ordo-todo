@@ -3514,7 +3514,9 @@
       "offline": "Sin conexión — copia local",
       "captureTitle": "Nueva tarea",
       "captureHint": "p. ej. Enviar factura mañana 15:00",
-      "taskCreated": "Tarea creada"
+      "taskCreated": "Tarea creada",
+      "savedOffline": "Guardada sin conexión — se enviará al volver la red",
+      "pendingSync": "Pendiente de sincronizar"
     },
     "detail": {
       "title": "Detalle de la tarea",

@@ -3514,7 +3514,9 @@
       "offline": "Offline — local copy",
       "captureTitle": "New task",
       "captureHint": "e.g. Send invoice tomorrow 3pm",
-      "taskCreated": "Task created"
+      "taskCreated": "Task created",
+      "savedOffline": "Saved offline — it will sync when you are back online",
+      "pendingSync": "Waiting to sync"
     },
     "detail": {
       "title": "Task details",

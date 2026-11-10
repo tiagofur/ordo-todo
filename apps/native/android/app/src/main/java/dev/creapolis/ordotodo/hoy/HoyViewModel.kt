@@ -15,6 +15,7 @@ import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayResponse
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import dev.creapolis.ordotodo.habits.last7Stations
@@ -86,6 +87,9 @@ class HoyViewModel(
     private val session: SessionStore,
     private val sync: SyncEngine = SyncEngine(tasks),
 ) : ViewModel() {
+    /** Tells the Tareas tab that the offline capture queue changed. */
+    var onQueueChanged: () -> Unit = {}
+
     private val _state = MutableStateFlow<HoyUiState>(HoyUiState.Loading)
     val state: StateFlow<HoyUiState> = _state
 
@@ -145,7 +149,17 @@ class HoyViewModel(
         }
     }
 
+    /** Captures still waiting for the network; merged into every paint of the day. */
+    private var pendingCreates: List<CreateOp> = emptyList()
+
+    private suspend fun pushCreates(): SyncOutcome {
+        val outcome = CreateSync(tasks).sync(day)
+        pendingCreates = day.createPending()
+        return outcome
+    }
+
     private suspend fun reload() {
+        pendingCreates = day.createPending()
         val cached = day.loadDay()
         if (cached != null) show(cached, isOffline = false)
         showCachedHabits()
@@ -161,6 +175,19 @@ class HoyViewModel(
                 return
             }
             SyncOutcome.Drained -> Unit
+        }
+        val hadCreates = pendingCreates.isNotEmpty()
+        when (pushCreates()) {
+            SyncOutcome.Unauthorized -> {
+                session.clear()
+                return
+            }
+            SyncOutcome.WaitingForNetwork -> {
+                show(cached ?: TodayResponse(), isOffline = true)
+                _habitsState.value = habitsAfterFailedPull(_habitsState.value, network = true)
+                return
+            }
+            SyncOutcome.Drained -> if (hadCreates) onQueueChanged()
         }
         pullDay(cached != null)
     }
@@ -214,7 +241,23 @@ class HoyViewModel(
             } catch (_: UnauthorizedException) {
                 session.clear()
             } catch (_: NetworkException) {
-                _events.send(Snack(R.string.auth_error_network))
+                // Nothing is lost offline: queue it and show it at once (ODD 051 S4).
+                val projectId = resolveProjectId(parsed.projectHint, _projects.value)
+                day.enqueueCreate(
+                    CreateOp(
+                        localId = "local-" + java.util.UUID.randomUUID(),
+                        title = parsed.title,
+                        date = parsed.scheduledDate?.toString(),
+                        time = parsed.scheduledTime,
+                        priority = parsed.priority,
+                        projectId = projectId,
+                        at = System.currentTimeMillis(),
+                    ),
+                )
+                pendingCreates = day.createPending()
+                show(day.loadDay() ?: TodayResponse(), isOffline = true)
+                onQueueChanged()
+                _events.send(Snack(R.string.today_saved_offline))
             } catch (_: ApiException) {
                 _events.send(Snack(R.string.auth_error_network))
             } finally {
@@ -228,6 +271,10 @@ class HoyViewModel(
 
     /** Opens the detail screen, prefilled from cache, then completed from the server. */
     fun openDetail(task: TodayTask) {
+        if (task.pendingSync) {
+            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
+            return
+        }
         lastOpenedTask = task
         _detail.value =
             TaskEditState(
@@ -310,6 +357,11 @@ class HoyViewModel(
     fun toggle(taskId: String) {
         val content = _state.value as? HoyUiState.Content ?: return
         val current = content.sections.flatMap { it.tasks }.firstOrNull { it.id == taskId } ?: return
+        if (current.pendingSync) {
+            // No server id yet: it can be completed once the capture syncs.
+            viewModelScope.launch { _events.send(Snack(R.string.today_pending_sync)) }
+            return
+        }
         applyFlip(current, !current.isDone)
     }
 
@@ -445,7 +497,7 @@ class HoyViewModel(
     }
 
     private fun show(response: TodayResponse, isOffline: Boolean) {
-        val sections = sectionToday(response)
+        val sections = sectionToday(dayWithPendingCreates(response, pendingCreates, LocalDate.now()))
         val all = sections.flatMap { it.tasks }
         _state.value =
             HoyUiState.Content(

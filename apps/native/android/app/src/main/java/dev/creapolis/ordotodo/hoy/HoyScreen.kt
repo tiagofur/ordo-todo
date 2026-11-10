@@ -73,6 +73,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val doneText = stringResource(R.string.today_marked_done)
     val pendingText = stringResource(R.string.today_marked_pending)
     val createdText = stringResource(R.string.today_task_created)
+    val savedOfflineText = stringResource(R.string.today_saved_offline)
+    val pendingSyncText = stringResource(R.string.today_pending_sync)
     val updatedText = stringResource(R.string.detail_updated)
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
@@ -126,6 +128,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 when (snack.message) {
                     R.string.today_marked_pending -> pendingText
                     R.string.today_task_created -> createdText
+                    R.string.today_saved_offline -> savedOfflineText
+                    R.string.today_pending_sync -> pendingSyncText
                     R.string.detail_updated -> updatedText
                     R.string.habits_done -> habitDoneText
                     R.string.habits_undone -> habitUndoneText
@@ -135,7 +139,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     R.string.auth_error_network -> errorText
                     else -> doneText
                 }
-            if (snack.message == R.string.today_task_created) showSheet = false
+            if (snack.message == R.string.today_task_created ||
+                snack.message == R.string.today_saved_offline
+            ) {
+                showSheet = false
+            }
             if (snack.message == R.string.detail_updated) viewModel.closeDetail()
             val result =
                 snackbar.showSnackbar(
@@ -534,6 +542,7 @@ private fun TaskMeta(task: TodayTask) {
     val bits = mutableListOf<String>()
     task.project?.let { bits.add(it.name) }
     if (task.subTasks.isNotEmpty()) bits.add("${task.doneSubTasks}/${task.subTasks.size}")
+    if (task.pendingSync) bits.add(stringResource(R.string.today_pending_sync))
     if (bits.isEmpty()) return
     Row(verticalAlignment = Alignment.CenterVertically) {
         task.project?.color?.let { hex ->
