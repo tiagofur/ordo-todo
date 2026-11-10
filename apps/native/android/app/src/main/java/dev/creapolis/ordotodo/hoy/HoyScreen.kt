@@ -117,6 +117,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
     val focusStarting by focusViewModel.starting.collectAsState()
+    val focusConfig by focusViewModel.config.collectAsState()
     var focusSheet by remember { mutableStateOf<Pair<String, String>?>(null) }
     val ctx = LocalContext.current
     val notifPermission =
@@ -251,6 +252,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 nowEpoch = focusTick,
                                 onPause = focusViewModel::pause,
                                 onResume = focusViewModel::resume,
+                                onSkip = focusViewModel::skip,
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
@@ -291,7 +293,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 taskTitle = sheet.second,
                 starting = focusStarting,
                 canExact = focusViewModel.canScheduleExact(),
-                onStart = { plannedMs ->
+                config = focusConfig,
+                onStart = { plannedMs, mode ->
                     if (Build.VERSION.SDK_INT >= 33 &&
                         ContextCompat.checkSelfPermission(
                             ctx,
@@ -300,7 +303,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                     ) {
                         notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
-                    focusViewModel.start(sheet.first, sheet.second, plannedMs)
+                    focusViewModel.start(sheet.first, sheet.second, plannedMs, mode)
                     focusSheet = null
                 },
                 onDismiss = { if (!focusStarting) focusSheet = null },

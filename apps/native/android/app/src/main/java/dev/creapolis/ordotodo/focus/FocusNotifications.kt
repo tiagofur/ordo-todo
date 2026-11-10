@@ -1,5 +1,6 @@
 package dev.creapolis.ordotodo.focus
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,13 +11,15 @@ import dev.creapolis.ordotodo.MainActivity
 import dev.creapolis.ordotodo.R
 
 /**
- * Ongoing focus notification (v1: plain notification, no foreground
- * service) plus the end-of-session alert. Tapping returns to the app.
+ * Ongoing focus notification with chronometer / countdown and end-of-session alerts.
  */
 class FocusNotifications(private val context: Context) {
 
-    fun showOngoing(title: String, line: String, paused: Boolean, sessionId: String) {
+    fun buildOngoingNotification(state: FocusState, nowEpoch: Long): Notification {
         ensureChannels()
+        val sessionId = state.sessionId
+        val paused = state.isPaused
+
         val toggle =
             PendingIntent.getBroadcast(
                 context,
@@ -29,6 +32,17 @@ class FocusNotifications(private val context: Context) {
                     ),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
+
+        val skip =
+            PendingIntent.getBroadcast(
+                context,
+                sessionId.hashCode() + 1,
+                Intent(context, FocusActionReceiver::class.java)
+                    .putExtra(FocusActionReceiver.EXTRA_SESSION, sessionId)
+                    .putExtra(FocusActionReceiver.EXTRA_ACTION, FocusActionReceiver.ACTION_SKIP),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+
         val stop =
             PendingIntent.getBroadcast(
                 context,
@@ -38,11 +52,21 @@ class FocusNotifications(private val context: Context) {
                     .putExtra(FocusActionReceiver.EXTRA_ACTION, FocusActionReceiver.ACTION_STOP),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-        val notification =
+
+        val modeLabel =
+            when (state.mode) {
+                PomodoroMode.WORK -> context.getString(R.string.timer_mode_work)
+                PomodoroMode.SHORT_BREAK -> context.getString(R.string.timer_mode_short_break)
+                PomodoroMode.LONG_BREAK -> context.getString(R.string.timer_mode_long_break)
+            }
+        val title = "$modeLabel · ${state.taskTitle}"
+
+        val left = remainingMs(state, nowEpoch)
+        val elapsed = formatElapsed(elapsedMs(state, nowEpoch))
+        val builder =
             NotificationCompat.Builder(context, ONGOING_CHANNEL)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
-                .setContentText(line)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(contentIntent())
@@ -51,9 +75,39 @@ class FocusNotifications(private val context: Context) {
                     context.getString(if (paused) R.string.timer_resume else R.string.timer_pause),
                     toggle,
                 )
-                .addAction(0, context.getString(R.string.timer_stop), stop)
-                .build()
-        manager().notify(ONGOING_ID, notification)
+                .addAction(
+                    0,
+                    context.getString(R.string.timer_skip),
+                    skip,
+                )
+                .addAction(
+                    0,
+                    context.getString(R.string.timer_stop),
+                    stop,
+                )
+
+        if (paused) {
+            builder.setUsesChronometer(false)
+            val line = if (left == null) elapsed else "$elapsed · −${formatElapsed(left)}"
+            builder.setContentText(line)
+        } else if (state.plannedDurationMs != null) {
+            val endEpoch = endAtEpoch(state, nowEpoch) ?: (nowEpoch + (left ?: 0L))
+            builder.setWhen(endEpoch)
+            builder.setUsesChronometer(true)
+            builder.setChronometerCountDown(true)
+            builder.setContentText(context.getString(R.string.timer_channel_ongoing))
+        } else {
+            builder.setWhen(state.startedAtEpoch + state.pausedTotalMs)
+            builder.setUsesChronometer(true)
+            builder.setChronometerCountDown(false)
+            builder.setContentText(context.getString(R.string.timer_channel_ongoing))
+        }
+
+        return builder.build()
+    }
+
+    fun showOngoing(state: FocusState, nowEpoch: Long = System.currentTimeMillis()) {
+        manager().notify(ONGOING_ID, buildOngoingNotification(state, nowEpoch))
     }
 
     fun showCompleted(title: String) {
@@ -105,7 +159,7 @@ class FocusNotifications(private val context: Context) {
     companion object {
         const val ONGOING_CHANNEL = "focus_ongoing"
         const val ALERTS_CHANNEL = "focus_alerts"
-        const val ONGOING_ID = 1001
-        const val ALERTS_ID = 1002
+        const val ONGOING_ID = 2001
+        const val ALERTS_ID = 2002
     }
 }

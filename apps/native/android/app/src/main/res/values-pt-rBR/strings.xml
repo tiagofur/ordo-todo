@@ -91,8 +91,25 @@
     <string name="timer_stopped">Foco interrompido</string>
     <string name="timer_channel_ongoing">Foco em andamento</string>
     <string name="timer_channel_alerts">Avisos de foco</string>
-    <string name="timer_inexact_note">Sem permissão de alarme exato: o aviso pode atrasar alguns minutos em repouso.</string>
+    <string name="timer_inexact_note">Sem permissão de alarme exato: o aviso pode atrasar algunos minutos em repouso.</string>
     <string name="timer_grant_exact">Permitir alarmes exatos</string>
+    <string name="timer_mode_work">Foco</string>
+    <string name="timer_mode_short_break">Pausa curta</string>
+    <string name="timer_mode_long_break">Pausa longa</string>
+    <string name="timer_skip">Pular</string>
+    <string name="timer_skip_confirm_no_credit">Pular agora não contará como pomodoro concluído.</string>
+    <string name="timer_switch_task">Trocar tarefa</string>
+    <string name="timer_stats_title">Resumo de foco de hoje</string>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_pomodoros">
+        <item quantity="one">%1$d pomodoro</item>
+        <item quantity="other">%1$d pomodoros</item>
+    </plurals>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_minutes">
+        <item quantity="one">%1$d min de foco</item>
+        <item quantity="other">%1$d min de foco</item>
+    </plurals>
     <string name="actions_add_task">Adicionar tarefa</string>
     <string name="actions_complete">Concluir</string>
     <string name="actions_undo">Desfazer</string>

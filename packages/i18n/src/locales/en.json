@@ -3586,7 +3586,16 @@
       "channelOngoing": "Ongoing focus",
       "channelAlerts": "Focus alerts",
       "inexactNote": "No exact-alarm permission: the alert may arrive a few minutes late in doze.",
-      "grantExact": "Allow exact alarms"
+      "grantExact": "Allow exact alarms",
+      "modeWork": "Focus",
+      "modeShortBreak": "Short break",
+      "modeLongBreak": "Long break",
+      "skip": "Skip",
+      "skipConfirmNoCredit": "Skipping now will not count as a completed pomodoro.",
+      "switchTask": "Switch task",
+      "statsTitle": "Today's focus summary",
+      "statsPomodoros": "{count, plural, one {# pomodoro} other {# pomodoros}}",
+      "statsMinutes": "{count, plural, one {# min focus} other {# min focus}}"
     },
     "actions": {
       "addTask": "Add task",

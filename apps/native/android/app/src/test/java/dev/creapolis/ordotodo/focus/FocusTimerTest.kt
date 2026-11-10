@@ -102,4 +102,26 @@ class FocusTimerTest {
         assertNull(isoToEpoch(""))
         assertNull(isoToEpoch(null))
     }
+
+    @Test
+    fun focusStateDefaultsToWorkAndZeroCompleted() {
+        val state = running()
+        assertEquals(PomodoroMode.WORK, state.mode)
+        assertEquals(0, state.completedPomodoros)
+    }
+
+    @Test
+    fun focusStatePreservesModeAndCompleted() {
+        val state = FocusState(
+            sessionId = "s-2",
+            taskId = "t-2",
+            taskTitle = "Descanso",
+            startedAtEpoch = 1000L,
+            plannedDurationMs = 5 * 60_000L,
+            mode = PomodoroMode.SHORT_BREAK,
+            completedPomodoros = 3,
+        )
+        assertEquals(PomodoroMode.SHORT_BREAK, state.mode)
+        assertEquals(3, state.completedPomodoros)
+    }
 }

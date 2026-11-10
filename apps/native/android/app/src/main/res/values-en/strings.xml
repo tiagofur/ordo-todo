@@ -93,6 +93,23 @@
     <string name="timer_channel_alerts">Focus alerts</string>
     <string name="timer_inexact_note">No exact-alarm permission: the alert may arrive a few minutes late in doze.</string>
     <string name="timer_grant_exact">Allow exact alarms</string>
+    <string name="timer_mode_work">Focus</string>
+    <string name="timer_mode_short_break">Short break</string>
+    <string name="timer_mode_long_break">Long break</string>
+    <string name="timer_skip">Skip</string>
+    <string name="timer_skip_confirm_no_credit">Skipping now will not count as a completed pomodoro.</string>
+    <string name="timer_switch_task">Switch task</string>
+    <string name="timer_stats_title">Today\'s focus summary</string>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_pomodoros">
+        <item quantity="one">%1$d pomodoro</item>
+        <item quantity="other">%1$d pomodoros</item>
+    </plurals>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_minutes">
+        <item quantity="one">%1$d min focus</item>
+        <item quantity="other">%1$d min focus</item>
+    </plurals>
     <string name="actions_add_task">Add task</string>
     <string name="actions_complete">Complete</string>
     <string name="actions_undo">Undo</string>

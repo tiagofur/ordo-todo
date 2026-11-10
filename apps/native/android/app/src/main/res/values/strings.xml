@@ -93,6 +93,23 @@
     <string name="timer_channel_alerts">Avisos de foco</string>
     <string name="timer_inexact_note">Sin permiso de alarma exacta: el aviso puede demorar unos minutos en reposo.</string>
     <string name="timer_grant_exact">Permitir alarmas exactas</string>
+    <string name="timer_mode_work">Foco</string>
+    <string name="timer_mode_short_break">Descanso corto</string>
+    <string name="timer_mode_long_break">Descanso largo</string>
+    <string name="timer_skip">Saltar</string>
+    <string name="timer_skip_confirm_no_credit">Saltar ahora no contará como pomodoro completado.</string>
+    <string name="timer_switch_task">Cambiar tarea</string>
+    <string name="timer_stats_title">Resumen de foco de hoy</string>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_pomodoros">
+        <item quantity="one">%1$d pomodoro</item>
+        <item quantity="other">%1$d pomodoros</item>
+    </plurals>
+    <!-- args: %1$d = count (Int) -->
+    <plurals name="timer_stats_minutes">
+        <item quantity="one">%1$d min de foco</item>
+        <item quantity="other">%1$d min de foco</item>
+    </plurals>
     <string name="actions_add_task">Añadir tarea</string>
     <string name="actions_complete">Completar</string>
     <string name="actions_undo">Deshacer</string>

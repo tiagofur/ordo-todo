@@ -1,5 +1,6 @@
 package dev.creapolis.ordotodo.data
 
+import dev.creapolis.ordotodo.focus.PomodoroConfig
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -19,17 +20,32 @@ data class TimerSessionPayload(
     val currentPauseStart: String? = null,
     val elapsedSeconds: Long = 0,
     val isPaused: Boolean = false,
+    val type: String? = null,
+    val durationMinutes: Int? = null,
+)
+
+@Serializable
+private data class UserPreferencesWire(
+    val pomodoroDuration: Int? = null,
+    val shortBreakDuration: Int? = null,
+    val longBreakDuration: Int? = null,
+    val pomodorosUntilLongBreak: Int? = null,
 )
 
 class TimerRepository(
     private val api: ApiClient,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
-    suspend fun start(taskId: String?): TimerSessionPayload {
+    suspend fun start(
+        taskId: String?,
+        type: String = "WORK",
+        durationMinutes: Int? = null,
+    ): TimerSessionPayload {
         val body =
             buildJsonObject {
-                put("type", "WORK")
+                put("type", type)
                 if (taskId != null) put("taskId", taskId)
+                if (durationMinutes != null) put("durationMinutes", durationMinutes)
             }
         return json.decodeFromString(api.post("/timers/start", encode(body)))
     }
@@ -45,6 +61,22 @@ class TimerRepository(
     suspend fun stop(completed: Boolean) {
         val body = buildJsonObject { put("wasCompleted", completed) }
         api.post("/timers/stop", encode(body))
+    }
+
+    suspend fun getPreferences(): PomodoroConfig {
+        return try {
+            val text = api.get("/users/me/preferences")
+            if (text.isBlank()) return PomodoroConfig()
+            val prefs = json.decodeFromString<UserPreferencesWire>(text)
+            PomodoroConfig(
+                workDurationMinutes = prefs.pomodoroDuration ?: 25,
+                shortBreakMinutes = prefs.shortBreakDuration ?: 5,
+                longBreakMinutes = prefs.longBreakDuration ?: 15,
+                pomodorosUntilLongBreak = prefs.pomodorosUntilLongBreak ?: 4,
+            )
+        } catch (_: Exception) {
+            PomodoroConfig()
+        }
     }
 
     /**
