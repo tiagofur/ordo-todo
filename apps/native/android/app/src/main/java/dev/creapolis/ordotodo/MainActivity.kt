@@ -57,6 +57,7 @@ import dev.creapolis.ordotodo.habits.HabitsScreen
 import dev.creapolis.ordotodo.hoy.HoyScreen
 import dev.creapolis.ordotodo.hoy.HoyUiState
 import dev.creapolis.ordotodo.hoy.HoyViewModel
+import dev.creapolis.ordotodo.reminders.HabitReminders
 import dev.creapolis.ordotodo.widget.refreshOrdoWidget
 import dev.creapolis.ordotodo.hoy.TaskDetailScreen
 import dev.creapolis.ordotodo.settings.SettingsScreen
@@ -186,9 +187,11 @@ private fun OrdoNav(
     val context = LocalContext.current
     val dayState by hoy.state.collectAsStateWithLifecycle()
     val habitsUi by hoy.habitsState.collectAsStateWithLifecycle()
-    // Push the cached snapshot to the Glance widget on every fresh load.
+    // Push the cached snapshot to the Glance widget and rebuild the
+    // reminder alarms on every fresh load.
     LaunchedEffect(dayState, habitsUi) {
         if (dayState is HoyUiState.Content) refreshOrdoWidget(context)
+        if (habitsUi.loaded) HabitReminders(context.applicationContext).rescheduleAll(habitsUi.habits)
     }
     val detail by hoy.detail.collectAsStateWithLifecycle()
     val habitEdit by hoy.habitEdit.collectAsStateWithLifecycle()
