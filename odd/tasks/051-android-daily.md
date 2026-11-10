@@ -121,8 +121,8 @@ Humo en emulador (`Pixel_API_35`) por fase: instalar el APK debug, recorrer Hoy 
 
 | T# | Specs | Unidad | Estado | Evidencia |
 |----|-------|--------|--------|-----------|
-| T1 | S1 | Cargas que nunca cuelgan (Tareas, Hábitos, Hoy) | pendiente | |
-| T2 | S2 | Candado de refresh + logout solo por rechazo | pendiente | |
+| T1 | S1 | Cargas que nunca cuelgan (Tareas, Hábitos, Hoy) | ✅ hecho | `6e319ed5` · RED (compilación) → GREEN 101/101 · humo emulador |
+| T2 | S2 | Candado de refresh + logout solo por rechazo | ✅ hecho | `a19597a9` · RED (compilación) → GREEN 106/106 |
 | T3 | S3 | Tokens cifrados con migración | pendiente | |
 | T4 | S4 | Room + cola única + captura offline + caché de Tareas | pendiente | |
 | T5 | S5 | Tirar para refrescar + job CI | pendiente | |
@@ -145,3 +145,5 @@ Humo en emulador (`Pixel_API_35`) por fase: instalar el APK debug, recorrer Hoy 
 
 - L1 · 2026-11-10 (owner, verbatim): «ya tengo todo commit en github con los ultimos cambios, pero siento que falta mucho para tener una app Android verdaderamete util y productiva, mismo que sea una 'extension' de la app web no una app completa, nos falta mucha cosa, revisa y planea que podemos hacer para tener una verdadera app Mobile Android de Ordo Todo... acuerdate que luego replicaremos en iOS pero con diseño ios y liquid glass».
 - L2 · 2026-11-10 (owner, verbatim, tras ver el plan en cinco fases): «Sí, crea el ODD».
+- L3 · 2026-11-10 — T1 cerrada (`6e319ed5`): `tasksStateAfterFailedPull` y `habitsAfterFailedPull` (puras, 8 tests) sacan de Loading cualquier fallo, incluidos payloads no decodificables; los hábitos se pintan desde caché y se piden aunque falle el día; `canScheduleReminders` evita borrar recordatorios con una lista vacía fallida. `./gradlew :app:testDebugUnitTest` → BUILD SUCCESSFUL, 101 tests, 0 fallos. Humo en `Pixel_API_35` contra producción con la sesión existente: Tareas muestra 3 filas y Hábitos el vacío real, sin spinner. Límite honesto: no se confirmó qué respondió el servidor cuando se colgaron (H1); el arreglo cubre el estado, no la causa en el servidor.
+- L4 · 2026-11-10 — T2 cerrada (`a19597a9`): `RefreshGate` (candado de proceso, 5 tests: 5 llamadas concurrentes → 1 rotación; rechazo → logout; inalcanzable → sesión intacta) + `ApiClient` sin `runBlocking`; 5xx o red durante el refresh ya no cierran sesión. `./gradlew :app:testDebugUnitTest :app:assembleDebug` → BUILD SUCCESSFUL, 106 tests, 0 fallos. Sin reproducción en vivo de la carrera (requiere que caduque el access token); la sesión sobrevivió a la reinstalación del APK.
