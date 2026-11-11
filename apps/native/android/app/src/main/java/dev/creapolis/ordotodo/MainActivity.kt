@@ -297,6 +297,7 @@ private fun OrdoNav(
                 onRetry = hoy::retryDetail,
                 onClose = hoy::closeDetail,
                 onStartFocus = {
+                    hoy.requestFocusSheet(open.taskId, open.title)
                     hoy.closeDetail()
                     tab = OrdoTab.HOY
                 },

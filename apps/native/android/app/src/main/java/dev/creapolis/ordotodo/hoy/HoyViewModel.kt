@@ -142,6 +142,9 @@ class HoyViewModel(
     private val _captureRequest = MutableStateFlow<CaptureRequest?>(null)
     val captureRequest: StateFlow<CaptureRequest?> = _captureRequest
 
+    private val _focusRequest = MutableStateFlow<Pair<String, String>?>(null)
+    val focusRequest: StateFlow<Pair<String, String>?> = _focusRequest.asStateFlow()
+
     private val _replanOpen = MutableStateFlow(false)
     val replanOpen: StateFlow<Boolean> = _replanOpen.asStateFlow()
 
@@ -180,6 +183,14 @@ class HoyViewModel(
 
     fun consumeCaptureRequest() {
         _captureRequest.value = null
+    }
+
+    fun requestFocusSheet(taskId: String, title: String) {
+        _focusRequest.value = taskId to title
+    }
+
+    fun consumeFocusRequest() {
+        _focusRequest.value = null
     }
 
     /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */

@@ -131,6 +131,7 @@ fun DayCapacityCard(
 
 /**
  * One-tap overdue triage section (ODD 051 S10).
+ * Uses a grouped surface with thin dividers so task titles breathe above their triage pills.
  */
 @Composable
 fun OverdueTriageCard(
@@ -141,46 +142,50 @@ fun OverdueTriageCard(
 ) {
     if (tasks.isEmpty()) return
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f),
-        ),
-        shape = RoundedCornerShape(12.dp),
-    ) {
-        Column(
+    val scheme = MaterialTheme.colorScheme
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .padding(start = 8.dp, end = 4.dp, top = 8.dp, bottom = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            Text(
+                text = stringResource(R.string.overdue_title, tasks.size).uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.error,
+            )
+            TextButton(
+                onClick = onTriageAllToTomorrow,
+                contentPadding = ButtonDefaults.TextButtonContentPadding,
             ) {
                 Text(
-                    text = stringResource(R.string.overdue_title, tasks.size),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error,
+                    text = stringResource(R.string.overdue_all_to_tomorrow),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.error,
                 )
-                FilledTonalButton(
-                    onClick = onTriageAllToTomorrow,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(R.string.overdue_all_to_tomorrow),
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                }
             }
+        }
 
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                tasks.take(5).forEach { task ->
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = scheme.surfaceContainerLowest,
+            border = androidx.compose.foundation.BorderStroke(1.dp, scheme.error.copy(alpha = 0.25f)),
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val visible = tasks.take(5)
+                visible.forEachIndexed { index, task ->
+                    if (index > 0) {
+                        androidx.compose.material3.HorizontalDivider(
+                            thickness = 0.75.dp,
+                            color = scheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+                    }
                     OverdueTaskRow(
                         task = task,
                         onTriage = { target -> onTriageTask(task.id, target) },
@@ -196,47 +201,42 @@ private fun OverdueTaskRow(
     task: TodayTask,
     onTriage: (TriageTarget) -> Unit,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+    val scheme = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                text = task.title,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                OutlinedButton(
-                    onClick = { onTriage(TriageTarget.TODAY) },
-                    contentPadding = ButtonDefaults.ContentPadding,
-                    modifier = Modifier.height(28.dp),
-                ) {
-                    Text(stringResource(R.string.overdue_today), style = MaterialTheme.typography.labelSmall)
-                }
-                OutlinedButton(
-                    onClick = { onTriage(TriageTarget.TOMORROW) },
-                    contentPadding = ButtonDefaults.ContentPadding,
-                    modifier = Modifier.height(28.dp),
-                ) {
-                    Text(stringResource(R.string.overdue_tomorrow), style = MaterialTheme.typography.labelSmall)
-                }
-                TextButton(
-                    onClick = { onTriage(TriageTarget.NO_DATE) },
-                    contentPadding = ButtonDefaults.ContentPadding,
-                    modifier = Modifier.height(28.dp),
-                ) {
-                    Text(stringResource(R.string.overdue_no_date), style = MaterialTheme.typography.labelSmall)
-                }
+        Text(
+            text = task.title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = scheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilledTonalButton(
+                onClick = { onTriage(TriageTarget.TODAY) },
+                contentPadding = ButtonDefaults.TextButtonContentPadding,
+                modifier = Modifier.height(30.dp),
+            ) {
+                Text(stringResource(R.string.overdue_today), style = MaterialTheme.typography.labelSmall)
+            }
+            OutlinedButton(
+                onClick = { onTriage(TriageTarget.TOMORROW) },
+                contentPadding = ButtonDefaults.TextButtonContentPadding,
+                modifier = Modifier.height(30.dp),
+            ) {
+                Text(stringResource(R.string.overdue_tomorrow), style = MaterialTheme.typography.labelSmall)
+            }
+            TextButton(
+                onClick = { onTriage(TriageTarget.NO_DATE) },
+                contentPadding = ButtonDefaults.TextButtonContentPadding,
+                modifier = Modifier.height(30.dp),
+            ) {
+                Text(stringResource(R.string.overdue_no_date), style = MaterialTheme.typography.labelSmall)
             }
         }
     }
