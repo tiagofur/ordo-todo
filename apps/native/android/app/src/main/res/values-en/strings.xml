@@ -30,6 +30,7 @@
     <string name="today_saved_offline">Saved offline — it will sync when you are back online</string>
     <string name="today_pending_sync">Waiting to sync</string>
     <string name="today_capture_voice">Dictate by voice</string>
+    <string name="today_capture_enhance">Enhance with AI</string>
     <string name="detail_title">Task details</string>
     <string name="detail_back">Back</string>
     <string name="detail_open">Open details</string>
@@ -40,6 +41,8 @@
     <string name="detail_group_estimate">Estimate</string>
     <string name="detail_group_recurrence">Recurrence</string>
     <string name="detail_group_tags">Tags</string>
+    <string name="detail_group_comments">Comments</string>
+    <string name="detail_comments_empty">No comments</string>
     <string name="detail_title_label">Title</string>
     <string name="detail_description_label">Description</string>
     <string name="detail_date_label">Date</string>
@@ -58,6 +61,9 @@
     <string name="detail_subtask_empty">No subtasks</string>
     <!-- args: %1$d = done (Int), %2$d = total (Int) -->
     <string name="detail_subtask_progress">%1$d of %2$d completed</string>
+    <string name="detail_decompose">Break into steps with AI</string>
+    <string name="detail_decompose_title">Suggested steps</string>
+    <string name="detail_decompose_empty">The AI proposed no steps.</string>
     <string name="detail_estimate_label">Estimated time</string>
     <string name="detail_estimate_custom">Custom</string>
     <string name="detail_estimate_clear">No estimate</string>
@@ -173,6 +179,9 @@
     <string name="tasks_offline">Offline</string>
     <string name="tasks_all_done">All caught up.</string>
     <string name="tasks_all_projects">All</string>
+    <string name="tasks_server_title">From the server</string>
+    <string name="tasks_server_empty">No results on the server.</string>
+    <string name="tasks_searching">Searching…</string>
     <string name="settings_title">Settings</string>
     <string name="settings_account">Account</string>
     <string name="settings_sign_out">Sign out</string>

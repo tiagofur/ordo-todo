@@ -30,6 +30,7 @@
     <string name="today_saved_offline">Salva sem conexão — será enviada quando a rede voltar</string>
     <string name="today_pending_sync">Aguardando sincronização</string>
     <string name="today_capture_voice">Ditar por voz</string>
+    <string name="today_capture_enhance">Melhorar com IA</string>
     <string name="detail_title">Detalhes da tarefa</string>
     <string name="detail_back">Voltar</string>
     <string name="detail_open">Abrir detalhes</string>
@@ -40,6 +41,8 @@
     <string name="detail_group_estimate">Estimativa</string>
     <string name="detail_group_recurrence">Recorrência</string>
     <string name="detail_group_tags">Etiquetas</string>
+    <string name="detail_group_comments">Comentários</string>
+    <string name="detail_comments_empty">Sem comentários</string>
     <string name="detail_title_label">Título</string>
     <string name="detail_description_label">Descrição</string>
     <string name="detail_date_label">Data</string>
@@ -58,6 +61,9 @@
     <string name="detail_subtask_empty">Sem subtarefas</string>
     <!-- args: %1$d = done (Int), %2$d = total (Int) -->
     <string name="detail_subtask_progress">%1$d de %2$d concluídas</string>
+    <string name="detail_decompose">Dividir em etapas com IA</string>
+    <string name="detail_decompose_title">Etapas sugeridas</string>
+    <string name="detail_decompose_empty">A IA não propôs etapas.</string>
     <string name="detail_estimate_label">Tempo estimado</string>
     <string name="detail_estimate_custom">Personalizado</string>
     <string name="detail_estimate_clear">Sem estimativa</string>
@@ -173,6 +179,9 @@
     <string name="tasks_offline">Sem conexão</string>
     <string name="tasks_all_done">Tudo em dia.</string>
     <string name="tasks_all_projects">Todos</string>
+    <string name="tasks_server_title">Do servidor</string>
+    <string name="tasks_server_empty">Sem resultados no servidor.</string>
+    <string name="tasks_searching">Buscando…</string>
     <string name="settings_title">Ajustes</string>
     <string name="settings_account">Conta</string>
     <string name="settings_sign_out">Sair</string>

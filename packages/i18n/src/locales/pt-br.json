@@ -3515,6 +3515,7 @@
       "captureTitle": "Nova tarefa",
       "captureHint": "ex.: Enviar fatura amanhã 15:00",
       "captureVoice": "Ditar por voz",
+      "captureEnhance": "Melhorar com IA",
       "taskCreated": "Tarefa criada",
       "taskDeleted": "Tarefa excluída",
       "taskRestored": "Tarefa restaurada",
@@ -3533,6 +3534,8 @@
       "groupEstimate": "Estimativa",
       "groupRecurrence": "Recorrência",
       "groupTags": "Etiquetas",
+      "groupComments": "Comentários",
+      "commentsEmpty": "Sem comentários",
       "titleLabel": "Título",
       "descriptionLabel": "Descrição",
       "dateLabel": "Data",
@@ -3550,6 +3553,9 @@
       "subtaskPlaceholder": "Nova subtarefa...",
       "subtaskEmpty": "Sem subtarefas",
       "subtaskProgress": "{done, number} de {total, number} concluídas",
+      "decompose": "Dividir em etapas com IA",
+      "decomposeTitle": "Etapas sugeridas",
+      "decomposeEmpty": "A IA não propôs etapas.",
       "estimateLabel": "Tempo estimado",
       "estimateCustom": "Personalizado",
       "estimateClear": "Sem estimativa",
@@ -3661,7 +3667,10 @@
       "empty": "Nada por aqui.",
       "offline": "Sem conexão",
       "allDone": "Tudo em dia.",
-      "allProjects": "Todos"
+      "allProjects": "Todos",
+      "serverTitle": "Do servidor",
+      "serverEmpty": "Sem resultados no servidor.",
+      "searching": "Buscando…"
     },
     "settings": {
       "title": "Ajustes",

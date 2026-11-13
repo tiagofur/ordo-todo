@@ -30,6 +30,7 @@
     <string name="today_saved_offline">Guardada sin conexión — se enviará al volver la red</string>
     <string name="today_pending_sync">Pendiente de sincronizar</string>
     <string name="today_capture_voice">Dictar por voz</string>
+    <string name="today_capture_enhance">Mejorar con IA</string>
     <string name="detail_title">Detalle de la tarea</string>
     <string name="detail_back">Atrás</string>
     <string name="detail_open">Abrir detalle</string>
@@ -40,6 +41,8 @@
     <string name="detail_group_estimate">Estimación</string>
     <string name="detail_group_recurrence">Recurrencia</string>
     <string name="detail_group_tags">Etiquetas</string>
+    <string name="detail_group_comments">Comentarios</string>
+    <string name="detail_comments_empty">Sin comentarios</string>
     <string name="detail_title_label">Título</string>
     <string name="detail_description_label">Descripción</string>
     <string name="detail_date_label">Fecha</string>
@@ -58,6 +61,9 @@
     <string name="detail_subtask_empty">Sin subtareas</string>
     <!-- args: %1$d = done (Int), %2$d = total (Int) -->
     <string name="detail_subtask_progress">%1$d de %2$d completadas</string>
+    <string name="detail_decompose">Dividir en pasos con IA</string>
+    <string name="detail_decompose_title">Pasos propuestos</string>
+    <string name="detail_decompose_empty">La IA no propuso pasos.</string>
     <string name="detail_estimate_label">Tiempo estimado</string>
     <string name="detail_estimate_custom">Personalizado</string>
     <string name="detail_estimate_clear">Sin estimación</string>
@@ -173,6 +179,9 @@
     <string name="tasks_offline">Sin conexión</string>
     <string name="tasks_all_done">Todo al día.</string>
     <string name="tasks_all_projects">Todos</string>
+    <string name="tasks_server_title">Del servidor</string>
+    <string name="tasks_server_empty">Sin resultados en el servidor.</string>
+    <string name="tasks_searching">Buscando…</string>
     <string name="settings_title">Ajustes</string>
     <string name="settings_account">Cuenta</string>
     <string name="settings_sign_out">Cerrar sesión</string>

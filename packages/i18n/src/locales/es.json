@@ -3520,7 +3520,8 @@
       "rescheduledTomorrow": "Pospuesta para mañana",
       "savedOffline": "Guardada sin conexión — se enviará al volver la red",
       "pendingSync": "Pendiente de sincronizar",
-      "captureVoice": "Dictar por voz"
+      "captureVoice": "Dictar por voz",
+      "captureEnhance": "Mejorar con IA"
     },
     "detail": {
       "title": "Detalle de la tarea",
@@ -3533,6 +3534,8 @@
       "groupEstimate": "Estimación",
       "groupRecurrence": "Recurrencia",
       "groupTags": "Etiquetas",
+      "groupComments": "Comentarios",
+      "commentsEmpty": "Sin comentarios",
       "titleLabel": "Título",
       "descriptionLabel": "Descripción",
       "dateLabel": "Fecha",
@@ -3550,6 +3553,9 @@
       "subtaskPlaceholder": "Nueva subtarea...",
       "subtaskEmpty": "Sin subtareas",
       "subtaskProgress": "{done, number} de {total, number} completadas",
+      "decompose": "Dividir en pasos con IA",
+      "decomposeTitle": "Pasos propuestos",
+      "decomposeEmpty": "La IA no propuso pasos.",
       "estimateLabel": "Tiempo estimado",
       "estimateCustom": "Personalizado",
       "estimateClear": "Sin estimación",
@@ -3661,7 +3667,10 @@
       "empty": "Nada por aquí.",
       "offline": "Sin conexión",
       "allDone": "Todo al día.",
-      "allProjects": "Todos"
+      "allProjects": "Todos",
+      "serverTitle": "Del servidor",
+      "serverEmpty": "Sin resultados en el servidor.",
+      "searching": "Buscando…"
     },
     "settings": {
       "title": "Ajustes",
