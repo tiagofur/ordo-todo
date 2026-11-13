@@ -74,6 +74,10 @@ fun CaptureSheet(
     creating: Boolean,
     projects: List<NativeProject>,
     initialText: String = "",
+    enhancing: Boolean = false,
+    enhanced: String? = null,
+    onEnhance: (String) -> Unit = {},
+    onConsumeEnhanced: () -> Unit = {},
     onSave: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -100,6 +104,12 @@ fun CaptureSheet(
         }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
+    LaunchedEffect(enhanced) {
+        enhanced?.let {
+            text = it
+            onConsumeEnhanced()
+        }
+    }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     val today = remember { LocalDate.now() }
@@ -280,6 +290,12 @@ fun CaptureSheet(
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
+                TextButton(
+                    onClick = { onEnhance(text) },
+                    enabled = text.isNotBlank() && !creating && !enhancing,
+                ) {
+                    Text(stringResource(R.string.today_capture_enhance))
+                }
                 TextButton(
                     onClick = {
                         try {

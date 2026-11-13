@@ -3,7 +3,9 @@ package dev.creapolis.ordotodo.hoy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.AiRepository
 import dev.creapolis.ordotodo.data.ApiException
+import dev.creapolis.ordotodo.data.renderEnhancedText
 import dev.creapolis.ordotodo.data.DayPlanView
 import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.DefaultOutboxApi
@@ -204,6 +206,37 @@ class HoyViewModel(
         _captureRequest.value = null
     }
 
+    /** AI-refined capture text, one-shot for the sheet (S16). */
+    private val _enhanced = MutableStateFlow<String?>(null)
+    val enhanced: StateFlow<String?> = _enhanced
+
+    private val _enhancing = MutableStateFlow(false)
+    val enhancing: StateFlow<Boolean> = _enhancing
+
+    /** Refines the typed text with `POST /ai/parse-task`; failures surface the network error. */
+    fun enhanceCapture(text: String) {
+        if (text.isBlank() || _enhancing.value) return
+        viewModelScope.launch {
+            _enhancing.value = true
+            try {
+                val parsed = ai.parseTask(text)
+                if (parsed != null) {
+                    _enhanced.value = renderEnhancedText(parsed)
+                } else {
+                    _events.send(Snack(R.string.auth_error_network))
+                }
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            } finally {
+                _enhancing.value = false
+            }
+        }
+    }
+
+    fun consumeEnhanced() {
+        _enhanced.value = null
+    }
+
     fun requestFocusSheet(taskId: String, title: String) {
         _focusRequest.value = taskId to title
     }
@@ -384,6 +417,12 @@ class HoyViewModel(
             try {
                 val full = tasks.taskDetail(task.id)
                 val fullTags = if (full.tags.isNotEmpty()) full.tags else tasks.taskTags(task.id)
+                val fullComments =
+                    try {
+                        tasks.taskComments(task.id)
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
                 val taskWithTags = full.copy(tags = fullTags)
                 _detail.value =
                     _detail.value?.copy(
@@ -400,6 +439,7 @@ class HoyViewModel(
                         recurrence = full.recurrence,
                         subTasks = full.subTasks,
                         tags = fullTags,
+                        comments = fullComments,
                     )
                 loadAvailableTags()
             } catch (_: UnauthorizedException) {
@@ -437,6 +477,42 @@ class HoyViewModel(
                 _events.send(Snack(R.string.auth_error_network))
             }
         }
+    }
+
+    private val ai = AiRepository(tasks.api)
+
+    /** AI-proposed subtask titles, or null when no proposal is showing (S16). */
+    private val _suggestions = MutableStateFlow<List<String>?>(null)
+    val suggestions: StateFlow<List<String>?> = _suggestions
+
+    private val _decomposing = MutableStateFlow(false)
+    val decomposing: StateFlow<Boolean> = _decomposing
+
+    /** Asks the AI to split the open task; failures surface the network error. */
+    fun suggestSubtasks() {
+        val current = _detail.value ?: return
+        if (current.title.isBlank() || _decomposing.value) return
+        viewModelScope.launch {
+            _decomposing.value = true
+            try {
+                _suggestions.value = ai.decompose(current.title, current.description)
+            } catch (_: Exception) {
+                _events.send(Snack(R.string.auth_error_network))
+            } finally {
+                _decomposing.value = false
+            }
+        }
+    }
+
+    /** Adds a suggestion as a real subtask and removes it from the proposal. */
+    fun acceptSuggestion(title: String) {
+        addSubtask(title)
+        val remaining = _suggestions.value.orEmpty() - title
+        _suggestions.value = remaining.ifEmpty { null }
+    }
+
+    fun dismissSuggestions() {
+        _suggestions.value = null
     }
 
     fun toggleSubtask(subtaskId: String) {

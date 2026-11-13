@@ -198,6 +198,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     var showSheet by rememberSaveable { mutableStateOf(false) }
     var capturePrefill by rememberSaveable { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
+    val enhancing by viewModel.enhancing.collectAsState()
+    val enhanced by viewModel.enhanced.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
     val captureRequest by viewModel.captureRequest.collectAsState()
@@ -450,6 +452,10 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 creating = creating,
                 projects = projects,
                 initialText = capturePrefill,
+                enhancing = enhancing,
+                enhanced = enhanced,
+                onEnhance = viewModel::enhanceCapture,
+                onConsumeEnhanced = viewModel::consumeEnhanced,
                 onSave = { viewModel.createTask(it) },
                 onDismiss = {
                     if (!creating) {
