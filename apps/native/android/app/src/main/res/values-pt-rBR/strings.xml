@@ -29,6 +29,7 @@
     <string name="today_rescheduled_tomorrow">Adiada para amanhã</string>
     <string name="today_saved_offline">Salva sem conexão — será enviada quando a rede voltar</string>
     <string name="today_pending_sync">Aguardando sincronização</string>
+    <string name="today_capture_voice">Ditar por voz</string>
     <string name="detail_title">Detalhes da tarefa</string>
     <string name="detail_back">Voltar</string>
     <string name="detail_open">Abrir detalhes</string>
@@ -55,6 +56,8 @@
     <string name="detail_subtask_add">Adicionar subtarefa</string>
     <string name="detail_subtask_placeholder">Nova subtarefa...</string>
     <string name="detail_subtask_empty">Sem subtarefas</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="detail_subtask_progress">%1$d de %2$d concluídas</string>
     <string name="detail_estimate_label">Tempo estimado</string>
     <string name="detail_estimate_custom">Personalizado</string>
     <string name="detail_estimate_clear">Sem estimativa</string>
@@ -184,6 +187,37 @@
     <string name="settings_delete_text">Suas tarefas, hábitos e dados serão apagados. Não há como desfazer.</string>
     <string name="settings_delete_yes">Sim, excluir</string>
     <string name="settings_delete_error">Não foi possível excluir. Verifique sua conexão.</string>
+    <string name="settings_profile">Perfil</string>
+    <!-- args: %1$s = plan -->
+    <string name="settings_profile_plan">Plano %1$s</string>
+    <string name="settings_forgot_title">Esqueceu a senha?</string>
+    <string name="settings_forgot_hint">Enviamos um link por e-mail.</string>
+    <string name="settings_forgot_email">E-mail</string>
+    <string name="settings_forgot_send">Enviar e-mail</string>
+    <string name="settings_forgot_sent">Confira seu e-mail.</string>
+    <string name="settings_forgot_error">Não foi possível enviar. Verifique sua conexão.</string>
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_dynamic_color">Cores dinâmicas</string>
+    <string name="settings_dynamic_color_hint">Do papel de parede (Android 12+)</string>
+    <string name="settings_day_hours">Horas disponíveis por dia</string>
+    <!-- args: %1$d = hours (Int) -->
+    <string name="settings_hours_unit">%1$d h</string>
+    <string name="settings_pomodoro">Pomodoro</string>
+    <string name="settings_pomo_work">Foco (min)</string>
+    <string name="settings_pomo_short">Pausa curta (min)</string>
+    <string name="settings_pomo_long">Pausa longa (min)</string>
+    <string name="settings_pomo_count">Pomodoros por ciclo</string>
+    <string name="settings_pomo_save">Salvar</string>
+    <string name="settings_pomo_saved">Preferências atualizadas.</string>
+    <string name="settings_pomo_error">Não foi possível salvar. Verifique sua conexão.</string>
+    <string name="settings_reminders">Lembretes</string>
+    <string name="settings_reminder_lead">Avisar antes da hora</string>
+    <string name="settings_lead_at_time">Na hora</string>
+    <string name="settings_lead10">10 min antes</string>
+    <string name="settings_lead30">30 min antes</string>
     <string name="tile_capture">Captura rápida</string>
     <string name="shortcuts_new">Nova tarefa</string>
     <string name="shortcuts_today">Hoje</string>
@@ -196,6 +230,13 @@
     <string name="reminder_snooze_tomorrow">Amanhã</string>
     <string name="widget_label">Hoje da Ordo</string>
     <string name="widget_desc">Progresso de tarefas e hábitos de hoje</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="widget_today">Hoje %1$d/%2$d</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="widget_habits">Hábitos %1$d/%2$d</string>
+    <string name="widget_capture">Nova tarefa</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="widget_more">+%1$d mais</string>
     <string name="capacity_title">Capacidade do dia</string>
     <!-- args: %1$s = total -->
     <string name="capacity_of_available">de %1$s</string>

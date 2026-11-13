@@ -3519,7 +3519,8 @@
       "taskRestored": "Tarea restaurada",
       "rescheduledTomorrow": "Pospuesta para mañana",
       "savedOffline": "Guardada sin conexión — se enviará al volver la red",
-      "pendingSync": "Pendiente de sincronizar"
+      "pendingSync": "Pendiente de sincronizar",
+      "captureVoice": "Dictar por voz"
     },
     "detail": {
       "title": "Detalle de la tarea",
@@ -3548,6 +3549,7 @@
       "subtaskAdd": "Añadir subtarea",
       "subtaskPlaceholder": "Nueva subtarea...",
       "subtaskEmpty": "Sin subtareas",
+      "subtaskProgress": "{done, number} de {total, number} completadas",
       "estimateLabel": "Tiempo estimado",
       "estimateCustom": "Personalizado",
       "estimateClear": "Sin estimación",
@@ -3675,7 +3677,36 @@
       "deleteTitle": "¿Eliminar tu cuenta?",
       "deleteText": "Se borrarán tus tareas, hábitos y datos. No se puede deshacer.",
       "deleteYes": "Sí, eliminar",
-      "deleteError": "No se pudo eliminar. Revisa tu conexión."
+      "deleteError": "No se pudo eliminar. Revisa tu conexión.",
+      "profile": "Perfil",
+      "profilePlan": "Plan {plan}",
+      "forgotTitle": "¿Olvidaste tu contraseña?",
+      "forgotHint": "Te enviamos un correo para restablecerla.",
+      "forgotEmail": "Correo",
+      "forgotSend": "Enviar correo",
+      "forgotSent": "Revisa tu correo, te enviamos el enlace.",
+      "forgotError": "No se pudo enviar. Revisa tu conexión.",
+      "appearance": "Apariencia",
+      "themeSystem": "Sistema",
+      "themeLight": "Claro",
+      "themeDark": "Oscuro",
+      "dynamicColor": "Colores dinámicos",
+      "dynamicColorHint": "Del fondo de pantalla (Android 12+)",
+      "dayHours": "Horas disponibles al día",
+      "hoursUnit": "{hours, number} h",
+      "pomodoro": "Pomodoro",
+      "pomoWork": "Foco (min)",
+      "pomoShort": "Descanso corto (min)",
+      "pomoLong": "Descanso largo (min)",
+      "pomoCount": "Pomodoros por ciclo",
+      "pomoSave": "Guardar",
+      "pomoSaved": "Preferencias actualizadas.",
+      "pomoError": "No se pudo guardar. Revisa tu conexión.",
+      "reminders": "Recordatorios",
+      "reminderLead": "Avisar antes de la hora",
+      "leadAtTime": "A la hora",
+      "lead10": "10 min antes",
+      "lead30": "30 min antes"
     },
     "tile": {
       "capture": "Captura rápida"
@@ -3695,7 +3726,11 @@
     },
     "widget": {
       "label": "Hoy de Ordo",
-      "desc": "Progreso de tareas y hábitos de hoy"
+      "desc": "Progreso de tareas y hábitos de hoy",
+      "today": "Hoy {done, number}/{total, number}",
+      "habits": "Hábitos {done, number}/{total, number}",
+      "capture": "Nueva tarea",
+      "more": "+{count, number} más"
     },
     "capacity": {
       "title": "Capacidad del día",
