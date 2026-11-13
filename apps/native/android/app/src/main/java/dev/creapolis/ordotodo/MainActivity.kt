@@ -317,6 +317,8 @@ private fun OrdoNav(
             }
         }
         val open = detail
+        val decomposing by hoy.decomposing.collectAsStateWithLifecycle()
+        val suggestions by hoy.suggestions.collectAsStateWithLifecycle()
         if (open != null) {
             TaskDetailScreen(
                 state = open,
@@ -342,6 +344,11 @@ private fun OrdoNav(
                     hoy.deleteTaskWithUndo(open.taskId)
                     hoy.closeDetail()
                 },
+                decomposing = decomposing,
+                suggestions = suggestions,
+                onSuggestSubtasks = hoy::suggestSubtasks,
+                onAcceptSuggestion = hoy::acceptSuggestion,
+                onDismissSuggestions = hoy::dismissSuggestions,
             )
         }
         val habitForm = habitEdit

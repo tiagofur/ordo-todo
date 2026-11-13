@@ -33,6 +33,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -96,6 +98,11 @@ fun TaskDetailScreen(
     onRemoveTag: (String) -> Unit = {},
     onCreateTag: (String) -> Unit = {},
     onDeleteTask: () -> Unit = {},
+    decomposing: Boolean = false,
+    suggestions: List<String>? = null,
+    onSuggestSubtasks: () -> Unit = {},
+    onAcceptSuggestion: (String) -> Unit = {},
+    onDismissSuggestions: () -> Unit = {},
 ) {
     BackHandler(onBack = onClose)
 
@@ -252,6 +259,11 @@ fun TaskDetailScreen(
                         onAssignTag = onAssignTag,
                         onRemoveTag = onRemoveTag,
                         onCreateTag = onCreateTag,
+                        decomposing = decomposing,
+                        suggestions = suggestions,
+                        onSuggestSubtasks = onSuggestSubtasks,
+                        onAcceptSuggestion = onAcceptSuggestion,
+                        onDismissSuggestions = onDismissSuggestions,
                     )
                 }
             }
@@ -274,6 +286,11 @@ private fun DetailForm(
     onAssignTag: (TaskTag) -> Unit,
     onRemoveTag: (String) -> Unit,
     onCreateTag: (String) -> Unit,
+    decomposing: Boolean = false,
+    suggestions: List<String>? = null,
+    onSuggestSubtasks: () -> Unit = {},
+    onAcceptSuggestion: (String) -> Unit = {},
+    onDismissSuggestions: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -362,6 +379,11 @@ private fun DetailForm(
                 onAdd = onAddSubtask,
                 onToggle = onToggleSubtask,
                 onDelete = onDeleteSubtask,
+                decomposing = decomposing,
+                suggestions = suggestions,
+                onSuggest = onSuggestSubtasks,
+                onAcceptSuggestion = onAcceptSuggestion,
+                onDismissSuggestions = onDismissSuggestions,
             )
         }
 
@@ -398,6 +420,27 @@ private fun DetailForm(
                 recurrence = state.recurrence,
                 onChange = { rec -> onEdit { it.copy(recurrence = rec) } },
             )
+        }
+
+        // Comments (read-only)
+        SectionCard(title = stringResource(R.string.detail_group_comments)) {
+            if (state.comments.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.detail_comments_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                state.comments.forEach { comment ->
+                    ListItem(
+                        headlineContent = { Text(comment.content) },
+                        supportingContent = {
+                            Text("${comment.author} · ${comment.date}")
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                }
+            }
         }
 
         if (dirty && valid) {
@@ -451,6 +494,11 @@ private fun SubtasksSection(
     onAdd: (String) -> Unit,
     onToggle: (String) -> Unit,
     onDelete: (String) -> Unit,
+    decomposing: Boolean = false,
+    suggestions: List<String>? = null,
+    onSuggest: () -> Unit = {},
+    onAcceptSuggestion: (String) -> Unit = {},
+    onDismissSuggestions: () -> Unit = {},
 ) {
     var newTitle by remember { mutableStateOf("") }
     val doneCount = subtasks.count { it.isDone }
@@ -478,6 +526,53 @@ private fun SubtasksSection(
             LinearProgressIndicator(
                 progress = { doneCount.toFloat() / totalCount.toFloat() },
                 modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+            )
+        }
+        TextButton(
+            onClick = onSuggest,
+            enabled = !decomposing,
+        ) {
+            Text(stringResource(R.string.detail_decompose))
+        }
+        if (decomposing) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+        val proposed = suggestions
+        if (proposed != null) {
+            AlertDialog(
+                onDismissRequest = onDismissSuggestions,
+                title = { Text(stringResource(R.string.detail_decompose_title)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (proposed.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.detail_decompose_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                        proposed.forEach { title ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                TextButton(onClick = { onAcceptSuggestion(title) }) {
+                                    Text(stringResource(R.string.detail_subtask_add))
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {},
+                dismissButton = {
+                    TextButton(onClick = onDismissSuggestions) {
+                        Text(stringResource(R.string.actions_cancel))
+                    }
+                },
             )
         }
         if (subtasks.isEmpty()) {

@@ -8,7 +8,9 @@ import dev.creapolis.ordotodo.data.DayStore
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.NetworkException
 import dev.creapolis.ordotodo.data.OutboxOp
+import dev.creapolis.ordotodo.data.QuickResult
 import dev.creapolis.ordotodo.data.SessionStore
+import dev.creapolis.ordotodo.data.shouldSearchServer
 import dev.creapolis.ordotodo.data.TasksRepository
 import dev.creapolis.ordotodo.data.TodayTask
 import dev.creapolis.ordotodo.data.UnauthorizedException
@@ -16,7 +18,9 @@ import dev.creapolis.ordotodo.hoy.CreateOp
 import dev.creapolis.ordotodo.hoy.Snack
 import dev.creapolis.ordotodo.hoy.tasksWithPendingCreates
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -117,6 +121,48 @@ class TasksViewModel(
     fun setQuery(value: String) {
         _query.value = value
         show()
+        searchServer(value)
+    }
+
+    /** Server-wide hits for the search field (`GET /search/quick`); silent on failure. */
+    private val _serverResults = MutableStateFlow<List<QuickResult>>(emptyList())
+    val serverResults: StateFlow<List<QuickResult>> = _serverResults
+
+    private val _searching = MutableStateFlow(false)
+    val searching: StateFlow<Boolean> = _searching
+
+    private var searchJob: Job? = null
+
+    private fun searchServer(value: String) {
+        searchJob?.cancel()
+        if (!shouldSearchServer(value)) {
+            _serverResults.value = emptyList()
+            _searching.value = false
+            return
+        }
+        searchJob =
+            viewModelScope.launch {
+                delay(400)
+                _searching.value = true
+                _serverResults.value =
+                    try {
+                        tasks.quickSearch(value)
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                _searching.value = false
+            }
+    }
+
+    /** Opens a server hit: tasks go to detail, projects become the tab filter. */
+    fun openServerResult(result: QuickResult, openTask: (TodayTask) -> Unit) {
+        if (result.type == "project") {
+            _query.value = ""
+            _serverResults.value = emptyList()
+            setProject(result.id)
+        } else {
+            openTask(TodayTask(id = result.id, title = result.title))
+        }
     }
 
     fun setProject(projectId: String?) {

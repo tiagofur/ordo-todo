@@ -3515,6 +3515,7 @@
       "captureTitle": "New task",
       "captureHint": "e.g. Send invoice tomorrow 3pm",
       "captureVoice": "Dictate by voice",
+      "captureEnhance": "Enhance with AI",
       "taskCreated": "Task created",
       "taskDeleted": "Task deleted",
       "taskRestored": "Task restored",
@@ -3533,6 +3534,8 @@
       "groupEstimate": "Estimate",
       "groupRecurrence": "Recurrence",
       "groupTags": "Tags",
+      "groupComments": "Comments",
+      "commentsEmpty": "No comments",
       "titleLabel": "Title",
       "descriptionLabel": "Description",
       "dateLabel": "Date",
@@ -3550,6 +3553,9 @@
       "subtaskPlaceholder": "New subtask...",
       "subtaskEmpty": "No subtasks",
       "subtaskProgress": "{done, number} of {total, number} completed",
+      "decompose": "Break into steps with AI",
+      "decomposeTitle": "Suggested steps",
+      "decomposeEmpty": "The AI proposed no steps.",
       "estimateLabel": "Estimated time",
       "estimateCustom": "Custom",
       "estimateClear": "No estimate",
@@ -3661,7 +3667,10 @@
       "empty": "Nothing here.",
       "offline": "Offline",
       "allDone": "All caught up.",
-      "allProjects": "All"
+      "allProjects": "All",
+      "serverTitle": "From the server",
+      "serverEmpty": "No results on the server.",
+      "searching": "Searching…"
     },
     "settings": {
       "title": "Settings",

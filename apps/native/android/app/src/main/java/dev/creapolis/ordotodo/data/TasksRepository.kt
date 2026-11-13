@@ -22,6 +22,12 @@ class TasksRepository(
     TaskCreateApi {
     suspend fun today(): TodayResponse = json.decodeFromString(api.get("/tasks/today"))
 
+    /** Server-wide hits for the Tasks search (`GET /search/quick`, tasks + projects). */
+    suspend fun quickSearch(query: String): List<QuickResult> {
+        val encoded = java.net.URLEncoder.encode(query.trim(), "UTF-8")
+        return parseQuickResults(api.get("/search/quick?q=$encoded"))
+    }
+
     override suspend fun complete(id: String) {
         api.patch("/tasks/$id/complete")
     }
@@ -143,6 +149,10 @@ class TasksRepository(
         json.decodeFromString(ListSerializer(NativeProject.serializer()), api.get("/projects/all"))
 
     /** Full task for the detail screen (`GET /tasks/:id`). */
+    /** Read-only comments for the task detail (`GET /tasks/:id/comments`). */
+    suspend fun taskComments(id: String): List<TaskComment> =
+        parseTaskComments(api.get("/tasks/$id/comments"))
+
     suspend fun taskDetail(id: String): TaskDetailResponse =
         json.decodeFromString(api.get("/tasks/$id"))
 

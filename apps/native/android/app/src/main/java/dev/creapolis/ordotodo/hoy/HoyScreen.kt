@@ -44,7 +44,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -198,6 +198,8 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     var showSheet by rememberSaveable { mutableStateOf(false) }
     var capturePrefill by rememberSaveable { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
+    val enhancing by viewModel.enhancing.collectAsState()
+    val enhanced by viewModel.enhanced.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
     val captureRequest by viewModel.captureRequest.collectAsState()
@@ -341,11 +343,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
         },
         floatingActionButton = {
             if (state is HoyUiState.Content && detail == null && focusState == null) {
-                ExtendedFloatingActionButton(
-                    text = { Text(addLabel) },
-                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                FloatingActionButton(
                     onClick = { showSheet = true },
-                )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = addLabel)
+                }
             }
         },
     ) { inner ->
@@ -450,6 +452,10 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 creating = creating,
                 projects = projects,
                 initialText = capturePrefill,
+                enhancing = enhancing,
+                enhanced = enhanced,
+                onEnhance = viewModel::enhanceCapture,
+                onConsumeEnhanced = viewModel::consumeEnhanced,
                 onSave = { viewModel.createTask(it) },
                 onDismiss = {
                     if (!creating) {
