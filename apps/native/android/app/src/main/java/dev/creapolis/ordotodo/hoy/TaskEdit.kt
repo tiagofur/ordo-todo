@@ -3,6 +3,7 @@ package dev.creapolis.ordotodo.hoy
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.RecurrenceConfig
 import dev.creapolis.ordotodo.data.SubtaskItem
+import dev.creapolis.ordotodo.data.TaskComment
 import dev.creapolis.ordotodo.data.TaskDetailResponse
 import dev.creapolis.ordotodo.data.TaskTag
 import kotlinx.serialization.json.JsonArray
@@ -44,6 +45,7 @@ data class TaskEditState(
     val recurrence: RecurrenceConfig? = null,
     val subTasks: List<SubtaskItem> = emptyList(),
     val tags: List<TaskTag> = emptyList(),
+    val comments: List<TaskComment> = emptyList(),
     val saving: Boolean = false,
     val deleting: Boolean = false,
 ) {
