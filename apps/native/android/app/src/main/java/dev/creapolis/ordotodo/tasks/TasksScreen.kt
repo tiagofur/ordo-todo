@@ -1,5 +1,6 @@
 package dev.creapolis.ordotodo.tasks
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
@@ -20,6 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
@@ -42,9 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
+import dev.creapolis.ordotodo.data.QuickResult
+import dev.creapolis.ordotodo.data.shouldSearchServer
 import dev.creapolis.ordotodo.hoy.HoyViewModel
 import dev.creapolis.ordotodo.hoy.TaskRow
 
@@ -65,6 +71,8 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     val state by tasksViewModel.state.collectAsState()
     val refreshing by tasksViewModel.refreshing.collectAsState()
     val query by tasksViewModel.query.collectAsState()
+    val serverResults by tasksViewModel.serverResults.collectAsState()
+    val searching by tasksViewModel.searching.collectAsState()
     val projectFilter by tasksViewModel.projectFilter.collectAsState()
     val projects by tasksViewModel.projects.collectAsState()
     val snackbar = remember { SnackbarHostState() }
@@ -97,8 +105,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
                 title = {
                     Text(
                         text = stringResource(R.string.tasks_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall,
                     )
                 },
                 scrollBehavior = scrollBehavior,
@@ -262,6 +269,42 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
                                     )
                                 }
                             }
+                            if (shouldSearchServer(query)) {
+                                item(key = "header-server") {
+                                    Text(
+                                        text = stringResource(R.string.tasks_server_title),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                                    )
+                                }
+                                if (searching) {
+                                    item(key = "server-loading") {
+                                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                    }
+                                } else if (serverResults.isEmpty()) {
+                                    item(key = "server-empty") {
+                                        Text(
+                                            text = stringResource(R.string.tasks_server_empty),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(vertical = 4.dp),
+                                        )
+                                    }
+                                } else {
+                                    items(serverResults, key = { "server-${it.id}" }) { hit ->
+                                        ServerHitRow(
+                                            hit = hit,
+                                            onClick = {
+                                                tasksViewModel.openServerResult(
+                                                    hit,
+                                                    hoyViewModel::openDetail,
+                                                )
+                                            },
+                                        )
+                                    }
+                                }
+                            }
                             if (current.isOffline) {
                                 item(key = "offline-note") {
                                     Text(
@@ -279,4 +322,22 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
             }
         }
     }
+}
+
+/** One server-wide hit: tasks open the detail, projects become the tab filter. */
+@Composable
+private fun ServerHitRow(hit: QuickResult, onClick: () -> Unit) {
+    val isProject = hit.type == "project"
+    ListItem(
+        headlineContent = { Text(hit.title) },
+        supportingContent = { hit.subtitle?.let { Text(it) } },
+        leadingContent = {
+            Icon(
+                imageVector = if (isProject) Icons.Default.Info else Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+    )
 }
