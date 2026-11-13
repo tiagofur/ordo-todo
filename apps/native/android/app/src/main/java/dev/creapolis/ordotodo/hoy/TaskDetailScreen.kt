@@ -13,8 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -22,17 +30,28 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +59,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
@@ -52,9 +73,11 @@ import dev.creapolis.ordotodo.data.TaskTag
 private val PRIORITIES = listOf("LOW", "MEDIUM", "HIGH", "URGENT")
 
 /**
- * Grouped M3 edit form (F1d + ODD 051 S7). The caller owns [state]; save sends only the
- * diff via `PATCH /tasks/:id`, so untouched fields never travel.
+ * Native Material 3 task detail screen (S20/T19).
+ * Features a top-level Scaffold, TopAppBar with back navigation, save checkmark,
+ * start focus icon, overflow menu, and fluid borderless typography for title and notes.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(
     state: TaskEditState,
@@ -75,62 +98,162 @@ fun TaskDetailScreen(
     onDeleteTask: () -> Unit = {},
 ) {
     BackHandler(onBack = onClose)
-    Column(Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            TextButton(onClick = onClose) {
-                Text("‹ " + stringResource(R.string.detail_back))
-            }
-            Text(
-                text = stringResource(R.string.detail_title),
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-        when {
-            state.loading && state.original == null && !state.loadError -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+
+    val original = state.original
+    val dirty = original != null && buildTaskPatch(original, state.edited()) != null
+    val dateBad = state.scheduledDate.isNotBlank() && parseDateText(state.scheduledDate) == null
+    val timeBad = state.scheduledTime.isNotBlank() && parseTimeText(state.scheduledTime) == null
+    val dueBad = state.dueDate.isNotBlank() && parseDateText(state.dueDate) == null
+    val valid = state.title.isNotBlank() && !dateBad && !timeBad && !dueBad
+
+    var showMenu by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.detail_delete_task)) },
+            text = { Text(stringResource(R.string.detail_delete_task) + "?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDeleteTask()
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                 ) {
-                    CircularProgressIndicator()
+                    Text(stringResource(R.string.actions_delete))
                 }
-            }
-            state.loadError && state.original == null -> {
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(24.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.actions_cancel))
+                }
+            },
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
                     Text(
-                        text = stringResource(R.string.auth_error_network),
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = stringResource(R.string.detail_title),
+                        style = MaterialTheme.typography.titleMedium,
                     )
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = onRetry) {
-                        Text(stringResource(R.string.today_empty_retry))
+                },
+                navigationIcon = {
+                    IconButton(onClick = onClose) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.detail_back),
+                        )
+                    }
+                },
+                actions = {
+                    if (dirty && valid) {
+                        IconButton(onClick = onSave, enabled = !state.saving) {
+                            if (state.saving) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = stringResource(R.string.actions_save),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    }
+                    IconButton(onClick = onStartFocus, enabled = !focusActive) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = stringResource(R.string.actions_start_focus),
+                        )
+                    }
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.actions_more_options),
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        stringResource(R.string.detail_delete_task),
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    showDeleteConfirm = true
+                                },
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            when {
+                state.loading && state.original == null && !state.loadError -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
-            }
-            else -> {
-                DetailForm(
-                    state = state,
-                    projects = projects,
-                    availableTags = availableTags,
-                    focusActive = focusActive,
-                    onEdit = onEdit,
-                    onSave = onSave,
-                    onStartFocus = onStartFocus,
-                    onAddSubtask = onAddSubtask,
-                    onToggleSubtask = onToggleSubtask,
-                    onDeleteSubtask = onDeleteSubtask,
-                    onAssignTag = onAssignTag,
-                    onRemoveTag = onRemoveTag,
-                    onCreateTag = onCreateTag,
-                    onDeleteTask = onDeleteTask,
-                )
+                state.loadError && state.original == null -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.auth_error_network),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = onRetry) {
+                            Text(stringResource(R.string.today_empty_retry))
+                        }
+                    }
+                }
+                else -> {
+                    DetailForm(
+                        state = state,
+                        projects = projects,
+                        availableTags = availableTags,
+                        dirty = dirty,
+                        valid = valid,
+                        onEdit = onEdit,
+                        onSave = onSave,
+                        onAddSubtask = onAddSubtask,
+                        onToggleSubtask = onToggleSubtask,
+                        onDeleteSubtask = onDeleteSubtask,
+                        onAssignTag = onAssignTag,
+                        onRemoveTag = onRemoveTag,
+                        onCreateTag = onCreateTag,
+                    )
+                }
             }
         }
     }
@@ -141,53 +264,80 @@ private fun DetailForm(
     state: TaskEditState,
     projects: List<NativeProject>,
     availableTags: List<TaskTag>,
-    focusActive: Boolean,
+    dirty: Boolean,
+    valid: Boolean,
     onEdit: ((TaskEditState) -> TaskEditState) -> Unit,
     onSave: () -> Unit,
-    onStartFocus: () -> Unit,
     onAddSubtask: (String) -> Unit,
     onToggleSubtask: (String) -> Unit,
     onDeleteSubtask: (String) -> Unit,
     onAssignTag: (TaskTag) -> Unit,
     onRemoveTag: (String) -> Unit,
     onCreateTag: (String) -> Unit,
-    onDeleteTask: () -> Unit,
 ) {
-    val original = state.original
-    val dirty = original != null && buildTaskPatch(original, state.edited()) != null
-    val dateBad = state.scheduledDate.isNotBlank() && parseDateText(state.scheduledDate) == null
-    val timeBad = state.scheduledTime.isNotBlank() && parseTimeText(state.scheduledTime) == null
-    val dueBad = state.dueDate.isNotBlank() && parseDateText(state.dueDate) == null
-    val valid = state.title.isNotBlank() && !dateBad && !timeBad && !dueBad
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        GroupCard(stringResource(R.string.detail_group_content)) {
-            OutlinedTextField(
-                value = state.title,
-                onValueChange = { text -> onEdit { it.copy(title = text) } },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.detail_title_label)) },
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = state.description,
-                onValueChange = { text -> onEdit { it.copy(description = text) } },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.detail_description_label)) },
-                minLines = 2,
-            )
-        }
-        GroupCard(stringResource(R.string.detail_group_subtasks)) {
-            SubtasksSection(
-                subtasks = state.subTasks,
-                onAdd = onAddSubtask,
-                onToggle = onToggleSubtask,
-                onDelete = onDeleteSubtask,
-            )
-        }
-        GroupCard(stringResource(R.string.detail_group_schedule)) {
+        // Fluid, borderless title field (S20: sin tarjetas anidadas)
+        TextField(
+            value = state.title,
+            onValueChange = { text -> onEdit { it.copy(title = text) } },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.detail_title_label),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            },
+            textStyle = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            singleLine = false,
+            maxLines = 4,
+        )
+
+        // Fluid, borderless notes / description field
+        TextField(
+            value = state.description,
+            onValueChange = { text -> onEdit { it.copy(description = text) } },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.detail_description_label),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            minLines = 2,
+        )
+
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+        // Schedule properties (Fecha, Hora, Vence)
+        SectionCard(title = stringResource(R.string.detail_group_schedule)) {
             DateFieldWithShortcuts(
                 label = stringResource(R.string.detail_date_label),
                 currentDate = state.scheduledDate,
@@ -204,19 +354,19 @@ private fun DetailForm(
                 onDateChange = { date -> onEdit { it.copy(dueDate = date) } },
             )
         }
-        GroupCard(stringResource(R.string.detail_group_estimate)) {
-            EstimateSection(
-                estimatedMinutes = state.estimatedMinutes,
-                onPick = { minutes -> onEdit { it.copy(estimatedMinutes = minutes) } },
+
+        // Subtasks (Subtareas)
+        SectionCard(title = stringResource(R.string.detail_group_subtasks)) {
+            SubtasksSection(
+                subtasks = state.subTasks,
+                onAdd = onAddSubtask,
+                onToggle = onToggleSubtask,
+                onDelete = onDeleteSubtask,
             )
         }
-        GroupCard(stringResource(R.string.detail_group_recurrence)) {
-            RecurrenceSection(
-                recurrence = state.recurrence,
-                onChange = { rec -> onEdit { it.copy(recurrence = rec) } },
-            )
-        }
-        GroupCard(stringResource(R.string.detail_group_classify)) {
+
+        // Priority & Project
+        SectionCard(title = stringResource(R.string.detail_group_classify)) {
             PriorityPicker(
                 current = state.priority,
                 onPick = { picked -> onEdit { it.copy(priority = picked) } },
@@ -234,51 +384,66 @@ private fun DetailForm(
                 onCreate = onCreateTag,
             )
         }
-        Button(
-            onClick = onSave,
-            enabled = dirty && valid && !state.saving,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (state.saving) {
-                CircularProgressIndicator()
-            } else {
-                Text(stringResource(R.string.actions_save))
+
+        // Estimate & Recurrence
+        SectionCard(title = stringResource(R.string.detail_group_estimate)) {
+            EstimateSection(
+                estimatedMinutes = state.estimatedMinutes,
+                onPick = { minutes -> onEdit { it.copy(estimatedMinutes = minutes) } },
+            )
+        }
+
+        SectionCard(title = stringResource(R.string.detail_group_recurrence)) {
+            RecurrenceSection(
+                recurrence = state.recurrence,
+                onChange = { rec -> onEdit { it.copy(recurrence = rec) } },
+            )
+        }
+
+        if (dirty && valid) {
+            Button(
+                onClick = onSave,
+                enabled = !state.saving,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp),
+            ) {
+                if (state.saving) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.actions_save))
+                }
             }
+        } else {
+            Spacer(Modifier.height(24.dp))
         }
-        TextButton(
-            onClick = onStartFocus,
-            enabled = !focusActive,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.actions_start_focus))
-        }
-        OutlinedButton(
-            onClick = onDeleteTask,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.detail_delete_task))
-        }
-        Spacer(Modifier.height(16.dp))
     }
 }
 
 @Composable
-private fun GroupCard(title: String, content: @Composable () -> Unit) {
+private fun SectionCard(title: String, content: @Composable () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
             )
             content()
         }
     }
 }
+
+/**
+ * Porcentaje entero de subtareas completadas (0–100); sin total no hay progreso.
+ */
+internal fun subtaskProgressPercent(done: Int, total: Int): Int =
+    if (total <= 0) 0 else (done * 100 / total)
 
 @Composable
 private fun SubtasksSection(
@@ -288,7 +453,33 @@ private fun SubtasksSection(
     onDelete: (String) -> Unit,
 ) {
     var newTitle by remember { mutableStateOf("") }
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    val doneCount = subtasks.count { it.isDone }
+    val totalCount = subtasks.size
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (totalCount > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.detail_subtask_progress, doneCount, totalCount),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "${subtaskProgressPercent(doneCount, totalCount)}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            LinearProgressIndicator(
+                progress = { doneCount.toFloat() / totalCount.toFloat() },
+                modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+            )
+        }
         if (subtasks.isEmpty()) {
             Text(
                 text = stringResource(R.string.detail_subtask_empty),
@@ -319,7 +510,12 @@ private fun SubtasksSection(
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { onDelete(item.id) }) {
-                        Text("✕", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.actions_delete),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
+                        )
                     }
                 }
             }
@@ -333,10 +529,10 @@ private fun SubtasksSection(
                 value = newTitle,
                 onValueChange = { newTitle = it },
                 modifier = Modifier.weight(1f),
-                label = { Text(stringResource(R.string.detail_subtask_placeholder)) },
+                placeholder = { Text(stringResource(R.string.detail_subtask_placeholder)) },
                 singleLine = true,
             )
-            Button(
+            IconButton(
                 onClick = {
                     if (newTitle.isNotBlank()) {
                         onAdd(newTitle.trim())
@@ -345,7 +541,11 @@ private fun SubtasksSection(
                 },
                 enabled = newTitle.isNotBlank(),
             ) {
-                Text(stringResource(R.string.detail_subtask_add))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.detail_subtask_add),
+                    tint = if (newTitle.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                )
             }
         }
     }
@@ -519,7 +719,11 @@ private fun TagsSection(
                                 onClick = { onRemove(tag.id) },
                                 modifier = Modifier.size(18.dp),
                             ) {
-                                Text("✕", style = MaterialTheme.typography.labelSmall)
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.actions_delete),
+                                    modifier = Modifier.size(14.dp),
+                                )
                             }
                         },
                     )
@@ -589,9 +793,9 @@ private fun TagsSection(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PriorityPicker(current: String, onPick: (String) -> Unit) {
-    var open by remember { mutableStateOf(false) }
     val labels =
         mapOf(
             "LOW" to stringResource(R.string.detail_priority_low),
@@ -599,26 +803,23 @@ private fun PriorityPicker(current: String, onPick: (String) -> Unit) {
             "HIGH" to stringResource(R.string.detail_priority_high),
             "URGENT" to stringResource(R.string.detail_priority_urgent),
         )
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = stringResource(R.string.detail_priority_label),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Box {
-            OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(labels.getValue(current))
-            }
-            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                for (priority in PRIORITIES) {
-                    DropdownMenuItem(
-                        text = { Text(labels.getValue(priority)) },
-                        onClick = {
-                            onPick(priority)
-                            open = false
-                        },
-                    )
-                }
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            for (priority in PRIORITIES) {
+                val selected = current == priority
+                FilterChip(
+                    selected = selected,
+                    onClick = { onPick(priority) },
+                    label = { Text(labels.getValue(priority)) },
+                )
             }
         }
     }
@@ -633,7 +834,7 @@ private fun ProjectPicker(
     var open by remember { mutableStateOf(false) }
     val none = stringResource(R.string.detail_no_project)
     val currentName = projects.firstOrNull { it.id == currentId }?.name ?: none
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = stringResource(R.string.detail_project_label),
             style = MaterialTheme.typography.bodySmall,

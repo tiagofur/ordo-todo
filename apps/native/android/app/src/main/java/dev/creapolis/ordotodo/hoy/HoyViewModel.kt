@@ -108,6 +108,7 @@ class HoyViewModel(
     private val session: SessionStore,
     private val sync: SyncEngine = SyncEngine(tasks),
     ritual: RitualRepository? = null,
+    private val settings: dev.creapolis.ordotodo.settings.AppSettings? = null,
 ) : ViewModel() {
     private val ritualRepo: RitualRepository = ritual ?: RitualRepository(tasks.api)
 
@@ -142,6 +143,9 @@ class HoyViewModel(
     private val _captureRequest = MutableStateFlow<CaptureRequest?>(null)
     val captureRequest: StateFlow<CaptureRequest?> = _captureRequest
 
+    private val _focusRequest = MutableStateFlow<Pair<String, String>?>(null)
+    val focusRequest: StateFlow<Pair<String, String>?> = _focusRequest.asStateFlow()
+
     private val _replanOpen = MutableStateFlow(false)
     val replanOpen: StateFlow<Boolean> = _replanOpen.asStateFlow()
 
@@ -169,8 +173,26 @@ class HoyViewModel(
     private val _ritualLoading = MutableStateFlow(false)
     val ritualLoading: StateFlow<Boolean> = _ritualLoading.asStateFlow()
 
+    /** Daily capacity window from Settings (S19); 480 min until the store answers. */
+    private var availableMinutes: Int = 480
+
     init {
         refresh()
+        val store = settings
+        if (store != null) {
+            viewModelScope.launch {
+                var first = true
+                store.availableMinutes.collect { minutes ->
+                    if (first) {
+                        first = false
+                        availableMinutes = minutes
+                    } else if (minutes != availableMinutes) {
+                        availableMinutes = minutes
+                        refresh()
+                    }
+                }
+            }
+        }
     }
 
     /** Opens capture from outside the app (tile, shortcut, share) (F4a). */
@@ -180,6 +202,14 @@ class HoyViewModel(
 
     fun consumeCaptureRequest() {
         _captureRequest.value = null
+    }
+
+    fun requestFocusSheet(taskId: String, title: String) {
+        _focusRequest.value = taskId to title
+    }
+
+    fun consumeFocusRequest() {
+        _focusRequest.value = null
     }
 
     /** True only while a pull-to-refresh runs; the list stays on screen (ODD 051 S5). */
@@ -907,7 +937,7 @@ class HoyViewModel(
         val merged = dayWithPendingCreates(response, pendingCreates, LocalDate.now())
         val sections = sectionToday(merged)
         val all = sections.flatMap { it.tasks }
-        val capacity = calculateDayCapacity(all)
+        val capacity = calculateDayCapacity(all, availableMinutes)
         val overdueTasks = merged.overdue.filter { !it.isDone }
         _state.value =
             HoyUiState.Content(

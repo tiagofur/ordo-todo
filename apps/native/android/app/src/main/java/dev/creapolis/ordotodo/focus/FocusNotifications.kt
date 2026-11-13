@@ -110,6 +110,24 @@ class FocusNotifications(private val context: Context) {
         manager().notify(ONGOING_ID, buildOngoingNotification(state, nowEpoch))
     }
 
+    /**
+     * Placeholder while the service reconciles store and backend; the live
+     * timer replaces it in place. It exists so `startForeground` runs
+     * synchronously in `onStartCommand` — any I/O first risks
+     * `ForegroundServiceDidNotStartInTimeException` on slow networks.
+     */
+    fun buildSyncNotification(): Notification {
+        ensureChannels()
+        return NotificationCompat.Builder(context, ONGOING_CHANNEL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText(context.getString(R.string.timer_channel_ongoing))
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(contentIntent())
+            .build()
+    }
+
     fun showCompleted(title: String) {
         ensureChannels()
         val notification =

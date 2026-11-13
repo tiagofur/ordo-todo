@@ -29,6 +29,7 @@
     <string name="today_rescheduled_tomorrow">Postponed to tomorrow</string>
     <string name="today_saved_offline">Saved offline — it will sync when you are back online</string>
     <string name="today_pending_sync">Waiting to sync</string>
+    <string name="today_capture_voice">Dictate by voice</string>
     <string name="detail_title">Task details</string>
     <string name="detail_back">Back</string>
     <string name="detail_open">Open details</string>
@@ -55,6 +56,8 @@
     <string name="detail_subtask_add">Add subtask</string>
     <string name="detail_subtask_placeholder">New subtask...</string>
     <string name="detail_subtask_empty">No subtasks</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="detail_subtask_progress">%1$d of %2$d completed</string>
     <string name="detail_estimate_label">Estimated time</string>
     <string name="detail_estimate_custom">Custom</string>
     <string name="detail_estimate_clear">No estimate</string>
@@ -184,6 +187,37 @@
     <string name="settings_delete_text">Your tasks, habits and data will be erased. This cannot be undone.</string>
     <string name="settings_delete_yes">Yes, delete</string>
     <string name="settings_delete_error">Could not delete. Check your connection.</string>
+    <string name="settings_profile">Profile</string>
+    <!-- args: %1$s = plan -->
+    <string name="settings_profile_plan">Plan %1$s</string>
+    <string name="settings_forgot_title">Forgot your password?</string>
+    <string name="settings_forgot_hint">We\'ll email you a reset link.</string>
+    <string name="settings_forgot_email">Email</string>
+    <string name="settings_forgot_send">Send email</string>
+    <string name="settings_forgot_sent">Check your inbox for the link.</string>
+    <string name="settings_forgot_error">Couldn\'t send. Check your connection.</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_dynamic_color">Dynamic Color</string>
+    <string name="settings_dynamic_color_hint">From your wallpaper (Android 12+)</string>
+    <string name="settings_day_hours">Available hours per day</string>
+    <!-- args: %1$d = hours (Int) -->
+    <string name="settings_hours_unit">%1$d h</string>
+    <string name="settings_pomodoro">Pomodoro</string>
+    <string name="settings_pomo_work">Focus (min)</string>
+    <string name="settings_pomo_short">Short break (min)</string>
+    <string name="settings_pomo_long">Long break (min)</string>
+    <string name="settings_pomo_count">Pomodoros per cycle</string>
+    <string name="settings_pomo_save">Save</string>
+    <string name="settings_pomo_saved">Preferences updated.</string>
+    <string name="settings_pomo_error">Couldn\'t save. Check your connection.</string>
+    <string name="settings_reminders">Reminders</string>
+    <string name="settings_reminder_lead">Notify before time</string>
+    <string name="settings_lead_at_time">At time</string>
+    <string name="settings_lead10">10 min before</string>
+    <string name="settings_lead30">30 min before</string>
     <string name="tile_capture">Quick capture</string>
     <string name="shortcuts_new">New task</string>
     <string name="shortcuts_today">Today</string>
@@ -196,6 +230,13 @@
     <string name="reminder_snooze_tomorrow">Tomorrow</string>
     <string name="widget_label">Ordo Today</string>
     <string name="widget_desc">Today\'s task and habit progress</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="widget_today">Today %1$d/%2$d</string>
+    <!-- args: %1$d = done (Int), %2$d = total (Int) -->
+    <string name="widget_habits">Habits %1$d/%2$d</string>
+    <string name="widget_capture">New task</string>
+    <!-- args: %1$d = count (Int) -->
+    <string name="widget_more">+%1$d more</string>
     <string name="capacity_title">Day capacity</string>
     <!-- args: %1$s = total -->
     <string name="capacity_of_available">of %1$s</string>

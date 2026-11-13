@@ -58,4 +58,35 @@ class WidgetDataTest {
             )
         assertEquals("Casa", data.nextProject)
     }
+
+    @Test
+    fun itemsListsOpenTasksCappedAtFive() {
+        val tasks = (1..7).map { task("$it", "T$it") }.toTypedArray()
+        val data = WidgetData.from(day(*tasks), habitsDone = 0, habitsTotal = 0)
+        assertEquals(listOf("1", "2", "3", "4", "5"), data.items.map { it.id })
+        assertEquals("T1", data.items.first().title)
+    }
+
+    @Test
+    fun itemsSkipDoneTasks() {
+        val data =
+            WidgetData.from(
+                day(task("1", "A", "COMPLETED"), task("2", "B")),
+                habitsDone = 0,
+                habitsTotal = 0,
+            )
+        assertEquals(listOf("2"), data.items.map { it.id })
+    }
+
+    @Test
+    fun itemsEmptyWhenAllDone() {
+        val data =
+            WidgetData.from(
+                day(task("1", "A", "COMPLETED")),
+                habitsDone = 0,
+                habitsTotal = 0,
+            )
+        assertEquals(true, data.items.isEmpty())
+        assertEquals(null, data.nextTitle)
+    }
 }

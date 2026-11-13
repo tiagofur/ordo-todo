@@ -1,97 +1,182 @@
 package dev.creapolis.ordotodo.hoy
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
-import dev.creapolis.ordotodo.focus.FocusMiniPlayer
-import dev.creapolis.ordotodo.focus.FocusStartSheet
-import dev.creapolis.ordotodo.focus.FocusSwitchTaskSheet
-import dev.creapolis.ordotodo.focus.FocusViewModel
-import dev.creapolis.ordotodo.ritual.EveningRitualSheet
-import dev.creapolis.ordotodo.ritual.MorningRitualSheet
-import dev.creapolis.ordotodo.ritual.RitualBannerCard
-import dev.creapolis.ordotodo.ritual.RitualPhase
-import dev.creapolis.ordotodo.ritual.RitualStreak
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.data.HabitToday
 import dev.creapolis.ordotodo.data.NativeProject
 import dev.creapolis.ordotodo.data.TodayTask
+import dev.creapolis.ordotodo.focus.FocusMiniPlayer
+import dev.creapolis.ordotodo.focus.FocusStartSheet
+import dev.creapolis.ordotodo.focus.FocusSwitchTaskSheet
+import dev.creapolis.ordotodo.focus.FocusViewModel
+import dev.creapolis.ordotodo.habits.last7Stations
+import dev.creapolis.ordotodo.ritual.EveningRitualSheet
+import dev.creapolis.ordotodo.ritual.MorningRitualSheet
+import dev.creapolis.ordotodo.ritual.RitualBannerCard
+import dev.creapolis.ordotodo.ritual.RitualPhase
+import dev.creapolis.ordotodo.ritual.RitualStreak
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
 import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
-/** The Day list: every section in one scroll, done tasks closing it. Circles toggle (F1b). */
+internal data class AgendaGroup(
+    val kind: DaySectionKind,
+    val tasks: List<TodayTask>,
+    val habits: List<HabitToday>,
+)
+
+/**
+ * Weaves Today's tasks and habits into the canonical moment sections
+ * (`Mañana`, `Tarde`, `Noche`, `Cuando sea`, plus `Vencidas` and `Hechas`)
+ * per ODD 050 («la agenda serena») and `apps/native/design/lista-del-dia.html`.
+ */
+internal fun buildAgendaGroups(
+    sections: List<DaySection>,
+    habits: List<HabitToday>,
+    hasTriageCard: Boolean,
+): List<AgendaGroup> {
+    val tasksByKind = sections.associate { it.kind to it.tasks }
+    val habitsByKind = habits.groupBy { habit ->
+        when (habit.timeOfDay) {
+            "MORNING" -> DaySectionKind.MORNING
+            "AFTERNOON" -> DaySectionKind.AFTERNOON
+            "EVENING" -> DaySectionKind.EVENING
+            else -> DaySectionKind.ANYTIME
+        }
+    }
+    return DaySectionKind.entries.mapNotNull { kind ->
+        if (kind == DaySectionKind.OVERDUE && hasTriageCard) return@mapNotNull null
+        val t = tasksByKind[kind].orEmpty()
+        val h = habitsByKind[kind].orEmpty()
+        if (t.isEmpty() && h.isEmpty()) null else AgendaGroup(kind, t, h)
+    }
+}
+
+/**
+ * Computes the 7-day station booleans (oldest left, today right) for a [HabitToday].
+ * Uses explicit completion dates when multi-day history is present, falling back to
+ * [HabitToday.currentStreak] + [HabitToday.doneToday] for the compact `/habits/today` payload.
+ */
+internal fun resolveHabitStations(habit: HabitToday, today: LocalDate = LocalDate.now()): List<Boolean> {
+    val dates = habit.completions.mapNotNull { it.completedDate ?: it.completedAt }
+    val distinctDays = dates.map { it.take(10) }.distinct()
+    if (distinctDays.size > 1) {
+        return last7Stations(dates, today)
+    }
+    val streak = habit.currentStreak.coerceAtLeast(0)
+    val done = habit.doneToday
+    return List(7) { index ->
+        if (index == 6) {
+            done
+        } else {
+            val daysAgo = 6 - index
+            val pastStreak = if (done) (streak - 1).coerceAtLeast(0) else streak
+            daysAgo <= pastStreak
+        }
+    }
+}
+
+/**
+ * Lista del Día — «la agenda serena» (ODD 050 & ODD 051 S20).
+ * Grouped sectional containers with woven habits, 7-station emerald streak lines,
+ * time-block rows with blue calendar bar, and bottom-anchored `inverseSurface` FocusMiniPlayer.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val state by viewModel.state.collectAsState()
@@ -108,13 +193,15 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val updatedText = stringResource(R.string.detail_updated)
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
-    var showSheet by remember { mutableStateOf(false) }
-    var capturePrefill by remember { mutableStateOf("") }
+    // Saveable: rotation must neither reopen a phantom sheet (the request flow
+    // is one-shot and already consumed) nor drop an open one with typed text.
+    var showSheet by rememberSaveable { mutableStateOf(false) }
+    var capturePrefill by rememberSaveable { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
-    val availableTags by viewModel.availableTags.collectAsState()
     val captureRequest by viewModel.captureRequest.collectAsState()
+    val focusRequest by viewModel.focusRequest.collectAsState()
     val focusState by focusViewModel.focus.collectAsState()
     val focusTick by focusViewModel.tick.collectAsState()
     val focusStarting by focusViewModel.starting.collectAsState()
@@ -144,6 +231,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val ritualLoading by viewModel.ritualLoading.collectAsState()
     val focusCompletedText = stringResource(R.string.timer_completed)
     val focusStoppedText = stringResource(R.string.timer_stopped)
+
     LaunchedEffect(showSheet) {
         if (showSheet) viewModel.ensureProjects()
     }
@@ -152,6 +240,12 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             capturePrefill = request.prefill
             showSheet = true
             viewModel.consumeCaptureRequest()
+        }
+    }
+    LaunchedEffect(focusRequest) {
+        focusRequest?.let { req ->
+            focusSheet = req
+            viewModel.consumeFocusRequest()
         }
     }
     LaunchedEffect(focusViewModel) {
@@ -210,46 +304,94 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
             }
         }
     }
+
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val systemLocale = LocalContext.current.resources.configuration.locales.get(0)
+    val dateSubtitle = remember(systemLocale) {
+        formatDaySubtitle(LocalDate.now(), systemLocale)
+    }
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            MediumTopAppBar(
+                title = {
+                    Column {
+                        Text(
+                            text = stringResource(R.string.tabs_today),
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                        Text(
+                            text = dateSubtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                actions = {
+                    (state as? HoyUiState.Content)?.let { content ->
+                        DayRing(done = content.done, total = content.total)
+                        Spacer(Modifier.width(12.dp))
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
         floatingActionButton = {
-            if (state is HoyUiState.Content && detail == null) {
+            if (state is HoyUiState.Content && detail == null && focusState == null) {
                 ExtendedFloatingActionButton(
                     text = { Text(addLabel) },
-                    icon = { Text("+") },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     onClick = { showSheet = true },
                 )
             }
         },
     ) { inner ->
-        Column(Modifier.fillMaxSize().padding(inner)) {
-            val open = detail
-            if (open != null) {
-                TaskDetailScreen(
-                    state = open,
-                    projects = projects,
-                    availableTags = availableTags,
-                    focusActive = focusState != null,
-                    onEdit = viewModel::updateDetail,
-                    onSave = viewModel::saveDetail,
-                    onRetry = viewModel::retryDetail,
-                    onClose = viewModel::closeDetail,
-                    onStartFocus = { focusSheet = open.taskId to open.title },
-                    onAddSubtask = viewModel::addSubtask,
-                    onToggleSubtask = viewModel::toggleSubtask,
-                    onDeleteSubtask = viewModel::deleteSubtask,
-                    onAssignTag = viewModel::assignTag,
-                    onRemoveTag = viewModel::removeTag,
-                    onCreateTag = viewModel::createAndAssignTag,
-                    onDeleteTask = { viewModel.deleteTaskWithUndo(open.taskId) },
-                )
-            } else {
-                when (val current = state) {
-                    is HoyUiState.Loading -> LoadingDay()
-                    is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
-                    is HoyUiState.Content -> {
-                        val running = focusState
-                        if (running != null) {
+        Box(Modifier.fillMaxSize().padding(inner)) {
+            when (val current = state) {
+                is HoyUiState.Loading -> LoadingDay()
+                is HoyUiState.Offline -> OfflineDay(onRetry = viewModel::refresh)
+                is HoyUiState.Content -> {
+                    PullToRefreshBox(
+                        isRefreshing = refreshing,
+                        onRefresh = viewModel::pullToRefresh,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        DayList(
+                            content = current,
+                            habits = habitsState.habits,
+                            habitsOffline = habitsState.isOffline,
+                            projects = projects,
+                            focusBarVisible = focusState != null,
+                            onAddClick = { showSheet = true },
+                            onToggle = viewModel::toggle,
+                            onOpen = viewModel::openDetail,
+                            onRescheduleTomorrow = viewModel::rescheduleTaskToTomorrow,
+                            onChangePriority = viewModel::updateTaskPriority,
+                            onMoveProject = viewModel::moveTaskToProject,
+                            onDelete = viewModel::deleteTaskWithUndo,
+                            onToggleHabit = viewModel::toggleHabit,
+                            onOpenHabit = viewModel::openHabitEdit,
+                            onTriageTask = viewModel::triageOverdueTask,
+                            onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
+                            onReplan = viewModel::openReplan,
+                            streak = ritualStreak,
+                            activeRitualPhase = activeRitualPhase,
+                            onStartRitual = { viewModel.openRitual(activeRitualPhase) },
+                            onSkipRitual = viewModel::skipCurrentRitual,
+                        )
+                    }
+
+                    // Bottom-anchored FocusMiniPlayer right above the NavigationBar (.mini in lista-del-dia.html)
+                    val running = focusState
+                    if (running != null) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth(),
+                        ) {
                             FocusMiniPlayer(
                                 state = running,
                                 nowEpoch = focusTick,
@@ -261,37 +403,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                                 onStop = { focusViewModel.stop(completed = false) },
                             )
                         }
-                        PullToRefreshBox(
-                            isRefreshing = refreshing,
-                            onRefresh = viewModel::pullToRefresh,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            DayList(
-                                current,
-                                habits = habitsState.habits,
-                                habitsOffline = habitsState.isOffline,
-                                projects = projects,
-                                onToggle = viewModel::toggle,
-                                onOpen = viewModel::openDetail,
-                                onRescheduleTomorrow = viewModel::rescheduleTaskToTomorrow,
-                                onChangePriority = viewModel::updateTaskPriority,
-                                onMoveProject = viewModel::moveTaskToProject,
-                                onDelete = viewModel::deleteTaskWithUndo,
-                                onToggleHabit = viewModel::toggleHabit,
-                                onOpenHabit = viewModel::openHabitEdit,
-                                onTriageTask = viewModel::triageOverdueTask,
-                                onTriageAllToTomorrow = viewModel::triageAllOverdueToTomorrow,
-                                onReplan = viewModel::openReplan,
-                                streak = ritualStreak,
-                                activeRitualPhase = activeRitualPhase,
-                                onStartRitual = { viewModel.openRitual(activeRitualPhase) },
-                                onSkipRitual = viewModel::skipCurrentRitual,
-                            )
-                        }
                     }
                 }
             }
         }
+
         val sheet = focusSheet
         if (sheet != null) {
             FocusStartSheet(
@@ -361,8 +477,7 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
                 onSkip = viewModel::skipCurrentRitual,
                 onClose = viewModel::closeRitual,
             )
-        }
-        if (ritualSheetOpen == RitualPhase.EVENING) {
+        } else if (ritualSheetOpen == RitualPhase.EVENING) {
             EveningRitualSheet(
                 eveningView = eveningRitualView,
                 loading = ritualLoading,
@@ -409,6 +524,8 @@ private fun DayList(
     habits: List<HabitToday>,
     habitsOffline: Boolean,
     projects: List<NativeProject> = emptyList(),
+    focusBarVisible: Boolean = false,
+    onAddClick: () -> Unit = {},
     onToggle: (String) -> Unit,
     onOpen: (TodayTask) -> Unit,
     onRescheduleTomorrow: (TodayTask) -> Unit = {},
@@ -425,51 +542,36 @@ private fun DayList(
     onStartRitual: () -> Unit = {},
     onSkipRitual: () -> Unit = {},
 ) {
-    val dateLine =
-        LocalDate.now().format(
-            DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()),
-        )
+    val hasTriageCard = content.overdueTasks.isNotEmpty()
+    val agendaGroups =
+        remember(content.sections, habits, hasTriageCard) {
+            buildAgendaGroups(content.sections, habits, hasTriageCard)
+        }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(top = 8.dp, bottom = if (focusBarVisible) 96.dp else 88.dp),
     ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = dateLine,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = stringResource(R.string.tabs_today),
-                        style = MaterialTheme.typography.headlineLarge,
-                    )
-                    Text(
-                        text = stringResource(R.string.today_progress, content.done, content.total),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        // Only show ritual banner when an active morning/evening ritual awaits action
+        if (activeRitualPhase != RitualPhase.NONE) {
+            item(key = "ritual_banner") {
+                Box(Modifier.padding(bottom = 8.dp)) {
+                    RitualBannerCard(
+                        streak = streak,
+                        activePhase = activeRitualPhase,
+                        onStart = onStartRitual,
+                        onSkip = onSkipRitual,
                     )
                 }
-                DayRing(done = content.done, total = content.total)
             }
         }
-        item(key = "ritual_banner") {
-            RitualBannerCard(
-                streak = streak,
-                activePhase = activeRitualPhase,
-                onStart = onStartRitual,
-                onSkip = onSkipRitual,
-            )
-        }
-        if (content.isOffline) {
+
+        if (content.isOffline || habitsOffline) {
             item(key = "offline") {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 ) {
                     Text(
                         text = stringResource(R.string.today_offline),
@@ -480,94 +582,156 @@ private fun DayList(
                 }
             }
         }
+
         if (content.overdueTasks.isNotEmpty()) {
             item(key = "overdue_triage") {
-                OverdueTriageCard(
-                    tasks = content.overdueTasks,
-                    onTriageTask = onTriageTask,
-                    onTriageAllToTomorrow = onTriageAllToTomorrow,
-                )
-            }
-        }
-        if (content.capacity.estimatedMinutes > 0) {
-            item(key = "day_capacity") {
-                DayCapacityCard(
-                    capacity = content.capacity,
-                    onReplan = onReplan,
-                )
-            }
-        }
-        if (content.sections.isEmpty()) {
-            item {
-                Column(Modifier.fillMaxWidth().padding(vertical = 48.dp)) {
-                    Text(
-                        text = stringResource(R.string.today_empty_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Text(
-                        text = stringResource(R.string.today_empty_body),
-                        style = MaterialTheme.typography.bodyMedium,
+                Box(Modifier.padding(bottom = 8.dp)) {
+                    OverdueTriageCard(
+                        tasks = content.overdueTasks,
+                        onTriageTask = onTriageTask,
+                        onTriageAllToTomorrow = onTriageAllToTomorrow,
                     )
                 }
             }
         }
-        for (section in content.sections) {
-            item(key = "header-${section.kind}") {
-                SectionHeader(kind = section.kind, count = section.tasks.size)
-            }
-            items(section.tasks, key = { "task-${it.id}" }) { task ->
-                TaskRow(
-                    task = task,
-                    onToggle = onToggle,
-                    onOpen = onOpen,
-                    onRescheduleTomorrow = onRescheduleTomorrow,
-                    onChangePriority = onChangePriority,
-                    onMoveProject = onMoveProject,
-                    onDelete = onDelete,
-                    projects = projects,
-                )
+
+        // Only surface capacity card when overloaded so normal days stay serene
+        if (content.capacity.isOverloaded) {
+            item(key = "day_capacity") {
+                Box(Modifier.padding(bottom = 8.dp)) {
+                    DayCapacityCard(
+                        capacity = content.capacity,
+                        onReplan = onReplan,
+                    )
+                }
             }
         }
-        item(key = "habits-header") {
-            HabitsHeader(count = habits.size, offline = habitsOffline)
-        }
-        if (habits.isEmpty()) {
-            item(key = "habits-empty") {
-                Text(
-                    text = stringResource(R.string.habits_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 4.dp),
-                )
+
+        if (agendaGroups.isEmpty()) {
+            item(key = "empty_day") {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 36.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.today_empty_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.today_empty_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
-        } else {
-            items(habits, key = { "habit-${it.id}" }) { habit ->
-                HabitRow(habit = habit, onToggle = onToggleHabit, onOpen = onOpenHabit)
+        }
+
+        // Grouped sections (.label + .group in lista-del-dia.html)
+        for (group in agendaGroups) {
+            item(key = "section-${group.kind}") {
+                SectionHeader(kind = group.kind, count = group.tasks.size + group.habits.size)
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
+                ) {
+                    Column(Modifier.fillMaxWidth()) {
+                        var hasEmittedRow = false
+                        for (task in group.tasks) {
+                            if (hasEmittedRow) {
+                                HorizontalDivider(
+                                    thickness = 0.75.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                                )
+                            }
+                            TaskRow(
+                                task = task,
+                                onToggle = onToggle,
+                                onOpen = onOpen,
+                                onRescheduleTomorrow = onRescheduleTomorrow,
+                                onChangePriority = onChangePriority,
+                                onMoveProject = onMoveProject,
+                                onDelete = onDelete,
+                                projects = projects,
+                                grouped = true,
+                            )
+                            hasEmittedRow = true
+                        }
+                        for (habit in group.habits) {
+                            if (hasEmittedRow) {
+                                HorizontalDivider(
+                                    thickness = 0.75.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                                )
+                            }
+                            HabitRow(
+                                habit = habit,
+                                onToggle = onToggleHabit,
+                                onOpen = onOpenHabit,
+                                grouped = true,
+                            )
+                            hasEmittedRow = true
+                        }
+                    }
+                }
             }
         }
-        item { Spacer(Modifier.height(24.dp)) }
     }
 }
 
+/**
+ * 40.dp progress ring with the `done/total` counter centered inside (.ring in lista-del-dia.html).
+ */
 @Composable
 private fun DayRing(done: Int, total: Int) {
-    val progress = if (total == 0) 0f else done.toFloat() / total.toFloat()
-    val track = MaterialTheme.colorScheme.surfaceVariant
+    val progress = if (total == 0) 0f else (done.toFloat() / total.toFloat()).coerceIn(0f, 1f)
+    val track = MaterialTheme.colorScheme.primaryContainer
     val bar = MaterialTheme.colorScheme.primary
-    val label = "$done/$total"
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = label,
-            style = OrdoNumerals.Counter,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(Modifier.width(12.dp))
-        Canvas(Modifier.size(40.dp)) {
-            drawArc(track, 0f, 360f, false, style = Stroke(width = 8f, cap = StrokeCap.Round))
+    Box(
+        modifier = Modifier.size(40.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val strokeW = 4.dp.toPx()
+            val inset = strokeW / 2f
+            val arcSize = Size(size.width - strokeW, size.height - strokeW)
+            drawArc(
+                color = track,
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = arcSize,
+                style = Stroke(width = strokeW, cap = StrokeCap.Round),
+            )
             if (progress > 0f) {
-                drawArc(bar, -90f, 360f * progress, false, style = Stroke(width = 8f, cap = StrokeCap.Round))
+                drawArc(
+                    color = bar,
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = strokeW, cap = StrokeCap.Round),
+                )
             }
         }
+        Text(
+            text = "$done/$total",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
@@ -583,19 +747,23 @@ private fun SectionHeader(kind: DaySectionKind, count: Int) {
             DaySectionKind.DONE -> stringResource(R.string.today_sections_done, count)
         }
     Text(
-        text = name,
-        style = MaterialTheme.typography.labelLarge,
+        text = name.uppercase(Locale.getDefault()),
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.6.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 6.dp),
     )
 }
 
 @Composable
 internal fun HabitsHeader(count: Int, offline: Boolean) {
-    Column(Modifier.padding(top = 12.dp, bottom = 2.dp)) {
+    Column(Modifier.padding(top = 12.dp, bottom = 4.dp)) {
         Text(
-            text = stringResource(R.string.habits_title),
-            style = MaterialTheme.typography.labelLarge,
+            text = stringResource(R.string.habits_title).uppercase(Locale.getDefault()),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.6.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         if (offline) {
@@ -608,53 +776,153 @@ internal fun HabitsHeader(count: Int, offline: Boolean) {
     }
 }
 
+/**
+ * Habit row with emerald check control and the signature 7-station streak line (.ck.hab + .line in lista-del-dia.html).
+ */
 @Composable
 internal fun HabitRow(
     habit: HabitToday,
     onToggle: (String) -> Unit,
     onOpen: (HabitToday) -> Unit = {},
+    grouped: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
     val done = habit.doneToday
-    val streakLabel = pluralStringResource(R.plurals.habits_streak, habit.currentStreak, habit.currentStreak)
-    Card(
-        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    val streakCount = if (habit.currentStreak > 0) habit.currentStreak else if (done) 1 else 0
+    val streakLabel = pluralStringResource(R.plurals.habits_streak, streakCount, streakCount)
+    val stations = remember(habit) { resolveHabitStations(habit) }
+
+    val rowContent: @Composable () -> Unit = {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 52.dp)
+                .padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CheckDot(done = done, onToggle = { onToggle(habit.id) })
+            HabitCheckDot(done = done, onToggle = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                onToggle(habit.id)
+            })
             Spacer(Modifier.width(12.dp))
             Column(
-                Modifier.weight(1f).clickable(
-                    onClickLabel = stringResource(R.string.habits_edit_title),
-                    onClick = { onOpen(habit) },
-                ),
+                Modifier
+                    .weight(1f)
+                    .clickable(
+                        onClickLabel = stringResource(R.string.habits_edit_title),
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onOpen(habit)
+                        },
+                    ),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = habit.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 15.sp,
+                    color = if (done) scheme.onSurfaceVariant else scheme.onSurface,
                     textDecoration = if (done) TextDecoration.LineThrough else null,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (habit.currentStreak > 0) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Canvas(Modifier.size(8.dp)) {
-                            drawCircle(OrdoSectionColors.Habits, radius = size.minDimension / 2)
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = streakLabel,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = scheme.onSurfaceVariant,
-                        )
-                    }
+                HabitStreakLine(stations = stations, streakLabel = streakLabel)
+            }
+            if (habit.preferredTime != null) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = habit.preferredTime,
+                    style = OrdoNumerals.Inline,
+                    color = scheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+
+    if (grouped) {
+        rowContent()
+    } else {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = scheme.surfaceContainerLowest,
+            border = BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.45f)),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            rowContent()
+        }
+    }
+}
+
+/**
+ * Signature 7-station emerald streak line (.line in lista-del-dia.html):
+ * 7 circular stations connected by horizontal segments, followed by the emerald streak count.
+ */
+@Composable
+private fun HabitStreakLine(
+    stations: List<Boolean>,
+    streakLabel: String,
+) {
+    val emerald = OrdoSectionColors.Habits
+    val emeraldText = Color(0xFF059669)
+    val segmentOff = emerald.copy(alpha = 0.22f)
+    val surfaceBg = MaterialTheme.colorScheme.surfaceContainerLowest
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Canvas(
+            modifier = Modifier
+                .width((stations.size * 10 + (stations.size - 1) * 14).dp)
+                .height(10.dp),
+        ) {
+            val stationDiameter = 10.dp.toPx()
+            val stationRadius = stationDiameter / 2f
+            val segWidth = 14.dp.toPx()
+            val segHeight = 2.5.dp.toPx()
+            val borderStroke = 2.dp.toPx()
+            val cy = size.height / 2f
+
+            // Draw connecting segments first
+            for (i in 0 until stations.size - 1) {
+                val segOn = stations[i] && stations[i + 1]
+                val xStart = i * (stationDiameter + segWidth) + stationDiameter
+                drawRect(
+                    color = if (segOn) emerald else segmentOff,
+                    topLeft = Offset(xStart, cy - segHeight / 2f),
+                    size = Size(segWidth, segHeight),
+                )
+            }
+
+            // Draw stations
+            for (i in stations.indices) {
+                val cx = i * (stationDiameter + segWidth) + stationRadius
+                val isOn = stations[i]
+                if (isOn) {
+                    drawCircle(
+                        color = emerald,
+                        radius = stationRadius,
+                        center = Offset(cx, cy),
+                    )
+                } else {
+                    drawCircle(
+                        color = surfaceBg,
+                        radius = stationRadius,
+                        center = Offset(cx, cy),
+                    )
+                    drawCircle(
+                        color = emerald,
+                        radius = stationRadius - borderStroke / 2f,
+                        center = Offset(cx, cy),
+                        style = Stroke(width = borderStroke),
+                    )
                 }
             }
         }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = streakLabel,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = emeraldText,
+        )
     }
 }
 
@@ -669,8 +937,11 @@ internal fun TaskRow(
     onMoveProject: (String, String?) -> Unit = { _, _ -> },
     onDelete: (String) -> Unit = {},
     projects: List<NativeProject> = emptyList(),
+    grouped: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
+    val isDark = isSystemInDarkTheme()
     val openLabel = stringResource(R.string.detail_open)
     val completeLabel = stringResource(if (task.isDone) R.string.actions_undo else R.string.actions_complete)
     val tomorrowLabel = stringResource(R.string.actions_move_to_tomorrow)
@@ -687,10 +958,12 @@ internal fun TaskRow(
             confirmValueChange = { value ->
                 when (value) {
                     SwipeToDismissBoxValue.StartToEnd -> {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onToggle(task.id)
                         false
                     }
                     SwipeToDismissBoxValue.EndToStart -> {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onRescheduleTomorrow(task)
                         false
                     }
@@ -734,7 +1007,10 @@ internal fun TaskRow(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(color, shape = CardDefaults.shape)
+                        .background(
+                            color,
+                            shape = if (grouped) RoundedCornerShape(0.dp) else RoundedCornerShape(14.dp),
+                        )
                         .padding(horizontal = 20.dp),
                 contentAlignment = alignment,
             ) {
@@ -748,17 +1024,22 @@ internal fun TaskRow(
             }
         },
         content = {
-            val isTimeBlock = task.scheduledTime != null
-            val containerColor = when {
-                task.isDone -> scheme.surfaceContainerLow
-                isTimeBlock -> scheme.secondaryContainer.copy(alpha = 0.35f)
-                else -> scheme.surfaceContainerLow
+            // D7 Time-block styling (.block in lista-del-dia.html) when task has scheduledTime + estimate
+            val isTimeBlock = task.scheduledTime != null && (task.estimatedMinutes ?: 0) > 0 && !task.isDone
+            val blockBg = if (isDark) Color(0xFF3B82F6).copy(alpha = 0.16f) else Color(0xFFEFF6FF)
+            val blockText = if (isDark) Color(0xFF93C5FD) else Color(0xFF1E3A8A)
+            val blockAccent = Color(0xFF3B82F6)
+
+            val rowBg = when {
+                isTimeBlock -> blockBg
+                else -> scheme.surfaceContainerLowest
             }
-            Card(
-                colors = CardDefaults.cardColors(containerColor = containerColor),
-                modifier =
-                    Modifier
+
+            val innerRow: @Composable () -> Unit = {
+                Box(
+                    modifier = Modifier
                         .fillMaxWidth()
+                        .background(rowBg)
                         .semantics {
                             customActions =
                                 listOf(
@@ -780,105 +1061,130 @@ internal fun TaskRow(
                                     },
                                 )
                         },
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (isTimeBlock) {
-                        Box(
-                            modifier = Modifier
-                                .width(4.dp)
-                                .fillMaxHeight()
-                                .background(if (task.isDone) scheme.outlineVariant else Color(0xFF3B82F6)),
-                        )
-                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = if (isTimeBlock) 10.dp else 14.dp,
-                                end = 14.dp,
-                                top = 12.dp,
-                                bottom = 12.dp,
-                            ),
+                            .height(IntrinsicSize.Min)
+                            .heightIn(min = 50.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
-                        Spacer(Modifier.width(12.dp))
-                        Column(
-                            Modifier
-                                .weight(1f)
-                                .combinedClickable(
-                                    role = Role.Button,
-                                    onClickLabel = openLabel,
-                                    onClick = { onOpen(task) },
-                                    onLongClick = { showMenu = true },
+                        if (isTimeBlock) {
+                            Box(
+                                modifier = Modifier
+                                    .width(4.dp)
+                                    .fillMaxHeight()
+                                    .background(blockAccent),
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = if (isTimeBlock) 10.dp else 14.dp,
+                                    end = 14.dp,
+                                    top = 10.dp,
+                                    bottom = 10.dp,
                                 ),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = task.title,
-                                style = MaterialTheme.typography.bodyLarge,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                                color = if (task.isDone) scheme.onSurfaceVariant else scheme.onSurface,
-                            )
-                            TaskMeta(task)
+                            CheckDot(done = task.isDone, onToggle = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onToggle(task.id)
+                            })
+                            Spacer(Modifier.width(12.dp))
+                            Column(
+                                Modifier
+                                    .weight(1f)
+                                    .combinedClickable(
+                                        role = Role.Button,
+                                        onClickLabel = openLabel,
+                                        onClick = {
+                                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                            onOpen(task)
+                                        },
+                                        onLongClick = {
+                                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            showMenu = true
+                                        },
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                Text(
+                                    text = task.title,
+                                    fontSize = 15.sp,
+                                    fontWeight = if (isTimeBlock) FontWeight.Medium else FontWeight.Normal,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
+                                    color = when {
+                                        task.isDone -> scheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                        isTimeBlock -> blockText
+                                        else -> scheme.onSurface
+                                    },
+                                )
+                                TaskMeta(task)
+                            }
+                            if (task.scheduledTime != null) {
+                                val timeLabel = formatTimeBlockRange(task.scheduledTime, task.estimatedMinutes)
+                                Spacer(Modifier.width(10.dp))
+                                Text(
+                                    text = timeLabel,
+                                    fontSize = 13.sp,
+                                    color = if (isTimeBlock) blockAccent else scheme.onSurfaceVariant,
+                                    fontWeight = if (isTimeBlock) FontWeight.Medium else FontWeight.Normal,
+                                )
+                            }
                         }
-                        if (task.scheduledTime != null) {
-                            val timeLabel = formatTimeBlockRange(task.scheduledTime, task.estimatedMinutes)
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = timeLabel,
-                                style = OrdoNumerals.Inline,
-                                color = if (isTimeBlock && !task.isDone) Color(0xFF2563EB) else scheme.onSurfaceVariant,
-                                fontWeight = if (isTimeBlock && !task.isDone) FontWeight.SemiBold else FontWeight.Normal,
-                            )
-                        }
-                        Box {
-                            IconButton(
-                                onClick = { showMenu = true },
-                            modifier = Modifier.size(32.dp),
-                        ) {
-                            Text("⋮", style = MaterialTheme.typography.titleMedium, color = scheme.onSurfaceVariant)
-                        }
-                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                            DropdownMenuItem(
-                                text = { Text(tomorrowLabel) },
-                                onClick = {
-                                    showMenu = false
-                                    onRescheduleTomorrow(task)
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.actions_change_priority)) },
-                                onClick = {
-                                    showMenu = false
-                                    showPriorityDialog = true
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.actions_change_project)) },
-                                onClick = {
-                                    showMenu = false
-                                    showProjectDialog = true
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(deleteLabel, color = MaterialTheme.colorScheme.error) },
-                                onClick = {
-                                    showMenu = false
-                                    onDelete(task.id)
-                                },
-                            )
-                        }
+                    }
+
+                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                        DropdownMenuItem(
+                            text = { Text(tomorrowLabel) },
+                            onClick = {
+                                showMenu = false
+                                onRescheduleTomorrow(task)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.actions_change_priority)) },
+                            onClick = {
+                                showMenu = false
+                                showPriorityDialog = true
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.actions_change_project)) },
+                            onClick = {
+                                showMenu = false
+                                showProjectDialog = true
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(deleteLabel, color = MaterialTheme.colorScheme.error) },
+                            onClick = {
+                                showMenu = false
+                                onDelete(task.id)
+                            },
+                        )
                     }
                 }
             }
-        }
-    },
-)
+
+            if (grouped) {
+                innerRow()
+            } else {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = rowBg,
+                    border = BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.45f)),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
+                ) {
+                    innerRow()
+                }
+            }
+        },
+    )
 
     if (showPriorityDialog) {
         AlertDialog(
@@ -966,10 +1272,15 @@ private fun TaskMeta(task: TodayTask) {
         task.project?.color?.let { hex ->
             ProjectDot(hex)
             Spacer(Modifier.width(5.dp))
+        } ?: run {
+            if (task.project != null) {
+                Canvas(Modifier.size(7.dp)) { drawCircle(OrdoSectionColors.Projects) }
+                Spacer(Modifier.width(5.dp))
+            }
         }
         Text(
             text = bits.joinToString(" · "),
-            style = MaterialTheme.typography.bodySmall,
+            fontSize = 12.sp,
             color = scheme.onSurfaceVariant,
         )
     }
@@ -981,22 +1292,66 @@ private fun ProjectDot(hex: String) {
         try {
             Color(android.graphics.Color.parseColor(hex))
         } catch (_: IllegalArgumentException) {
-            Color.Gray
+            OrdoSectionColors.Projects
         }
-    Canvas(Modifier.size(8.dp)) { drawCircle(color) }
+    Canvas(Modifier.size(7.dp)) { drawCircle(color) }
 }
 
+/**
+ * Task check control (ODD 050: Android speaks M3, so the task row uses the
+ * system `Checkbox` — rounded square — while the hand-drawn circle lives
+ * only in the shared habit-station signature and on iOS).
+ */
 @Composable
 internal fun CheckDot(done: Boolean, onToggle: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    val ring = if (done) scheme.primary else scheme.primary.copy(alpha = 0.45f)
     val description =
         stringResource(if (done) R.string.actions_undo else R.string.actions_complete)
-    Canvas(
-        Modifier.size(48.dp).clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
+
+    Checkbox(
+        checked = done,
+        onCheckedChange = { onToggle() },
+        modifier = Modifier.semantics { contentDescription = description },
+    )
+}
+
+/**
+ * Crisp 20.dp habit check control in emerald (.ck.hab in lista-del-dia.html).
+ */
+@Composable
+private fun HabitCheckDot(done: Boolean, onToggle: () -> Unit) {
+    val emerald = OrdoSectionColors.Habits
+    val description =
+        stringResource(if (done) R.string.habits_uncheck else R.string.habits_check)
+
+    Box(
+        modifier = Modifier
+            .size(28.dp)
+            .clip(CircleShape)
+            .clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
+        contentAlignment = Alignment.Center,
     ) {
-        val r = size.minDimension / 2 - 11 * density
-        val c = center
-        if (done) drawCircle(ring, r, c) else drawCircle(ring, r, c, style = Stroke(width = 5 * density))
+        Canvas(Modifier.size(20.dp)) {
+            val strokeW = 2.dp.toPx()
+            val r = (size.minDimension - strokeW) / 2f
+            if (done) {
+                drawCircle(color = emerald, radius = size.minDimension / 2f)
+                val path = Path().apply {
+                    moveTo(size.width * 0.28f, size.height * 0.52f)
+                    lineTo(size.width * 0.44f, size.height * 0.68f)
+                    lineTo(size.width * 0.74f, size.height * 0.34f)
+                }
+                drawPath(
+                    path = path,
+                    color = Color.White,
+                    style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
+            } else {
+                drawCircle(
+                    color = emerald,
+                    radius = r,
+                    style = Stroke(width = strokeW),
+                )
+            }
+        }
     }
 }

@@ -26,16 +26,21 @@ class FocusService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action ?: ACTION_SYNC
-        when (action) {
-            ACTION_STOP -> {
-                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-                stopSelf()
-                return START_NOT_STICKY
-            }
-            ACTION_START, ACTION_SYNC -> {
-                syncWithStoreAndForeground()
-            }
+        if (action == ACTION_STOP) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
         }
+        // Foreground synchronously: syncWithStoreAndForeground hits DataStore
+        // and possibly the network, and a slow reconcile used to kill the
+        // process with ForegroundServiceDidNotStartInTimeException.
+        ServiceCompat.startForeground(
+            this,
+            FocusNotifications.ONGOING_ID,
+            FocusNotifications(this).buildSyncNotification(),
+            foregroundServiceType(),
+        )
+        syncWithStoreAndForeground()
         return START_STICKY
     }
 
@@ -75,19 +80,20 @@ class FocusService : Service() {
         }
     }
 
+    private fun foregroundServiceType(): Int =
+        if (Build.VERSION.SDK_INT >= 34) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        } else {
+            0
+        }
+
     private fun startWithState(deps: FocusDeps, state: FocusState) {
         val notification = deps.notifs.buildOngoingNotification(state, System.currentTimeMillis())
-        val fgsType =
-            if (Build.VERSION.SDK_INT >= 34) {
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-            } else {
-                0
-            }
         ServiceCompat.startForeground(
             this,
             FocusNotifications.ONGOING_ID,
             notification,
-            fgsType,
+            foregroundServiceType(),
         )
     }
 

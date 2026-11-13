@@ -3,6 +3,7 @@ package dev.creapolis.ordotodo.focus
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,16 +13,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -36,10 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import dev.creapolis.ordotodo.R
@@ -233,67 +248,134 @@ fun FocusMiniPlayer(
         )
     }
 
+    val modeLabel = when (state.mode) {
+        PomodoroMode.WORK -> stringResource(R.string.timer_mode_work)
+        PomodoroMode.SHORT_BREAK -> stringResource(R.string.timer_mode_short_break)
+        PomodoroMode.LONG_BREAK -> stringResource(R.string.timer_mode_long_break)
+    }
+
+    val elapsedDuration = elapsedMs(state, nowEpoch)
+    val plannedDuration = state.plannedDurationMs
+    val progressFraction = if (plannedDuration != null && plannedDuration > 0L) {
+        (elapsedDuration.toFloat() / plannedDuration.toFloat()).coerceIn(0f, 1f)
+    } else 0f
+
+    val bgDark = Color(0xFF18181B)
+    val fgWhite = Color(0xFFFFFFFF)
+    val fgMuted = Color(0xFFA1A1AA)
+    val ringTrack = Color(0xFF3F3F46)
+    val accentViolet = Color(0xFFA78BFA)
+
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = when (state.mode) {
-                PomodoroMode.WORK -> MaterialTheme.colorScheme.primaryContainer
-                PomodoroMode.SHORT_BREAK -> MaterialTheme.colorScheme.secondaryContainer
-                PomodoroMode.LONG_BREAK -> MaterialTheme.colorScheme.tertiaryContainer
-            },
+            containerColor = bgDark,
+            contentColor = fgWhite,
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
     ) {
-        Column(Modifier.fillMaxWidth().padding(14.dp)) {
+        Column(Modifier.fillMaxWidth()) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val modeLabel = when (state.mode) {
-                    PomodoroMode.WORK -> stringResource(R.string.timer_mode_work)
-                    PomodoroMode.SHORT_BREAK -> stringResource(R.string.timer_mode_short_break)
-                    PomodoroMode.LONG_BREAK -> stringResource(R.string.timer_mode_long_break)
+                // Circular progress ring + pause/play glyph (.pr in lista-del-dia.html)
+                IconButton(
+                    onClick = if (state.isPaused) onResume else onPause,
+                    modifier = Modifier.size(38.dp),
+                ) {
+                    Canvas(Modifier.size(38.dp)) {
+                        val strokeW = 3.dp.toPx()
+                        drawCircle(
+                            color = ringTrack,
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeW),
+                        )
+                        if (progressFraction > 0f) {
+                            drawArc(
+                                color = accentViolet,
+                                startAngle = -90f,
+                                sweepAngle = 360f * progressFraction,
+                                useCenter = false,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = strokeW,
+                                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                                ),
+                            )
+                        }
+                        val cx = size.width / 2f
+                        val cy = size.height / 2f
+                        if (state.isPaused) {
+                            val path = androidx.compose.ui.graphics.Path().apply {
+                                moveTo(cx - 4.dp.toPx(), cy - 6.dp.toPx())
+                                lineTo(cx + 6.dp.toPx(), cy)
+                                lineTo(cx - 4.dp.toPx(), cy + 6.dp.toPx())
+                                close()
+                            }
+                            drawPath(path, color = fgWhite)
+                        } else {
+                            val barW = 3.dp.toPx()
+                            val barH = 12.dp.toPx()
+                            val gap = 4.dp.toPx()
+                            drawRoundRect(
+                                color = fgWhite,
+                                topLeft = Offset(cx - gap / 2f - barW, cy - barH / 2f),
+                                size = androidx.compose.ui.geometry.Size(barW, barH),
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx()),
+                            )
+                            drawRoundRect(
+                                color = fgWhite,
+                                topLeft = Offset(cx + gap / 2f, cy - barH / 2f),
+                                size = androidx.compose.ui.geometry.Size(barW, barH),
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx()),
+                            )
+                        }
+                    }
                 }
-                SuggestionChip(
-                    onClick = {},
-                    label = { Text(modeLabel, fontWeight = FontWeight.Bold) },
-                )
-                if (state.completedPomodoros > 0) {
+
+                // Title + Subtitle (.mt in lista-del-dia.html)
+                Column(Modifier.weight(1f)) {
                     Text(
-                        text = "🍅 ${state.completedPomodoros}",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = state.taskTitle,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = fgWhite,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    val statsBit = if (todayStats != null && todayStats.completedPomodoros > 0) {
+                        " · " + pluralStringResource(
+                            R.plurals.timer_stats_pomodoros,
+                            todayStats.completedPomodoros,
+                            todayStats.completedPomodoros,
+                        )
+                    } else ""
+                    Text(
+                        text = "$modeLabel · $line$statsBit",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = fgMuted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-            }
 
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = state.taskTitle,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = line,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-
-            Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (state.isPaused) {
-                    Button(onClick = onResume) {
-                        Text(stringResource(R.string.timer_resume))
-                    }
-                } else {
-                    Button(onClick = onPause) {
-                        Text(stringResource(R.string.timer_pause))
-                    }
+                // Switch task
+                IconButton(onClick = onSwitchTask, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.timer_switch_task),
+                        tint = fgMuted,
+                        modifier = Modifier.size(18.dp),
+                    )
                 }
 
-                OutlinedButton(
+                // Skip phase (clean vector next-track mark, no emoji)
+                IconButton(
                     onClick = {
                         val elapsedNow = elapsedMs(state, nowEpoch)
                         if (PomodoroCycle.isCredited(elapsedNow, state.plannedDurationMs)) {
@@ -302,37 +384,47 @@ fun FocusMiniPlayer(
                             showSkipDialog = true
                         }
                     },
+                    modifier = Modifier.size(32.dp),
                 ) {
-                    Text(stringResource(R.string.timer_skip))
+                    Canvas(Modifier.size(14.dp)) {
+                        val w = size.width
+                        val h = size.height
+                        val path = androidx.compose.ui.graphics.Path().apply {
+                            moveTo(0f, h * 0.15f)
+                            lineTo(w * 0.68f, h * 0.5f)
+                            lineTo(0f, h * 0.85f)
+                            close()
+                        }
+                        drawPath(path, color = fgMuted)
+                        drawRoundRect(
+                            color = fgMuted,
+                            topLeft = Offset(w * 0.76f, h * 0.15f),
+                            size = androidx.compose.ui.geometry.Size(w * 0.18f, h * 0.7f),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx()),
+                        )
+                    }
                 }
 
-                TextButton(onClick = onSwitchTask) {
-                    Text(stringResource(R.string.timer_switch_task))
-                }
-
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = onStop) {
-                    Text(stringResource(R.string.timer_stop))
+                // Stop square (.stop in lista-del-dia.html)
+                IconButton(onClick = onStop, modifier = Modifier.size(32.dp)) {
+                    Canvas(Modifier.size(14.dp)) {
+                        drawRoundRect(
+                            color = fgWhite.copy(alpha = 0.85f),
+                            topLeft = Offset.Zero,
+                            size = size,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+                        )
+                    }
                 }
             }
 
-            // Today's stats summary (S15)
-            if (todayStats != null && (todayStats.completedPomodoros > 0 || todayStats.totalWorkMinutes > 0)) {
-                Spacer(Modifier.height(6.dp))
-                val pomodorosStr = pluralStringResource(
-                    R.plurals.timer_stats_pomodoros,
-                    todayStats.completedPomodoros,
-                    todayStats.completedPomodoros,
-                )
-                val minutesStr = pluralStringResource(
-                    R.plurals.timer_stats_minutes,
-                    todayStats.totalWorkMinutes,
-                    todayStats.totalWorkMinutes,
-                )
-                Text(
-                    text = "${stringResource(R.string.timer_stats_title)}: $pomodorosStr · $minutesStr",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            // Bottom progress bar (.mbar in lista-del-dia.html)
+            if (plannedDuration != null && plannedDuration > 0L) {
+                LinearProgressIndicator(
+                    progress = { progressFraction },
+                    modifier = Modifier.fillMaxWidth().height(3.dp),
+                    color = accentViolet,
+                    trackColor = Color.Transparent,
                 )
             }
         }
