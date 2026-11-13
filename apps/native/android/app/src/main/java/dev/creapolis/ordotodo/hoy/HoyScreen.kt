@@ -44,7 +44,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -341,11 +341,11 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
         },
         floatingActionButton = {
             if (state is HoyUiState.Content && detail == null && focusState == null) {
-                ExtendedFloatingActionButton(
-                    text = { Text(addLabel) },
-                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                FloatingActionButton(
                     onClick = { showSheet = true },
-                )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = addLabel)
+                }
             }
         },
     ) { inner ->

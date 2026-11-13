@@ -15,7 +15,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -92,11 +92,14 @@ fun HabitsScreen(viewModel: HoyViewModel) {
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.habits_create_title)) },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+            FloatingActionButton(
                 onClick = viewModel::openHabitCreate,
-            )
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.habits_create_title),
+                )
+            }
         },
     ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner).padding(horizontal = 16.dp)) {
