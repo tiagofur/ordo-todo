@@ -1,6 +1,5 @@
 package dev.creapolis.ordotodo.hoy
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,18 +16,27 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -38,6 +46,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -68,7 +77,9 @@ fun CaptureSheet(
     onSave: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var text by remember(initialText) { mutableStateOf(initialText) }
+    // Saveable: a rotation or font-scale change recreates the activity and
+    // must not drop what the user already typed (S16, <10 s capture).
+    var text by rememberSaveable(initialText) { mutableStateOf(initialText) }
     val parsed = remember(text) { parseCapture(text) }
     val projectName =
         remember(parsed, projects) {
@@ -76,14 +87,16 @@ fun CaptureSheet(
                 projects.firstOrNull { it.id == id }?.name
             }
         }
-    val preview =
-        remember(parsed, projectName) {
-            listOfNotNull(
-                parsed.scheduledDate?.toString(),
-                parsed.scheduledTime,
-                parsed.priority,
-                projectName,
-            ).joinToString(" · ")
+    val spans = remember(text) { captureSpans(text) }
+    var replaceTarget by remember { mutableStateOf<CaptureSpan?>(null) }
+    val voiceLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val heard = result.data
+                    ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    ?.firstOrNull()?.trim().orEmpty()
+                if (heard.isNotEmpty()) text = if (text.isBlank()) heard else "$text $heard"
+            }
         }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
@@ -135,22 +148,64 @@ fun CaptureSheet(
                     KeyboardActions(
                         onDone = { if (text.isNotBlank() && !creating) onSave(text) },
                     ),
+                visualTransformation = remember(scheme, spans) {
+                    highlightCapture(
+                        spans,
+                        background = scheme.primaryContainer,
+                        foreground = scheme.onPrimaryContainer,
+                    )
+                },
             )
 
-            if (preview.isNotEmpty()) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = scheme.primaryContainer.copy(alpha = 0.45f),
-                    border = BorderStroke(0.75.dp, scheme.primary.copy(alpha = 0.25f)),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
+            val dateSpan = spans.firstOrNull { it.entity == CaptureEntity.DATE }
+            val timeSpan = spans.firstOrNull { it.entity == CaptureEntity.TIME }
+            val prioritySpan = spans.firstOrNull { it.entity == CaptureEntity.PRIORITY }
+            val projectSpan = spans.firstOrNull { it.entity == CaptureEntity.PROJECT }
+            if (dateSpan != null || timeSpan != null || prioritySpan != null || projectSpan != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(
-                        text = preview,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = scheme.primary,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    )
+                    if (dateSpan != null && parsed.scheduledDate != null) {
+                        EntityChip(
+                            label = parsed.scheduledDate.toString(),
+                            onEdit = {
+                                replaceTarget = dateSpan
+                                showDatePicker = true
+                            },
+                            onRemove = { text = replaceSpan(text, dateSpan, "") },
+                        )
+                    }
+                    if (timeSpan != null && parsed.scheduledTime != null) {
+                        EntityChip(
+                            label = parsed.scheduledTime,
+                            onEdit = {
+                                replaceTarget = timeSpan
+                                showTimePicker = true
+                            },
+                            onRemove = { text = replaceSpan(text, timeSpan, "") },
+                        )
+                    }
+                    if (prioritySpan != null && parsed.priority != null) {
+                        EntityChip(
+                            label = parsed.priority,
+                            onEdit = {
+                                val next = priorityCycle[parsed.priority] ?: "MEDIUM"
+                                text = replaceSpan(text, prioritySpan, priorityToken(next))
+                            },
+                            onRemove = { text = replaceSpan(text, prioritySpan, "") },
+                        )
+                    }
+                    if (projectSpan != null && projectName != null) {
+                        EntityChip(
+                            label = projectName,
+                            onEdit = { text = replaceSpan(text, projectSpan, "") },
+                            onRemove = { text = replaceSpan(text, projectSpan, "") },
+                        )
+                    }
                 }
                 Spacer(Modifier.height(6.dp))
             }
@@ -221,7 +276,28 @@ fun CaptureSheet(
                     text = stringResource(R.string.today_capture_title),
                     style = MaterialTheme.typography.labelMedium,
                     color = scheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
+                TextButton(
+                    onClick = {
+                        try {
+                            voiceLauncher.launch(
+                                Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                    putExtra(
+                                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                                    )
+                                },
+                            )
+                        } catch (_: ActivityNotFoundException) {
+                        }
+                    },
+                    enabled = !creating,
+                ) {
+                    Text(stringResource(R.string.today_capture_voice))
+                }
                 Button(
                     onClick = { onSave(text) },
                     enabled = text.isNotBlank() && !creating,
@@ -252,9 +328,14 @@ fun CaptureSheet(
             OrdoDatePickerDialog(
                 initialDate = parsed.scheduledDate,
                 onDateSelected = { date ->
-                    text = "$text $date".trim()
+                    val target = replaceTarget?.takeIf { it.entity == CaptureEntity.DATE }
+                    text = if (target != null) replaceSpan(text, target, date.toString()) else "$text $date".trim()
+                    replaceTarget = null
                 },
-                onDismiss = { showDatePicker = false },
+                onDismiss = {
+                    showDatePicker = false
+                    replaceTarget = null
+                },
             )
         }
 
@@ -262,10 +343,48 @@ fun CaptureSheet(
             OrdoTimePickerDialog(
                 initialTime = parsed.scheduledTime,
                 onTimeSelected = { time ->
-                    text = "$text $time".trim()
+                    val target = replaceTarget?.takeIf { it.entity == CaptureEntity.TIME }
+                    text = if (target != null) replaceSpan(text, target, time) else "$text $time".trim()
+                    replaceTarget = null
                 },
-                onDismiss = { showTimePicker = false },
+                onDismiss = {
+                    showTimePicker = false
+                    replaceTarget = null
+                },
             )
         }
     }
+}
+
+private val priorityCycle = mapOf(
+    "LOW" to "MEDIUM",
+    "MEDIUM" to "HIGH",
+    "HIGH" to "URGENT",
+    "URGENT" to "LOW",
+)
+
+/** Editable entity chip (S16): tap edits through pickers or priority cycling, X removes. */
+@Composable
+private fun EntityChip(
+    label: String,
+    onEdit: () -> Unit,
+    onRemove: () -> Unit,
+) {
+    InputChip(
+        selected = false,
+        onClick = onEdit,
+        label = { Text(label) },
+        trailingIcon = {
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(32.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.actions_delete),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        },
+    )
 }

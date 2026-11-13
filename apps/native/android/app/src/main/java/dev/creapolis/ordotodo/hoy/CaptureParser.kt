@@ -1,6 +1,15 @@
 package dev.creapolis.ordotodo.hoy
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 
 data class ParsedCapture(
     val title: String,
@@ -71,6 +80,47 @@ private val BANG_END = Regex("(\\S+?)(!{1,2})\\s*\$")
 private val BANG_ALONE = Regex("(?:^|\\s)(!{1,2})(?:\$|\\s)")
 
 private val PRIORITY_OF_P = mapOf("1" to "URGENT", "2" to "HIGH", "3" to "MEDIUM", "4" to "LOW")
+
+private val WEEKDAY_NAMES: Map<String, DayOfWeek> = mapOf(
+    "lunes" to DayOfWeek.MONDAY,
+    "martes" to DayOfWeek.TUESDAY,
+    "miercoles" to DayOfWeek.WEDNESDAY, "miércoles" to DayOfWeek.WEDNESDAY,
+    "jueves" to DayOfWeek.THURSDAY,
+    "viernes" to DayOfWeek.FRIDAY,
+    "sabado" to DayOfWeek.SATURDAY, "sábado" to DayOfWeek.SATURDAY,
+    "domingo" to DayOfWeek.SUNDAY,
+    "monday" to DayOfWeek.MONDAY,
+    "tuesday" to DayOfWeek.TUESDAY,
+    "wednesday" to DayOfWeek.WEDNESDAY,
+    "thursday" to DayOfWeek.THURSDAY,
+    "friday" to DayOfWeek.FRIDAY,
+    "saturday" to DayOfWeek.SATURDAY,
+    "sunday" to DayOfWeek.SUNDAY,
+    "segunda" to DayOfWeek.MONDAY, "segunda-feira" to DayOfWeek.MONDAY,
+    "terca" to DayOfWeek.TUESDAY, "terça" to DayOfWeek.TUESDAY,
+    "terca-feira" to DayOfWeek.TUESDAY, "terça-feira" to DayOfWeek.TUESDAY,
+    "quarta" to DayOfWeek.WEDNESDAY, "quarta-feira" to DayOfWeek.WEDNESDAY,
+    "quinta" to DayOfWeek.THURSDAY, "quinta-feira" to DayOfWeek.THURSDAY,
+    "sexta" to DayOfWeek.FRIDAY, "sexta-feira" to DayOfWeek.FRIDAY,
+)
+private val WEEKDAY_ALT = WEEKDAY_NAMES.keys.sortedByDescending { it.length }.joinToString("|")
+
+/**
+ * Weekday with optional ES/EN/PT prefix. `próximo/next` = the day after this
+ * Sunday (strict next week); `el/este/cada/...` or bare = next occurrence
+ * including today. `cada/every/toda` only resolves the date — recurrence is
+ * set in the detail screen, the create endpoint carries no recurrence.
+ */
+private val WEEKDAY_RE = Regex(
+    "(?<![\\p{L}\\p{N}_])(?:(pr[óo]ximo|pr[óo]xima|next)\\s+|(cada|every|toda|todo)\\s+|(el|del|este|esta|this)\\s+)?($WEEKDAY_ALT)(?![\\p{L}\\p{N}_])",
+    RegexOption.IGNORE_CASE,
+)
+
+/** Relative hours: "en 2 horas", "in 2 hours", "em 2 horas", "en una hora". */
+private val HOUR_OFFSET_RE = Regex(
+    "(?<![\\p{L}\\p{N}_])(?:en|in|em)\\s+(\\d{1,2}|una|un|one|uma|um)\\s+(?:horas?|hours?)(?![\\p{L}\\p{N}_])",
+    RegexOption.IGNORE_CASE,
+)
 
 private val PROJECT_TAG = Regex("(?:^|\\s)#([A-Za-z0-9_-]+)")
 
@@ -162,9 +212,22 @@ private fun findDate(text: String, today: LocalDate): DateHit? {
         namedDate(day, MONTHS[m.groupValues[1].lowercase()], m.groupValues[3].toIntOrNull(), today)
             ?.let { cands += DateHit(m.range.first, m.range.last + 1, it) }
     }
+    cands += weekdayCands(lower, today)
     // First marker in the string wins; invalid dates contribute no candidate.
     return cands.minByOrNull { it.start }
 }
+
+private fun weekdayCands(lower: String, today: LocalDate): List<DateHit> =
+    WEEKDAY_RE.findAll(lower).mapNotNull { m ->
+        val dow = WEEKDAY_NAMES[m.groupValues[4]] ?: return@mapNotNull null
+        val date = if (m.groupValues[1].isNotEmpty()) {
+            // "próximo X" / "next X": the X after this Sunday (strict next week).
+            today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(TemporalAdjusters.next(dow))
+        } else {
+            today.with(TemporalAdjusters.nextOrSame(dow))
+        }
+        DateHit(m.range.first, m.range.last + 1, date)
+    }.toList()
 
 private data class TimeHit(val start: Int, val end: Int, val time: String)
 
@@ -192,10 +255,50 @@ private fun findTime(text: String): TimeHit? {
     return hits.minByOrNull { it.start }
 }
 
-private fun cut(text: String, start: Int, end: Int, stripPrep: Boolean = false): String {
-    val pre = text.substring(0, start)
-    val from = if (stripPrep) TIME_PREP.find(pre)?.range?.first ?: start else start
-    return (text.substring(0, from) + " " + text.substring(end)).replace(Regex("\\s+"), " ")
+/** Entities of the raw capture text the parser understood (S16 highlight + chips). */
+enum class CaptureEntity { DATE, TIME, PRIORITY, PROJECT }
+
+/** Range of the raw input the parser consumed as [entity]; UI coordinates. */
+data class CaptureSpan(val start: Int, val end: Int, val entity: CaptureEntity)
+
+/** Token that re-emits a priority through the text parser (chip cycling). */
+fun priorityToken(priority: String): String = when (priority) {
+    "URGENT" -> "p1"
+    "HIGH" -> "p2"
+    "MEDIUM" -> "p3"
+    else -> "p4"
+}
+
+/**
+ * Replaces (or removes, with a blank [replacement]) the consumed [span] inside [raw].
+ * Replacements are ISO dates, HH:mm times or p-tokens, so the result re-parses cleanly.
+ */
+fun replaceSpan(raw: String, span: CaptureSpan, replacement: String): String =
+    (raw.substring(0, span.start) + " " + replacement + " " + raw.substring(span.end))
+        .replace(Regex("\\s+"), " ").trim()
+
+/** Tracks raw-text coordinates across sequential cuts so spans stay UI-accurate. */
+private class Cutter(raw: String) {
+    var text: String = raw
+    private val origin: MutableList<Int> = raw.indices.toMutableList()
+
+    /**
+     * Cuts `[start, end)` (plus a leading time preposition when [stripPrep]),
+     * returning the range in raw coordinates. Whitespace is collapsed only once,
+     * when the title is computed, so recorded spans keep pointing at the input.
+     */
+    fun cut(start: Int, end: Int, stripPrep: Boolean = false): IntRange {
+        var from = start
+        if (stripPrep) {
+            TIME_PREP.find(text.substring(0, start))?.let { from = it.range.first }
+        }
+        val rawStart = origin[from]
+        val rawEnd = origin[end - 1] + 1
+        text = text.substring(0, from) + " " + text.substring(end)
+        repeat(end - from) { origin.removeAt(from) }
+        origin.add(from, rawStart)
+        return rawStart until rawEnd
+    }
 }
 
 private fun findAllProjects(text: String): List<ProjectHit> =
@@ -220,18 +323,87 @@ fun parseTimeText(text: String): String? {
     return findTime(text)?.time
 }
 
-fun parseCapture(raw: String, today: LocalDate = LocalDate.now()): ParsedCapture {
-    var text = raw
+fun parseCaptureWithSpans(
+    raw: String,
+    today: LocalDate = LocalDate.now(),
+    now: LocalTime = LocalTime.now(),
+): Pair<ParsedCapture, List<CaptureSpan>> {
+    val cutter = Cutter(raw)
+    val spans = mutableListOf<CaptureSpan>()
     // Project tags first: an explicit `#p1` names a project, it is not priority P1.
     // Every tag is cut (last one wins the hint) so none leaks into the title.
-    val projectHits = findAllProjects(text)
+    val projectHits = findAllProjects(cutter.text)
     val project = projectHits.maxByOrNull { it.start }?.hint
     for (hit in projectHits.sortedByDescending { it.start }) {
-        text = cut(text, hit.start, hit.end)
+        val r = cutter.cut(hit.start, hit.end)
+        spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.PROJECT)
     }
-    val priority = findPriority(text)?.also { text = cut(text, it.start, it.end) }?.priority
-    val date = findDate(text, today)?.also { text = cut(text, it.start, it.end) }?.date
-    val time = findTime(text)?.also { text = cut(text, it.start, it.end, stripPrep = true) }?.time
-    val title = text.replace(Regex("\\s+"), " ").trim().trimEnd(',', ';', ':')
-    return ParsedCapture(title, date, time, priority, projectHint = project)
+    val priority = findPriority(cutter.text)?.let {
+        val r = cutter.cut(it.start, it.end)
+        spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.PRIORITY)
+        it.priority
+    }
+    var date = findDate(cutter.text, today)?.let {
+        val r = cutter.cut(it.start, it.end)
+        spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.DATE)
+        it.date
+    }
+    var time = findTime(cutter.text)?.let {
+        val r = cutter.cut(it.start, it.end, stripPrep = true)
+        spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.TIME)
+        it.time
+    }
+    if (time == null) {
+        HOUR_OFFSET_RE.find(cutter.text.lowercase())?.let { m ->
+            val hours = m.groupValues[1].toIntOrNull() ?: 1
+            val target = today.atTime(now).plusHours(hours.toLong())
+            time = "%02d:%02d".format(target.hour, target.minute)
+            val r = cutter.cut(m.range.first, m.range.last + 1)
+            spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.TIME)
+            if (date == null && target.toLocalDate() != today) {
+                date = target.toLocalDate()
+                spans += CaptureSpan(r.first, r.last + 1, CaptureEntity.DATE)
+            }
+        }
+    }
+    val title = cutter.text.replace(Regex("\\s+"), " ").trim().trimEnd(',', ';', ':')
+    return ParsedCapture(title, date, time, priority, projectHint = project) to spans.sortedBy { it.start }
 }
+
+fun parseCapture(
+    raw: String,
+    today: LocalDate = LocalDate.now(),
+    now: LocalTime = LocalTime.now(),
+): ParsedCapture = parseCaptureWithSpans(raw, today, now).first
+
+fun captureSpans(
+    raw: String,
+    today: LocalDate = LocalDate.now(),
+    now: LocalTime = LocalTime.now(),
+): List<CaptureSpan> = parseCaptureWithSpans(raw, today, now).second
+
+/**
+ * Live highlight for the capture field (S16). Styles the consumed ranges
+ * in place; the transformed text is always exactly as long as the input —
+ * appending entity text again crashes `CoreTextField` (offset validation).
+ * JVM-tested for the length invariant.
+ */
+fun highlightCapture(
+    spans: List<CaptureSpan>,
+    background: Color,
+    foreground: Color,
+): VisualTransformation =
+    VisualTransformation { input ->
+        TransformedText(
+            buildAnnotatedString {
+                append(input.text)
+                val understood = SpanStyle(background = background, color = foreground)
+                for (span in spans) {
+                    if (span.start < input.length && span.end <= input.length && span.start < span.end) {
+                        addStyle(understood, span.start, span.end)
+                    }
+                }
+            },
+            OffsetMapping.Identity,
+        )
+    }
