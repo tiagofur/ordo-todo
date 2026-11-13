@@ -5,13 +5,23 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,6 +45,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,6 +74,8 @@ import dev.creapolis.ordotodo.reminders.HabitReminders
 import dev.creapolis.ordotodo.reminders.TaskReminders
 import dev.creapolis.ordotodo.widget.refreshOrdoWidget
 import dev.creapolis.ordotodo.hoy.TaskDetailScreen
+import dev.creapolis.ordotodo.settings.AppSettings
+import dev.creapolis.ordotodo.settings.SettingsLogic
 import dev.creapolis.ordotodo.settings.SettingsScreen
 import dev.creapolis.ordotodo.tasks.TasksScreen
 import dev.creapolis.ordotodo.tasks.TasksViewModel
@@ -97,17 +111,29 @@ class MainActivity : ComponentActivity() {
         val focusStore = FocusStore.from(applicationContext)
         val focusNotifs = FocusNotifications(applicationContext)
         val focusAlarms = FocusAlarms(applicationContext)
+        val appSettings = AppSettings.from(applicationContext)
 
-        launchIntents.value = intent
+        // Seed external intents (tile, shortcut, share, widget) only on a fresh
+        // start: getIntent() returns the ORIGINAL intent after a config change
+        // (rotation, font scale), and re-seeding would reopen capture and drop
+        // the typed text. ViewModels survive recreation, so nothing is lost.
+        if (savedInstanceState == null) launchIntents.value = intent
         setContent {
             // Pre-051 builds stored tokens in plaintext; seal them once (ODD 051 S3).
             LaunchedEffect(session) { session.migrateLegacy() }
-            OrdoTheme {
+            val themeMode by appSettings.themeMode.collectAsStateWithLifecycle(
+                initialValue = SettingsLogic.THEME_SYSTEM,
+            )
+            val dynamicColor by appSettings.dynamicColor.collectAsStateWithLifecycle(initialValue = false)
+            OrdoTheme(
+                darkTheme = SettingsLogic.resolveDarkTheme(themeMode, isSystemInDarkTheme()),
+                dynamicColor = dynamicColor,
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    OrdoRoot(session, auth, tasks, habits, day, timers, focusStore, focusNotifs, focusAlarms, launchIntents)
+                    OrdoRoot(session, auth, tasks, habits, day, timers, focusStore, focusNotifs, focusAlarms, launchIntents, appSettings)
                 }
             }
         }
@@ -136,6 +162,7 @@ private fun OrdoRoot(
     focusNotifs: FocusNotifications,
     focusAlarms: FocusAlarms,
     launchIntents: MutableStateFlow<Intent?>,
+    settings: AppSettings,
 ) {
     val tokens by session.tokens.collectAsStateWithLifecycle(initialValue = null)
     var ready by remember { mutableStateOf(false) }
@@ -149,7 +176,8 @@ private fun OrdoRoot(
     }
     if (tokens != null) {
         val appContext = LocalContext.current.applicationContext
-        val hoy: HoyViewModel = viewModel(factory = factory { HoyViewModel(tasks, habits, day, session) })
+        val hoy: HoyViewModel =
+            viewModel(factory = factory { HoyViewModel(tasks, habits, day, session, settings = settings) })
         val focus: FocusViewModel =
             viewModel(
                 factory =
@@ -160,7 +188,7 @@ private fun OrdoRoot(
         val taskList: TasksViewModel =
             viewModel(factory = factory { TasksViewModel(tasks, session, day) { hoy.refresh() } })
         SideEffect { hoy.onQueueChanged = taskList::reloadQuietly }
-        OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session, launchIntents = launchIntents)
+        OrdoNav(hoy = hoy, focus = focus, taskList = taskList, session = session, launchIntents = launchIntents, settings = settings, timers = timers)
     } else {
         val login: AuthViewModel = viewModel(factory = factory { AuthViewModel(auth) })
         AuthScreen(login)
@@ -187,19 +215,22 @@ private fun OrdoNav(
     taskList: TasksViewModel,
     session: SessionStore,
     launchIntents: MutableStateFlow<Intent?>,
+    settings: AppSettings,
+    timers: TimerRepository,
 ) {
     var tab by remember { mutableStateOf(OrdoTab.HOY) }
     val context = LocalContext.current
     val dayState by hoy.state.collectAsStateWithLifecycle()
     val habitsUi by hoy.habitsState.collectAsStateWithLifecycle()
+    val reminderLead by settings.reminderLeadMinutes.collectAsStateWithLifecycle(initialValue = 0)
     // Push the cached snapshot to the Glance widget and rebuild the
     // reminder alarms on every fresh load.
-    LaunchedEffect(dayState, habitsUi) {
+    LaunchedEffect(dayState, habitsUi, reminderLead) {
         val app = context.applicationContext
         if (dayState is HoyUiState.Content) {
             refreshOrdoWidget(context)
             val allTasks = (dayState as HoyUiState.Content).sections.flatMap { it.tasks }
-            TaskReminders(app).rescheduleAll(allTasks)
+            TaskReminders(app).rescheduleAll(allTasks, reminderLead)
         }
         if (habitsUi.canScheduleReminders) HabitReminders(app).rescheduleAll(habitsUi.habits)
     }
@@ -265,7 +296,7 @@ private fun OrdoNav(
                         )
                     }
                 }
-                OrdoContent(tab, hoy, focus, taskList, session, Modifier.weight(1f))
+                OrdoContent(tab, hoy, focus, taskList, session, settings, timers, Modifier.weight(1f))
             }
         } else {
             Scaffold(
@@ -282,7 +313,7 @@ private fun OrdoNav(
                     }
                 },
             ) { inner ->
-                OrdoContent(tab, hoy, focus, taskList, session, Modifier.fillMaxSize().padding(inner))
+                OrdoContent(tab, hoy, focus, taskList, session, settings, timers, Modifier.fillMaxSize().padding(inner))
             }
         }
         val open = detail
@@ -333,60 +364,50 @@ private fun OrdoContent(
     focus: FocusViewModel,
     taskList: TasksViewModel,
     session: SessionStore,
+    settings: AppSettings,
+    timers: TimerRepository,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier) {
-        when (tab) {
+    val scope = rememberCoroutineScope()
+    AnimatedContent(
+        targetState = tab,
+        transitionSpec = { fadeIn() togetherWith fadeOut() },
+        modifier = modifier,
+        label = "TabContentAnimation",
+    ) { currentTab ->
+        when (currentTab) {
             OrdoTab.HOY -> HoyScreen(hoy, focus)
             OrdoTab.TAREAS -> TasksScreen(taskList, hoy)
             OrdoTab.HABITOS -> HabitsScreen(hoy)
-            OrdoTab.AJUSTES -> SettingsScreen(session)
+            OrdoTab.AJUSTES ->
+                SettingsScreen(
+                    session = session,
+                    settings = settings,
+                    timers = timers,
+                    onPomodoroSaved = { scope.launch { focus.loadConfig() } },
+                )
         }
     }
 }
 
 /**
- * Geometric destination marks drawn with one rounded stroke: ring for
- * the day, check for tasks, stations for habits, sliders for settings.
+ * Material 3 destination icons (S20): Hoy = día, Tareas = check,
+ * Hábitos = check-in con racha (nunca Refresh: eso promete sincronizar),
+ * Ajustes = tuercas. La firma Ordo por área vive en el contenido
+ * (DayRing violeta, estaciones esmeralda, bloques azules); la barra
+ * queda 100% M3 con sus colores por defecto accesibles.
  */
 @Composable
 private fun NavIcon(tab: OrdoTab) {
-    val color = androidx.compose.material3.LocalContentColor.current
-    Canvas(Modifier.size(24.dp)) {
-        val stroke = Stroke(width = 2 * density, cap = StrokeCap.Round)
-        val w = size.width
-        val h = size.height
-        when (tab) {
-            OrdoTab.HOY -> {
-                drawCircle(color, radius = (w / 2 - 2 * density), style = stroke)
-            }
-            OrdoTab.TAREAS -> {
-                drawRoundRect(
-                    color,
-                    topLeft = Offset(2 * density, 2 * density),
-                    size = androidx.compose.ui.geometry.Size(w - 4 * density, h - 4 * density),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(5 * density, 5 * density),
-                    style = stroke,
-                )
-                val x0 = w * 0.30f
-                val y0 = h * 0.52f
-                drawLine(color, Offset(x0, y0), Offset(w * 0.45f, h * 0.66f), strokeWidth = stroke.width, cap = StrokeCap.Round)
-                drawLine(color, Offset(w * 0.45f, h * 0.66f), Offset(w * 0.70f, h * 0.36f), strokeWidth = stroke.width, cap = StrokeCap.Round)
-            }
-            OrdoTab.HABITOS -> {
-                drawLine(color, Offset(3 * density, h / 2), Offset(w - 3 * density, h / 2), strokeWidth = stroke.width, cap = StrokeCap.Round)
-                for (fx in listOf(0.25f, 0.5f, 0.75f)) {
-                    drawCircle(color, radius = 2.6f * density, center = Offset(w * fx, h / 2))
-                }
-            }
-            OrdoTab.AJUSTES -> {
-                for ((i, fy) in listOf(0.32f, 0.68f).withIndex()) {
-                    val y = h * fy
-                    drawLine(color, Offset(3 * density, y), Offset(w - 3 * density, y), strokeWidth = stroke.width, cap = StrokeCap.Round)
-                    val kx = if (i == 0) w * 0.62f else w * 0.38f
-                    drawCircle(color, radius = 3.4f * density, center = Offset(kx, y))
-                }
-            }
-        }
+    val icon = when (tab) {
+        OrdoTab.HOY -> Icons.Default.DateRange
+        OrdoTab.TAREAS -> Icons.Default.Check
+        OrdoTab.HABITOS -> Icons.Default.CheckCircle
+        OrdoTab.AJUSTES -> Icons.Default.Settings
     }
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.size(24.dp),
+    )
 }

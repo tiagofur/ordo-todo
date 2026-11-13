@@ -9,12 +9,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -23,7 +30,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,7 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.creapolis.ordotodo.R
 import dev.creapolis.ordotodo.hoy.HoyViewModel
@@ -64,6 +73,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     val errorText = stringResource(R.string.auth_error_network)
     val pendingSyncText = stringResource(R.string.today_pending_sync)
     var filter by remember { mutableStateOf(TasksFilter.UPCOMING) }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     LaunchedEffect(tasksViewModel) {
         tasksViewModel.events.collect { snack ->
@@ -79,9 +89,20 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.tasks_title)) })
+            MediumTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.tasks_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                scrollBehavior = scrollBehavior,
+            )
         },
     ) { inner ->
         Column(Modifier.fillMaxSize().padding(inner).padding(horizontal = 16.dp)) {
@@ -89,6 +110,25 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
                 value = query,
                 onValueChange = tasksViewModel::setQuery,
                 placeholder = { Text(stringResource(R.string.tasks_search_hint)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { tasksViewModel.setQuery("") }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                },
+                shape = CircleShape,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -147,12 +187,12 @@ fun TasksScreen(tasksViewModel: TasksViewModel, hoyViewModel: HoyViewModel) {
                                 current.sections.filter { it.kind == TasksSectionKind.UNDATED }
                             TasksFilter.PROJECTS -> current.sections
                         }
-PullToRefreshBox(
+                    PullToRefreshBox(
                         isRefreshing = refreshing,
                         onRefresh = tasksViewModel::pullToRefresh,
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                                            LazyColumn(
+                        LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
