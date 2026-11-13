@@ -263,4 +263,16 @@ class TaskDetailTest {
         assertNull(parseTimeText("xyz"))
         assertNull(parseTimeText(""))
     }
+
+    @Test
+    fun subtaskProgressPercentIsDoneOverTotal() {
+        assertEquals(0, subtaskProgressPercent(0, 4))
+        assertEquals(50, subtaskProgressPercent(1, 2))
+        assertEquals(100, subtaskProgressPercent(3, 3))
+    }
+
+    @Test
+    fun subtaskProgressPercentIsEmptyWithoutTotal() {
+        assertEquals(0, subtaskProgressPercent(0, 0))
+    }
 }

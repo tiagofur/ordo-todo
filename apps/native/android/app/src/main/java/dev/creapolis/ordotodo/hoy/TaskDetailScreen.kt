@@ -30,7 +30,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -279,7 +282,7 @@ private fun DetailForm(
             .padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        // Fluid, borderless title field
+        // Fluid, borderless title field (S20: sin tarjetas anidadas)
         TextField(
             value = state.title,
             onValueChange = { text -> onEdit { it.copy(title = text) } },
@@ -436,6 +439,12 @@ private fun SectionCard(title: String, content: @Composable () -> Unit) {
     }
 }
 
+/**
+ * Porcentaje entero de subtareas completadas (0–100); sin total no hay progreso.
+ */
+internal fun subtaskProgressPercent(done: Int, total: Int): Int =
+    if (total <= 0) 0 else (done * 100 / total)
+
 @Composable
 private fun SubtasksSection(
     subtasks: List<SubtaskItem>,
@@ -444,7 +453,33 @@ private fun SubtasksSection(
     onDelete: (String) -> Unit,
 ) {
     var newTitle by remember { mutableStateOf("") }
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    val doneCount = subtasks.count { it.isDone }
+    val totalCount = subtasks.size
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (totalCount > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.detail_subtask_progress, doneCount, totalCount),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "${subtaskProgressPercent(doneCount, totalCount)}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            LinearProgressIndicator(
+                progress = { doneCount.toFloat() / totalCount.toFloat() },
+                modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+            )
+        }
         if (subtasks.isEmpty()) {
             Text(
                 text = stringResource(R.string.detail_subtask_empty),

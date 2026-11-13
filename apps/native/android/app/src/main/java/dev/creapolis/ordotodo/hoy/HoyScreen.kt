@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -45,9 +47,12 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
@@ -62,6 +67,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,7 +110,6 @@ import dev.creapolis.ordotodo.ritual.RitualStreak
 import dev.creapolis.ordotodo.ui.theme.OrdoNumerals
 import dev.creapolis.ordotodo.ui.theme.OrdoSectionColors
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 internal data class AgendaGroup(
@@ -169,6 +174,7 @@ internal fun resolveHabitStations(habit: HabitToday, today: LocalDate = LocalDat
  * Grouped sectional containers with woven habits, 7-station emerald streak lines,
  * time-block rows with blue calendar bar, and bottom-anchored `inverseSurface` FocusMiniPlayer.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val state by viewModel.state.collectAsState()
@@ -185,8 +191,10 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
     val updatedText = stringResource(R.string.detail_updated)
     val errorText = stringResource(R.string.auth_error_network)
     val addLabel = stringResource(R.string.actions_add_task)
-    var showSheet by remember { mutableStateOf(false) }
-    var capturePrefill by remember { mutableStateOf("") }
+    // Saveable: rotation must neither reopen a phantom sheet (the request flow
+    // is one-shot and already consumed) nor drop an open one with typed text.
+    var showSheet by rememberSaveable { mutableStateOf(false) }
+    var capturePrefill by rememberSaveable { mutableStateOf("") }
     val creating by viewModel.creating.collectAsState()
     val projects by viewModel.projects.collectAsState()
     val detail by viewModel.detail.collectAsState()
@@ -295,17 +303,46 @@ fun HoyScreen(viewModel: HoyViewModel, focusViewModel: FocusViewModel) {
         }
     }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val systemLocale = LocalContext.current.resources.configuration.locales.get(0)
+    val dateSubtitle = remember(systemLocale) {
+        formatDaySubtitle(LocalDate.now(), systemLocale)
+    }
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            MediumTopAppBar(
+                title = {
+                    Column {
+                        Text(
+                            text = stringResource(R.string.tabs_today),
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                        Text(
+                            text = dateSubtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                actions = {
+                    (state as? HoyUiState.Content)?.let { content ->
+                        DayRing(done = content.done, total = content.total)
+                        Spacer(Modifier.width(12.dp))
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
         floatingActionButton = {
             if (state is HoyUiState.Content && detail == null && focusState == null) {
                 ExtendedFloatingActionButton(
                     text = { Text(addLabel) },
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     onClick = { showSheet = true },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         },
@@ -503,14 +540,6 @@ private fun DayList(
     onStartRitual: () -> Unit = {},
     onSkipRitual: () -> Unit = {},
 ) {
-    val locale = Locale.getDefault()
-    val dateLine =
-        remember(locale) {
-            LocalDate.now()
-                .format(DateTimeFormatter.ofPattern("EEEE d MMM", locale))
-                .replace(".", "")
-                .uppercase(locale)
-        }
     val hasTriageCard = content.overdueTasks.isNotEmpty()
     val agendaGroups =
         remember(content.sections, habits, hasTriageCard) {
@@ -519,60 +548,8 @@ private fun DayList(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(bottom = if (focusBarVisible) 96.dp else 88.dp),
+        contentPadding = PaddingValues(top = 8.dp, bottom = if (focusBarVisible) 96.dp else 88.dp),
     ) {
-        // Header (.nav in lista-del-dia.html)
-        item(key = "hoy_header") {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 10.dp),
-            ) {
-                Text(
-                    text = dateLine,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.5.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(2.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.tabs_today),
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = (-0.5).sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        DayRing(done = content.done, total = content.total)
-                        Surface(
-                            onClick = onAddClick,
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(36.dp),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = stringResource(R.string.actions_add_task),
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         // Only show ritual banner when an active morning/evening ritual awaits action
         if (activeRitualPhase != RitualPhase.NONE) {
             item(key = "ritual_banner") {
@@ -808,6 +785,7 @@ internal fun HabitRow(
     grouped: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
     val done = habit.doneToday
     val streakCount = if (habit.currentStreak > 0) habit.currentStreak else if (done) 1 else 0
     val streakLabel = pluralStringResource(R.plurals.habits_streak, streakCount, streakCount)
@@ -821,14 +799,20 @@ internal fun HabitRow(
                 .padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HabitCheckDot(done = done, onToggle = { onToggle(habit.id) })
+            HabitCheckDot(done = done, onToggle = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                onToggle(habit.id)
+            })
             Spacer(Modifier.width(12.dp))
             Column(
                 Modifier
                     .weight(1f)
                     .clickable(
                         onClickLabel = stringResource(R.string.habits_edit_title),
-                        onClick = { onOpen(habit) },
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onOpen(habit)
+                        },
                     ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
@@ -954,6 +938,7 @@ internal fun TaskRow(
     grouped: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
     val openLabel = stringResource(R.string.detail_open)
     val completeLabel = stringResource(if (task.isDone) R.string.actions_undo else R.string.actions_complete)
@@ -971,10 +956,12 @@ internal fun TaskRow(
             confirmValueChange = { value ->
                 when (value) {
                     SwipeToDismissBoxValue.StartToEnd -> {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onToggle(task.id)
                         false
                     }
                     SwipeToDismissBoxValue.EndToStart -> {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onRescheduleTomorrow(task)
                         false
                     }
@@ -1099,7 +1086,10 @@ internal fun TaskRow(
                                 ),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            CheckDot(done = task.isDone, onToggle = { onToggle(task.id) })
+                            CheckDot(done = task.isDone, onToggle = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onToggle(task.id)
+                            })
                             Spacer(Modifier.width(12.dp))
                             Column(
                                 Modifier
@@ -1107,8 +1097,14 @@ internal fun TaskRow(
                                     .combinedClickable(
                                         role = Role.Button,
                                         onClickLabel = openLabel,
-                                        onClick = { onOpen(task) },
-                                        onLongClick = { showMenu = true },
+                                        onClick = {
+                                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                            onOpen(task)
+                                        },
+                                        onLongClick = {
+                                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            showMenu = true
+                                        },
                                     ),
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
