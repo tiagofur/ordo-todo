@@ -1,0 +1,1119 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+		1A2B3C4D5E6F708190A1B201 = {
+			isa = PBXProject;
+			buildConfigurationList = 1A2B3C4D5E6F708190A1B240;
+			compatibilityVersion = "Xcode 16.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				es,
+				pt,
+			);
+			mainGroup = 1A2B3C4D5E6F708190A1B202;
+			productRefGroup = 1A2B3C4D5E6F708190A1B203;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1A2B3C4D5E6F708190A1B210,
+				1A2B3C4D5E6F708190A1BE200,
+				2B3C4D5E6F708190A1B00350,
+			);
+		};
+		1A2B3C4D5E6F708190A1B202 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1B204,
+				1A2B3C4D5E6F708190A1BE215,
+				1A2B3C4D5E6F708190A1B203,
+				2B3C4D5E6F708190A1B00340,
+			);
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B203 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1B220,
+				1A2B3C4D5E6F708190A1BE206,
+				2B3C4D5E6F708190A1B00345,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B204 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1B221,
+				1A2B3C4D5E6F708190A1B222,
+				1A2B3C4D5E6F708190A1B330,
+				1A2B3C4D5E6F708190A1B205,
+				1A2B3C4D5E6F708190A1B206,
+				2B3C4D5E6F708190A1B00368,
+			);
+			path = OrdoTodo;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B205 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1B223,
+				1A2B3C4D5E6F708190A1B224,
+				1A2B3C4D5E6F708190A1B22D,
+				1A2B3C4D5E6F708190A1B320,
+				1A2B3C4D5E6F708190A1B321,
+				1A2B3C4D5E6F708190A1B322,
+				1A2B3C4D5E6F708190A1B333,
+				2B3C4D5E6F708190A1B00346,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B206 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1B225,
+				1A2B3C4D5E6F708190A1B226,
+				1A2B3C4D5E6F708190A1B227,
+				1A2B3C4D5E6F708190A1B228,
+				1A2B3C4D5E6F708190A1B229,
+				1A2B3C4D5E6F708190A1B22A,
+				1A2B3C4D5E6F708190A1B22B,
+				1A2B3C4D5E6F708190A1B22C,
+				1A2B3C4D5E6F708190A1B22E,
+				1A2B3C4D5E6F708190A1B22F,
+				1A2B3C4D5E6F708190A1B230,
+				1A2B3C4D5E6F708190A1B304,
+				1A2B3C4D5E6F708190A1B305,
+				1A2B3C4D5E6F708190A1B306,
+				1A2B3C4D5E6F708190A1B30A,
+				1A2B3C4D5E6F708190A1B30B,
+				1A2B3C4D5E6F708190A1B30C,
+				1A2B3C4D5E6F708190A1B310,
+				1A2B3C4D5E6F708190A1B311,
+				1A2B3C4D5E6F708190A1B312,
+				1A2B3C4D5E6F708190A1B313,
+				1A2B3C4D5E6F708190A1B314,
+				1A2B3C4D5E6F708190A1B31A,
+				1A2B3C4D5E6F708190A1B326,
+				1A2B3C4D5E6F708190A1B327,
+				1A2B3C4D5E6F708190A1B328,
+				1A2B3C4D5E6F708190A1B335,
+				2B3C4D5E6F708190A1B00347,
+				2B3C4D5E6F708190A1B00348,
+				2B3C4D5E6F708190A1B00349,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B210 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A2B3C4D5E6F708190A1B241;
+			buildPhases = (
+				1A2B3C4D5E6F708190A1B211,
+				1A2B3C4D5E6F708190A1B212,
+				1A2B3C4D5E6F708190A1B213,
+				1A2B3C4D5E6F708190A1BE230,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A2B3C4D5E6F708190A1BE232,
+				2B3C4D5E6F708190A1B00363,
+			);
+			name = OrdoTodo;
+			packageProductDependencies = (
+			);
+			productName = OrdoTodo;
+			productReference = 1A2B3C4D5E6F708190A1B220;
+			productType = "com.apple.product-type.application";
+		};
+		1A2B3C4D5E6F708190A1B211 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F708190A1B231,
+				1A2B3C4D5E6F708190A1B232,
+				1A2B3C4D5E6F708190A1B233,
+				1A2B3C4D5E6F708190A1B234,
+				1A2B3C4D5E6F708190A1B235,
+				1A2B3C4D5E6F708190A1B236,
+				1A2B3C4D5E6F708190A1B237,
+				1A2B3C4D5E6F708190A1B238,
+				1A2B3C4D5E6F708190A1B239,
+				1A2B3C4D5E6F708190A1B23A,
+				1A2B3C4D5E6F708190A1B23B,
+				1A2B3C4D5E6F708190A1B23C,
+				1A2B3C4D5E6F708190A1B300,
+				1A2B3C4D5E6F708190A1B301,
+				1A2B3C4D5E6F708190A1B302,
+				1A2B3C4D5E6F708190A1B303,
+				1A2B3C4D5E6F708190A1B323,
+				1A2B3C4D5E6F708190A1B324,
+				1A2B3C4D5E6F708190A1B325,
+				1A2B3C4D5E6F708190A1B334,
+				1A2B3C4D5E6F708190A1B336,
+				1A2B3C4D5E6F708190A1B307,
+				1A2B3C4D5E6F708190A1B308,
+				1A2B3C4D5E6F708190A1B309,
+				1A2B3C4D5E6F708190A1B30D,
+				1A2B3C4D5E6F708190A1B30E,
+				1A2B3C4D5E6F708190A1B30F,
+				1A2B3C4D5E6F708190A1B315,
+				1A2B3C4D5E6F708190A1B316,
+				1A2B3C4D5E6F708190A1B317,
+				1A2B3C4D5E6F708190A1B318,
+				1A2B3C4D5E6F708190A1B319,
+				1A2B3C4D5E6F708190A1B31B,
+				1A2B3C4D5E6F708190A1B329,
+				1A2B3C4D5E6F708190A1B32A,
+				1A2B3C4D5E6F708190A1B32B,
+				1A2B3C4D5E6F708190A1BE234,
+				1A2B3C4D5E6F708190A1BE235,
+				2B3C4D5E6F708190A1B00357,
+				2B3C4D5E6F708190A1B00358,
+				2B3C4D5E6F708190A1B00359,
+				2B3C4D5E6F708190A1B00360,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1B212 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1B213 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F708190A1B331,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1B220 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			path = OrdoTodo.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A2B3C4D5E6F708190A1B221 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = OrdoTodoApp.swift;
+			sourceTree = "<group>";
+		};
+
+		2B3C4D5E6F708190A1B00368 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B330 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.json.xcstrings;
+			path = Localizable.xcstrings;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B222 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ContentView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B223 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ApiClient.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B224 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SessionStore.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B225 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TodayView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B226 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = LibraryViews.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B227 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DayModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B228 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HoyViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B229 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TasksModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22A = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TasksViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TaskRow.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TasksView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22D = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = OrdoTheme.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B320 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AppSettings.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B321 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Outbox.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B322 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Notifications.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B333 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DayCache.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22E = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AuthViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B22F = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AuthView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B230 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SettingsView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B304 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HabitsModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B305 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HabitsViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B306 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HabitsView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B30A = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B30B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B30C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B310 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CaptureModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B311 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CaptureSheet.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B312 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TaskDetailModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B313 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TaskDetailViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B314 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TaskDetailView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B31A = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SearchTabView.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE200 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A2B3C4D5E6F708190A1BE240;
+			buildPhases = (
+				1A2B3C4D5E6F708190A1BE201,
+				1A2B3C4D5E6F708190A1BE202,
+				1A2B3C4D5E6F708190A1BE203,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OrdoWidget;
+			packageProductDependencies = (
+			);
+			productName = OrdoWidget;
+			productReference = 1A2B3C4D5E6F708190A1BE206;
+			productType = "com.apple.product-type.app-extension";
+		};
+		1A2B3C4D5E6F708190A1BE201 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F708190A1BE210,
+				1A2B3C4D5E6F708190A1BE211,
+				1A2B3C4D5E6F708190A1BE212,
+				1A2B3C4D5E6F708190A1BE213,
+				1A2B3C4D5E6F708190A1BE214,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1BE202 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1BE203 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F708190A1B332,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1BE206 = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = OrdoWidget.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A2B3C4D5E6F708190A1BE210 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE220;
+		};
+		1A2B3C4D5E6F708190A1BE211 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE221;
+		};
+		1A2B3C4D5E6F708190A1BE212 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE222;
+		};
+		1A2B3C4D5E6F708190A1BE213 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE223;
+		};
+		1A2B3C4D5E6F708190A1BE214 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE224;
+		};
+		1A2B3C4D5E6F708190A1BE215 = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F708190A1BE220,
+				1A2B3C4D5E6F708190A1BE221,
+				1A2B3C4D5E6F708190A1BE222,
+				1A2B3C4D5E6F708190A1BE223,
+				1A2B3C4D5E6F708190A1BE224,
+				1A2B3C4D5E6F708190A1BE225,
+			);
+			path = OrdoWidget;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE220 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = OrdoWidget.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE221 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TodayWidget.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE222 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusActivity.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE223 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SharedSnapshot.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE224 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusLiveActivity.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE225 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1BE230 = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1A2B3C4D5E6F708190A1BE231,
+				2B3C4D5E6F708190A1B00362,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F708190A1BE231 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE206;
+			settings = { ATTRIBUTES = (RemoveHeadersOnCopy, ); };
+		};
+		1A2B3C4D5E6F708190A1BE232 = {
+			isa = PBXTargetDependency;
+			target = 1A2B3C4D5E6F708190A1BE200;
+			targetProxy = 1A2B3C4D5E6F708190A1BE233;
+		};
+		1A2B3C4D5E6F708190A1BE233 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2B3C4D5E6F708190A1B201;
+			proxyType = 1;
+			remoteGlobalIDString = 1A2B3C4D5E6F708190A1BE200;
+			remoteInfo = OrdoWidget;
+		};
+		1A2B3C4D5E6F708190A1BE234 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE222;
+		};
+		1A2B3C4D5E6F708190A1BE235 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1BE223;
+		};
+		1A2B3C4D5E6F708190A1BE240 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A2B3C4D5E6F708190A1BE241,
+				1A2B3C4D5E6F708190A1BE242,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+			owner = 1A2B3C4D5E6F708190A1BE200;
+		};
+		1A2B3C4D5E6F708190A1BE241 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoWidget/OrdoWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F708190A1BE242 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoWidget/OrdoWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1A2B3C4D5E6F708190A1B326 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = RitualModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B327 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = RitualViewModel.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B328 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = RitualSheets.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B231 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B221;
+		};
+		1A2B3C4D5E6F708190A1B232 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B222;
+		};
+		1A2B3C4D5E6F708190A1B233 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B223;
+		};
+		1A2B3C4D5E6F708190A1B234 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B225;
+		};
+		1A2B3C4D5E6F708190A1B235 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B224;
+		};
+		1A2B3C4D5E6F708190A1B331 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B330;
+		};
+		1A2B3C4D5E6F708190A1B334 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B333;
+		};
+		1A2B3C4D5E6F708190A1B335 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AiModels.swift;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F708190A1B336 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B335;
+		};
+		1A2B3C4D5E6F708190A1B332 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B330;
+		};
+		1A2B3C4D5E6F708190A1B236 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B226;
+		};
+		1A2B3C4D5E6F708190A1B237 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B227;
+		};
+		1A2B3C4D5E6F708190A1B238 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B228;
+		};
+		1A2B3C4D5E6F708190A1B239 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B229;
+		};
+		1A2B3C4D5E6F708190A1B23A = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22A;
+		};
+		1A2B3C4D5E6F708190A1B23B = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22B;
+		};
+		1A2B3C4D5E6F708190A1B23C = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22C;
+		};
+		1A2B3C4D5E6F708190A1B300 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22D;
+		};
+		1A2B3C4D5E6F708190A1B323 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B320;
+		};
+		1A2B3C4D5E6F708190A1B324 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B321;
+		};
+		1A2B3C4D5E6F708190A1B325 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B322;
+		};
+		1A2B3C4D5E6F708190A1B301 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22E;
+		};
+		1A2B3C4D5E6F708190A1B302 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B22F;
+		};
+		1A2B3C4D5E6F708190A1B303 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B230;
+		};
+		1A2B3C4D5E6F708190A1B307 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B304;
+		};
+		1A2B3C4D5E6F708190A1B308 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B305;
+		};
+		1A2B3C4D5E6F708190A1B309 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B306;
+		};
+		1A2B3C4D5E6F708190A1B30D = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B30A;
+		};
+		1A2B3C4D5E6F708190A1B30E = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B30B;
+		};
+		1A2B3C4D5E6F708190A1B30F = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B30C;
+		};
+		1A2B3C4D5E6F708190A1B315 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B310;
+		};
+		1A2B3C4D5E6F708190A1B316 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B311;
+		};
+		1A2B3C4D5E6F708190A1B317 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B312;
+		};
+		1A2B3C4D5E6F708190A1B318 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B313;
+		};
+		1A2B3C4D5E6F708190A1B319 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B314;
+		};
+		1A2B3C4D5E6F708190A1B31B = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B31A;
+		};
+		1A2B3C4D5E6F708190A1B329 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B326;
+		};
+		1A2B3C4D5E6F708190A1B32A = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B327;
+		};
+		1A2B3C4D5E6F708190A1B32B = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B328;
+		};
+		1A2B3C4D5E6F708190A1B240 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A2B3C4D5E6F708190A1B242,
+				1A2B3C4D5E6F708190A1B243,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+			owner = 1A2B3C4D5E6F708190A1B201;
+		};
+		1A2B3C4D5E6F708190A1B241 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A2B3C4D5E6F708190A1B244,
+				1A2B3C4D5E6F708190A1B245,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+			owner = 1A2B3C4D5E6F708190A1B210;
+		};
+		1A2B3C4D5E6F708190A1B242 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F708190A1B243 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1A2B3C4D5E6F708190A1B244 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoTodo/OrdoTodo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoTodo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo;
+				PRODUCT_NAME = OrdoTodo;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F708190A1B245 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoTodo/OrdoTodo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoTodo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo;
+				PRODUCT_NAME = OrdoTodo;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2B3C4D5E6F708190A1B00340 = {
+			isa = PBXGroup;
+			children = (
+				2B3C4D5E6F708190A1B00341,
+				2B3C4D5E6F708190A1B00342,
+				2B3C4D5E6F708190A1B00343,
+				2B3C4D5E6F708190A1B00344,
+			);
+			path = OrdoShare;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00341 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ShareViewController.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00342 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ShareExtractor.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00343 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00344 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = OrdoShare.entitlements;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00345 = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = OrdoShare.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2B3C4D5E6F708190A1B00346 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SharedInbox.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00347 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AppIntents.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00348 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ControlWidgets.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00349 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DeepLinks.swift;
+			sourceTree = "<group>";
+		};
+		2B3C4D5E6F708190A1B00350 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B3C4D5E6F708190A1B00365;
+			buildPhases = (
+				2B3C4D5E6F708190A1B00351,
+				2B3C4D5E6F708190A1B00352,
+				2B3C4D5E6F708190A1B00353,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OrdoShare;
+			packageProductDependencies = (
+			);
+			productName = OrdoShare;
+			productReference = 2B3C4D5E6F708190A1B00345;
+			productType = "com.apple.product-type.app-extension";
+		};
+		2B3C4D5E6F708190A1B00351 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3C4D5E6F708190A1B00354,
+				2B3C4D5E6F708190A1B00355,
+				2B3C4D5E6F708190A1B00356,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3C4D5E6F708190A1B00352 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3C4D5E6F708190A1B00353 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3C4D5E6F708190A1B00361,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3C4D5E6F708190A1B00354 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00341;
+		};
+		2B3C4D5E6F708190A1B00355 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00342;
+		};
+		2B3C4D5E6F708190A1B00356 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00346;
+		};
+		2B3C4D5E6F708190A1B00357 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00346;
+		};
+		2B3C4D5E6F708190A1B00358 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00347;
+		};
+		2B3C4D5E6F708190A1B00359 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00348;
+		};
+		2B3C4D5E6F708190A1B00360 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00349;
+		};
+		2B3C4D5E6F708190A1B00361 = {
+			isa = PBXBuildFile;
+			fileRef = 1A2B3C4D5E6F708190A1B330;
+		};
+		2B3C4D5E6F708190A1B00362 = {
+			isa = PBXBuildFile;
+			fileRef = 2B3C4D5E6F708190A1B00345;
+			settings = { ATTRIBUTES = (RemoveHeadersOnCopy, ); };
+		};
+		2B3C4D5E6F708190A1B00363 = {
+			isa = PBXTargetDependency;
+			target = 2B3C4D5E6F708190A1B00350;
+			targetProxy = 2B3C4D5E6F708190A1B00364;
+		};
+		2B3C4D5E6F708190A1B00364 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2B3C4D5E6F708190A1B201;
+			proxyType = 1;
+			remoteGlobalIDString = 2B3C4D5E6F708190A1B00350;
+			remoteInfo = OrdoShare;
+		};
+		2B3C4D5E6F708190A1B00365 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B3C4D5E6F708190A1B00366,
+				2B3C4D5E6F708190A1B00367,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+			owner = 2B3C4D5E6F708190A1B00350;
+		};
+		2B3C4D5E6F708190A1B00366 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoShare/OrdoShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo.share;
+				PRODUCT_NAME = OrdoShare;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2B3C4D5E6F708190A1B00367 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = OrdoShare/OrdoShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OrdoShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.creapolis.ordotodo.share;
+				PRODUCT_NAME = OrdoShare;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+	};
+	rootObject = 1A2B3C4D5E6F708190A1B201;
+}
