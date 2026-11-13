@@ -39,6 +39,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -85,6 +86,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -1296,49 +1298,20 @@ private fun ProjectDot(hex: String) {
 }
 
 /**
- * Crisp 20.dp task check control (.ck / .ck.on in lista-del-dia.html):
- * 2.dp violet border when unchecked; filled violet with crisp white checkmark when completed.
+ * Task check control (ODD 050: Android speaks M3, so the task row uses the
+ * system `Checkbox` — rounded square — while the hand-drawn circle lives
+ * only in the shared habit-station signature and on iOS).
  */
 @Composable
 internal fun CheckDot(done: Boolean, onToggle: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    val activeColor = scheme.primary
-    val borderColor = scheme.primary.copy(alpha = 0.4f)
-    val checkColor = scheme.onPrimary
     val description =
         stringResource(if (done) R.string.actions_undo else R.string.actions_complete)
 
-    Box(
-        modifier = Modifier
-            .size(28.dp)
-            .clip(CircleShape)
-            .clickable(role = Role.Checkbox, onClickLabel = description, onClick = onToggle),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(Modifier.size(20.dp)) {
-            val strokeW = 2.dp.toPx()
-            val r = (size.minDimension - strokeW) / 2f
-            if (done) {
-                drawCircle(color = activeColor, radius = size.minDimension / 2f)
-                val path = Path().apply {
-                    moveTo(size.width * 0.28f, size.height * 0.52f)
-                    lineTo(size.width * 0.44f, size.height * 0.68f)
-                    lineTo(size.width * 0.74f, size.height * 0.34f)
-                }
-                drawPath(
-                    path = path,
-                    color = checkColor,
-                    style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
-                )
-            } else {
-                drawCircle(
-                    color = borderColor,
-                    radius = r,
-                    style = Stroke(width = strokeW),
-                )
-            }
-        }
-    }
+    Checkbox(
+        checked = done,
+        onCheckedChange = { onToggle() },
+        modifier = Modifier.semantics { contentDescription = description },
+    )
 }
 
 /**
