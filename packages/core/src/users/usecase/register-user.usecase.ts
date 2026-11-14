@@ -3,7 +3,7 @@ import CryptoProvider from "../provider/crypto.provider";
 import { UseCase } from "../../shared/use-case";
 import UserRepository from "../provider/user.repository";
 
-import { UserAlreadyExistsError } from "../../shared/errors";
+import { UserAlreadyExistsError, DomainError } from "../../shared/errors";
 
 type Input = {
   name: string;
@@ -15,8 +15,8 @@ type Input = {
 export default class RegisterUser implements UseCase<Input, void> {
   constructor(
     private readonly repo: UserRepository,
-    private readonly crypto: CryptoProvider
-  ) { }
+    private readonly crypto: CryptoProvider,
+  ) {}
 
   async execute(user: Input): Promise<void> {
     const existingUser = await this.repo.findByEmail(user.email);
@@ -32,15 +32,21 @@ export default class RegisterUser implements UseCase<Input, void> {
     }
 
     if (!user.password) {
-      throw new Error("Senha é obrigatória");
+      throw new DomainError("Senha é obrigatória", "INVALID_PASSWORD");
     }
 
     if (!user.username || user.username.length < 3) {
-      throw new Error("Nome de usuário deve ter pelo menos 3 caracteres");
+      throw new DomainError(
+        "Nome de usuário deve ter pelo menos 3 caracteres",
+        "INVALID_USERNAME",
+      );
     }
 
     if (user.name?.length < 3) {
-      throw new Error("Nome deve ter pelo menos 3 caracteres");
+      throw new DomainError(
+        "Nome deve ter pelo menos 3 caracteres",
+        "INVALID_NAME",
+      );
     }
 
     const hashedPassword = await this.crypto.encrypt(user.password!);

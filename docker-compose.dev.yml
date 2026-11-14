@@ -71,6 +71,13 @@ services:
       target: development
     container_name: ordo-backend-dev
     restart: unless-stopped
+    # ODD 052: aplicar migraciones pendientes antes de arrancar. El stack dev
+    # no tiene otro mecanismo y la DB quedó 3 semanas sin migrar (drift que
+    # rompió /users/me/profile y las escrituras). Fail-closed: si una migración
+    # falla, el backend no arranca (mismo contrato que producción).
+    command: >
+      sh -c "npm run db:deploy -w @ordo-todo/db &&
+             npm run dev --workspace=@ordo-todo/backend"
     environment:
       NODE_ENV: development
       PORT: 3101

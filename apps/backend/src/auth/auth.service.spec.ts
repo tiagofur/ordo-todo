@@ -184,6 +184,28 @@ describe('AuthService', () => {
       name: 'Test User',
     };
 
+    it('nombre de una palabra devuelve 400, no 500 (hallazgo ODD 052)', async () => {
+      // PersonName exige nombre + apellido; antes del fix ese Error de
+      // dominio escapaba sin mapear y Nest lo convertía en 500.
+      await expect(
+        service.register({ ...registerDto, name: 'Diag' }),
+      ).rejects.toMatchObject({
+        status: 400,
+        response: expect.objectContaining({ code: 'INVALID_NAME' }),
+      });
+    });
+
+    it('nombre de menos de 3 caracteres devuelve 400, no 500 (P2 revisión #527)', async () => {
+      // El guard del RegisterUser usecase ("Nome deve ter pelo menos 3
+      // caracteres") corría ANTES que PersonName y lanzaba un Error plano.
+      await expect(
+        service.register({ ...registerDto, name: 'Al' }),
+      ).rejects.toMatchObject({
+        status: 400,
+        response: expect.objectContaining({ code: 'INVALID_NAME' }),
+      });
+    });
+
     const validHash =
       '$2b$10$epRnT3MmKDDW.4Q6D9m9euO059y/qJ0k/1Zq6e4D2xY4oZ7hU8P32';
 

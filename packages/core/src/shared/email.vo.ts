@@ -1,4 +1,5 @@
 import { ValueObject } from "./value-object";
+import { DomainError } from "./errors";
 
 export class Email implements ValueObject<Email, string> {
   private readonly _value: string;
@@ -15,32 +16,37 @@ export class Email implements ValueObject<Email, string> {
 
   private static validate(email: string): void {
     if (!email || typeof email !== "string") {
-      throw new Error("O email não pode estar vazio");
+      throw new DomainError("O email não pode estar vazio", "INVALID_EMAIL");
     }
 
     if (email.length > 254) {
-      throw new Error("O email deve ter no máximo 254 caracteres");
+      throw new DomainError(
+        "O email deve ter no máximo 254 caracteres",
+        "INVALID_EMAIL",
+      );
     }
 
     const emailRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-\u00A0-\uFFFF]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
 
     if (!emailRegex.test(email)) {
-      throw new Error("O formato do email é inválido");
+      throw new DomainError("O formato do email é inválido", "INVALID_EMAIL");
     }
 
     const [localPart, domainPart] = email.split("@");
 
     if (localPart && localPart.includes("..")) {
-      throw new Error(
-        "O email não pode conter pontos consecutivos na parte local"
+      throw new DomainError(
+        "O email não pode conter pontos consecutivos na parte local",
+        "INVALID_EMAIL",
       );
     }
 
     // Verificar se não começa ou termina com ponto na parte local
     if (localPart && (localPart.startsWith(".") || localPart.endsWith("."))) {
-      throw new Error(
-        "O email não pode começar ou terminar com ponto na parte local"
+      throw new DomainError(
+        "O email não pode começar ou terminar com ponto na parte local",
+        "INVALID_EMAIL",
       );
     }
   }
