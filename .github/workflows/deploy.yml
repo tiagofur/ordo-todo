@@ -78,6 +78,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ordo_todo_test
 
+      # NOTA (ODD 052): estos `|| true` NO son como el `|| echo` de migraciones
+      # (eliminado arriba). Aquí enmascaran deuda pre-existente real — lint con
+      # ~errores históricos en backend y TS errors en el workspace desktop —
+      # que haría fallar cada deploy. Quitarlos solo cuando esa deuda se pague.
       - name: Lint
         run: npm run lint --workspaces --if-present || true
 
