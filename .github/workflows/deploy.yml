@@ -71,7 +71,9 @@ jobs:
         working-directory: packages/db
 
       - name: Run Prisma migrations
-        run: npx prisma migrate deploy --schema=prisma/schema.prisma || echo "No migrations to apply"
+        # Sin `|| echo`: una migración rota debe fallar el job, no pasar en
+        # silencio (hallazgo ODD 052 — el drift de dev pasó inadvertido así).
+        run: npx prisma migrate deploy --schema=prisma/schema.prisma
         working-directory: packages/db
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ordo_todo_test

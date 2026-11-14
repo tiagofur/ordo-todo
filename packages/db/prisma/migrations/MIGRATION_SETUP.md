@@ -115,3 +115,24 @@ Regla del repo: migraciones NUEVAS se escriben A MANO (carpeta con fecha + nombr
 kebab, sin `prisma migrate dev`), y se validan con replay en una base desechable:
 `DATABASE_URL=...ordo_scratch npx prisma migrate deploy` + drop de la base.
 `prisma migrate deploy` (lo que usa CI y los e2e) es seguro: aplica la historia tal cual.
+
+## Entorno dev (docker-compose.dev.yml)
+
+Desde el hallazgo ODD 052 (13-nov-2026) el contenedor `backend` ejecuta
+`npm run db:deploy -w @ordo-todo/db` ANTES de arrancar Nest, así que
+`docker compose -f docker-compose.dev.yml up -d` deja la DB al día solito
+(fail-closed: si una migración falla, el backend no arranca).
+
+La montura de `packages/db/prisma` en `/docker-entrypoint-initdb.d` del
+Postgres NO aplica migraciones (solo corre scripts top-level en la primera
+init del volumen). Verificación manual del estado, desde el host:
+
+```bash
+DATABASE_URL=postgresql://ordo:ordo_dev_2024@localhost:5434/ordo_todo \
+  npx prisma migrate status --schema=packages/db/prisma/schema.prisma
+```
+
+Cuidado con correr `migrate status`/`deploy` "donde caiga": solo la carpeta
+`packages/db/prisma` del repo tiene la historia real (durante el E2E de ODD 052
+un status corrido con otra carpeta reportó "up to date" con 4 migraciones
+pendientes — la DB dev quedó 3 semanas sin migrar y nadie lo notó).

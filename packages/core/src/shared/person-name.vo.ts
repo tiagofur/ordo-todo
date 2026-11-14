@@ -1,4 +1,5 @@
 import { ValueObject } from "./value-object";
+import { DomainError } from "./errors";
 
 export class PersonName implements ValueObject<PersonName, string> {
   private readonly _value: string;
@@ -14,24 +15,34 @@ export class PersonName implements ValueObject<PersonName, string> {
 
   private static validate(name: string): void {
     if (!name || typeof name !== "string") {
-      throw new Error("O nome é obrigatório e deve ser uma string");
+      throw new DomainError(
+        "O nome é obrigatório e deve ser uma string",
+        "INVALID_NAME",
+      );
     }
 
     const trimmedName = name.trim();
 
     if (trimmedName.length < 3) {
-      throw new Error("O nome deve ter pelo menos 3 caracteres");
+      throw new DomainError(
+        "O nome deve ter pelo menos 3 caracteres",
+        "INVALID_NAME",
+      );
     }
 
     if (trimmedName.length > 120) {
-      throw new Error("O nome deve ter no máximo 120 caracteres");
+      throw new DomainError(
+        "O nome deve ter no máximo 120 caracteres",
+        "INVALID_NAME",
+      );
     }
 
     const validNameRegex =
       /^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\s'-]+$/;
     if (!validNameRegex.test(trimmedName)) {
-      throw new Error(
-        "O nome contém caracteres inválidos. Apenas letras, espaços, apóstrofes e hífens são permitidos"
+      throw new DomainError(
+        "O nome contém caracteres inválidos. Apenas letras, espaços, apóstrofes e hífens são permitidos",
+        "INVALID_NAME",
       );
     }
 
@@ -39,17 +50,24 @@ export class PersonName implements ValueObject<PersonName, string> {
       .split(/\s+/)
       .filter((part) => part.length > 0);
     if (nameParts.length < 2) {
-      throw new Error("O nome deve conter pelo menos um nome e um sobrenome");
+      throw new DomainError(
+        "O nome deve conter pelo menos um nome e um sobrenome",
+        "INVALID_NAME",
+      );
     }
 
     if (/\s{2,}/.test(trimmedName)) {
-      throw new Error("O nome não pode conter espaços múltiplos consecutivos");
+      throw new DomainError(
+        "O nome não pode conter espaços múltiplos consecutivos",
+        "INVALID_NAME",
+      );
     }
 
     // Validar se não começa ou termina com caracteres especiais
     if (/^[-'\s]|[-'\s]$/.test(trimmedName)) {
-      throw new Error(
-        "O nome não pode começar ou terminar com espaços, hífens ou apóstrofes"
+      throw new DomainError(
+        "O nome não pode começar ou terminar com espaços, hífens ou apóstrofes",
+        "INVALID_NAME",
       );
     }
   }

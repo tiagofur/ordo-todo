@@ -127,6 +127,18 @@ export class AuthService {
       ) {
         throw new ConflictException(error.message);
       }
+      // ODD 052: los errores de validación del dominio (p. ej. PersonName
+      // exige nombre + apellido) deben llegar como 400 legible, no como 500.
+      if (error instanceof DomainError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            code: error.code,
+            message: error.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       throw error;
     }
 
